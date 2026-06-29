@@ -1,0 +1,246 @@
+{
+  "seed": 20260627,
+  "n": 40,
+  "muestras": [
+    {
+      "ncm": "5515.11.00.413X",
+      "partida": "5515",
+      "producto": "De fibras discontinuas de poliester:, Mezcladas exclusiva o principalmente con fibras discontinuas de rayón viscosa, Estampados, De ligamento tafetán, De densidad superior a 37 hilos por cm2 pero inferior o igual a 45 hilos por cm2",
+      "descripcion_ncm": "De densidad superior a 37 hilos por cm2 pero inferior o igual a 45 hilos por cm2"
+    },
+    {
+      "ncm": "0806.20.00.111C",
+      "partida": "0806",
+      "producto": "UVAS, FRESCAS O SECAS, INCLUIDAS LAS PASAS., Secas, incluidas las pasas, En envases inmediatos de contenido neto inferior o igual a 2,5 Kg (Dec.PEN 509/07 Anexo III), Pasas, Rubias con semillas",
+      "descripcion_ncm": "Rubias con semillas"
+    },
+    {
+      "ncm": "4010.32.00.310R",
+      "partida": "4010",
+      "producto": "CORREAS TRANSPORTADORAS O DE TRANSMISION, DE CAUCHO VULCANIZADO., Correas de transmisión:, Correas de transmisión sin fin, sin estriar, de sección trapezoidal, de circunferencia exterior superior a 60 cm pero inferior o igual a 180 cm, Múltiples, unidas entre sí por una banda superior, De seccion B",
+      "descripcion_ncm": "De seccion B"
+    },
+    {
+      "ncm": "9503.00.10.914M",
+      "partida": "9503",
+      "producto": "TRICICLOS, PATINETES, COCHES DE PEDAL Y JUGUETES SIMILARES CON RUEDAS; COCHES Y SILLAS DE RUEDAS PARA MUÑECAS O MUÑECOS; MUÑECAS O MUÑECOS; LOS DEMÁS JUGUETES; MODELOS REDUCIDOS Y MODELOS SIMILARES, PARA ENTRETENIMIENTO, INCLUSO ANIMADOS; ROMPECABEZAS DE CUALQUIER CLASE., Triciclos, patinetes, coches de pedal y juguete",
+      "descripcion_ncm": "Carrocerías"
+    },
+    {
+      "ncm": "2934.91.31.000N",
+      "partida": "2934",
+      "producto": "ÁCIDOS NUCLEICOS Y SUS SALES, AUNQUE NO SEAN DE CONSTITUCIÓN QUÍMICA DEFINIDA; LOS DEMÁS COMPUESTOS HETEROCÍCLICOS., Aminorex (DCI), brotizolam (DCI), clotiazepam (DCI), cloxazolam (DCI), dextromoramida (DCI), fendimetrazina (DCI), fenmetrazina (DCI), haloxazolam (DCI), ketazolam (DCI), mesocarb (DCI), oxazolam (DCI), ",
+      "descripcion_ncm": "Fendimetrazina y sus sales"
+    },
+    {
+      "ncm": "4412.31.00.157K",
+      "partida": "4412",
+      "producto": "MADERA CONTRACHAPADA, MADERA CHAPADA Y MADERA ESTRATIFICADA SIMILAR., Que tengan, por lo menos, una hoja externa de maderas tropicales, De Pau Marfim (Guatambú), De espesor superior o igual a 9 mm pero inferior a 14 mm, De espesor superior o igual a 12 mm., de primera calidad (calidades A y B, según Norma IRAM 9506)",
+      "descripcion_ncm": "De espesor superior o igual a 12 mm., de primera calidad (calidades A y B, según Norma IRAM 9506)"
+    },
+    {
+      "ncm": "3827.61.00.100B",
+      "partida": "3827",
+      "producto": "MEZCLAS QUE CONTENGAN DERIVADOS HALOGENADOS DE METANO, ETANO O PROPANO, NO EXPRESADAS NI COMPRENDIDAS EN OTRA PARTE, Que contengan los demás hidrofluorocarburos (HFC), pero que no contengan clorofluorocarburos (CFC) o hidroclorofluorocarburos (HCFC):, Con un contenido de 1,1,1-trifluoroetano (HFC-143a), superior o igua",
+      "descripcion_ncm": "Que contengan difluorometano (HFC-32) y pentafluoroetano (HFC-125)"
+    },
+    {
+      "ncm": "6302.22.00.110V",
+      "partida": "6302",
+      "producto": "ROPA DE CAMA, MESA, TOCADOR O COCINA., De fibras sinteticas o artificiales, Sábanas, incluso en juegos o surtidos, De 2 plazas",
+      "descripcion_ncm": "De 2 plazas"
+    },
+    {
+      "ncm": "9403.70.00.230E",
+      "partida": "9403",
+      "producto": "Muebles de plástico, Mesas, Mesas de luz, de los tipos utilizados por pacientes hospitalarios durante su internación",
+      "descripcion_ncm": "Mesas de luz, de los tipos utilizados por pacientes hospitalarios durante su internación"
+    },
+    {
+      "ncm": "1209.23.00.100H",
+      "partida": "1209",
+      "producto": "SEMILLAS, FRUTOS Y ESPORAS, PARA SIEMBRA., Semillas forrajeras:, De festucas, Alta (Festuca arundinacea)",
+      "descripcion_ncm": "Alta (Festuca arundinacea)"
+    },
+    {
+      "ncm": "6103.42.00.210J",
+      "partida": "6103",
+      "producto": "TRAJES (AMBOS O TERNOS), CONJUNTOS, CHAQUETAS (SACOS), PANTALONES LARGOS, PANTALONES CON PETO, PANTALONES CORTOS (CALZONES) Y SHORTS (EXCEPTO DE BAÑO), DE PUNTO, PARA HOMBRES O NIÑOS., Pantalones largos, pantalones con peto, pantalones cortos (calzones) y shorts:, De algodón, Pantalones cortos y shorts, sin peto, De ta",
+      "descripcion_ncm": "De talle superior al 16 o sus equivalentes"
+    },
+    {
+      "ncm": "5407.69.00.222N",
+      "partida": "5407",
+      "producto": "TEJIDOS DE HILADOS DE FILAMENTOS SINTETICOS, INCLUIDOS LOS TEJIDOS FABRICADOS CON LOS PRODUCTOS DE LA PARTIDA 54.04., Teñidos:, De ligamento sarga, incluido el cruzado, de curso inferior o igual a 4, De densidad superior a 30 hilos por cm2 pero inferior o igual a 50 hilos por cm2",
+      "descripcion_ncm": "De densidad superior a 30 hilos por cm2 pero inferior o igual a 50 hilos por cm2"
+    },
+    {
+      "ncm": "8502.11.10.100F",
+      "partida": "8502",
+      "producto": "GRUPOS ELECTROGENOS Y CONVERTIDORES ROTATIVOS ELECTRICOS., Grupos electrogenos con motor de embolo (piston) de encendido por compresion (motores diesel o semi- diesel):, De potencia inferior o igual a 75 kVA, De corriente alterna, De potencia inferior o igual a 5 kVA (Res.92/98 SICyM)",
+      "descripcion_ncm": "De potencia inferior o igual a 5 kVA (Res.92/98 SICyM)"
+    },
+    {
+      "ncm": "5301.21.20.000R",
+      "partida": "5301",
+      "producto": "LINO EN BRUTO O TRABAJADO, PERO SIN HILAR; ESTOPAS Y DESPERDICIOS DE LINO (INCLUIDOS LOS DESPERDICIOS DE HILADOS Y LAS HILACHAS)., Lino agramado, espadado, peinado o trabajado de otro modo, pero sin hilar:, Agramado o espadado, Espadado",
+      "descripcion_ncm": "Espadado"
+    },
+    {
+      "ncm": "0103.91.00.191N",
+      "partida": "0103",
+      "producto": "ANIMALES VIVOS DE LA ESPECIE PORCINA., De peso inferior a 50 kg, Puros por cruza (R. 2507/93 ex-ANA), Para reproducción",
+      "descripcion_ncm": "Para reproducción"
+    },
+    {
+      "ncm": "8474.90.00.200C",
+      "partida": "8474",
+      "producto": "MÁQUINAS Y APARATOS DE CLASIFICAR, CRIBAR, SEPARAR, LAVAR, QUEBRANTAR, TRITURAR, PULVERIZAR, MEZCLAR, AMASAR O SOBAR, TIERRA, PIEDRA U OTRA MATERIA MINERAL SÓLIDA (INCLUIDOS EL POLVO Y LA PASTA); MÁQUINAS DE AGLOMERAR, FORMAR O MOLDEAR COMBUSTIBLES MINERALES SÓLIDOS, PASTAS CERÁMICAS, CEMENTO, YESO O DEMÁS MATERIAS MIN",
+      "descripcion_ncm": "De máquinas de la subpartida 8474.20"
+    },
+    {
+      "ncm": "9030.20.10.300V",
+      "partida": "9030",
+      "producto": "OSCILOSCOPIOS, ANALIZADORES DE ESPECTRO Y DEMAS INSTRUMENTOS Y APARATOS PARA MEDIDA O CONTROL DE MAGNITUDES ELECTRICAS; INSTRUMENTOS Y APARATOS PARA MEDIDA O DETECCION DE RADIACIONES ALFA, BETA, GAMMA, X, COSMICAS O DEMAS RADIACIONES IONIZANTES., Osciloscopios y oscilógrafos, Osciloscopios numéricos (digitales), De fre",
+      "descripcion_ncm": "De frecuencia superior a 60 MHz pero inferior o igual a 100 MHz"
+    },
+    {
+      "ncm": "6404.19.00.133W",
+      "partida": "6404",
+      "producto": "CALZADO CON SUELA DE CAUCHO, PLÁSTICO, CUERO NATURAL O REGENERADO Y PARTE SUPERIOR DE MATERIA TEXTIL., Calzado con suela de caucho o plástico:, Pantuflas, chinelas y sandalias tipo ojotas, Sandalias tipo ojotas, presentadas desmontadas o sin montar todavía, Superior al número 34 e inferior o igual al número 40, o sus e",
+      "descripcion_ncm": "Superior al número 34 e inferior o igual al número 40, o sus equivalentes"
+    },
+    {
+      "ncm": "7307.19.10.343C",
+      "partida": "7307",
+      "producto": "ACCESORIOS DE TUBERÍA (POR EJEMPLO: EMPALMES [RACORES], CODOS, MANGUITOS), DE FUNDICIÓN, HIERRO O ACERO., Sin revestir, de diámetro interior inferior a 600 mm, Cuplas, De diámetro interior igual a 87,9 mm (designación 80) según norma IRAM 2548 y equivalentes de otras normas",
+      "descripcion_ncm": "De diámetro interior igual a 87,9 mm (designación 80) según norma IRAM 2548 y equivalentes de otras normas"
+    },
+    {
+      "ncm": "7019.80.00.214J",
+      "partida": "7019",
+      "producto": "FIBRA DE VIDRIO (INCLUIDA LA LANA DE VIDRIO) Y MANUFACTURAS DE ESTA MATERIA (POR EJEMPLO: HILADOS, «ROVINGS», TEJIDOS)., Lana de vidrio y sus manufacturas, Colchones, Aglomerados con resinas fenólicas termoendurecibles, sin revestimiento, De espesor superior o igual a 46 mm pero inferior a 67 mm",
+      "descripcion_ncm": "De espesor superior o igual a 46 mm pero inferior a 67 mm"
+    },
+    {
+      "ncm": "8448.32.30.100C",
+      "partida": "8448",
+      "producto": "MÁQUINAS Y APARATOS AUXILIARES PARA LAS MÁQUINAS DE LAS PARTIDAS 84.44, 84.45, 84.46 U 84.47 (POR EJEMPLO: MAQUINITAS PARA LIZOS, MECANISMOS JACQUARD, PARA URDIMBRES Y PARA TRAMAS, MECANISMOS DE CAMBIO DE LANZADERA); PARTES Y ACCESORIOS IDENTIFICABLES COMO DESTINADOS, EXCLUSIVA O PRINCIPALMENTE, A LAS MÁQUINAS DE ESTA ",
+      "descripcion_ncm": "Accesorios"
+    },
+    {
+      "ncm": "5102.19.00.522X",
+      "partida": "5102",
+      "producto": "PELO FINO U ORDINARIO, SIN CARDAR NI PEINAR., Pelo fino:, De alpaca, Lavado, sin descerdar, De finura superior a 22,5 micrómetros pero inferior o igual a 25 micrómetros",
+      "descripcion_ncm": "De finura superior a 22,5 micrómetros pero inferior o igual a 25 micrómetros"
+    },
+    {
+      "ncm": "6111.90.10.500M",
+      "partida": "6111",
+      "producto": "PRENDAS Y COMPLEMENTOS (ACCESORIOS), DE VESTIR, DE PUNTO, PARA BEBES., De las demás materias textiles, De lana o pelo fino, Enteritos",
+      "descripcion_ncm": "Enteritos"
+    },
+    {
+      "ncm": "8204.11.00.112W",
+      "partida": "8204",
+      "producto": "LLAVES DE AJUSTE DE MANO (INCLUIDAS LAS LLAVES DINAMOMETRICAS); CUBOS (VASOS)* DE AJUSTE INTERCAMBIABLES, INCLUSO CON MANGO., Dinamométrica (torquímetro), De aguja, Con rango de medicion 0-250 Nm (0-25 kgm)",
+      "descripcion_ncm": "Con rango de medicion 0-250 Nm (0-25 kgm)"
+    },
+    {
+      "ncm": "6402.12.00.121T",
+      "partida": "6402",
+      "producto": "Calzado de deporte:, De esquí, Con parte superior de PVC, Inferior o igual al número 34, o sus equivalentes",
+      "descripcion_ncm": "Inferior o igual al número 34, o sus equivalentes"
+    },
+    {
+      "ncm": "1604.13.10.300Y",
+      "partida": "1604",
+      "producto": "PREPARACIONES Y CONSERVAS DE PESCADO; CAVIAR Y SUS SUCEDÁNEOS PREPARADOS CON HUEVAS DE PESCADO., Pescado entero o en trozos, excepto el pescado picado:, Sardinas, sardinelas y espadines, Sardinas, En salsa de tomate",
+      "descripcion_ncm": "En salsa de tomate"
+    },
+    {
+      "ncm": "5407.61.00.125U",
+      "partida": "5407",
+      "producto": "TEJIDOS DE HILADOS DE FILAMENTOS SINTETICOS, INCLUIDOS LOS TEJIDOS FABRICADOS CON LOS PRODUCTOS DE LA PARTIDA 54.04., Con un contenido de filamentos de poliéster sin texturar superior o igual al 85 % en peso, Crudos o blanqueados:, De ligamento sarga, incluido el cruzado, de curso inferior o igual a 4, De densidad supe",
+      "descripcion_ncm": "De densidad superior a 90 hilos por cm2 pero inferior o igual a 110 hilos por cm2"
+    },
+    {
+      "ncm": "2933.53.40.000P",
+      "partida": "2933",
+      "producto": "COMPUESTOS HETEROCÍCLICOS CON HETEROÁTOMO(S) DE NITRÓGENO EXCLUSIVAMENTE., Compuestos cuya estructura contenga un ciclo pirimidina (incluso hidrogenado) o piperazina:, Alobarbital (DCI), amobarbital (DCI), barbital (DCI), butalbital (DCI), butobarbital, ciclobarbital (DCI), fenobarbital (DCI), metilfenobarbital (DCI), ",
+      "descripcion_ncm": "Fenobarbital y sus sales"
+    },
+    {
+      "ncm": "3003.90.78.200Z",
+      "partida": "3003",
+      "producto": "MEDICAMENTOS (EXCEPTO LOS PRODUCTOS DE LAS PARTIDAS 30.02, 30.05 O 30.06) CONSTITUIDOS POR PRODUCTOS MEZCLADOS ENTRE SÍ, PREPARADOS PARA USOS TERAPEUTICOS O PROFILÁCTICOS, SIN DOSIFICAR NI ACONDICIONAR PARA LA VENTA AL POR MENOR., Que contengan productos de la partida 29.33, sin productos de las subpartidas 3003.90.1 a",
+      "descripcion_ncm": "Clorhidrato de erlotinib"
+    },
+    {
+      "ncm": "8544.70.10.130H",
+      "partida": "8544",
+      "producto": "HILOS, CABLES (INCLUIDOS LOS COAXIALES) Y DEMAS CONDUCTORES AISLADOS PARA ELECTRICIDAD, AUNQUE ESTEN LAQUEADOS, ANODIZADOS O PROVISTOS DE PIEZAS DE CONEXION; CABLES DE FIBRAS OPTICAS CONSTITUIDOS POR FIBRAS ENFUNDADAS INDIVIDUALMENTE, INCLUSO CON CONDUCTORES ELECTRICOS INCORPORADOS O PROVISTOS DE PIEZAS DE CONEXION., C",
+      "descripcion_ncm": "De cantidad de fibras ópticas superior a 24 pero inferior o igual a 48"
+    },
+    {
+      "ncm": "2515.11.00.100V",
+      "partida": "2515",
+      "producto": "M²RMOL, TRAVERTINOS, \"ECAUSSINES\" Y DEMÁS PIEDRAS CALIZAS DE TALLA O DE CONSTRUCCIÓN DE DENSIDAD APARENTE SUPERIOR O IGUAL A 2,5, Y ALABASTRO, INCLUSO DESBASTADOS O SIMPLEMENTE TROCEADOS, POR ASERRADO O DE OTRO MODO, EN BLOQUES O EN PLACAS CUADRADAS O RECTANGULARES., M²rmol y travertinos:, En bruto o desbastados, Marmo",
+      "descripcion_ncm": "Marmol en bruto"
+    },
+    {
+      "ncm": "3902.10.20.000F",
+      "partida": "3902",
+      "producto": "POLÍMEROS DE PROPILENO O DE OTRAS OLEFINAS, EN FORMAS PRIMARIAS., Polipropileno, Sin carga",
+      "descripcion_ncm": "Sin carga"
+    },
+    {
+      "ncm": "4011.20.90.622J",
+      "partida": "4011",
+      "producto": "NEUMÁTICOS (LLANTAS NEUMÁTICAS) NUEVOS DE CAUCHO., De los tipos utilizados en autobuses o camiones, Radiales, con diámetro de llanta igual a 571,5 mm (22.5\"), Con ancho seccional igual a 275 mm, Serie 80 (designacion del tamaño 275/80R22.5)",
+      "descripcion_ncm": "Serie 80 (designacion del tamaño 275/80R22.5)"
+    },
+    {
+      "ncm": "8536.90.90.233T",
+      "partida": "8536",
+      "producto": "APARATOS PARA CORTE, SECCIONAMIENTO, PROTECCION, DERIVACION, EMPALME O CONEXION DE CIRCUITOS ELECTRICOS (POR EJEMPLO: INTERRUPTORES, CONMUTADORES, RELES, CORTACIRCUITOS, SUPRESORES DE SOBRETENSION TRANSITORIA, CLAVIJAS Y TOMAS DE CORRIENTE (ENCHUFES), PORTALAMPARAS Y DEMAS CONECTORES, CAJAS DE EMPALME), PARA UNA TENSIO",
+      "descripcion_ncm": "Para conductores eléctricos de sección igual a 4 mm2."
+    },
+    {
+      "ncm": "2103.20.10.210G",
+      "partida": "2103",
+      "producto": "PREPARACIONES PARA SALSAS Y SALSAS PREPARADAS; CONDIMENTOS Y SAZONADORES, COMPUESTOS; HARINA DE MOSTAZA Y MOSTAZA PREPARADA., Kétchup y demás salsas de tomate, En envases inmediatos de contenido inferior o igual a 1 kg, Pomarola, En envases inmediatos de contenido inferior o igual a 500 g",
+      "descripcion_ncm": "En envases inmediatos de contenido inferior o igual a 500 g"
+    },
+    {
+      "ncm": "4001.21.00.000U",
+      "partida": "4001",
+      "producto": "CAUCHO NATURAL, BALATA, GUTAPERCHA, GUAYULE, CHICLE Y GOMAS NATURALES ANÁLOGAS, EN FORMAS PRIMARIAS O EN PLACAS, HOJAS O TIRAS., Caucho natural en otras formas:, Hojas ahumadas",
+      "descripcion_ncm": "--Hojas ahumadas"
+    },
+    {
+      "ncm": "7307.93.00.234C",
+      "partida": "7307",
+      "producto": "ACCESORIOS DE TUBERÍA (POR EJEMPLO: EMPALMES [RACORES], CODOS, MANGUITOS), DE FUNDICIÓN, HIERRO O ACERO., Accesorios para soldar a tope, De acero sin alear, de diámetro exterior superior a 120 mm, Codos de cuarenta y cinco grados (45º) radio largo, según normas IRAM 2607 o normas equivalentes (ASME B16.9 y ASTM A234), ",
+      "descripcion_ncm": "De diámetro exterior igual a 273,1 mm (designación 10) en espesores de 9,3 mm y 12,7 mm"
+    },
+    {
+      "ncm": "4202.11.00.111X",
+      "partida": "4202",
+      "producto": "BAÚLES, MALETAS (VALIJAS), MALETINES, INCLUIDOS LOS DE ASEO Y LOS PORTADOCUMENTOS, PORTAFOLIOS (CARTERAS DE MANO), CARTAPACIOS, FUNDAS Y ESTUCHES PARA GAFAS (ANTEOJOS), BINOCULARES, CÁMARAS FOTOGRÁFICAS O CINEMATOGRÁFICAS, INSTRUMENTOS MUSICALES O ARMAS Y CONTINENTES SIMILARES; SACOS DE VIAJE, SACOS (BOLSAS)* AISLANTES",
+      "descripcion_ncm": "Portafolios"
+    },
+    {
+      "ncm": "5516.14.00.123N",
+      "partida": "5516",
+      "producto": "TEJIDOS DE FIBRAS ARTIFICIALES DISCONTINUAS., De rayón viscosa, De ligamento sarga, incluido el cruzado, de curso inferior o igual a 4, De densidad superior a 37 hilos por cm2 pero inferior o igual a 45 hilos por cm2",
+      "descripcion_ncm": "De densidad superior a 37 hilos por cm2 pero inferior o igual a 45 hilos por cm2"
+    },
+    {
+      "ncm": "3920.99.40.000A",
+      "partida": "3920",
+      "producto": "De los demás plásticos:, De los demás plásticos, De poliimidas.(R.359/99 MEOSP).",
+      "descripcion_ncm": "De poliimidas.(R.359/99 MEOSP)."
+    }
+  ]
+}

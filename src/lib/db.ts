@@ -1,0 +1,237 @@
+import "server-only";
+import Database from "better-sqlite3";
+import { mkdirSync } from "node:fs";
+import path from "node:path";
+import { hashPassword } from "./hash";
+
+/**
+ * Base de datos SQLite local (archivo data/app.db).
+ *
+ * SQLite guarda únicamente usuarios y sesiones (login). Las operaciones y la
+ * documentación de cada cliente se almacenan en parquet dentro de
+ * data/clientes/<id_cliente>/ (ver lib/parquet-store.ts).
+ */
+
+const DATA_DIR = path.join(process.cwd(), "data");
+const DB_PATH = path.join(DATA_DIR, "app.db");
+
+let _db: Database.Database | null = null;
+
+export function getDb(): Database.Database {
+  if (_db) return _db;
+
+  mkdirSync(DATA_DIR, { recursive: true });
+  const db = new Database(DB_PATH);
+  db.pragma("journal_mode = WAL");
+  db.pragma("foreign_keys = ON");
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id            TEXT PRIMARY KEY,
+      username      TEXT UNIQUE,
+      email         TEXT UNIQUE,
+      password_hash TEXT NOT NULL,
+      role          TEXT NOT NULL CHECK (role IN ('admin','client','operador')),
+      company_name  TEXT,
+      person_type   TEXT,
+      cuit          TEXT,
+      iva_condition TEXT,
+      cert_exencion TEXT,
+      carta_garantia TEXT,
+      contact_name  TEXT,
+      phone         TEXT,
+      address       TEXT,
+      created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS sessions (
+      id         TEXT PRIMARY KEY,
+      user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      expires_at TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+
+    CREATE TABLE IF NOT EXISTS participants (
+      id           TEXT PRIMARY KEY,
+      operation_id TEXT NOT NULL,
+      owner_id     TEXT NOT NULL,
+      nombre       TEXT NOT NULL,
+      email        TEXT,
+      rol          TEXT,
+      token        TEXT NOT NULL UNIQUE,
+      created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_participants_op ON participants(operation_id);
+    CREATE INDEX IF NOT EXISTS idx_participants_token ON participants(token);
+
+    CREATE TABLE IF NOT EXISTS participant_messages (
+      id             TEXT PRIMARY KEY,
+      participant_id TEXT NOT NULL,
+      operation_id   TEXT NOT NULL,
+      owner_id       TEXT NOT NULL,
+      origen         TEXT NOT NULL CHECK (origen IN ('estudio','participante')),
+      autor          TEXT,
+      texto          TEXT NOT NULL,
+      leido_estudio  TEXT NOT NULL DEFAULT '0',
+      created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_pmsg_participant ON participant_messages(participant_id);
+    CREATE INDEX IF NOT EXISTS idx_pmsg_operation ON participant_messages(operation_id);
+
+    -- Última vez que el ESTUDIO (equipo) abrió cada operación. Sirve para marcar
+    -- novedades sin ver (documentos / mensajes nuevos) en la lista de operaciones.
+    CREATE TABLE IF NOT EXISTS operation_seen (
+      operation_id TEXT PRIMARY KEY,
+      seen_at      TEXT NOT NULL
+    );
+  `);
+
+  migrate(db);
+  seedAdmin(db);
+
+  _db = db;
+  return db;
+}
+
+function migrate(db: Database.Database) {
+  const cols = db
+    .prepare("PRAGMA table_info(users)")
+    .all() as { name: string }[];
+  const tiene = (n: string) => cols.some((c) => c.name === n);
+  if (!tiene("person_type")) {
+    db.exec("ALTER TABLE users ADD COLUMN person_type TEXT");
+  }
+  // Certificado MiPyME / de exclusión vigente: exime percepciones de IVA y
+  // Ganancias. Dato estable del perfil del cliente (lo usa el cotizador).
+  if (!tiene("cert_exencion")) {
+    db.exec("ALTER TABLE users ADD COLUMN cert_exencion TEXT");
+  }
+  // Carta de garantía del cliente para retirar contenedores. Guarda el TIPO:
+  // 'anual' (vence el 31/12 del año, certificada por escribano) | 'puntual'
+  // (válida por un solo embarque) | 'no' / null (sin carta registrada).
+  if (!tiene("carta_garantia")) {
+    db.exec("ALTER TABLE users ADD COLUMN carta_garantia TEXT");
+  }
+  // Vencimiento de la carta ANUAL (ISO 'YYYY-12-31'). Pasada esa fecha, la carta
+  // queda vencida y hay que renovarla. La puntual no usa este campo.
+  if (!tiene("carta_garantia_vence")) {
+    db.exec("ALTER TABLE users ADD COLUMN carta_garantia_vence TEXT");
+  }
+  // Onboarding / alta de cliente para operar (formulario + aprobación admin).
+  if (!tiene("op_status")) {
+    db.exec("ALTER TABLE users ADD COLUMN op_status TEXT DEFAULT 'none'");
+  }
+  if (!tiene("op_application")) {
+    db.exec("ALTER TABLE users ADD COLUMN op_application TEXT");
+  }
+  if (!tiene("op_rejection_reason")) {
+    db.exec("ALTER TABLE users ADD COLUMN op_rejection_reason TEXT");
+  }
+  if (!tiene("op_meeting_at")) {
+    db.exec("ALTER TABLE users ADD COLUMN op_meeting_at TEXT");
+  }
+  if (!tiene("op_submitted_at")) {
+    db.exec("ALTER TABLE users ADD COLUMN op_submitted_at TEXT");
+  }
+  if (!tiene("op_reviewed_at")) {
+    db.exec("ALTER TABLE users ADD COLUMN op_reviewed_at TEXT");
+  }
+
+  // Rol/función del participante (texto libre que carga quien lo invita).
+  const pCols = db
+    .prepare("PRAGMA table_info(participants)")
+    .all() as { name: string }[];
+  if (!pCols.some((c) => c.name === "rol")) {
+    db.exec("ALTER TABLE participants ADD COLUMN rol TEXT");
+  }
+
+  // Bases viejas tienen el CHECK de role solo con ('admin','client'). Para poder
+  // dar de alta empleados (rol 'operador') hay que reconstruir la tabla.
+  const ddl = db
+    .prepare(
+      "SELECT sql FROM sqlite_master WHERE type='table' AND name='users'",
+    )
+    .get() as { sql: string } | undefined;
+  if (ddl && !ddl.sql.includes("'operador'")) {
+    const cols = [
+      "id",
+      "username",
+      "email",
+      "password_hash",
+      "role",
+      "company_name",
+      "person_type",
+      "cuit",
+      "iva_condition",
+      "cert_exencion",
+      "carta_garantia",
+      "carta_garantia_vence",
+      "contact_name",
+      "phone",
+      "address",
+      "op_status",
+      "op_application",
+      "op_rejection_reason",
+      "op_meeting_at",
+      "op_submitted_at",
+      "op_reviewed_at",
+      "created_at",
+    ].join(", ");
+
+    db.pragma("foreign_keys = OFF");
+    db.transaction(() => {
+      db.exec(`
+        CREATE TABLE users_new (
+          id            TEXT PRIMARY KEY,
+          username      TEXT UNIQUE,
+          email         TEXT UNIQUE,
+          password_hash TEXT NOT NULL,
+          role          TEXT NOT NULL CHECK (role IN ('admin','client','operador')),
+          company_name  TEXT,
+          person_type   TEXT,
+          cuit          TEXT,
+          iva_condition TEXT,
+          cert_exencion TEXT,
+          carta_garantia TEXT,
+          carta_garantia_vence TEXT,
+          contact_name  TEXT,
+          phone         TEXT,
+          address       TEXT,
+          op_status     TEXT DEFAULT 'none',
+          op_application TEXT,
+          op_rejection_reason TEXT,
+          op_meeting_at TEXT,
+          op_submitted_at TEXT,
+          op_reviewed_at TEXT,
+          created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+      `);
+      db.exec(
+        `INSERT INTO users_new (${cols}) SELECT ${cols} FROM users;`,
+      );
+      db.exec("DROP TABLE users;");
+      db.exec("ALTER TABLE users_new RENAME TO users;");
+    })();
+    db.pragma("foreign_keys = ON");
+  }
+}
+
+function seedAdmin(db: Database.Database) {
+  const existe = db
+    .prepare("SELECT id FROM users WHERE username = ?")
+    .get("admin");
+  if (existe) return;
+
+  db.prepare(
+    `INSERT INTO users (id, username, email, password_hash, role, company_name)
+     VALUES (?, ?, NULL, ?, 'admin', 'Estudio de Despachantes')`,
+  ).run(cryptoId(), "admin", hashPassword("admin"));
+}
+
+export function cryptoId(): string {
+  return crypto.randomUUID();
+}

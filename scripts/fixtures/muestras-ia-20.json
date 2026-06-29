@@ -1,0 +1,130 @@
+{
+  "seed": 20260629,
+  "n": 20,
+  "fuente": [
+    "muestras-motor-40.json",
+    "muestras-motor-40-lote2.json"
+  ],
+  "muestras": [
+    {
+      "ncm": "0806.20.00.111C",
+      "partida": "0806",
+      "producto": "Secas, incluidas las pasas, En envases inmediatos de contenido neto inferior o igual a 2,5 Kg (Dec.PEN 509/07 Anexo III), Pasas, Rubias con semillas",
+      "descripcion_ncm": "Rubias con semillas"
+    },
+    {
+      "ncm": "1901.20.90.111N",
+      "partida": "1901",
+      "producto": "Mezclas y pastas para la preparación de productos de panadería, pastelería o galletería, de la partida 19.05, En envases inmediatos de contenido neto inferior o igual a 1 kg, A base de harina de trigo, Pastas en formas solidas (Res. Conj. N° 27/2008 MP y MEyFP)",
+      "descripcion_ncm": "Pastas en formas solidas (Res. Conj. N° 27/2008 MP y MEyFP)"
+    },
+    {
+      "ncm": "2008.50.00.100R",
+      "partida": "2008",
+      "producto": "Damascos (chabacanos, albaricoques)*, En envases inmediatos de contenido neto inferior o igual a 2,5 kg (R.420/99 MEYOSP)",
+      "descripcion_ncm": "En envases inmediatos de contenido neto inferior o igual a 2,5 kg (R.420/99 MEYOSP)"
+    },
+    {
+      "ncm": "2103.20.10.210G",
+      "partida": "2103",
+      "producto": "Kétchup y demás salsas de tomate, En envases inmediatos de contenido inferior o igual a 1 kg, Pomarola, En envases inmediatos de contenido inferior o igual a 500 g",
+      "descripcion_ncm": "En envases inmediatos de contenido inferior o igual a 500 g"
+    },
+    {
+      "ncm": "2515.11.00.100V",
+      "partida": "2515",
+      "producto": "M²rmol y travertinos:, En bruto o desbastados, Marmol en bruto",
+      "descripcion_ncm": "Marmol en bruto"
+    },
+    {
+      "ncm": "2901.24.10.000F",
+      "partida": "2901",
+      "producto": "No saturados:, Buta-1,3-dieno e isopreno, Buta-1,3-dieno",
+      "descripcion_ncm": "Buta-1,3-dieno"
+    },
+    {
+      "ncm": "3815.12.20.100E",
+      "partida": "3815",
+      "producto": "Catalizadores sobre soporte:, Con metal precioso o sus compuestos como sustancia activa, Con tamaño de partícula inferior a 500 micrómetros (micras, micrones)*, Con platino o sus compuestos como sustancia activa",
+      "descripcion_ncm": "Con platino o sus compuestos como sustancia activa"
+    },
+    {
+      "ncm": "4009.31.00.200R",
+      "partida": "4009",
+      "producto": "Reforzados o combinados de otro modo solamente con materia textil:, Sin accesorios, Combinado con material textil (poliamida), de los tipos utilizados en aparatos de aire acondicionado",
+      "descripcion_ncm": "Combinado con material textil (poliamida), de los tipos utilizados en aparatos de aire acondicionado"
+    },
+    {
+      "ncm": "4011.10.00.822T",
+      "partida": "4011",
+      "producto": "les de turismo (incluidos los del tipo familiar(\"break\" o \"station wagon\")y los de carreras), Radiales, con diametro de llanta superior a 406.4 mm (16') pero inferior o igual a 558.8 mm (22\") y ancho seccional inferior o igual a 405 mm., Con diametro de llanta igual a 457.2 mm (18\"), Con ancho seccional igual a 215 mm.",
+      "descripcion_ncm": "Con ancho seccional igual a 215 mm."
+    },
+    {
+      "ncm": "4011.20.90.622J",
+      "partida": "4011",
+      "producto": "De los tipos utilizados en autobuses o camiones, Radiales, con diámetro de llanta igual a 571,5 mm (22.5\"), Con ancho seccional igual a 275 mm, Serie 80 (designacion del tamaño 275/80R22.5)",
+      "descripcion_ncm": "Serie 80 (designacion del tamaño 275/80R22.5)"
+    },
+    {
+      "ncm": "4011.70.90.321L",
+      "partida": "4011",
+      "producto": "onales, de uso agricola, de la siguientes medidas: 11L 15; 12.5L 15; 13.5-15; 16.5-15; 7,00-16; 9.00-16; 10.00-16; 10.5-16; 11.00-16; 11L 16; 12.5L 16; 16.1L 16; 16.5L 16; 7.5-16.1; 14.5-16.1; 14.00-17.5; 10.50-18; 12.5L 18; 10.00-20; 10.50-20; 12.5L 20;, Con diametro de llanta igual a 406,4 mm (16\"), De medida 7,00-16",
+      "descripcion_ncm": "De medida 7,00-16"
+    },
+    {
+      "ncm": "5407.61.00.125U",
+      "partida": "5407",
+      "producto": "Con un contenido de filamentos de poliéster sin texturar superior o igual al 85 % en peso, Crudos o blanqueados:, De ligamento sarga, incluido el cruzado, de curso inferior o igual a 4, De densidad superior a 90 hilos por cm2 pero inferior o igual a 110 hilos por cm2",
+      "descripcion_ncm": "De densidad superior a 90 hilos por cm2 pero inferior o igual a 110 hilos por cm2"
+    },
+    {
+      "ncm": "5516.14.00.123N",
+      "partida": "5516",
+      "producto": "Estampados, De rayón viscosa, De ligamento sarga, incluido el cruzado, de curso inferior o igual a 4, De densidad superior a 37 hilos por cm2 pero inferior o igual a 45 hilos por cm2",
+      "descripcion_ncm": "De densidad superior a 37 hilos por cm2 pero inferior o igual a 45 hilos por cm2"
+    },
+    {
+      "ncm": "6103.42.00.210J",
+      "partida": "6103",
+      "producto": "Pantalones largos, pantalones con peto, pantalones cortos (calzones) y shorts:, De algodón, Pantalones cortos y shorts, sin peto, De talle superior al 16 o sus equivalentes",
+      "descripcion_ncm": "De talle superior al 16 o sus equivalentes"
+    },
+    {
+      "ncm": "6302.53.00.140J",
+      "partida": "6302",
+      "producto": "De fibras sinteticas o artificiales, Manteles, incluso en juegos o surtidos, En juegos para 12 personas",
+      "descripcion_ncm": "En juegos para 12 personas"
+    },
+    {
+      "ncm": "6404.19.00.133W",
+      "partida": "6404",
+      "producto": "Calzado con suela de caucho o plástico:, Pantuflas, chinelas y sandalias tipo ojotas, Sandalias tipo ojotas, presentadas desmontadas o sin montar todavía, Superior al número 34 e inferior o igual al número 40, o sus equivalentes",
+      "descripcion_ncm": "Superior al número 34 e inferior o igual al número 40, o sus equivalentes"
+    },
+    {
+      "ncm": "6406.10.00.122V",
+      "partida": "6406",
+      "producto": "Partes superiores de calzado y sus partes, excepto los contrafuertes y punteras duras, Partes superiores, De cuero de reptil, Superior al número 24 e inferior o igual al número 34, o sus equivalentes",
+      "descripcion_ncm": "Superior al número 24 e inferior o igual al número 34, o sus equivalentes"
+    },
+    {
+      "ncm": "8308.10.00.100G",
+      "partida": "8308",
+      "producto": "Corchetes, ganchos y anillos para ojetes, Ganchos macho y hembra, montados sobre sendas partes de tejido, de los tipos utilizados para abrochar prendas de corsetería",
+      "descripcion_ncm": "Ganchos macho y hembra, montados sobre sendas partes de tejido, de los tipos utilizados para abrochar prendas de corsetería"
+    },
+    {
+      "ncm": "8519.81.10.100E",
+      "partida": "8519",
+      "producto": "Que utilizan un soporte magnetico, óptico o semiconductor:, Con sistema de lectura óptica por láser (lectores de discos compactos), De los tipos utilizados en vehículos automóviles (cambiadores para ser conectados a equipos de autorradio)",
+      "descripcion_ncm": "De los tipos utilizados en vehículos automóviles (cambiadores para ser conectados a equipos de autorradio)"
+    },
+    {
+      "ncm": "8544.70.10.130H",
+      "partida": "8544",
+      "producto": "Cables de fibras opticas, Con revestimiento externo de material dieléctrico, Del tipo monomodo estándar o de dispersión desplazada(R.83/97 MEOSP), De cantidad de fibras ópticas superior a 24 pero inferior o igual a 48",
+      "descripcion_ncm": "De cantidad de fibras ópticas superior a 24 pero inferior o igual a 48"
+    }
+  ]
+}

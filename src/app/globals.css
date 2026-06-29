@@ -1,26 +1,200 @@
 @import "tailwindcss";
 
+/* Modo noche por clase (toggle), no por preferencia del sistema */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Paleta clara: neutros + un solo acento (naranja) */
+  --background: #f7f7f8;
+  --surface: #ffffff;
+  --surface-2: #f1f1f3;
+  --foreground: #16181d;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --accent: #f97316;
+  --accent-foreground: #ffffff;
+  --accent-soft: #fff3ea;
+  --ring: rgba(249, 115, 22, 0.35);
+}
+
+.dark {
+  /* Paleta oscura */
+  --background: #0a0b0d;
+  --surface: #121317;
+  --surface-2: #1a1c21;
+  --foreground: #ededee;
+  --muted: #9aa1ad;
+  --border: #25272e;
+  --accent: #f97316;
+  --accent-foreground: #0a0b0d;
+  --accent-soft: #2a1a0e;
+  --ring: rgba(249, 115, 22, 0.4);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--border);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Fondo decorativo: glows suaves estilo "aurora" para dar onda futurista */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      640px circle at 12% -5%,
+      color-mix(in srgb, var(--accent) 14%, transparent),
+      transparent 45%
+    ),
+    radial-gradient(
+      720px circle at 100% 0%,
+      color-mix(in srgb, var(--accent) 9%, transparent),
+      transparent 50%
+    ),
+    radial-gradient(
+      900px circle at 50% 120%,
+      color-mix(in srgb, var(--accent) 7%, transparent),
+      transparent 55%
+    );
+}
+
+@layer utilities {
+  /* Texto con degradado al acento */
+  .text-gradient {
+    background: linear-gradient(
+      92deg,
+      var(--foreground),
+      color-mix(in srgb, var(--accent) 85%, var(--foreground))
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .text-gradient-accent {
+    background: linear-gradient(92deg, var(--accent), #fb923c 55%, #fbbf24);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Tarjeta translúcida con desenfoque */
+  .glass {
+    background: color-mix(in srgb, var(--surface) 72%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  /* Resplandor del acento */
+  .glow-accent {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent),
+      0 14px 40px -16px color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+
+  /* Borde superior con degradado (línea de neón) */
+  .neon-top {
+    position: relative;
+  }
+  .neon-top::before {
+    content: "";
+    position: absolute;
+    inset-inline: 1.25rem;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--accent) 70%, transparent),
+      transparent
+    );
+  }
+
+  .hover-lift {
+    transition:
+      transform 0.18s ease,
+      box-shadow 0.18s ease,
+      border-color 0.18s ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Vehículo (barco/avión/camión) avanzando entre la etapa actual y la siguiente */
+@keyframes avanzar {
+  0% {
+    left: -42%;
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.55;
+  }
+  75% {
+    opacity: 0.55;
+  }
+  100% {
+    left: 42%;
+    opacity: 0;
+  }
+}
+
+.animate-avanzar {
+  animation: avanzar 4.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-avanzar {
+    animation: none;
+    left: 0;
+  }
+}
+
+/* Aparición suave (menú desplegable en móvil) */
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Transición suave al cambiar de tema */
+html.theme-transition,
+html.theme-transition * {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-foreground);
 }

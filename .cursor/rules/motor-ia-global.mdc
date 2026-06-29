@@ -1,0 +1,83 @@
+---
+description: Motor IA — pipelines generales, contexto compartido, sin parches por caso
+alwaysApply: true
+---
+
+# Motor IA — principios generales
+
+## Qué significa un bug reportado con un ejemplo
+
+Cuando el usuario muestra **un caso concreto** (un archivo, un tipo, un país, un error puntual), la tarea **no** es hacer pasar ese caso. Es **encontrar por qué falló el pipeline** y corregir el flujo para que **cualquier** input equivalente reciba el mismo tratamiento robusto.
+
+No proponer fixes acotados al ejemplo del momento: “solo este tipo”, “solo esta operación”, “solo este país”, “solo importación/exportación”, salvo que el dato sea **dinámico por operación** y deba vivir en config/DB/datos oficiales — nunca hardcodeado al sample.
+
+---
+
+## Modelo mental del pipeline
+
+```
+Entrada (archivo, texto, evento)
+  → lectura / extracción real del contenido
+  → armado de contexto (operación + marco normativo/datos de referencia)
+  → llamada a IA con instrucción única (leer + cruzar contra marco)
+  → resultado estructurado + caché
+
+Etapas posteriores (cruce, checklist, UI, batch)
+  → mismo marco de contexto
+  → reutilizar extracciones/hallazgos cacheados
+  → detectar inconsistencias entre fuentes
+```
+
+**Todas las etapas que juzgan lo mismo deben ver el mismo contexto.** Si una etapa tiene marco completo y otra no, el bug vuelve aunque el parche “funcione” en el ejemplo probado.
+
+---
+
+## Separación de responsabilidades
+
+| Capa | Responsabilidad |
+|------|-----------------|
+| **Código** | Orquestación, estados, flujo, caché, schema, errores duros, pendiente/faltante |
+| **Prompt + datos** | Razonamiento de dominio, validez, clasificación fina, cruce interpretativo |
+
+El código **no** reemplaza a la IA con listas de keywords, regex mágicas ni ramas por tipo/caso para decidir validez de dominio.
+
+---
+
+## Anti-patrones (generales)
+
+| ❌ Parche puntual | ✅ Fix global |
+|------------------|---------------|
+| Prompt o regla extra solo para un tipo/caso | Misma instrucción base + mismo contexto para todos |
+| `if (tipo === X)` para validar dominio | Dominio en prompt + datos; código solo flujo |
+| Clasificar por nombre/metadata antes de leer | Clasificar por contenido; nombre solo provisional |
+| Cerrar requisitos con keywords en código | La IA funda con marco; código solo bloquea `error` duro |
+| Dos builders de contexto distintos por etapa | Un solo lugar que arma el contexto compartido |
+| Arreglar solo la UI cuando falla el pipeline | Arreglar pipeline; la UI refleja el resultado |
+| Post-procesar output malo de la IA para un doc | Arreglar lectura, contexto o simetría entre etapas |
+
+---
+
+## Ante un bug: protocolo
+
+1. **Trazar el pipeline completo** de punta a punta: ¿dónde se pierde lectura, contexto o coherencia?
+2. **Buscar asimetrías** entre rutas (subida vs cruce, realtime vs batch, per-doc vs multi-doc).
+3. **Leer el código existente** antes de agregar capas; preferir unificar en abstracciones ya presentes.
+4. **Unificar** contexto e instrucciones antes de agregar ramas nuevas.
+5. **Verificar con dos casos**: el reportado y otro distinto del mismo pipeline.
+
+---
+
+## Costo y caché
+
+Inyectar marco grande en cada llamada cuesta tokens. Optimizar **globalmente** (caché, un solo cruce, no releer fuentes duplicadas) — **nunca** quitando marco normativo/datos de referencia solo en una etapa para “ahorrar”.
+
+---
+
+## Checklist antes de dar por terminado
+
+- [ ] ¿El fix aplica al caso reportado **y** a un segundo caso distinto?
+- [ ] ¿Eliminé ramas especiales por tipo/operación/país que no sean dinámicas?
+- [ ] ¿Todas las etapas relevantes comparten el mismo contexto?
+- [ ] ¿La IA recibe el marco **al analizar** el input, no solo en una etapa posterior?
+- [ ] ¿Evité validación de dominio con palabras clave en código?
+- [ ] ¿La UI solo muestra lo que el pipeline ya resolvió bien?
