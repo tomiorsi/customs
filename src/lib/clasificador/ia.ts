@@ -210,8 +210,9 @@ async function pedir(system: string, user: string, maxTokens = 900): Promise<IaR
 // ─── Fase 0: expansión léxica (comercial → términos del nomenclador) ─────────
 
 const SYSTEM_EXPANSION =
-  "Traducís una descripción comercial de producto (en español) a los TÉRMINOS que usa " +
-  "la nomenclatura arancelaria NCM, para buscar la partida. Devolvé sinónimos y términos " +
+  "Traducís una descripción comercial de producto (en CUALQUIER idioma: español, inglés, " +
+  "chino, portugués…) a los TÉRMINOS EN ESPAÑOL que usa la nomenclatura arancelaria NCM, " +
+  "para buscar la partida. Devolvé sinónimos y términos " +
   "técnicos/legales del artículo, su tipo o función y su material, tal como los nombraría " +
   "el nomenclador. Ejemplos de estilo: «junta/sello/retén» → «empaquetadura, junta metaloplástica»; " +
   "«correa» → «correa de transmisión»; «filtro» → «aparato para filtrar»; «manguera» → «tubo de caucho». " +
