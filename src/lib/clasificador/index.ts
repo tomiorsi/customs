@@ -270,6 +270,7 @@ async function clasificarProductoInterno(
     producto,
     respuestas: listaRespuestas,
     ncmMaquinaPadre: ctx.ncmMaquina,
+    equipoReferencia: ctx.equipoReferencia,
   });
 
   // Fase 0 (barata): traduce la descripción comercial a términos del nomenclador

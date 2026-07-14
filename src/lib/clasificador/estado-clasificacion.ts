@@ -30,14 +30,27 @@ function esSegmentoEncabezadoLegal(segmento: string): boolean {
   return false;
 }
 
+function segmentoCalificaFamilia(segmento: string): boolean {
+  return (
+    /^[a-záéíóúñ]/i.test(segmento) ||
+    /^(sin |de |para |que |los demás|las demás|otros|otras|con |en )/i.test(segmento)
+  );
+}
+
 /** Quita encabezados legales iniciales; conserva la descripción facturada del artículo. */
 export function limpiarProductoHechos(producto: string): string {
   const parts = (producto ?? "")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
-  while (parts.length > 1 && esSegmentoEncabezadoLegal(parts[0]!)) {
-    parts.shift();
+  if (parts.length > 1 && esSegmentoEncabezadoLegal(parts[0]!)) {
+    const primero = parts[0]!;
+    const segundo = parts[1]!;
+    const conservarFamilia =
+      segmentoCalificaFamilia(segundo) &&
+      primero.length >= 40 &&
+      primero.length <= 110;
+    if (!conservarFamilia) parts.shift();
   }
   const out = parts.join(", ").trim();
   return out || (producto ?? "").trim();
@@ -78,11 +91,16 @@ export function estadoClasificacion(args: {
   producto: string;
   respuestas: Respuesta[];
   ncmMaquinaPadre?: string;
+  equipoReferencia?: string;
 }): string {
   const partes = [bloqueHechos(args.producto, args.respuestas)];
   const ncmPadre = args.ncmMaquinaPadre?.trim();
   if (ncmPadre && !ncmYaEnProducto(args.producto, ncmPadre)) {
     partes.push(`NCM MÁQUINA PADRE (hecho declarado): ${ncmPadre}`);
+  }
+  const equipo = args.equipoReferencia?.trim();
+  if (equipo) {
+    partes.push(`MÁQUINA O EQUIPO DONDE SE USA (contexto de destino): ${equipo}`);
   }
   return partes.join("\n\n");
 }
@@ -107,11 +125,17 @@ function recortarColaIncompleta(palabras: string[]): string[] {
 }
 
 export function nombreBaseProducto(producto: string): string {
-  let t = producto.trim();
+  let t = limpiarProductoHechos(producto ?? "");
   const corte = t.search(/[•–]/);
   if (corte > 5) t = t.slice(0, corte).trim();
 
   t = t.replace(/^(?:kit|juego|set|surtido)\s+de\s+/i, "").trim();
+
+  const corteDestino = t.match(/^(.+?)\s+para\s+\S/i);
+  if (corteDestino?.[1]) {
+    const antes = corteDestino[1].trim();
+    if (antes.split(/\s+/).filter(Boolean).length >= 2) t = antes;
+  }
 
   const norm = t
     .toLowerCase()
@@ -135,11 +159,30 @@ export function nombreBaseProducto(producto: string): string {
   return palabras.length > 6 ? palabras.slice(0, 6).join(" ") : t;
 }
 
+/** Texto corto para motor/parquet a partir de una respuesta (no pegar etiquetas largas de UI). */
+function aporteMotorDesdeRespuesta(r: Respuesta): string {
+  const cons = r.consecuencia?.trim();
+  if (cons && cons !== "listo" && !cons.startsWith("pregunta:")) return cons;
+  const op = sanitizarOpcionHecho(r.opcion?.trim() ?? "");
+  if (!op) return "";
+  const primera = op.split(/\s*\/\s*/)[0]?.trim() ?? op;
+  if (primera.length <= 36) return primera;
+  return primera.split(/\s+/).slice(0, 5).join(" ");
+}
+
+/** ¿El nombre base es usable para filtrar partidas (no truncado a mitad de referencia legal)? */
+export function textoFiltroConfiable(textoFiltro: string, textoSims: string): boolean {
+  const f = textoFiltro.trim();
+  if (!f || f === textoSims.trim()) return false;
+  if (/\([^)]*$/.test(f) || /,\s*$/.test(f)) return false;
+  return f.split(/\s+/).filter(Boolean).length >= 2;
+}
+
 /** Texto para elegir partidas (nombre base + respuestas; evita ruido técnico en partidas). */
 export function textoParaFiltroParquet(producto: string, respuestas: Respuesta[]): string {
   const partes = [nombreBaseProducto(producto)];
   for (const r of respuestas) {
-    const op = sanitizarOpcionHecho(r.opcion?.trim() ?? "");
+    const op = aporteMotorDesdeRespuesta(r);
     if (op) partes.push(op);
   }
   return partes.join(" ");
@@ -147,9 +190,9 @@ export function textoParaFiltroParquet(producto: string, respuestas: Respuesta[]
 
 /** Texto completo para rankear SIMs dentro de una partida ya elegida. */
 export function textoParaSimsParquet(producto: string, respuestas: Respuesta[]): string {
-  const partes = [producto.trim()];
+  const partes = [limpiarProductoHechos(producto)];
   for (const r of respuestas) {
-    const op = sanitizarOpcionHecho(r.opcion?.trim() ?? "");
+    const op = aporteMotorDesdeRespuesta(r);
     if (op) partes.push(op);
   }
   return partes.join(" ");
