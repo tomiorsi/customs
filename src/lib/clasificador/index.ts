@@ -9,6 +9,11 @@ import {
   paquetePartidasParaIa,
   cierreInvalidoPorHechos,
   ncmPreferidaPorTipificacion,
+  ncmPreferidaPorRamaTipificadaHechos,
+  ncmPreferidaPorCalificadorFinal,
+  ncmPreferidaPorCadenaSegmentosHechos,
+  ncmPreferidaSobreResidualHermana,
+  resolverNcmEnPaquete,
   hayCompetenciaMaterialEntreBloques,
   materiaDeclaradaEnHechos,
   type BloqueCandidatos,
@@ -86,7 +91,7 @@ async function finalizarDesdeCruce(
   bloques: BloqueCandidatos[],
 ): Promise<ClasificacionResultado | null> {
   if (cruce.confirma !== true || !cruce.ncm?.trim()) return null;
-  const ncm = cruce.ncm.trim();
+  const ncm = resolverNcmEnPaquete(cruce.ncm.trim(), bloques) ?? cruce.ncm.trim();
   const ncmDigitos = soloDigitos(ncm);
   const ncmsCandidatos = new Set(bloques.flatMap((b) => b.sims.map((s) => soloDigitos(s.codigo))));
   if (!ncmsCandidatos.has(ncmDigitos)) return null;
@@ -94,8 +99,22 @@ async function finalizarDesdeCruce(
   const hip = await reconstruirHipotesis(ncm, p4);
   if (!hip) return null;
   const propuestasAll = propuestasDesdeBloques(bloques);
+  // Si el motor afinó la línea, `justificacion`/`descartadas` de la IA quedaron vacíos
+  // (referían a otra NCM): armamos la fundamentación del cierre real, no la del modelo.
+  const justificacion = cruce.justificacion?.trim()
+    ? cruce.justificacion
+    : justificacionLineaFinal(hip.ncm, textoLegalResumido(hip.exacto));
   const enMira = await armarPosicionesEnMira(propuestasAll, ncm, cruce.descartadas);
-  return armarFinal(producto, hip, cruce.justificacion, propuestasAll, enMira);
+  return armarFinal(producto, hip, justificacion, propuestasAll, enMira);
+}
+
+/** Fundamentación del cierre cuando el motor eligió la línea específica (RGI 3 a)/6). */
+function justificacionLineaFinal(ncm: string, textoLegal: string): string {
+  return (
+    `Clasificado en ${ncm}: ${textoLegal}. ` +
+    `Dentro de la partida se eligió la línea que describe el artículo (RGI 3 a) y RGI 6): ` +
+    `la subpartida o ítem específico prevalece sobre las hermanas genéricas o residuales de la misma familia.`
+  );
 }
 
 function normalizarPregunta(p: Pregunta): Pregunta {
@@ -266,14 +285,41 @@ async function clasificarProductoInterno(
   // IA: cruce legal en una sola llamada
   const cruce = await cruzarCandidatos({ hechos, bloques, marcoLegal });
 
-  // NCM confirmada por la IA (con corrección RGI 3 a) si eligió residual global ignorando rama tipificada)
-  const ncmCruce = cruce.ncm?.trim();
-  const ncmCorregido =
+  // NCM confirmada por la IA (completar sufijo SIM truncado; corrección RGI 3 a) si residual global)
+  const ncmCruceRaw = cruce.ncm?.trim();
+  const ncmCruce =
+    cruce.confirma === true && ncmCruceRaw
+      ? (resolverNcmEnPaquete(ncmCruceRaw, bloques) ?? ncmCruceRaw)
+      : ncmCruceRaw;
+  const ncmTipificado =
     cruce.confirma === true && ncmCruce
       ? (ncmPreferidaPorTipificacion(hechos, bloques, ncmCruce) ?? ncmCruce)
       : ncmCruce;
+  const ncmRamaTip =
+    cruce.confirma === true && ncmTipificado
+      ? (ncmPreferidaPorRamaTipificadaHechos(hechos, bloques, ncmTipificado) ?? ncmTipificado)
+      : ncmTipificado;
+  const ncmCalificador =
+    cruce.confirma === true && ncmRamaTip
+      ? (ncmPreferidaPorCalificadorFinal(hechos, bloques, ncmRamaTip) ?? ncmRamaTip)
+      : ncmRamaTip;
+  const ncmResidualHermana =
+    cruce.confirma === true && ncmCalificador
+      ? (ncmPreferidaSobreResidualHermana(hechos, bloques, ncmCalificador) ?? ncmCalificador)
+      : ncmCalificador;
+  const ncmCorregido =
+    cruce.confirma === true && ncmResidualHermana
+      ? (ncmPreferidaPorCadenaSegmentosHechos(hechos, bloques, ncmResidualHermana) ??
+        ncmResidualHermana)
+      : ncmResidualHermana;
+  const cruceResuelto =
+    ncmCruce && ncmCruce !== ncmCruceRaw ? { ...cruce, ncm: ncmCruce } : cruce;
+  // Al afinar la línea (RGI 3 a)/6), la justificación y descartadas del modelo
+  // apuntan a otra NCM: se descartan para regenerar el cierre real más abajo.
   const cruceFinal =
-    ncmCorregido && ncmCorregido !== ncmCruce ? { ...cruce, ncm: ncmCorregido } : cruce;
+    ncmCorregido && ncmCorregido !== ncmCruce
+      ? { ...cruceResuelto, ncm: ncmCorregido, justificacion: undefined, descartadas: undefined }
+      : cruceResuelto;
 
   if (
     cruceFinal.confirma === true &&
@@ -290,8 +336,9 @@ async function clasificarProductoInterno(
   const preguntaInvalida = cruce.faltaDato ? preguntaPideClasificacion(cruce.faltaDato) : false;
   const opcionesInvalidas = opcionesParecenPreguntas(cruce.opciones ?? []);
 
-  // Material sin declarar: prioridad sobre otras preguntas de la IA.
+  // Material sin declarar: solo si el cruce no cerró ya con NCM válida.
   if (
+    cruceFinal.confirma !== true &&
     puedePreguntar(listaRespuestas) &&
     hayCompetenciaMaterialEntreBloques(bloques) &&
     !materiaDeclaradaEnHechos(hechos)
@@ -316,7 +363,7 @@ async function clasificarProductoInterno(
       pregunta: cruce.faltaDato,
       opciones,
       permiteTextoLibre: true,
-      maxOpcionesBotones: Math.min(opciones.length, MAX_OPCIONES),
+      maxOpcionesBotones: Math.min(Math.max(opciones.length, 1), MAX_OPCIONES),
     };
     return preguntar(producto, preguntaObj);
   }
@@ -336,7 +383,8 @@ async function clasificarProductoInterno(
 
   return sinResultado(producto, {
     justificacion:
-      cruce.justificacion ??
+      cruce.justificacion?.trim() ||
+      cruce.faltaDato?.trim() ||
       "No se pudo determinar la posición arancelaria con los datos disponibles.",
   });
 }

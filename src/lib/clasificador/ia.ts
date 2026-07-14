@@ -8,47 +8,30 @@ import {
   encabezadoTipificacionGrupo,
   tipificacionGrupoEsGenerica,
   prefijoSubpartidaCodigo,
+  encabezadoLegalGenerico,
+  tipificacionEncajaConHechos,
+  partidaCorregidaPorSegmentosHechos,
+  partidaCorregidaPorTipificacionNominal,
+  partidaPreferidaPorCadenaHechos,
+  partidaPreferidaPorRankingClaro,
+  faltaDiscriminanteEntreHermanas,
+  ncmPorCadenaHechosEnPartida,
+  ncmPreferidaPorCadenaSegmentosHechos,
 } from "./motor";
 import {
   CRITERIO_PARQUET,
-  INSTRUCCION_CRUCE,
+  INSTRUCCION_ELECCION_PARTIDA,
   INSTRUCCION_LECTURA_LISTADO,
   PRINCIPIO_ARTICULO_CLASIFICADO,
   PRINCIPIO_HECHOS,
-  PRINCIPIO_HIPOTESIS_EN_DISPUTA,
   PRINCIPIO_PARTIDA_ESPECIFICA,
   PRINCIPIO_CIERRE,
   REGLA_LINEAS_RESIDUALES,
   REGLA_OPCIONES_SIN_CLASIFICACION,
-  REGLAS_FASE1_PLAN,
-  REGLAS_FASE2_PROPUESTAS,
 } from "./principios-clasificacion";
 import { registrarUsoTokens } from "./costo-ia";
 
 const MODELO = process.env.ANTHROPIC_MODEL || "claude-haiku-4-5";
-
-const SYSTEM_FASE1 =
-  "Clasificador NCM Argentina.\n" +
-  PRINCIPIO_ARTICULO_CLASIFICADO +
-  PRINCIPIO_HECHOS +
-  PRINCIPIO_PARTIDA_ESPECIFICA +
-  REGLA_OPCIONES_SIN_CLASIFICACION +
-  REGLAS_FASE1_PLAN +
-  "\nJSON: hechosCompletos (boolean), preguntas (array; cada ítem con id, pregunta, opciones, rutas). Devolvé el array completo con todas las preguntas del árbol simultáneamente.\n";
-
-const SYSTEM_FASE2 =
-  "Clasificador NCM Argentina.\n" +
-  PRINCIPIO_ARTICULO_CLASIFICADO +
-  PRINCIPIO_HECHOS +
-  PRINCIPIO_PARTIDA_ESPECIFICA +
-  PRINCIPIO_HIPOTESIS_EN_DISPUTA +
-  REGLAS_FASE2_PROPUESTAS +
-  "\nJSON: propuestas (array de {ncm}). Máximo 6 NCMs.\n";
-
-const SYSTEM_CRUCE =
-  "Clasificador NCM Argentina — Fase 3 cruce legal.\n" +
-  INSTRUCCION_CRUCE +
-  "JSON: ncm, confirma, descripcion, justificacion.\n";
 
 export type PropuestaCruce = {
   partida: string;
@@ -64,6 +47,8 @@ export type DescartadaCruce = {
 
 export type IaRespuesta = {
   ncm?: string;
+  /** Paso 1 del cruce en dos etapas: partida elegida (4 dígitos). */
+  partida?: string;
   hechosCompletos?: boolean;
   propuestas?: Array<{ ncm: string }>;
   descripcion?: string;
@@ -171,6 +156,19 @@ function extraerObjetoJson(texto: string, start: number): string {
     }
   }
   let tail = texto.slice(start);
+  let inStr = false;
+  let esc = false;
+  for (let i = 0; i < tail.length; i++) {
+    const c = tail[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === "\\") esc = true;
+      else if (c === '"') inStr = false;
+      continue;
+    }
+    if (c === '"') inStr = true;
+  }
+  if (inStr) tail += '"';
   const abrir = (tail.match(/\{/g) ?? []).length;
   const cerrar = (tail.match(/\}/g) ?? []).length;
   if (cerrar < abrir) tail += "}".repeat(abrir - cerrar);
@@ -200,119 +198,29 @@ async function pedir(system: string, user: string, maxTokens = 900): Promise<IaR
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";
     if (!/JSON/i.test(msg)) throw e;
-    return extraerJson(await llamarUnaVezRaw(systemFinal, user, maxTokens));
+    return extraerJson(
+      await llamarUnaVezRaw(systemFinal, user, Math.min(maxTokens * 2, 2048)),
+    );
   }
 }
 
-function bloquePartidasCandidatas(candidatas: PartidaCandidata[]): string {
-  return candidatas
-    .map((c) => {
-      const subs = c.subpartidas?.length
-        ? "\n" +
-          c.subpartidas
-            .map((s) => `    ↳ ${s.codigo}: ${s.descripcion}`)
-            .join("\n")
-        : "";
-      return `- ${c.partida}: ${c.descripcion}${subs}`;
-    })
-    .join("\n");
-}
+// ─── Cruce en dos pasos: partida → NCM ───────────────────────────────────────
 
-export type BloquePartidaPosiciones = {
-  partida: string;
-  partidaDesc: string;
-  candidatos: CandidatoNcm[];
-};
+const SYSTEM_CRUCE_PARTIDA =
+  "Clasificador NCM Argentina — Paso 1: elegir PARTIDA (4 dígitos).\n" +
+  PRINCIPIO_ARTICULO_CLASIFICADO +
+  PRINCIPIO_HECHOS +
+  PRINCIPIO_PARTIDA_ESPECIFICA +
+  INSTRUCCION_ELECCION_PARTIDA +
+  REGLA_OPCIONES_SIN_CLASIFICACION +
+  "NO REPITAS: Si HECHOS ya contiene una respuesta sobre completitud, función, material u otro dato, NO hagas una pregunta sobre ese mismo dato.\n" +
+  "TAREA: Elegí UNA partida del listado cuyo encabezado o ramas tipificadas encajen con HECHOS. No elijas NCM todavía.\n" +
+  "1. Si HECHOS permite elegir → partida (4 dígitos literal del listado), confirma:true, justificacion (máx. 240 caracteres).\n" +
+  "2. Si falta UN dato factual para decidir entre partidas → confirma:false, faltaDato (una sola pregunta), opciones (máx 4).\n" +
+  "3. Si ninguna partida encaja → confirma:false, faltaDato:null.\n";
 
-function bloquePosicionesPartidas(bloques: BloquePartidaPosiciones[]): string {
-  return bloques
-    .map((b) => {
-      const lista = b.candidatos
-        .map((c) => `- ${c.codigo} | ${textoLegalResumido(c)}`)
-        .join("\n");
-      return `PARTIDA ${b.partida}: ${b.partidaDesc}\n${lista}`;
-    })
-    .join("\n\n");
-}
-
-/** Fase 1: plan de hechos (hasta 5 preguntas en árbol, una sola llamada). */
-export async function planificarHechos(
-  estado: string,
-  candidatas: PartidaCandidata[],
-  opts?: { sinPropuestasEnParquet?: boolean; justificacionRechazo?: string },
-): Promise<IaRespuesta> {
-  const esRetry = !!opts?.justificacionRechazo;
-  const esquema = esRetry
-    ? '{"hechosCompletos":false,"preguntas":[{"id":"1","pregunta":"","opciones":["A","B"],"rutas":[{"opcion":"A","consecuencia":"listo"},{"opcion":"B","consecuencia":"listo"}]}]}'
-    : '{"hechosCompletos":false,"preguntas":[{"id":"1","pregunta":"","opciones":["A","B"],"rutas":[{"opcion":"A","consecuencia":"pregunta:2"},{"opcion":"B","consecuencia":"listo"}]},{"id":"2","pregunta":"","opciones":["C","D"],"rutas":[{"opcion":"C","consecuencia":"listo"}]}]}';
-  const notaRetry = opts?.justificacionRechazo
-    ? "\n\nATENCIÓN: el nomenclador ya tiene propuestas pero las rechazó porque falta UN dato específico en HECHOS. " +
-      "Motivo exacto del rechazo: " + opts.justificacionRechazo.slice(0, 400) +
-      "\nGenerá UNA SOLA PREGUNTA (preguntas con exactamente 1 elemento) que pida ese dato puntual con opciones mutuamente excluyentes. " +
-      "No regeneres el árbol completo. El esquema es hechosCompletos:false, preguntas:[{id:\"1\", ...}].\n"
-    : opts?.sinPropuestasEnParquet
-    ? "\n\nATENCIÓN: ninguna posición del nomenclador encajó con los HECHOS actuales. " +
-      "Replanificá el cuestionario: hechosCompletos:false y preguntas con lo que aún falta.\n"
-    : "";
-  const user =
-    `${estado}${notaRetry}\n\n` +
-    `PARTIDAS CANDIDATAS (qué datos pueden faltar):\n` +
-    `${bloquePartidasCandidatas(candidatas)}\n\n` +
-    `JSON:\n${esquema}`;
-  return pedir(SYSTEM_FASE1, user, 1300);
-}
-
-
-function bloquePartidasDescartadas(
-  descartadas: Array<{ partida: string; motivo?: string }>,
-): string {
-  if (!descartadas.length) return "";
-  const lineas = descartadas.map((d) => {
-    const motivo = (d.motivo ?? "").trim();
-    const breve =
-      motivo.length > 160 ? `${motivo.slice(0, 157).trim()}…` : motivo;
-    return `- ${d.partida}${breve ? `: ${breve}` : ""}`;
-  });
-  return (
-    "PARTIDAS DESCARTADAS (cruce legal previo; no proponer NCM de estas partidas):\n" +
-    `${lineas.join("\n")}\n\n`
-  );
-}
-
-/** Fase 2: NCM del parquet que encajan con HECHOS completos. */
-export async function identificarPropuestas(args: {
-  estado: string;
-  partidas: BloquePartidaPosiciones[];
-  partidasDescartadas?: Array<{ partida: string; motivo?: string }>;
-  sinPropuestasAnterior?: boolean;
-}): Promise<IaRespuesta> {
-  const esquema = '{"propuestas":[{"ncm":""}]}';
-  const notaRetry = args.sinPropuestasAnterior
-    ? "ATENCIÓN: en el intento anterior no hubo propuestas. " +
-      "Revisá TODAS las partidas del listado e incluí cada NCM cuyo texto legal encaje con HECHOS.\n\n"
-    : "";
-  // Si hay candidatos de múltiples partidas, avisar a la IA que evalúe cada una
-  // e intente cubrir más de una familia cuando varias puedan encajar.
-  // Límite explícito de propuestas para evitar truncamiento de JSON.
-  const notaMultiPartidas =
-    args.partidas.length >= 2
-      ? `Hay candidatos de ${args.partidas.length} partidas distintas. Evaluá el encabezado de CADA PARTIDA (no solo las líneas individuales). Si el encabezado describe el tipo o función del artículo, incluí al menos un NCM de esa partida en propuestas. Máximo 6 propuestas en total.\n\n`
-      : "";
-  const user =
-    `${args.estado}\n\n` +
-    `${notaRetry}` +
-    `${notaMultiPartidas}` +
-    "Solo NCM que aparecen en el listado de posiciones provisto (no inventes códigos).\n\n" +
-    `${bloquePartidasDescartadas(args.partidasDescartadas ?? [])}` +
-    `${bloquePosicionesPartidas(args.partidas)}\n\n` +
-    `JSON:\n${esquema}`;
-  return pedir(SYSTEM_FASE2, user, 400);
-}
-
-// ─── Pipeline simplificado: un solo cruce legal ──────────────────────────────
-
-const SYSTEM_CRUCE_DIRECTO =
-  "Clasificador NCM Argentina.\n" +
+const SYSTEM_CRUCE_SIM =
+  "Clasificador NCM Argentina — Paso 2: elegir NCM dentro de la partida elegida.\n" +
   PRINCIPIO_ARTICULO_CLASIFICADO +
   PRINCIPIO_HECHOS +
   PRINCIPIO_PARTIDA_ESPECIFICA +
@@ -322,11 +230,78 @@ const SYSTEM_CRUCE_DIRECTO =
   REGLA_LINEAS_RESIDUALES +
   REGLA_OPCIONES_SIN_CLASIFICACION +
   "NO REPITAS: Si HECHOS ya contiene una respuesta sobre completitud, función, material u otro dato, NO hagas una pregunta sobre ese mismo dato.\n" +
-  "TAREA (una sola respuesta):\n" +
-  "1. Si HECHOS permite elegir → ncm (literal del listado), confirma:true, justificacion (breve; cita RGI y motivo principal), descartadas (MÁXIMO 3 alternativas con motivo legal breve). Antes de cerrar, recorré el listado: si alguna «Tipificación legal» encaja con el tipo u operación declarada en HECHOS, elegí un NCM de esa rama y no una residual global de la partida.\n" +
-  "2. Si falta UN dato factual para decidir entre candidatos específicos → confirma:false, faltaDato (una sola pregunta), opciones (máx 4). Si HECHOS ya alcanza para una línea específica (RGI 3 a)), confirma:true; no elijas residual por defecto.\n" +
+  "TAREA: Elegí UN NCM del listado de esta partida.\n" +
+  "1. Si HECHOS permite elegir → ncm (literal completo del listado, con sufijo SIM si figura), confirma:true, justificacion (máx. 240 caracteres; cita RGI), descartadas (MÁXIMO 3). Antes de cerrar, recorré el listado: si alguna «Tipificación legal» encaja con el tipo u operación declarada en HECHOS, elegí un NCM de esa rama y no una residual global de la partida.\n" +
+  "2. Si falta UN dato factual para decidir entre candidatos específicos → confirma:false, faltaDato (una sola pregunta), opciones (máx 4).\n" +
   "3. Si ningún candidato encaja → confirma:false, faltaDato:null.\n" +
   "Solo NCM del listado provisto. Nunca inventes códigos.\n";
+
+const MAX_TIPIFICACIONES_RESUMEN = 14;
+
+function puntajeTipificacionParaHechos(tip: string, hechos: string): number {
+  if (!tip.trim()) return 0;
+  let score = tipificacionEncajaConHechos(tip, hechos) ? 2 : 0;
+  for (const seg of tip.split(" > ")) {
+    if (tipificacionEncajaConHechos(seg, hechos)) score++;
+  }
+  return score;
+}
+
+function bloqueResumenPartidas(bloques: BloqueCandidatos[], hechos: string): string {
+  return bloques
+    .map((b) => {
+      const tips = new Set<string>();
+      for (const s of b.sims) {
+        for (const seg of segmentosRamaLegal(s).slice(0, -1)) {
+          if (!encabezadoLegalGenerico(seg)) tips.add(seg.trim());
+        }
+      }
+      const sorted = [...tips].sort(
+        (a, b) =>
+          puntajeTipificacionParaHechos(b, hechos) -
+            puntajeTipificacionParaHechos(a, hechos) || a.localeCompare(b),
+      );
+      const tipList = sorted.slice(0, MAX_TIPIFICACIONES_RESUMEN).join("; ");
+      const extra = tipList ? `\n  Ramas tipificadas (muestra): ${tipList}` : "";
+      return `PARTIDA ${b.partida}: ${b.partidaDesc}${extra}`;
+    })
+    .join("\n\n");
+}
+
+async function cruzarPartida(args: {
+  hechos: string;
+  bloques: BloqueCandidatos[];
+  marcoLegal: string;
+}): Promise<IaRespuesta> {
+  const esquema =
+    '{"partida":"","confirma":false,"justificacion":"","faltaDato":null,"opciones":[]}';
+  const user =
+    `${args.hechos}\n\n` +
+    `MARCO LEGAL (RGI, notas, nomenclador):\n${args.marcoLegal}\n\n` +
+    `PARTIDAS CANDIDATAS (elegí UNA; no elijas NCM todavía):\n${bloqueResumenPartidas(args.bloques, args.hechos)}\n\n` +
+    `JSON:\n${esquema}`;
+  return pedir(SYSTEM_CRUCE_PARTIDA, user, 1024);
+}
+
+async function cruzarSimsEnPartida(args: {
+  hechos: string;
+  bloque: BloqueCandidatos;
+  marcoLegal: string;
+  eleccionPartida?: string;
+}): Promise<IaRespuesta> {
+  const esquema =
+    '{"ncm":"","confirma":false,"justificacion":"","descartadas":[{"ncm":"","motivo":""}],"faltaDato":null,"opciones":[]}';
+  const notaPartida = args.eleccionPartida
+    ? `PARTIDA ELEGIDA (Paso 1): ${args.eleccionPartida}\n\n`
+    : "";
+  const user =
+    `${args.hechos}\n\n` +
+    `${notaPartida}` +
+    `MARCO LEGAL (RGI, notas, nomenclador):\n${args.marcoLegal}\n\n` +
+    `POSICIONES CANDIDATAS (solo estas; no inventes otras):\n${bloquePaqueteCandidatos([args.bloque])}\n\n` +
+    `JSON:\n${esquema}`;
+  return pedir(SYSTEM_CRUCE_SIM, user, 900);
+}
 
 /** Agrupa SIMs por subpartida (8 dígitos) para que la IA compare hermanas sin perder el menú completo. */
 function prefijoSubpartida(codigo: string): string {
@@ -375,54 +350,111 @@ function bloquePaqueteCandidatos(bloques: BloqueCandidatos[]): string {
     .join("\n\n");
 }
 
+async function cerrarSimsEnPartida(args: {
+  hechos: string;
+  marcoLegal: string;
+  bloque: BloqueCandidatos;
+  partida: string;
+}): Promise<IaRespuesta> {
+  const paso2 = await cruzarSimsEnPartida({
+    hechos: args.hechos,
+    bloque: args.bloque,
+    marcoLegal: args.marcoLegal,
+    eleccionPartida: args.partida,
+  });
+
+  const faltaDisc = faltaDiscriminanteEntreHermanas(args.bloque, args.hechos);
+  if (faltaDisc && paso2.confirma !== true) {
+    return {
+      confirma: false,
+      faltaDato: faltaDisc.faltaDato,
+      opciones: faltaDisc.opciones,
+      partida: args.partida,
+    };
+  }
+
+  const ncmIa = paso2.ncm?.trim();
+  if (ncmIa && paso2.confirma === true) {
+    const corregida = ncmPreferidaPorCadenaSegmentosHechos(args.hechos, [args.bloque], ncmIa);
+    if (corregida && corregida !== ncmIa) {
+      // La justificación/descartadas de la IA describen `ncmIa`; se regeneran aguas abajo.
+      return {
+        ...paso2,
+        ncm: corregida,
+        justificacion: undefined,
+        descartadas: undefined,
+        partida: args.partida,
+      };
+    }
+  }
+
+  return { ...paso2, ncm: ncmIa, partida: args.partida };
+}
+
 /**
- * Cruce legal en una sola llamada a la IA.
- * El motor entrega partidas candidatas con todas sus SIMs; la IA elige el NCM o pide un dato que falta.
+ * Cruce legal en dos pasos: partida → NCM dentro de esa partida.
+ * Con una sola partida candidata, salta el paso 1.
  */
 export async function cruzarCandidatos(args: {
   hechos: string;
   bloques: BloqueCandidatos[];
   marcoLegal: string;
 }): Promise<IaRespuesta> {
-  const esquema =
-    '{"ncm":"","confirma":false,"justificacion":"","descartadas":[{"ncm":"","motivo":""}],"faltaDato":null,"opciones":[]}';
-  const user =
-    `${args.hechos}\n\n` +
-    `MARCO LEGAL (RGI, notas, nomenclador):\n${args.marcoLegal}\n\n` +
-    `POSICIONES CANDIDATAS (solo estas; no inventes otras):\n${bloquePaqueteCandidatos(args.bloques)}\n\n` +
-    `JSON:\n${esquema}`;
-  return pedir(SYSTEM_CRUCE_DIRECTO, user, 1200);
-}
+  if (!args.bloques.length) {
+    return { confirma: false, faltaDato: null, justificacion: "Sin partidas candidatas." };
+  }
 
-// ─────────────────────────────────────────────────────────────────────────────
+  if (args.bloques.length === 1) {
+    return cerrarSimsEnPartida({
+      hechos: args.hechos,
+      bloque: args.bloques[0]!,
+      marcoLegal: args.marcoLegal,
+      partida: args.bloques[0]!.partida,
+    });
+  }
 
-/** Fase 3: cruce legal entre propuestas. */
-export async function cruzarPropuestas(args: {
-  producto: string;
-  propuestas: PropuestaCruce[];
-  marcoLegal: string;
-}): Promise<IaRespuesta> {
-  const bloques = args.propuestas
-    .map(
-      (p, i) =>
-        `PROPUESTA ${i + 1}: partida ${p.partida} — ${p.partidaDesc}\n` +
-        `NCM: ${p.ncm}\n` +
-        (p.descripcion ? `${p.descripcion}\n` : ""),
-    )
-    .join("\n");
-  const multi = args.propuestas.length >= 2;
-  const esquema = multi
-    ? '{"ncm":"","confirma":false,"descripcion":"","justificacion":"","descartadas":[{"ncm":"","motivo":""}]}'
-    : '{"ncm":"","confirma":false,"descripcion":"","justificacion":""}';
-  const notaMulti = multi
-    ? "HAY VARIAS PROPUESTAS: elegí UNA (ncm) aplicando RGI y notas del MARCO LEGAL.\n" +
-      "En descartadas: cada NCM no elegida con motivo legal.\n\n"
-    : "UNA SOLA PROPUESTA: confirma:true solo si el texto legal completo encaja con HECHOS; " +
-      "confirma:false si la línea exige una condición no escrita en HECHOS.\n\n";
-  const user =
-    `PRODUCTO Y HECHOS:\n${args.producto}\n\n` +
-    `${notaMulti}` +
-    `MARCO LEGAL (RGI, notas, nomenclador):\n${args.marcoLegal}\n\n` +
-    `PROPUESTAS (${args.propuestas.length}):\n${bloques}\nJSON:\n${esquema}`;
-  return pedir(SYSTEM_CRUCE, user, 950);
+  const paso1 = await cruzarPartida(args);
+  if (paso1.confirma !== true || !paso1.partida?.trim()) {
+    const partidaFb =
+      partidaPreferidaPorCadenaHechos(args.bloques, args.hechos) ??
+      partidaPreferidaPorRankingClaro(args.bloques, args.hechos);
+    if (partidaFb) {
+      const bloqueFb = args.bloques.find((b) => b.partida === partidaFb);
+      if (bloqueFb) {
+        return cerrarSimsEnPartida({
+          hechos: args.hechos,
+          bloque: bloqueFb,
+          marcoLegal: args.marcoLegal,
+          partida: partidaFb,
+        });
+      }
+    }
+    return paso1;
+  }
+
+  let partida = paso1.partida.replace(/\D/g, "").slice(0, 4);
+  // Correcciones de partida por encaje léxico con HECHOS (retrieval, general; no por dominio).
+  const corregidaNom = partidaCorregidaPorTipificacionNominal(args.bloques, args.hechos, partida);
+  if (corregidaNom) partida = corregidaNom;
+  // La cadena facturada prevalece sobre coincidencias en calificadores posteriores.
+  const corregidaSeg = partidaCorregidaPorSegmentosHechos(args.bloques, args.hechos, partida);
+  if (corregidaSeg) partida = corregidaSeg;
+  const corregidaCadena = partidaPreferidaPorCadenaHechos(args.bloques, args.hechos);
+  if (corregidaCadena) partida = corregidaCadena;
+
+  const bloque = args.bloques.find((b) => b.partida === partida);
+  if (!bloque) {
+    return {
+      confirma: false,
+      faltaDato: null,
+      justificacion: `La partida sugerida (${paso1.partida}) no está en el listado del nomenclador.`,
+    };
+  }
+
+  return cerrarSimsEnPartida({
+    hechos: args.hechos,
+    bloque,
+    marcoLegal: args.marcoLegal,
+    partida,
+  });
 }

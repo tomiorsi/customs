@@ -1,0 +1,248 @@
+{
+  "seed": 20260713,
+  "n": 40,
+  "excluidos": 180,
+  "solo_partes": false,
+  "muestras": [
+    {
+      "ncm": "0103.91.00.110K",
+      "partida": "0103",
+      "producto": "Animales vivos de la especie porcina, De peso inferior a 50 kg, Puros por cruza (R. 2507/93 ex-ANA), Para consumo",
+      "descripcion_ncm": "Para consumo"
+    },
+    {
+      "ncm": "0210.92.00.000K",
+      "partida": "0210",
+      "producto": "Los demás, incluidos la harina y polvo comestibles, de carne o de despojos:, De ballenas, delfines y marsopas (mamíferos del orden Cetacea); de manatíes y dugones o dugongos (mamíferos del orden Sirenia); de otarios y focas, leones marinos y morsas (mamíferos del suborden Pinnipedia)",
+      "descripcion_ncm": "--De ballenas, delfines y marsopas (mamíferos del orden Cetacea); de manatíes y dugones o dugongos (mamíferos del orden Sirenia); de otarios y focas, leones marinos y morsas (mamíferos del suborden Pinnipedia)"
+    },
+    {
+      "ncm": "0302.14.00.100Z",
+      "partida": "0302",
+      "producto": "Salmónidos, excepto los despojos comestibles de pescado de las subpartidas 0302.91 a 0302.99:, Salmones del Atlántico (Salmo salar) y salmones del Danubio (Hucho hucho), Salmones del Atlántico (Salmo salar)",
+      "descripcion_ncm": "Salmones del Atlántico (Salmo salar)"
+    },
+    {
+      "ncm": "0406.90.30.110C",
+      "partida": "0406",
+      "producto": "Quesos y requesón, Con un contenido de humedad superior o igual al 46,0 % pero inferior al 55,0 %, en peso (pasta blanda), En envases inmediatos de contenido neto inferior o igual a 5 kg (R.967/99 MEYOSP), Elaborado con leche de cabra, oveja o búfala",
+      "descripcion_ncm": "Elaborado con leche de cabra, oveja o búfala"
+    },
+    {
+      "ncm": "0511.99.91.220V",
+      "partida": "0511",
+      "producto": "Crin y sus desperdicios, incluso en capas con soporte o sin él, De bóvidos, Desperdicios",
+      "descripcion_ncm": "Desperdicios"
+    },
+    {
+      "ncm": "0602.10.00.400M",
+      "partida": "0602",
+      "producto": "Esquejes sin enraizar e injertos, Crisantemos",
+      "descripcion_ncm": "Crisantemos"
+    },
+    {
+      "ncm": "0710.21.00.110Q",
+      "partida": "0710",
+      "producto": "Hortalizas de vaina, están o no desvainadas:, Arvejas (chícharos, guisantes)* (Pisum sativum), Sin cocer (Ley 25063), En envases inmediatos de contenido neto inferior o igual a 3 kg",
+      "descripcion_ncm": "En envases inmediatos de contenido neto inferior o igual a 3 kg"
+    },
+    {
+      "ncm": "0802.70.00.100U",
+      "partida": "0802",
+      "producto": "Nueces de cola (Cola spp.), Frescos a granel (RG.2146 AFIP)",
+      "descripcion_ncm": "Frescos a granel (RG.2146 AFIP)"
+    },
+    {
+      "ncm": "0909.21.00.000Q",
+      "partida": "0909",
+      "producto": "Semillas de cilantro:, Sin triturar ni pulverizar",
+      "descripcion_ncm": "--Sin triturar ni pulverizar"
+    },
+    {
+      "ncm": "1008.21.10.100M",
+      "partida": "1008",
+      "producto": "Alforfón, Mijo, Para siembra, Mijo perla (Pennisetum glaucum), En envases inmediatos de contenido neto inferior o igual a 2 Kg",
+      "descripcion_ncm": "En envases inmediatos de contenido neto inferior o igual a 2 Kg"
+    },
+    {
+      "ncm": "1106.10.00.200B",
+      "partida": "1106",
+      "producto": "Harina, De las hortalizas de la partida 07.13, De garbanzos",
+      "descripcion_ncm": "De garbanzos"
+    },
+    {
+      "ncm": "1209.23.00.200N",
+      "partida": "1209",
+      "producto": "Semillas forrajeras:, De festucas, Rubra (Festuca rubra)",
+      "descripcion_ncm": "Rubra (Festuca rubra)"
+    },
+    {
+      "ncm": "1302.19.99.111E",
+      "partida": "1302",
+      "producto": "Jugos y extractos vegetales:, Estupefacientes, Estupefacientes Lista 4 (R. 2017/93 ex-ANA), Cannabis (Marihuana), extracto y tintura",
+      "descripcion_ncm": "Cannabis (Marihuana), extracto y tintura"
+    },
+    {
+      "ncm": "1508.10.00.100J",
+      "partida": "1508",
+      "producto": "Aceite en bruto, A granel (Ley 21.453)",
+      "descripcion_ncm": "A granel (Ley 21.453)"
+    },
+    {
+      "ncm": "1602.42.00.000Q",
+      "partida": "1602",
+      "producto": "De la especie porcina:, Paletas y trozos de paleta",
+      "descripcion_ncm": "--Paletas y trozos de paleta"
+    },
+    {
+      "ncm": "1704.90.20.121P",
+      "partida": "1704",
+      "producto": "Bombones, caramelos, confites y pastillas, Caramelos, Blandos y masticables, Rellenos",
+      "descripcion_ncm": "Rellenos"
+    },
+    {
+      "ncm": "1806.20.00.200L",
+      "partida": "1806",
+      "producto": "Las demás preparaciones, en bloques, tabletas o barras con peso superior a 2 kg o en forma líquida, pastosa o en polvo, gránulos o formas similares, en recipientes o en envases inmediatos, con un contenido superior a 2 kg, Chocolate",
+      "descripcion_ncm": "Chocolate"
+    },
+    {
+      "ncm": "1905.20.10.000Y",
+      "partida": "1905",
+      "producto": "Pan de especias, Pan dulce",
+      "descripcion_ncm": "Pan dulce"
+    },
+    {
+      "ncm": "2004.90.00.130J",
+      "partida": "2004",
+      "producto": "Las demás hortalizas y las mezclas de hortalizas, En envases inmediatos de contenido neto inferior o igual a 2,5 kg (R.967/99 MEYOSP), Maíz dulce (Zea mays var.saccharata)",
+      "descripcion_ncm": "Maíz dulce (Zea mays var.saccharata)"
+    },
+    {
+      "ncm": "2105.00.10.100G",
+      "partida": "2105",
+      "producto": "Helados, En envases inmediatos de contenido inferior o igual a 2 kg, Elaborado con leche bovina",
+      "descripcion_ncm": "Elaborado con leche bovina"
+    },
+    {
+      "ncm": "2205.10.00.100T",
+      "partida": "2205",
+      "producto": "Vermut y demás vinos de uvas, En recipientes con capacidad inferior o igual a 2 l, Espumoso frutado natural según Res N° C.1-03 (INV)",
+      "descripcion_ncm": "Espumoso frutado natural según Res N° C.1-03 (INV)"
+    },
+    {
+      "ncm": "2302.30.10.910D",
+      "partida": "2302",
+      "producto": "Salvados, De trigo, Moyuelo, Los demás (Ley 21.453), En envases inmediatos de contenido neto inferior o igual a 2 Kg (Res N° 835/2005 SAGPyA)",
+      "descripcion_ncm": "En envases inmediatos de contenido neto inferior o igual a 2 Kg (Res N° 835/2005 SAGPyA)"
+    },
+    {
+      "ncm": "2402.10.00.200F",
+      "partida": "2402",
+      "producto": "Cigarros (puros) (incluso despuntados) y cigarritos (puritos), que contengan tabaco, Cigarritos (puritos)",
+      "descripcion_ncm": "Cigarritos (puritos)"
+    },
+    {
+      "ncm": "2516.90.00.210Y",
+      "partida": "2516",
+      "producto": "Granito, Las demás piedras de talla o de construcción, Basalto, En bruto o desbastado",
+      "descripcion_ncm": "En bruto o desbastado"
+    },
+    {
+      "ncm": "2601.20.00.100J",
+      "partida": "2601",
+      "producto": "Minerales de hierro y sus concentrados, Piritas de hierro tostadas (cenizas de piritas), Aglomeradas",
+      "descripcion_ncm": "Aglomeradas"
+    },
+    {
+      "ncm": "2707.50.10.000Y",
+      "partida": "2707",
+      "producto": "Aceites y demas productos de la, Las demás mezclas de hidrocarburos aromáticos que destilen, incluidas las perdidas, una proporción superior o igual al 65 % en volumen a 250° C, Mezclas que contengan trimetilbencenos y etiltoluenos, como componentes mayoritarios",
+      "descripcion_ncm": "Mezclas que contengan trimetilbencenos y etiltoluenos, como componentes mayoritarios"
+    },
+    {
+      "ncm": "2835.10.21.000Q",
+      "partida": "2835",
+      "producto": "Fosfinatos (hipofosfitos) y fosfonatos (fosfitos), Fosfonatos (fosfitos), Dib?sico de plomo",
+      "descripcion_ncm": "Dib?sico de plomo"
+    },
+    {
+      "ncm": "2939.11.23.000Y",
+      "partida": "2939",
+      "producto": "Alcaloides del opio y sus derivados; sales de estos productos:, Concentrados de paja de adormidera; buprenorfina (DCI), codeína, dihidrocodeína (DCI), etilmorfina, etorfina (DCI), folcodina (DCI), heroína, hidrocodona (DCI), hidromorfona (DCI), morfina, nicomorfina (DCI), oxicodona (DCI), Dihidrocodeína y sus sales",
+      "descripcion_ncm": "Dihidrocodeína y sus sales"
+    },
+    {
+      "ncm": "3004.90.69.213A",
+      "partida": "3004",
+      "producto": "Medicamentos (excepto los productos de las, Que contengan productos de la partida 29.33, sin productos de las subpartidas 3004.90.1 a 3004.90.5, Que contengan otros sicotropos, excepto los incluidos en el desarrollo SIM 3004.90.69.5 (R.2017/93 ex-ANA), Secobarbital",
+      "descripcion_ncm": "Secobarbital"
+    },
+    {
+      "ncm": "3105.40.00.110Q",
+      "partida": "3105",
+      "producto": "Abonos minerales o químicos, Dihidrogenoortofosfato de amonio (fosfato monoamónico), incluso mezclado con hidrogenoortofosfato de diamonio (fosfato diamónico), Fosfato monoamónico, Puro (R.2808/80 ex-ANA)",
+      "descripcion_ncm": "Puro (R.2808/80 ex-ANA)"
+    },
+    {
+      "ncm": "3203.00.30.100E",
+      "partida": "3203",
+      "producto": "Preparaciones a que se refiere la Nota 3 de este Capítulo, a base de materias colorantes de origen vegetal o animal, A base de materias colorantes vegetales",
+      "descripcion_ncm": "A base de materias colorantes vegetales"
+    },
+    {
+      "ncm": "3301.29.21.100H",
+      "partida": "3301",
+      "producto": "Aceites esenciales, excepto los de agrios (cítricos):, De lavanda (espliego) o lavadín; espicanardo (\"vetiver\"), De lavanda (espliego) o lavadín, Productos domisanitarios definidos en la Resolución 709/98 ex MSyAS",
+      "descripcion_ncm": "Productos domisanitarios definidos en la Resolución 709/98 ex MSyAS"
+    },
+    {
+      "ncm": "3401.11.10.000G",
+      "partida": "3401",
+      "producto": "Jabón, productos y preparaciones orgánicos tensoactivos, en barras, panes, trozos o piezas troqueladas o moldeadas, y papel, guata, fieltro y tela sin tejer, impregnados, recubiertos o revestidos de jabón o de detergentes:, De tocador (incluso los medicinales), Jabones medicinales",
+      "descripcion_ncm": "Jabones medicinales"
+    },
+    {
+      "ncm": "3505.20.00.200Q",
+      "partida": "3505",
+      "producto": "Dextrina y demás almidones y feculas, Colas, De los demás almidones y féculas",
+      "descripcion_ncm": "De los demás almidones y féculas"
+    },
+    {
+      "ncm": "3606.10.00.111B",
+      "partida": "3606",
+      "producto": "Ferrocerio y demás aleaciones pirofóricas en, Combustibles líquidos y gases combustibles licuados en recipientes de los tipos utilizados para cargar o recargar encendedores o mecheros, de capacidad inferior o igual a 300 cm3, Combustibles líquidos, Solventes",
+      "descripcion_ncm": "Solventes"
+    },
+    {
+      "ncm": "3702.10.10.000H",
+      "partida": "3702",
+      "producto": "Películas fotográficas en rollos, Para rayos X, Sensibilizadas en una cara",
+      "descripcion_ncm": "Sensibilizadas en una cara"
+    },
+    {
+      "ncm": "3824.99.31.100W",
+      "partida": "3824",
+      "producto": "Mezclas y preparaciones para caucho o plástico y demás mezclas y preparaciones para endurecer resinas sinteticas, colas, pinturas o para otros usos similares, Que contengan isocianatos de hexametileno u otros isocianatos, Que contengan isocianatos de hexametileno",
+      "descripcion_ncm": "Que contengan isocianatos de hexametileno"
+    },
+    {
+      "ncm": "3918.10.00.120E",
+      "partida": "3918",
+      "producto": "Revestimientos de plástico para suelos, De polímeros de cloruro de vinilo, Para suelos, excepto los englobados por el acuerdo ALADI/AAP.CE/14.44 Apendice I, Rollos",
+      "descripcion_ncm": "Rollos"
+    },
+    {
+      "ncm": "4011.10.00.846H",
+      "partida": "4011",
+      "producto": "Neumáticos (llantas neumáticas) nuevos de caucho, De los tipos utilizados en automóviles de turismo (incluidos los del tipo familiar(\"break\" o \"station wagon\")y los de carreras), Radiales, Con ancho seccional igual a 285 mm.",
+      "descripcion_ncm": "Con ancho seccional igual a 285 mm."
+    },
+    {
+      "ncm": "4104.41.20.000D",
+      "partida": "4104",
+      "producto": "En estado seco ( «crust»):, Plena flor sin dividir; divididos con la flor, Los demás cueros y pieles de bovino (incluido el búfalo) curtidos al vegetal para suelas",
+      "descripcion_ncm": "Los demás cueros y pieles de bovino (incluido el búfalo) curtidos al vegetal para suelas"
+    }
+  ]
+}

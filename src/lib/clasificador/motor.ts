@@ -8,6 +8,7 @@ import {
   tributacionPorSim,
 } from "@/lib/tributacion-vuce";
 import { ivaEstimado } from "./datos";
+import { textoFiltroConfiable } from "./estado-clasificacion";
 import type { CandidatoNcm } from "./tipos";
 
 /**
@@ -232,7 +233,11 @@ export type PartidaCandidata = {
 /** Máx. partidas en las que puede aparecer una clave para tratarla como discriminante. */
 const MAX_DF_CLAVE_DISCRIMINANTE = 15;
 
-/** Palabras funcionales (≥4 letras) que no discriminan partidas en el filtro parquet. */
+/**
+ * Palabras funcionales que no discriminan partidas en el filtro parquet.
+ * Se incluyen voces de 3 letras: el mínimo de longitud es 3, para no perder
+ * sustantivos cortos del artículo (pan, sal, gas, gel, oro, res, ave, col, ajo…).
+ */
 const STOPWORDS_FILTRO_PARQUET = new Set([
   "para", "como", "este", "esta", "estos", "estas", "esos", "esas",
   "otro", "otra", "otros", "otras", "todo", "toda", "todos", "todas",
@@ -243,6 +248,11 @@ const STOPWORDS_FILTRO_PARQUET = new Set([
   "alguno", "alguna", "ningun", "ninguna", "mediante", "durante",
   "dentro", "fuera", "mismo", "misma",
   "pero", "igual", "incluido", "incluida",
+  // Voces funcionales de 3 letras (no son nombres de artículo).
+  "con", "por", "los", "las", "una", "que", "sin", "del",
+  "aun", "tan", "sus", "tus", "mis", "nos", "les",
+  "son", "han", "hay", "sea", "ser", "fue", "uno", "dos",
+  "esa", "ese", "eso", "van", "cuyo", "cuya",
 ]);
 
 /** Tipo genérico de artículo: no discrimina encabezados de partida. */
@@ -266,6 +276,23 @@ const PREFIJO_ARTICULO_COMPLETO =
 const INDICADORES_FORMA_REPUESTO =
   /\b(?:repuesto|componente|parte|pieza|accesorio)\b/;
 
+function primerSegmentoFacturado(texto: string): string {
+  return (texto ?? "").split(",")[0]?.trim() ?? (texto ?? "").trim();
+}
+
+/** Meta comercial al final («, accesorio», «, repuesto suelto») sin redefinir el núcleo. */
+function metaRepuestoSoloEnCola(texto: string): boolean {
+  const segmentos = (texto ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  if (segmentos.length < 2) return false;
+  const ultimo = corpusNormalizado(segmentos.at(-1) ?? "");
+  return (
+    META_ESTADO_IMPORTADOR.has(ultimo) ||
+    /^(?:repuesto|repuestos|accesorio|accesorios|reemplazo|oem|spare|suelto|sueltas)$/.test(
+      ultimo,
+    )
+  );
+}
+
 function segmentoPrincipal(texto: string): string {
   return (texto ?? "").split(/[\-–•·,;]/)[0]?.trim() ?? (texto ?? "");
 }
@@ -275,12 +302,30 @@ function textoSinColaPropulsion(texto: string): string {
   return segmentoPrincipal(texto).replace(/\s+con\s+(?:un\s+)?motor\b[\s\S]*$/i, "").trim();
 }
 
-/** HECHOS declara máquina/aparato completo (no repuesto ni componente suelto). */
+/** HECHOS declara artículo terminado (no repuesto ni componente suelto). */
 export function esArticuloCompleto(texto: string): boolean {
-  const head = corpusNormalizado(textoSinColaPropulsion(texto));
-  if (!PREFIJO_ARTICULO_COMPLETO.test(head)) return false;
-  const nucleo = head.split(/\s+con\s+/)[0] ?? head;
-  return !INDICADORES_FORMA_REPUESTO.test(nucleo);
+  const primer = primerSegmentoFacturado(texto);
+  const head = corpusNormalizado(textoSinColaPropulsion(primer));
+
+  if (/^partes\b/.test(head)) return false;
+
+  if (PREFIJO_ARTICULO_COMPLETO.test(head)) {
+    const nucleo = head.split(/\s+con\s+/)[0] ?? head;
+    return !INDICADORES_FORMA_REPUESTO.test(nucleo);
+  }
+
+  if (INDICADORES_FORMA_REPUESTO.test(head.split(/\s+/).slice(0, 4).join(" "))) {
+    return false;
+  }
+
+  const tipoWords = palabrasClaveHechos(primer).filter(
+    (c) => !META_ESTADO_IMPORTADOR.has(c) && !GENERICOS_NOMBRE_PARTIDA.has(c),
+  );
+  if (tipoWords.length >= 1 && head.split(/\s+/).filter(Boolean).length >= 2) {
+    return true;
+  }
+
+  return contextoVehiculoEnTexto(primer);
 }
 
 /** Genérico inicial (maquina/equipo/…) cuando califica un tipo concreto. */
@@ -318,7 +363,7 @@ export function palabraTipoPrincipal(texto: string): string | null {
 /** Unidades técnicas en facturas; evita falsos positivos con medidas numéricas. */
 const UNIDADES_HECHOS = new Set([
   "kw", "k w", "hp", "kva", "mm", "cm", "m", "bar", "rpm", "kv", "mw", "w", "v", "a",
-  "kg", "ton", "litro", "l", "gal", "psi",
+  "kg", "ton", "litro", "l", "gal", "psi", "g",
 ]);
 
 /** Claves numéricas con unidad para cruce con texto legal del nomenclador. */
@@ -353,18 +398,19 @@ function expandClavesRetrieval(claves: string[]): string[] {
   return out;
 }
 
-/** Palabras del producto + respuestas para filtrar parquet (mín. 4 letras; sin stopwords). */
+/** Palabras del producto + respuestas para filtrar parquet (mín. 3 letras; sin stopwords). */
 export function palabrasClaveHechos(texto: string): string[] {
   const norm = corpusNormalizado(texto ?? "").replace(/[^a-z0-9\s]/g, " ");
   const out: string[] = [];
   for (const w of norm.split(/\s+/)) {
-    if (w.length < 4) continue;
+    if (w.length < 3) continue;
     if (STOPWORDS_FILTRO_PARQUET.has(w)) continue;
     if (!out.includes(w)) out.push(w);
   }
   for (const c of clavesConUnidadNumerica(texto)) {
     if (!out.includes(c)) out.push(c);
   }
+  if (/\bg\s*\/\s*m2?\b/.test(norm) && !out.includes("gm2")) out.push("gm2");
   return out;
 }
 
@@ -383,14 +429,29 @@ function sustantivosTrasPara(texto: string): string[] {
   return out;
 }
 
-/** HECHOS declara repuesto, componente o pieza suelta (forma comercial). */
+/** HECHOS declara repuesto, componente o pieza suelta (forma comercial en el núcleo facturado). */
 export function esRepuestoOSuelto(texto: string): boolean {
+  if (esArticuloCompleto(texto)) return false;
+
+  const primer = corpusNormalizado(primerSegmentoFacturado(texto));
+  if (declaraCategoriaPartes(texto)) return true;
+
+  const indicadorEnNucleo =
+    /\b(?:repuesto|repuestos|componente|componentes|pieza|piezas|accesorio|accesorios)\b/.test(
+      primer,
+    );
+  if (indicadorEnNucleo) return true;
+  if (/\b(?:suelto|sueltas)\b/.test(primer)) return true;
+
   const n = corpusNormalizado(texto ?? "");
-  return (
-    /\b(?:repuesto|repuestos|componente|componentes|pieza|piezas|accesorio|accesorios|reemplazo|oem|spare)\b/.test(
-      n,
-    ) || /\b(?:suelto|sueltas)\b/.test(n)
-  );
+  if (/\b(?:repuesto|repuestos|componente|componentes|pieza|piezas|reemplazo|oem|spare)\b/.test(n)) {
+    return !metaRepuestoSoloEnCola(texto);
+  }
+  if (/\b(?:accesorio|accesorios)\b/.test(n)) {
+    return !metaRepuestoSoloEnCola(texto);
+  }
+  if (/\b(?:suelto|sueltas)\b/.test(n)) return !metaRepuestoSoloEnCola(texto);
+  return false;
 }
 
 /** Sustantivos de máquina/aparato padre declarados en el texto (de/para/del). */
@@ -477,8 +538,10 @@ function frasesDiscriminantes(texto: string): string[] {
 
 /** Claves del primer segmento (antes de coma): suelen nombrar el tipo de artículo. */
 function clavesPrioritarias(texto: string): Set<string> {
-  const head = segmentoPrincipal(texto).split(",")[0] ?? segmentoPrincipal(texto);
-  return new Set(palabrasClaveHechos(head));
+  const headSource = declaraCategoriaPartes(texto)
+    ? textoNucleoSinPrefijoPartes(texto).split(",")[0] ?? textoNucleoSinPrefijoPartes(texto)
+    : segmentoPrincipal(texto).split(",")[0] ?? segmentoPrincipal(texto);
+  return new Set(palabrasClaveHechos(headSource));
 }
 
 function fraseEnCorpus(frase: string, corpus: string): boolean {
@@ -506,7 +569,7 @@ async function partidasPorFrasesDiscriminantes(texto: string): Promise<string[]>
 
 /** Candidatas por segmentos separados por coma (cada uno nombra un rasgo del artículo). */
 async function partidasPorSegmentos(texto: string): Promise<string[]> {
-  const segmentos = segmentoPrincipal(texto)
+  const segmentos = (texto ?? "")
     .split(",")
     .map((s) => s.trim())
     .filter((s) => s.length >= 10);
@@ -528,11 +591,12 @@ async function filtrarPartidasRepuestoIndustrial(
   texto: string,
   partidas: string[],
 ): Promise<string[]> {
-  if (!esRepuestoOSuelto(texto) || esArticuloCompleto(texto)) return partidas;
-  if (!contextoVehiculoEnTexto(texto)) {
-    return partidas.filter((p) => !p.startsWith("87"));
+  if (!esRepuestoOSuelto(texto)) return partidas;
+  const primer = primerSegmentoFacturado(texto);
+  if (contextoVehiculoEnTexto(primer) || contextoVehiculoEnTexto(texto)) {
+    return partidas;
   }
-  return partidas;
+  return partidas.filter((p) => !p.startsWith("87"));
 }
 
 /** Peso del encabezado legal por terminología estructural del nomenclador (partes/juntas/empaquetaduras). */
@@ -543,6 +607,23 @@ function pesoEncabezadoEstructural(desc: string): number {
   if (/\bjuntas\b/.test(h)) w++;
   if (/\bempaquetaduras\b/.test(h)) w++;
   return w;
+}
+
+/** Primer segmento facturado declara categoría PARTES del nomenclador (no «partes del cuerpo», etc.). */
+function declaraCategoriaPartes(texto: string): boolean {
+  const primer = (texto ?? "").split(",")[0]?.trim() ?? "";
+  return /^partes\b/i.test(primer);
+}
+
+/** Tras prefijo «Partes,» el núcleo discriminante suele estar en los segmentos siguientes. */
+function textoNucleoSinPrefijoPartes(texto: string): string {
+  if (!declaraCategoriaPartes(texto)) return texto;
+  const resto = (texto ?? "")
+    .split(",")
+    .slice(1)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return resto.length ? resto.join(", ") : texto;
 }
 
 export function sustantivosPadreEnTexto(texto: string): string[] {
@@ -610,9 +691,10 @@ function variantesLexicaClave(w: string): string[] {
 }
 
 function clavesParaPartidas(texto: string): string[] {
+  const nucleoPartes = declaraCategoriaPartes(texto) ? textoNucleoSinPrefijoPartes(texto) : texto;
   const completo = esArticuloCompleto(texto);
   const calificador = genericoCalificador(texto);
-  const fuente = completo ? textoSinColaPropulsion(texto) : texto;
+  const fuente = completo ? textoSinColaPropulsion(texto) : nucleoPartes;
   let raw = palabrasClaveHechos(fuente);
 
   const base = raw.filter(
@@ -649,6 +731,7 @@ export async function partidasCandidatas(
 
   const completo = esArticuloCompleto(texto);
   const repuesto = esRepuestoOSuelto(texto) && !completo;
+  const categoriaPartes = repuesto && declaraCategoriaPartes(texto);
   const contextoVehiculo = contextoVehiculoEnTexto(texto);
   const tipoPrincipal = palabraTipoPrincipal(texto);
   const tipoDf = tipoPrincipal
@@ -704,8 +787,19 @@ export async function partidasCandidatas(
       }
     }
     if (score > 0) {
+      const partidaDesc = idx.partDesc.get(partida) ?? "";
+      if (categoriaPartes) {
+        const estructural = pesoEncabezadoEstructural(partidaDesc);
+        if (estructural > 0) {
+          score += 12 + estructural * 4;
+          headingScore += 15;
+        } else {
+          score *= 0.25;
+          headingScore *= 0.25;
+        }
+      }
       scored.push({
-        c: { partida, descripcion: idx.partDesc.get(partida) ?? "" },
+        c: { partida, descripcion: partidaDesc },
         score,
         headingScore,
       });
@@ -815,6 +909,27 @@ async function partidasConTipoEnHeading(texto: string): Promise<string[]> {
   return out;
 }
 
+/** Partidas cuyo encabezado (4 dígitos) coincide con el primer segmento facturado del texto. */
+async function partidasPorEncabezadoEnTexto(texto: string): Promise<string[]> {
+  const idx = await getIndice();
+  const primer = (texto ?? "").split(",")[0]?.trim() ?? "";
+  const claves = palabrasClaveHechos(primer).filter((k) => k.length >= 4);
+  if (!claves.length) return [];
+  const minHits = claves.length >= 3 ? 2 : 1;
+  const scored: Array<{ partida: string; hits: number }> = [];
+  for (const [partida, desc] of idx.partDesc) {
+    const heading = idx.headingCorpusPorPartida.get(partida) ?? corpusNormalizado(desc);
+    const hits = claves.filter(
+      (k) =>
+        !esHomofoniaEncabezado(k, heading) &&
+        (tokenEnEncabezadoStrict(k, heading) || tokenEnCorpus(k, heading)),
+    ).length;
+    if (hits >= minHits) scored.push({ partida, hits });
+  }
+  scored.sort((a, b) => b.hits - a.hits || a.partida.localeCompare(b.partida));
+  return scored.map((s) => s.partida).slice(0, 4);
+}
+
 async function partidasQueContienenClave(clave: string): Promise<string[]> {
   const idx = await getIndice();
   const out: string[] = [];
@@ -919,14 +1034,22 @@ export type BloqueCandidatos = {
   sims: CandidatoNcm[];
 };
 
-/** Capítulos del nomenclador donde la partida identifica principalmente una materia. */
+/**
+ * Capítulos donde la partida identifica principalmente una materia (no un tipo de artículo).
+ * Cuando compiten dos de estos y HECHOS no declara el material, se pregunta en vez de asumir.
+ */
 const CAPITULOS_MATERIA = new Set([
-  "39", "40", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59",
-  "70", "73", "76",
+  "39", "40",                                     // plásticos, caucho
+  "41", "43",                                     // cuero, peletería
+  "44", "45", "46",                               // madera, corcho, cestería
+  "47", "48",                                     // pasta, papel/cartón
+  "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", // textiles
+  "68", "69", "70",                               // piedra, cerámica, vidrio
+  "72", "73", "74", "75", "76", "78", "79", "80", "81", // metales comunes
 ]);
 
 const MATERIA_EN_HECHOS =
-  /\b(?:plastico|plastica|caucho|goma|metal|metalic|acero|hierro|textil|algodon|nylon|poliuretano|pvc|polietileno|bronce|aluminio|madera|cuero|lona|sintetic)\b/;
+  /\b(?:plastico|plastica|caucho|goma|metal|metalic|acero|hierro|fundicion|textil|algodon|nylon|poliuretano|pvc|polietileno|bronce|laton|aluminio|cobre|zinc|cinc|estano|plomo|niquel|titanio|madera|contrachapad|corcho|mimbre|bambu|ratan|cuero|piel|lona|sintetic|papel|carton|celulosa|vidrio|ceramic|porcelana|gres|loza|piedra|marmol|granito|yeso|hormigon|lino|lana|seda|yute|viscosa|poliester|polipropileno|acrilic|elastomer|elastomero|fibra|fieltro|hilado|filamento)\b/;
 
 export function materiaDeclaradaEnHechos(hechos: string): boolean {
   if (MATERIA_EN_HECHOS.test(corpusNormalizado(hechos ?? ""))) return true;
@@ -953,6 +1076,36 @@ async function partidasPorMaterialDeclarado(
     .slice(0, 4);
 }
 
+/** ¿El NCM elegido tipifica el tipo de artículo declarado en HECHOS (no solo su capítulo de materia)? */
+function tipificacionArticuloEncajaConHechos(
+  sim: { descripcion?: string; ruta?: string },
+  bloque: BloqueCandidatos,
+  hechos: string,
+  bloques: BloqueCandidatos[],
+): boolean {
+  const tip = encabezadoTipificacionGrupo([sim]);
+  if (tipificacionEncajaConHechos(tip, hechos)) return true;
+  if (hojaEspecificaEncajaConHechos(sim, hechos)) return true;
+  for (const s of bloque.sims) {
+    for (const seg of segmentosRamaLegal(s)) {
+      if (encabezadoLegalGenerico(seg) || seg.length < 18) continue;
+      if (lexemaCompartidoEntreTextos(seg, hechos)) {
+        const hits = hitsHechosEnBloque(bloque, hechos);
+        if (hits >= 2) return true;
+      }
+    }
+  }
+  const hits = hitsHechosEnBloque(bloque, hechos);
+  if (hits < 2) return false;
+  let maxOtro = 0;
+  for (const b of bloques) {
+    if (b.partida === bloque.partida) continue;
+    if (!CAPITULOS_MATERIA.has(b.partida.slice(0, 2))) continue;
+    maxOtro = Math.max(maxOtro, hitsHechosEnBloque(b, hechos));
+  }
+  return hits >= maxOtro + 2;
+}
+
 /** True si el cierre elige una partida de materia sin que HECHOS la declare y hay alternativas. */
 export function cierreAsumeMaterialSinHechos(
   hechos: string,
@@ -962,7 +1115,12 @@ export function cierreAsumeMaterialSinHechos(
   if (!hayCompetenciaMaterialEntreBloques(bloques)) return false;
   if (materiaDeclaradaEnHechos(hechos)) return false;
   const cap = (ncm ?? "").replace(/\D/g, "").slice(0, 2);
-  return CAPITULOS_MATERIA.has(cap);
+  if (!CAPITULOS_MATERIA.has(cap)) return false;
+  const found = simDeNcm(ncm, bloques);
+  if (found && tipificacionArticuloEncajaConHechos(found.sim, found.bloque, hechos, bloques)) {
+    return false;
+  }
+  return true;
 }
 
 function simDeNcm(
@@ -1012,10 +1170,18 @@ export function cierreInvalidoPorHechos(
 /** Menú final al motor: la IA elige partida y subpartida dentro de este tope. */
 export const MAX_PARTIDAS_PAQUETE = 5;
 
-/** Contexto automotor en HECHOS (palabras del texto, sin traducción). */
+/** Contexto de vehículo o velocípedo en HECHOS (palabras del texto, sin traducción). */
 function contextoVehiculoEnTexto(texto: string): boolean {
   const norm = corpusNormalizado(texto ?? "");
-  return /\b(?:vehiculo|automovil|automotor|camion|omnibus|egr)\b/.test(norm);
+  const terminos = [
+    "vehiculo", "automovil", "automotor", "camion", "omnibus", "autobus",
+    "bicicleta", "velocipedo", "motocicleta", "ciclomotor", "triciclo",
+    "locomotora", "vagon",
+  ];
+  for (const t of terminos) {
+    if (tokenEnCorpus(t, norm)) return true;
+  }
+  return false;
 }
 
 export type ArgsPartidasPaquete = {
@@ -1027,7 +1193,7 @@ export type ArgsPartidasPaquete = {
 /** Si el corte top-5 dejó fuera partidas fuertes del merge, recupera una. */
 function promoverReservaMerge(merged: PartidaCandidata[], out: string[]): string[] {
   const resultado = [...out];
-  for (const c of merged.slice(MAX_PARTIDAS_PAQUETE, MAX_PARTIDAS_PAQUETE + 8)) {
+  for (const c of merged.slice(MAX_PARTIDAS_PAQUETE, MAX_PARTIDAS_PAQUETE + 12)) {
     if (resultado.includes(c.partida)) continue;
     if (resultado.length < MAX_PARTIDAS_PAQUETE) {
       resultado.push(c.partida);
@@ -1074,6 +1240,85 @@ function combinarPartidasConBonus(
 /**
  * Resuelve las partidas del menú (máx. 5). Solo retrieval: la IA elige partida y subpartida.
  */
+async function promoverPrincipalPorPrimerSegmento(
+  principal: PartidaCandidata[],
+  texto: string,
+): Promise<PartidaCandidata[]> {
+  const primer = (texto ?? "").split(",")[0]?.trim() ?? "";
+  if (primer.length < 8) return principal;
+  const norm = corpusNormalizado(primer);
+  // Rasgos técnicos de subpartida (peso, uso, envase), no nombre de familia del artículo.
+  if (/^(?:de|para|en|con|sin|aptas?\s+para|los\s+demas|las\s+demas)\b/.test(norm)) {
+    return principal;
+  }
+  const porPrimer = await partidasCandidatas(primer, { limite: 5 });
+  const out = [...principal];
+  for (let i = porPrimer.length - 1; i >= 0; i--) {
+    const c = porPrimer[i]!;
+    const idx = out.findIndex((p) => p.partida === c.partida);
+    if (idx >= 0) out.splice(idx, 1);
+    out.unshift(c);
+  }
+  return out;
+}
+
+/** Si el merge desplazó partidas del ranking léxico principal, recupera las faltantes. */
+async function garantizarPartidasLexicasEnPaquete(
+  textos: string[],
+  out: string[],
+): Promise<string[]> {
+  const fuentes = [...new Set(textos.map((t) => t.trim()).filter(Boolean))];
+  if (!fuentes.length) return out.slice(0, MAX_PARTIDAS_PAQUETE);
+
+  const topsPorFuente: string[][] = [];
+  for (const texto of fuentes) {
+    topsPorFuente.push(
+      (await partidasCandidatas(texto, { limite: MAX_PARTIDAS_PAQUETE })).map((c) => c.partida),
+    );
+  }
+
+  const rankPrioridad = (p: string): number => {
+    let best = 9999;
+    for (const top of topsPorFuente) {
+      const i = top.indexOf(p);
+      if (i >= 0 && i < best) best = i;
+    }
+    return best;
+  };
+
+  const prioritarios: string[] = [];
+  const vistosPri = new Set<string>();
+  for (const top of topsPorFuente) {
+    for (const p of top) {
+      if (vistosPri.has(p)) continue;
+      vistosPri.add(p);
+      prioritarios.push(p);
+    }
+  }
+
+  const faltantes = prioritarios.filter((p) => !out.includes(p));
+  if (!faltantes.length) return out.slice(0, MAX_PARTIDAS_PAQUETE);
+  let resultado = [...out];
+  for (const p of faltantes) {
+    if (resultado.includes(p)) continue;
+    if (resultado.length < MAX_PARTIDAS_PAQUETE) {
+      resultado.push(p);
+      continue;
+    }
+    let reemplazar = 0;
+    let peor = -1;
+    for (let i = 0; i < resultado.length; i++) {
+      const r = rankPrioridad(resultado[i]!);
+      if (r > peor) {
+        peor = r;
+        reemplazar = i;
+      }
+    }
+    resultado[reemplazar] = p;
+  }
+  return resultado.slice(0, MAX_PARTIDAS_PAQUETE);
+}
+
 export async function resolverPartidasPaquete(args: ArgsPartidasPaquete): Promise<string[]> {
   const { textoNombreBase, textoFiltro, textoSims } = args;
 
@@ -1081,15 +1326,20 @@ export async function resolverPartidasPaquete(args: ArgsPartidasPaquete): Promis
 
   const principal = await partidasCandidatas(textoSims, { limite: 20 });
   const alternativas = await Promise.all(
-    [...new Set([textoFiltro, textoNombreBase].filter((t) => t.trim() && t !== textoSims))].map(
-      (t) => partidasCandidatas(t, { limite: 12 }),
-    ),
+    [
+      ...new Set(
+        [textoFiltro, textoNombreBase].filter(
+          (t) => t.trim() && t !== textoSims && textoFiltroConfiable(t, textoSims),
+        ),
+      ),
+    ].map((t) => partidasCandidatas(t, { limite: 12 })),
   );
   for (const alt of alternativas) {
     for (const c of alt) {
       if (!principal.some((p) => p.partida === c.partida)) principal.push(c);
     }
   }
+  const principalOrdenado = await promoverPrincipalPorPrimerSegmento(principal, textoSims);
 
   const porDiscriminantes = await partidasPorClavesDiscriminantes(textoSims);
   const porMaterial = await partidasPorMaterialDeclarado(textoNombreBase, textoSims);
@@ -1102,9 +1352,11 @@ export async function resolverPartidasPaquete(args: ArgsPartidasPaquete): Promis
   const porFrases = await partidasPorFrasesDiscriminantes(textoSims);
   const porSegmentos = await partidasPorSegmentos(textoSims);
   const porHeadingTexto = (await partidasConHeadingMatch(textoSims)).map((c) => c.partida).slice(0, 4);
+  const porEncabezadoTexto = await partidasPorEncabezadoEnTexto(textoSims);
   const porTipoHeading = await partidasConTipoEnHeading(textoSims);
 
   const refuerzos: Array<{ partidas: string[]; peso: number }> = [
+    { partidas: porEncabezadoTexto, peso: 5 },
     { partidas: porTipoHeading, peso: 4 },
     { partidas: porDiscriminantes, peso: 3 },
     { partidas: porSegmentos, peso: 3 },
@@ -1112,11 +1364,22 @@ export async function resolverPartidasPaquete(args: ArgsPartidasPaquete): Promis
     { partidas: porHeadingTexto, peso: 2 },
     { partidas: porMaterial, peso: 1.5 },
   ];
-  if (repuesto) refuerzos.push({ partidas: porPartesPadre, peso: 3 });
+  const tipoEnNombre = palabraTipoPrincipal(textoNombreBase);
+  if (repuesto && !tipoEnNombre) refuerzos.push({ partidas: porPartesPadre, peso: 3 });
 
-  const merged = combinarPartidasConBonus(principal, refuerzos, 15);
+  const merged = combinarPartidasConBonus(principalOrdenado, refuerzos, 15);
   let out = merged.map((c) => c.partida).slice(0, MAX_PARTIDAS_PAQUETE);
   out = promoverReservaMerge(merged, out);
+  out = await garantizarPartidasLexicasEnPaquete(
+    [
+      ...new Set(
+        [textoSims, textoFiltro, textoNombreBase].filter(
+          (t) => t.trim() && (t === textoSims || textoFiltroConfiable(t, textoSims)),
+        ),
+      ),
+    ],
+    out,
+  );
 
   return (await filtrarPartidasRepuestoIndustrial(textoSims, out)).slice(0, MAX_PARTIDAS_PAQUETE);
 }
@@ -1252,16 +1515,24 @@ export function textoLegalResumido(c: { descripcion?: string; ruta?: string }): 
   return tail.join(" > ");
 }
 
-/** Línea residual del nomenclador («Las demás», «Los demás»). */
-export function esLineaResidual(descripcion: string): boolean {
-  const d = corpusNormalizado(descripcion).replace(/^-+/g, "").trim();
-  return d.startsWith("las demas") || d.startsWith("los demas");
+/** Residual genérico del nomenclador («Los demás», «Las demás»), no tipificaciones nominales largas. */
+function esResidualGenerico(texto: string): boolean {
+  const d = corpusNormalizado(texto).replace(/^-+/g, "").replace(/:+$/, "").trim();
+  if (d === "los demas" || d === "las demas" || d === "demas") return true;
+  if (d.startsWith("los demas") || d.startsWith("las demas")) {
+    return d.split(/\s+/).filter(Boolean).length <= 3;
+  }
+  return false;
 }
 
-/** Encabezado de rama compuesto solo por residuales genéricas («Los demás aparatos…», etc.). */
+/** Línea residual del nomenclador («Las demás», «Los demás»). */
+export function esLineaResidual(descripcion: string): boolean {
+  return esResidualGenerico(descripcion);
+}
+
+/** Encabezado de rama residual genérica (no tipificación nominal «Los demás bojes…»). */
 export function encabezadoLegalGenerico(texto: string): boolean {
-  const d = corpusNormalizado(texto).replace(/:+$/, "").trim();
-  return d.startsWith("los demas") || d.startsWith("las demas");
+  return esResidualGenerico(texto);
 }
 
 export function prefijoSubpartidaCodigo(codigo: string): string {
@@ -1280,6 +1551,83 @@ export function agruparSimsPorSubpartida<T extends { codigo: string }>(
     porSub.set(k, arr);
   }
   return porSub;
+}
+
+/** Hermanas directas: mismo encabezado legal inmediato (misma rama, hoja distinta). */
+function agruparSimsPorRamaInmediata<T extends { codigo: string; descripcion?: string; ruta?: string }>(
+  sims: T[],
+): Map<string, T[]> {
+  const groups = new Map<string, T[]>();
+  for (const s of sims) {
+    const segs = segmentosRamaLegal(s);
+    const parent = segs.length > 1 ? segs.slice(0, -1).join(" > ") : segs.join(" > ");
+    const arr = groups.get(parent) ?? [];
+    arr.push(s);
+    groups.set(parent, arr);
+  }
+  return groups;
+}
+
+function puntajeTipificacionesNominalesPartida(
+  bloque: BloqueCandidatos | undefined,
+  hechos: string,
+): number {
+  if (!bloque) return 0;
+  const vistos = new Set<string>();
+  let mejor = 0;
+  for (const s of bloque.sims) {
+    for (const seg of segmentosRamaLegal(s)) {
+      if (encabezadoLegalGenerico(seg)) continue;
+      const key = corpusNormalizado(seg);
+      if (vistos.has(key)) continue;
+      vistos.add(key);
+      let score = 0;
+      for (const t of key.split(/\s+/)) {
+        if (t.length < 5) continue;
+        if (lexemaCompartidoConHechos(t, hechos)) score++;
+      }
+      if (score > mejor) mejor = score;
+    }
+  }
+  return mejor;
+}
+
+/**
+ * Si la partida elegida pierde ante otra candidata en encaje de tipificaciones nominales
+ * del listado con HECHOS, devuelve la partida corregida (RGI 1 / familia del artículo).
+ */
+export function partidaCorregidaPorTipificacionNominal(
+  bloques: BloqueCandidatos[],
+  hechos: string,
+  partidaElegida: string,
+): string | null {
+  const p4 = partidaElegida.replace(/\D/g, "").slice(0, 4);
+  const rank = rankingPartidasPorSegmentosHechos(bloques, hechos);
+  if (rank.length >= 2) {
+    const [lider, segundo] = rank;
+    const elegida = rank.find((r) => r.partida === p4);
+    if (
+      lider &&
+      elegida &&
+      elegida.partida === lider.partida &&
+      lider.score >= (segundo?.score ?? 0) + MARGEN_PARTIDA_RANKING_CLARO
+    ) {
+      return null;
+    }
+  }
+
+  const bloqueEleg = bloques.find((b) => b.partida === p4);
+  const scoreEleg = puntajeTipificacionesNominalesPartida(bloqueEleg, hechos);
+
+  let mejor: { partida: string; score: number } | null = null;
+  for (const b of bloques) {
+    const score = puntajeTipificacionesNominalesPartida(b, hechos);
+    if (!mejor || score > mejor.score) mejor = { partida: b.partida, score };
+  }
+  if (!mejor || mejor.partida === p4) return null;
+  if (mejor.score < 4) return null;
+  if (mejor.score >= scoreEleg + 3) return mejor.partida;
+  return null;
 }
 
 export function encabezadoTipificacionGrupo(
@@ -1341,6 +1689,7 @@ function hojaEspecificaEncajaConHechos(
   }
   return score >= 2;
 }
+
 
 function primerSegmentoTipificacion(
   sims: Array<{ codigo: string; descripcion?: string; ruta?: string }>,
@@ -1437,6 +1786,566 @@ export function ncmPreferidaPorTipificacion(
 
   if (!mejor || mejor.ncm.toUpperCase() === elegido) return null;
   return mejor.ncm;
+}
+
+/**
+ * Si el NCM elegido está en una rama cuya tipificación no encaja con HECHOS pero otra rama
+ * nominal de la misma partida sí encaja, devuelve el NCM de esa rama (RGI 3 a)).
+ */
+export function ncmPreferidaPorRamaTipificadaHechos(
+  hechos: string,
+  bloques: BloqueCandidatos[],
+  ncmElegido: string,
+): string | null {
+  const elegidoD = (ncmElegido ?? "").replace(/\D/g, "");
+  if (elegidoD.length < 6) return null;
+  const p4 = elegidoD.slice(0, 4);
+  const bloque = bloques.find((b) => b.partida === p4);
+  if (!bloque) return null;
+
+  let grupoElegido: Array<{ codigo: string; descripcion?: string; ruta?: string }> | null = null;
+  let simElegido: { codigo: string; descripcion?: string; ruta?: string } | null = null;
+  for (const sims of agruparSimsPorSubpartida(bloque.sims).values()) {
+    const hit = sims.find((s) => s.codigo.replace(/\D/g, "") === elegidoD);
+    if (!hit) continue;
+    grupoElegido = sims;
+    simElegido = hit;
+    break;
+  }
+  if (!grupoElegido || !simElegido) return null;
+
+  const tipElegido = encabezadoTipificacionGrupo(grupoElegido);
+  const elegidoEncaja =
+    (!tipificacionGrupoEsGenerica(grupoElegido) &&
+      tipificacionEncajaConHechos(tipElegido, hechos)) ||
+    hojaEspecificaEncajaConHechos(simElegido, hechos);
+  if (elegidoEncaja) return null;
+
+  let mejor: { ncm: string; hits: number } | null = null;
+  const familiasVistas = new Set<string>();
+
+  for (const sims of agruparSimsPorSubpartida(bloque.sims).values()) {
+    if (sims.some((s) => s.codigo.replace(/\D/g, "") === elegidoD)) continue;
+    if (tipificacionGrupoEsGenerica(sims)) continue;
+    const tip = encabezadoTipificacionGrupo(sims);
+    if (!tipificacionEncajaConHechos(tip, hechos)) continue;
+    const fam = corpusNormalizado(primerSegmentoTipificacion(sims));
+    if (familiasVistas.has(fam)) continue;
+    familiasVistas.add(fam);
+    const ncm = elegirEntreGruposTipificados([sims], hechos);
+    const hits = sims.reduce((acc, s) => {
+      const rama = segmentosRamaLegal(s);
+      let local = 0;
+      for (const r of rama) {
+        if (encabezadoLegalGenerico(r)) continue;
+        if (lexemaCompartidoEntreTextos(r, hechos)) local++;
+        for (const cal of segmentosCalificadoresHechos(hechos).slice(1)) {
+          local += similitudSegmentoConTexto(cal, r);
+        }
+      }
+      return acc + local;
+    }, 0);
+    if (!mejor || hits > mejor.hits) mejor = { ncm, hits };
+  }
+
+  if (!mejor || mejor.ncm.replace(/\D/g, "") === elegidoD) return null;
+  return mejor.ncm;
+}
+
+/** Completa NCM truncado de la IA cuando hay una sola SIM en el paquete con ese prefijo. */
+export function resolverNcmEnPaquete(
+  ncm: string,
+  bloques: BloqueCandidatos[],
+): string | null {
+  const d = (ncm ?? "").replace(/\D/g, "");
+  if (d.length < 6) return null;
+  const sims = bloques.flatMap((b) => b.sims);
+  const exact = sims.find((s) => s.codigo.replace(/\D/g, "") === d);
+  if (exact) return exact.codigo;
+  const pref = sims.filter((s) => s.codigo.replace(/\D/g, "").startsWith(d));
+  if (pref.length === 1) return pref[0]!.codigo;
+  return null;
+}
+
+function normalizarSegmentoHechos(seg: string): string {
+  return seg.replace(/:+\s*$/, "").trim();
+}
+
+function similitudSegmentoConTexto(seg: string, texto: string): number {
+  const a = corpusNormalizado(normalizarSegmentoHechos(seg));
+  const b = corpusNormalizado(texto);
+  if (!a || !b) return 0;
+  if (a === b) return 4;
+  const palabrasA = a.split(/\s+/).filter(Boolean);
+  if (palabrasA.length >= 2 && (b.includes(a) || a.includes(b))) return 3;
+  if (a.length >= 10 && (b.includes(a) || a.includes(b))) return 3;
+  if (palabrasA.length === 1 && a.length <= 5) {
+    return tokenEnCorpus(a, b) ? 2 : 0;
+  }
+  if (lexemaCompartidoEntreTextos(normalizarSegmentoHechos(seg), texto)) return 1;
+  return 0;
+}
+
+/** Segmentos facturados del primer renglón de HECHOS (separados por coma). */
+function esContinuacionSegmentoHechos(seg: string): boolean {
+  const s = seg.trim();
+  if (/^\d/.test(s)) return true;
+  if (/^u\s+\d/.test(s)) return true;
+  if (/^[a-z]{1,4}\s+\d/.test(s)) return true;
+  return false;
+}
+
+function unirSegmentosHechosContinuacion(segmentos: string[]): string[] {
+  const out: string[] = [];
+  let i = 0;
+  while (i < segmentos.length) {
+    let cur = segmentos[i]!.trim();
+    i++;
+    while (i < segmentos.length && esContinuacionSegmentoHechos(segmentos[i]!)) {
+      cur = `${cur}, ${segmentos[i]!.trim()}`;
+      i++;
+    }
+    if (cur) out.push(cur);
+  }
+  return out;
+}
+
+export function segmentosDesdeHechos(hechos: string): string[] {
+  const m = hechos.match(/^HECHOS:\n- ([^\n]+)/);
+  if (!m?.[1]) return [];
+  const raw = m[1]
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return unirSegmentosHechosContinuacion(raw);
+}
+
+function puntajePartidaConSegmentosHechos(
+  bloque: BloqueCandidatos,
+  segmentos: string[],
+): number {
+  const segs = segmentos.map(normalizarSegmentoHechos).filter(Boolean);
+  let mejorSim = 0;
+  for (const s of bloque.sims) {
+    const rama = segmentosRamaLegal(s);
+    let simScore = 0;
+    for (let i = 0; i < segs.length; i++) {
+      const seg = segs[i]!;
+      const peso = segs.length - i;
+      for (const r of rama) {
+        if (encabezadoLegalGenerico(r)) continue;
+        simScore += similitudSegmentoConTexto(seg, r) * peso;
+      }
+    }
+    if (simScore > mejorSim) mejorSim = simScore;
+  }
+  const primero = segs[0];
+  if (primero) {
+    mejorSim += similitudSegmentoConTexto(primero, bloque.partidaDesc) * segs.length * 2;
+  }
+  return mejorSim;
+}
+
+/** ¿Cuántos segmentos de HECHOS encadenan en orden sobre la rama legal de una SIM? */
+function segmentosConsumenNivelRama(
+  segs: string[],
+  desde: number,
+  nivelRama: string,
+): { consumidos: number; score: number; offset: number } {
+  let mejor = { consumidos: 0, score: 0, offset: desde };
+  for (let start = desde; start < segs.length; start++) {
+    for (let n = 1; n <= segs.length - start; n++) {
+      const unidos = segs.slice(start, start + n).join(", ");
+      const simil = similitudSegmentoConTexto(unidos, nivelRama);
+      if (simil > mejor.score) {
+        mejor = { consumidos: n, score: simil, offset: start };
+      }
+    }
+  }
+  return mejor;
+}
+
+function esSegmentoResidualNominal(seg: string): boolean {
+  const n = corpusNormalizado(normalizarSegmentoHechos(seg));
+  return /^los demas\b|^las demas\b/.test(n);
+}
+
+function puntajeCadenaSegmentosEnSim(
+  sim: { descripcion?: string; ruta?: string },
+  segmentos: string[],
+): number {
+  const rama = segmentosRamaLegal(sim);
+  const segs = segmentos.map(normalizarSegmentoHechos).filter(Boolean);
+  if (!segs.length || !rama.length) return 0;
+  let total = 0;
+  let si = 0;
+  for (const r of rama) {
+    if (encabezadoLegalGenerico(r)) continue;
+    const { consumidos, score, offset } = segmentosConsumenNivelRama(segs, si, r);
+    if (consumidos === 0 || score === 0) continue;
+    total += score;
+    si = offset + consumidos;
+  }
+  // Tipificación nominal fuera de orden («Los demás…») vs rama legal hermana
+  for (const r of rama) {
+    if (encabezadoLegalGenerico(r)) continue;
+    for (const seg of segs) {
+      if (!esSegmentoResidualNominal(seg)) continue;
+      const simil = similitudSegmentoConTexto(seg, r);
+      if (simil >= 3) total = Math.max(total, simil + 6);
+    }
+  }
+  return total;
+}
+
+/** Márgenes del ranking léxico de partidas (retrieval; no sustituyen el cruce legal). */
+const MARGEN_PARTIDA_RANKING_CLARO = 12;
+const MARGEN_PARTIDA_SOBRE_ELEGIDA = 15;
+const MARGEN_CADENA_SOBRE_SEGUNDO = 2;
+const MARGEN_CADENA_MINIMO = 6;
+
+function puntajeCadenaPartida(bloque: BloqueCandidatos, segmentos: string[]): number {
+  let mejor = 0;
+  for (const s of bloque.sims) {
+    const c = puntajeCadenaSegmentosEnSim(s, segmentos);
+    if (c > mejor) mejor = c;
+  }
+  return mejor;
+}
+
+/** Partida cuya mejor SIM reproduce la cadena de segmentos de HECHOS en orden. */
+export function partidaPreferidaPorCadenaHechos(
+  bloques: BloqueCandidatos[],
+  hechos: string,
+): string | null {
+  const segmentos = segmentosDesdeHechos(hechos);
+  if (segmentos.length < 2) return null;
+  let mejorPartida: string | null = null;
+  let mejorScore = 0;
+  let segundoScore = 0;
+  for (const b of bloques) {
+    const score = puntajeCadenaPartida(b, segmentos);
+    if (score > mejorScore) {
+      segundoScore = mejorScore;
+      mejorScore = score;
+      mejorPartida = b.partida;
+    } else if (score > segundoScore) {
+      segundoScore = score;
+    }
+  }
+  if (!mejorPartida || mejorScore < MARGEN_CADENA_MINIMO) return null;
+  if (mejorScore >= segundoScore + MARGEN_CADENA_SOBRE_SEGUNDO) return mejorPartida;
+  return null;
+}
+
+/** Partida líder del ranking por segmentos con ventaja clara sobre la segunda. */
+export function partidaPreferidaPorRankingClaro(
+  bloques: BloqueCandidatos[],
+  hechos: string,
+): string | null {
+  const rank = rankingPartidasPorSegmentosHechos(bloques, hechos);
+  if (rank.length < 2) return null;
+  const [a, b] = rank;
+  if (!a || a.score <= 0) return null;
+  if (a.score >= b!.score + MARGEN_PARTIDA_RANKING_CLARO) return a.partida;
+  return null;
+}
+
+/** Segmentos facturados + calificadores preposicionales del primer renglón («de …», «para …»). */
+function segmentosCalificadoresHechos(hechos: string): string[] {
+  const segs = segmentosDesdeHechos(hechos).map(normalizarSegmentoHechos).filter(Boolean);
+  if (segs.length >= 2) return segs;
+  const linea = segs[0] ?? "";
+  if (!linea) return segs;
+  const califs: string[] = [];
+  const norm = corpusNormalizado(linea);
+  for (const m of norm.matchAll(/\b(?:de|del|para)\s+([a-z]{4,}(?:\s+[a-z]{4,}){0,2})/g)) {
+    const frase = m[1]!.trim();
+    if (frase && !STOPWORDS_FILTRO_PARQUET.has(frase.split(/\s+/)[0]!)) califs.push(frase);
+  }
+  if (!califs.length) return segs;
+  return [linea, ...califs.filter((c) => !linea.includes(c))];
+}
+
+/**
+ * Si el NCM elegido ignora un calificador de HECHOS que encaja mejor con otra hermana
+ * de la misma partida (RGI 3 a)), devuelve el NCM de esa hermana.
+ */
+export function ncmPreferidaPorCalificadorFinal(
+  hechos: string,
+  bloques: BloqueCandidatos[],
+  ncmElegido: string,
+): string | null {
+  const segmentos = segmentosCalificadoresHechos(hechos).map(normalizarSegmentoHechos).filter(Boolean);
+  if (segmentos.length < 2) return null;
+
+  const p4 = ncmElegido.replace(/\D/g, "").slice(0, 4);
+  const bloque = bloques.find((b) => b.partida === p4);
+  if (!bloque) return null;
+
+  const calificadores = segmentos.slice(1);
+  const ultimo = calificadores.at(-1);
+  if (!ultimo || ultimo.length < 4) return null;
+
+  let mejor: { ncm: string; score: number } | null = null;
+  let scoreElegido = -1;
+  const elegidoD = ncmElegido.replace(/\D/g, "");
+
+  for (const s of bloque.sims) {
+    const rama = segmentosRamaLegal(s).join(" ");
+    let score = 0;
+    for (let i = 0; i < calificadores.length; i++) {
+      const peso = calificadores.length - i;
+      if (similitudSegmentoConTexto(calificadores[i]!, rama) > 0) score += peso;
+    }
+    const d = s.codigo.replace(/\D/g, "");
+    if (d === elegidoD) scoreElegido = score;
+    if (!mejor || score > mejor.score) mejor = { ncm: s.codigo, score };
+  }
+
+  if (!mejor || mejor.ncm.toUpperCase() === ncmElegido.trim().toUpperCase()) return null;
+  if (mejor.score <= scoreElegido) return null;
+
+  const ramaMejor = segmentosRamaLegal(
+    bloque.sims.find((s) => s.codigo === mejor!.ncm) ?? bloque.sims[0]!,
+  ).join(" ");
+  const ramaElegido = segmentosRamaLegal(
+    bloque.sims.find((s) => s.codigo.replace(/\D/g, "") === elegidoD) ?? bloque.sims[0]!,
+  ).join(" ");
+
+  const ultimoEnMejor = similitudSegmentoConTexto(ultimo, ramaMejor) > 0;
+  const ultimoEnElegido = similitudSegmentoConTexto(ultimo, ramaElegido) > 0;
+  if (ultimoEnMejor && !ultimoEnElegido) return mejor.ncm;
+  return null;
+}
+
+/** Mejor SIM de la partida por alineación en cadena de segmentos de HECHOS. */
+export function ncmPorCadenaHechosEnPartida(
+  bloque: BloqueCandidatos,
+  hechos: string,
+): { ncm: string; score: number } | null {
+  const segmentos = segmentosDesdeHechos(hechos).map(normalizarSegmentoHechos).filter(Boolean);
+  if (segmentos.length < 2) return null;
+  let mejor: { ncm: string; score: number } | null = null;
+  for (const s of bloque.sims) {
+    const score = puntajeCadenaSegmentosEnSim(s, segmentos);
+    if (!mejor || score > mejor.score) mejor = { ncm: s.codigo, score };
+  }
+  if (!mejor || mejor.score < MARGEN_CADENA_MINIMO) return null;
+  return mejor;
+}
+
+/**
+ * Si el NCM elegido pierde ante otra SIM de la misma partida en cadena de segmentos,
+ * devuelve la NCM con mejor encaje (RGI 3 a) a nivel subpartida).
+ */
+export function ncmPreferidaPorCadenaSegmentosHechos(
+  hechos: string,
+  bloques: BloqueCandidatos[],
+  ncmElegido: string,
+): string | null {
+  const p4 = ncmElegido.replace(/\D/g, "").slice(0, 4);
+  const bloque = bloques.find((b) => b.partida === p4);
+  if (!bloque) return null;
+  const mejor = ncmPorCadenaHechosEnPartida(bloque, hechos);
+  if (!mejor) return null;
+  const dEleg = ncmElegido.replace(/\D/g, "");
+  if (mejor.ncm.replace(/\D/g, "") === dEleg) return null;
+  const scoreElegido = puntajeCadenaSegmentosEnSim(
+    bloque.sims.find((s) => s.codigo.replace(/\D/g, "") === dEleg) ?? bloque.sims[0]!,
+    segmentosDesdeHechos(hechos).map(normalizarSegmentoHechos).filter(Boolean),
+  );
+  if (mejor.score >= scoreElegido + 4) return mejor.ncm;
+  return null;
+}
+
+/**
+ * Si la IA cerró en la residual local de un grupo subpartida pero queda una hermana
+ * específica compatible con HECHOS (RGI 3 a)), devuelve esa NCM.
+ */
+export function ncmPreferidaSobreResidualHermana(
+  hechos: string,
+  bloques: BloqueCandidatos[],
+  ncmElegido: string,
+): string | null {
+  const elegidoD = (ncmElegido ?? "").replace(/\D/g, "");
+  if (elegidoD.length < 8) return null;
+  const p4 = elegidoD.slice(0, 4);
+  const bloque = bloques.find((b) => b.partida === p4);
+  if (!bloque) return null;
+
+  for (const sims of agruparSimsPorSubpartida(bloque.sims).values()) {
+    const elegidoSim = sims.find((s) => s.codigo.replace(/\D/g, "") === elegidoD);
+    if (!elegidoSim) continue;
+
+    const leafEleg = segmentosRamaLegal(elegidoSim).at(-1) ?? "";
+    if (!esLineaResidual(leafEleg)) return null;
+
+    const tip = encabezadoTipificacionGrupo(sims);
+    if (!tipificacionEncajaConHechos(tip, hechos)) return null;
+
+    const viable = sims.filter((s) => !esLineaResidual(segmentosRamaLegal(s).at(-1) ?? ""));
+    if (!viable.length) return null;
+
+    const declaradas = viable.filter((s) => hojaEspecificaEncajaConHechos(s, hechos));
+    if (declaradas.length === 1) return declaradas[0]!.codigo;
+    if (declaradas.length > 1) return null;
+    if (viable.length === 1) return viable[0]!.codigo;
+  }
+  return null;
+}
+
+/**
+ * Hermanas con la misma cadena parcial en HECHOS pero tipificación distinta no declarada:
+ * pedir el dato factual que falta (no adivinar).
+ */
+function hermanaGanadoraClaraEnGrupo(
+  sims: Array<{ codigo: string; descripcion?: string; ruta?: string }>,
+  hechos: string,
+): boolean {
+  const corp = corpusNormalizado(hechos);
+  const declaradas = sims.filter((s) => {
+    if (hojaEspecificaEncajaConHechos(s, hechos)) return true;
+    for (const seg of segmentosRamaLegal(s)) {
+      if (encabezadoLegalGenerico(seg)) continue;
+      if (similitudSegmentoConTexto(seg, corp) >= 2) return true;
+    }
+    return false;
+  });
+  if (declaradas.length === 1) return true;
+
+  const segmentos = segmentosDesdeHechos(hechos).map(normalizarSegmentoHechos).filter(Boolean);
+  let mejorScore = -1;
+  let lideres = 0;
+  for (const s of sims) {
+    const score = puntajeCadenaSegmentosEnSim(s, segmentos);
+    if (score > mejorScore) {
+      mejorScore = score;
+      lideres = 1;
+    } else if (score === mejorScore && score > 0) {
+      lideres++;
+    }
+  }
+  return lideres === 1 && mejorScore >= MARGEN_CADENA_MINIMO;
+}
+
+export function faltaDiscriminanteEntreHermanas(
+  bloque: BloqueCandidatos,
+  hechos: string,
+): { faltaDato: string; opciones: string[] } | null {
+  const segmentos = segmentosDesdeHechos(hechos).map(normalizarSegmentoHechos).filter(Boolean);
+  if (segmentos.length < 2) return null;
+
+  const scored = bloque.sims
+    .map((s) => ({ sim: s, score: puntajeCadenaSegmentosEnSim(s, segmentos) }))
+    .filter((x) => x.score >= MARGEN_CADENA_MINIMO);
+  if (scored.length < 2) return null;
+
+  const max = Math.max(...scored.map((x) => x.score));
+  const top = scored.filter((x) => x.score === max);
+  if (top.length < 2) return null;
+
+  const ramas = top.map((t) =>
+    segmentosRamaLegal(t.sim).filter((r) => !encabezadoLegalGenerico(r)),
+  );
+  const maxLen = Math.max(...ramas.map((r) => r.length));
+
+  for (let level = 0; level < maxLen; level++) {
+    const labels: string[] = [];
+    const seen = new Set<string>();
+    for (const r of ramas) {
+      const seg = r[level]?.trim();
+      if (!seg) continue;
+      const key = corpusNormalizado(seg);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      labels.push(seg);
+    }
+    if (labels.length < 2) continue;
+
+    const declarado = labels.some((lab) =>
+      segmentos.some((s) => similitudSegmentoConTexto(s, lab) > 0),
+    );
+    if (!declarado) {
+      return {
+        faltaDato: "¿Cuál de estas descripciones corresponde al artículo?",
+        opciones: labels.slice(0, 4),
+      };
+    }
+  }
+
+  for (const sims of agruparSimsPorRamaInmediata(bloque.sims).values()) {
+    const tip = encabezadoTipificacionGrupo(sims);
+    if (!tipificacionEncajaConHechos(tip, hechos)) continue;
+    if (hermanaGanadoraClaraEnGrupo(sims, hechos)) continue;
+
+    const labels: string[] = [];
+    const seen = new Set<string>();
+    for (const s of sims) {
+      const leaf = segmentosRamaLegal(s).at(-1)?.trim() ?? "";
+      if (!leaf || esLineaResidual(leaf)) continue;
+      if (hojaEspecificaEncajaConHechos(s, hechos)) continue;
+      const corp = corpusNormalizado(hechos);
+      let declarada = false;
+      for (const seg of segmentosRamaLegal(s)) {
+        if (encabezadoLegalGenerico(seg)) continue;
+        if (similitudSegmentoConTexto(seg, corp) >= 2) {
+          declarada = true;
+          break;
+        }
+      }
+      if (declarada) continue;
+      const key = corpusNormalizado(leaf);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      labels.push(leaf);
+    }
+    if (labels.length >= 2) {
+      return {
+        faltaDato: "¿Cuál de estas descripciones corresponde al artículo?",
+        opciones: labels.slice(0, 4),
+      };
+    }
+  }
+  return null;
+}
+
+/** Ranking léxico de partidas candidatas según segmentos facturados en HECHOS. */
+export function rankingPartidasPorSegmentosHechos(
+  bloques: BloqueCandidatos[],
+  hechos: string,
+): Array<{ partida: string; score: number }> {
+  const segmentos = segmentosDesdeHechos(hechos);
+  if (!segmentos.length) return [];
+  return bloques
+    .map((b) => ({
+      partida: b.partida,
+      score: puntajePartidaConSegmentosHechos(b, segmentos),
+    }))
+    .sort((a, b) => b.score - a.score || a.partida.localeCompare(b.partida));
+}
+
+/**
+ * Si la partida elegida por la IA desvía con claridad del ranking por segmentos de HECHOS,
+ * devuelve la partida corregida (solo retrieval; no reemplaza el razonamiento legal fino).
+ */
+export function partidaCorregidaPorSegmentosHechos(
+  bloques: BloqueCandidatos[],
+  hechos: string,
+  partidaElegida: string,
+): string | null {
+  const rank = rankingPartidasPorSegmentosHechos(bloques, hechos);
+  if (rank.length < 2) return null;
+  const best = rank[0]!;
+  const p4 = partidaElegida.replace(/\D/g, "").slice(0, 4);
+  if (best.partida === p4 || best.score <= 0) return null;
+  const chosen = rank.find((r) => r.partida === p4);
+  if (!chosen) return null;
+  const second = rank[1]!;
+  if (best.score >= chosen.score + MARGEN_PARTIDA_SOBRE_ELEGIDA && best.score >= second.score * 1.15) {
+    return best.partida;
+  }
+  return null;
 }
 
 export function etiquetaPartidaCandidata(c: PartidaCandidata): string {

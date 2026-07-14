@@ -1,0 +1,248 @@
+{
+  "seed": 20260714,
+  "n": 40,
+  "excluidos": 220,
+  "solo_partes": false,
+  "muestras": [
+    {
+      "ncm": "0104.10.11.000M",
+      "partida": "0104",
+      "producto": "Animales vivos de las especies ovina, De la especie ovina, Reproductores de raza pura, Preñadas o con cría al pie",
+      "descripcion_ncm": "Preñadas o con cría al pie"
+    },
+    {
+      "ncm": "0207.14.11.100C",
+      "partida": "0207",
+      "producto": "Carne y despojos comestibles, De aves de la especie Gallus domesticus:, Trozos sin deshuesar, Pechugas, En envases inmediatos de contenido neto inferior o igual 15 kg",
+      "descripcion_ncm": "En envases inmediatos de contenido neto inferior o igual 15 kg"
+    },
+    {
+      "ncm": "0302.11.00.100N",
+      "partida": "0302",
+      "producto": "Salmónidos, excepto los despojos comestibles de pescado de las subpartidas 0302.91 a 0302.99:, Truchas (Salmo trutta, Oncorhynchus mykiss, Oncorhynchus clarki, Oncorhynchus aguabonita, Oncorhynchus gilae, Truchas enteras provenientes de cultivo (Oncorhynchus mykiss) (Res. 137/08 MEYP)",
+      "descripcion_ncm": "Truchas enteras provenientes de cultivo (Oncorhynchus mykiss) (Res. 137/08 MEYP)"
+    },
+    {
+      "ncm": "0409.00.00.120E",
+      "partida": "0409",
+      "producto": "MIEL NATURAL., En envases inmediatos de contenido neto inferior o igual a 2,5 kg (R.874/97 MEYOSP), De eucalipto",
+      "descripcion_ncm": "De eucalipto"
+    },
+    {
+      "ncm": "0511.99.91.120P",
+      "partida": "0511",
+      "producto": "Crin y sus desperdicios, incluso en capas con soporte o sin él, De équidos, Desperdicios",
+      "descripcion_ncm": "Desperdicios"
+    },
+    {
+      "ncm": "0603.12.00.100N",
+      "partida": "0603",
+      "producto": "Flores y capullos, Frescos:, Claveles, Mini clavel",
+      "descripcion_ncm": "Mini clavel"
+    },
+    {
+      "ncm": "0711.51.00.000T",
+      "partida": "0711",
+      "producto": "Hortalizas conservadas provisionalmente, Hongos y trufas:, Hongos del género Agaricus",
+      "descripcion_ncm": "--Hongos del género Agaricus"
+    },
+    {
+      "ncm": "0805.21.00.210Z",
+      "partida": "0805",
+      "producto": "Mandarinas (incluidas las tangerinas y satsumas); clementinas, \"wilkings\" e híbridos similares de agrios (cítricos):, Mandarinas (incluidas las tangerinas y satsumas), Secas, En envases inmediatos de contenido neto inferior o igual a 16 kg (Dec. PEN 509/07 Anexo III)",
+      "descripcion_ncm": "En envases inmediatos de contenido neto inferior o igual a 16 kg (Dec. PEN 509/07 Anexo III)"
+    },
+    {
+      "ncm": "0909.62.10.000U",
+      "partida": "0909",
+      "producto": "Semillas de anís, badiana, alcaravea, hinojo; bayas de enebro:, Trituradas o pulverizadas, De anís (anís verde)",
+      "descripcion_ncm": "De anís (anís verde)"
+    },
+    {
+      "ncm": "1006.40.00.310W",
+      "partida": "1006",
+      "producto": "ARROZ., Arroz partido, Cuarto grano, con un contenido de cuerpos extraños inferior o igual al 1 % (Ley 21.453), En envases inmediatos de contenido neto inferior o igual a 2 Kg (Res. 835/05 SAGPyA)",
+      "descripcion_ncm": "En envases inmediatos de contenido neto inferior o igual a 2 Kg (Res. 835/05 SAGPyA)"
+    },
+    {
+      "ncm": "1106.10.00.300G",
+      "partida": "1106",
+      "producto": "Harina, De las hortalizas de la partida 07.13, De habas (Vicia faba var. major), haba caballar (Vicia faba var. equina) y haba menor (Vicia faba var. minor)",
+      "descripcion_ncm": "De habas (Vicia faba var. major), haba caballar (Vicia faba var. equina) y haba menor (Vicia faba var. minor)"
+    },
+    {
+      "ncm": "1209.25.00.000B",
+      "partida": "1209",
+      "producto": "Semillas forrajeras:, De ballico (Lolium multiflorum Lam., Lolium perenne L.)",
+      "descripcion_ncm": "--De ballico (Lolium multiflorum Lam., Lolium perenne L.)"
+    },
+    {
+      "ncm": "1302.13.00.000Q",
+      "partida": "1302",
+      "producto": "Jugos y extractos vegetales:, De lúpulo",
+      "descripcion_ncm": "--De lúpulo"
+    },
+    {
+      "ncm": "1513.11.00.000U",
+      "partida": "1513",
+      "producto": "Aceites de coco (de copra), Aceite de coco (de copra) y sus fracciones:, Aceite en bruto",
+      "descripcion_ncm": "--Aceite en bruto"
+    },
+    {
+      "ncm": "1604.16.00.112W",
+      "partida": "1604",
+      "producto": "Pescado entero o en trozos, excepto el pescado picado:, En envases inmediatos de contenido neto inferior o igual a 1 kg (R.420/99 MEYOSP), De la especie Engraulis anchoita, Preparaciones (Res. 137/08 MEYP)",
+      "descripcion_ncm": "Preparaciones (Res. 137/08 MEYP)"
+    },
+    {
+      "ncm": "1704.90.20.510F",
+      "partida": "1704",
+      "producto": "Bombones, caramelos, confites y pastillas, Pastillas, Obtenidas por compresion",
+      "descripcion_ncm": "Obtenidas por compresion"
+    },
+    {
+      "ncm": "1806.20.00.100F",
+      "partida": "1806",
+      "producto": "Las demás preparaciones, en bloques, tabletas o barras con peso superior a 2 kg o en forma líquida, pastosa o en polvo, gránulos o formas similares, en recipientes o en envases inmediatos, con un contenido superior a 2 kg, Cobertura de chocolate",
+      "descripcion_ncm": "Cobertura de chocolate"
+    },
+    {
+      "ncm": "1902.20.00.111U",
+      "partida": "1902",
+      "producto": "Pastas alimenticias rellenas, incluso cocidas o preparadas de otra forma, En envases inmediatos de contenido neto inferior o igual a 1 kg (R.420/99 MEYOSP), Congeladas, Ravioles",
+      "descripcion_ncm": "Ravioles"
+    },
+    {
+      "ncm": "2005.60.00.100A",
+      "partida": "2005",
+      "producto": "Espárragos, En envases inmediatos de contenido neto inferior o igual a 2,5 kg (R.967/99 MEYOSP)",
+      "descripcion_ncm": "En envases inmediatos de contenido neto inferior o igual a 2,5 kg (R.967/99 MEYOSP)"
+    },
+    {
+      "ncm": "2103.30.21.200K",
+      "partida": "2103",
+      "producto": "Harina de mostaza y mostaza preparada, Mostaza preparada, En envases inmediatos de contenido inferior o igual a 1 kg, En envases inmediatos de contenido superior a 20 g pero inferior o igual a 500 g",
+      "descripcion_ncm": "En envases inmediatos de contenido superior a 20 g pero inferior o igual a 500 g"
+    },
+    {
+      "ncm": "2207.20.11.000F",
+      "partida": "2207",
+      "producto": "Alcohol etílico y aguardiente desnaturalizados, de cualquier graduación, Alcohol etílico, Con un contenido de agua inferior o igual a 1 % vol.",
+      "descripcion_ncm": "Con un contenido de agua inferior o igual a 1 % vol."
+    },
+    {
+      "ncm": "2306.10.00.400J",
+      "partida": "2306",
+      "producto": "EXCEPTO LOS DE LAS PARTIDAS 23.04 O 23.05., De semillas de algodón, Harina de tortas (Ley 21.453)",
+      "descripcion_ncm": "Harina de tortas (Ley 21.453)"
+    },
+    {
+      "ncm": "2401.10.20.000W",
+      "partida": "2401",
+      "producto": "Tabaco sin desvenar o desnervar, En hojas secas o fermentadas tipo capa",
+      "descripcion_ncm": "En hojas secas o fermentadas tipo capa"
+    },
+    {
+      "ncm": "2513.20.00.900D",
+      "partida": "2513",
+      "producto": "Piedra pómez, Esmeril, corindón natural, granate natural y demás abrasivos naturales, Los demás abrasivos naturales",
+      "descripcion_ncm": "Los demás abrasivos naturales"
+    },
+    {
+      "ncm": "2601.12.10.130N",
+      "partida": "2601",
+      "producto": "Minerales de hierro y sus concentrados, excepto las piritas de hierro tostadas (cenizas de piritas):, Aglomerados por proceso de «pelletizaci»n°, de diámetro superior o igual a 8 mm pero inferior o igual a 18 mm, Minerales, Magnetita",
+      "descripcion_ncm": "Magnetita"
+    },
+    {
+      "ncm": "2710.12.30.100G",
+      "partida": "2710",
+      "producto": "Aceites de petróleo o de mineral bituminoso (excepto los aceites crudos) y preparaciones no expresadas ni comprendidas en otra parte, con un contenido de aceites de petróleo o de mineral bituminoso superior o igual al 70 % en peso, En envases con capacidad inferior o igual a 205 l.",
+      "descripcion_ncm": "En envases con capacidad inferior o igual a 205 l."
+    },
+    {
+      "ncm": "2841.80.20.000D",
+      "partida": "2841",
+      "producto": "Sales de los acidos oxometalicos o, Volframatos (tungstatos), De plomo",
+      "descripcion_ncm": "De plomo"
+    },
+    {
+      "ncm": "2931.90.46.230P",
+      "partida": "2931",
+      "producto": "Compuestos órgano-estánnicos, Sales de dimetilestaño, dibutilestaño y dioctilestaño, de los ácidos carboxílicos o tioglicólicos y sus ésteres, Sales de ácidos tioglicólicos, De dioctilestaño",
+      "descripcion_ncm": "De dioctilestaño"
+    },
+    {
+      "ncm": "3003.90.89.251K",
+      "partida": "3003",
+      "producto": "Medicamentos (excepto los productos de las, Que contengan productos de las partidas 29.34, 29.35 y 29.38, sin productos de las subpartidas 3003.90.1 a 3003.90.7, Que contengan otros sicotropos (R. 2017/93 ex-ANA), Loxapina; oxazolam; pemolina y sus sales; succinato de loxapina; ácido 2-metil-3-morfolino-1, Loxapina",
+      "descripcion_ncm": "Loxapina"
+    },
+    {
+      "ncm": "3105.51.00.100N",
+      "partida": "3105",
+      "producto": "Los demás abonos minerales o químicos con los dos elementos fertilizantes: nitrógeno y fósforo:, Que contengan nitratos y fosfatos, Mezclas fertilizantes que contengan nitrato de amonio",
+      "descripcion_ncm": "Mezclas fertilizantes que contengan nitrato de amonio"
+    },
+    {
+      "ncm": "3204.15.30.000R",
+      "partida": "3204",
+      "producto": "Materias colorantes orgánicas sintéticas y preparaciones a que se refiere la Nota 3 de este Capítulo a base de dichas materias colorantes:, Colorantes a la tina o a la cuba (incluidos los utilizables directamente como colorantes pigmentarios) y preparaciones a base de estos colorantes, 12,12-Dimetoxidibenzantrona",
+      "descripcion_ncm": "12,12-Dimetoxidibenzantrona"
+    },
+    {
+      "ncm": "3301.29.16.100L",
+      "partida": "3301",
+      "producto": "Aceites esenciales, excepto los de agrios (cítricos):, De citronela; cedro; palo santo (Bulnesia sarmientoi); lemongrás; palo de rosa; palma rosa; coriandro; cabreúva; eucalipto, De palma rosa, Productos domisanitarios definidos en la Resolución 709/98 ex MSyAS",
+      "descripcion_ncm": "Productos domisanitarios definidos en la Resolución 709/98 ex MSyAS"
+    },
+    {
+      "ncm": "3401.20.10.000J",
+      "partida": "3401",
+      "producto": "Jabón en otras formas, De tocador",
+      "descripcion_ncm": "De tocador"
+    },
+    {
+      "ncm": "3504.00.11.000A",
+      "partida": "3504",
+      "producto": "Peptonas y sus derivados, Peptonas y peptonatos",
+      "descripcion_ncm": "Peptonas y peptonatos"
+    },
+    {
+      "ncm": "3604.10.00.200P",
+      "partida": "3604",
+      "producto": "Artículos para fuegos artificiales, Petardos en todas sus formas y tamaños (R.620/98 MEOSP)",
+      "descripcion_ncm": "Petardos en todas sus formas y tamaños (R.620/98 MEOSP)"
+    },
+    {
+      "ncm": "3703.20.00.160F",
+      "partida": "3703",
+      "producto": "Los demás, para fotografía en colores (policroma), Papel, De anchura igual a 15,2 cm y longitud igual a 175 m",
+      "descripcion_ncm": "De anchura igual a 15,2 cm y longitud igual a 175 m"
+    },
+    {
+      "ncm": "3826.00.00.180M",
+      "partida": "3826",
+      "producto": "Biodiesel, Mezclas de biodiesel, que contengan biodiesel del aceite de soja",
+      "descripcion_ncm": "Mezclas de biodiesel, que contengan biodiesel del aceite de soja"
+    },
+    {
+      "ncm": "3917.29.00.200G",
+      "partida": "3917",
+      "producto": "Tubos rígidos:, De los demás plásticos, Cortados en dimensiones finales para uso en productos englobados por el acuerdo ALADI/AAP.CE/14.44 Apendice I",
+      "descripcion_ncm": "Cortados en dimensiones finales para uso en productos englobados por el acuerdo ALADI/AAP.CE/14.44 Apendice I"
+    },
+    {
+      "ncm": "4012.20.00.300M",
+      "partida": "4012",
+      "producto": "Neumáticos (llantas neumáticas) usados, De los tipos utilizados en autobuses o camiones",
+      "descripcion_ncm": "De los tipos utilizados en autobuses o camiones"
+    },
+    {
+      "ncm": "4102.21.00.200E",
+      "partida": "4102",
+      "producto": "Cueros y pieles en bruto, Sin lana (depilados):, Piquelados, Borregos",
+      "descripcion_ncm": "Borregos"
+    }
+  ]
+}
