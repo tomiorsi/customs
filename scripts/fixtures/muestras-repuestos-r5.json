@@ -1,0 +1,27 @@
+{
+  "fuente": "Lista de repuestos R5 Solar Pile Driver (LH Global) — NCM manuscrito del despachante",
+  "muestras": [
+    { "n": 1,  "producto": "Filtro de aceite Cummins",                                 "ncm": "8421.23.00.000V", "partida": "8421" },
+    { "n": 2,  "producto": "Filtro de combustible Cummins",                             "ncm": "8421.23.00.000V", "partida": "8421" },
+    { "n": 3,  "producto": "Elemento de filtro de aire",                                "ncm": "8421.31.00.000K", "partida": "8421" },
+    { "n": 4,  "producto": "Filtro de aceite hidráulico",                               "ncm": "8421.23.00.000V", "partida": "8421" },
+    { "n": 5,  "producto": "Aspas del ventilador del motor",                            "ncm": "8414.80.20.110K", "partida": "8414" },
+    { "n": 6,  "producto": "Junta del motor",                                           "ncm": "8484.90.00.000M", "partida": "8484" },
+    { "n": 7,  "producto": "Motor de arranque",                                         "ncm": null,               "partida": null },
+    { "n": 8,  "producto": "Correa del ventilador del motor",                           "ncm": "4010.39.00.800E", "partida": "4010" },
+    { "n": 9,  "producto": "Junta de tapa de válvulas",                                 "ncm": "8484.90.00.000M", "partida": "8484" },
+    { "n": 10, "producto": "Barra de perforación del martillo hidráulico",             "ncm": "8430.49.29.900C", "partida": "8430" },
+    { "n": 11, "producto": "Kit de sellos del martillo hidráulico",                    "ncm": "8484.90.00.000M", "partida": "8484" },
+    { "n": 12, "producto": "Penetración roscada del martillo hidráulico",              "ncm": "8430.49.29.900C", "partida": "8430" },
+    { "n": 13, "producto": "Bomba de doble engranaje",                                  "ncm": null,               "partida": null },
+    { "n": 14, "producto": "Kit de sellos de bomba de doble engranaje",               "ncm": "8484.90.00.000M", "partida": "8484" },
+    { "n": 15, "producto": "Manguito estriado de bomba de engranajes",                "ncm": null,               "partida": null },
+    { "n": 16, "producto": "Resorte del mástil",                                        "ncm": "7320.90.00.900Y", "partida": "7320" },
+    { "n": 17, "producto": "Rodillos de oruga",                                         "ncm": "8431.49.29.900C", "partida": "8431" },
+    { "n": 18, "producto": "Rueda guía de oruga con soporte",                          "ncm": "8431.49.29.900C", "partida": "8431" },
+    { "n": 19, "producto": "Tornillo de válvula multivía",                             "ncm": "8431.49.29.000C", "partida": "8431" },
+    { "n": 20, "producto": "Motor de elevación",                                        "ncm": null,               "partida": null },
+    { "n": 21, "producto": "Paquete de sellado de válvula múltiple de 8 vías",         "ncm": "8484.90.00.000M", "partida": "8484" },
+    { "n": 22, "producto": "Sello de cilindro",                                         "ncm": "8484.90.00.000M", "partida": "8484" }
+  ]
+}

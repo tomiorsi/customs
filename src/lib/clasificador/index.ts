@@ -21,6 +21,7 @@ import {
 import {
   iaDisponible,
   cruzarCandidatos,
+  expandirConsultaLegal,
   mensajeErrorIa,
 } from "./ia";
 import type { PropuestaCruce } from "./ia";
@@ -271,8 +272,15 @@ async function clasificarProductoInterno(
     ncmMaquinaPadre: ctx.ncmMaquina,
   });
 
-  // Motor: ~5 partidas + todas las SIMs; la IA elige NCM con marco legal
-  const bloques = await paquetePartidasParaIa({ textoNombreBase: nombreBase, textoFiltro, textoSims });
+  // Fase 0 (barata): traduce la descripción comercial a términos del nomenclador
+  // para el retrieval. No toca HECHOS (los hechos legales siguen siendo lo declarado).
+  const terminosExpansion = await expandirConsultaLegal(producto);
+
+  // Motor: partidas candidatas + todas las SIMs; la IA elige NCM con marco legal.
+  const bloques = await paquetePartidasParaIa(
+    { textoNombreBase: nombreBase, textoFiltro, textoSims },
+    terminosExpansion,
+  );
   if (!bloques.length) {
     return sinResultado(producto, {
       justificacion: "No encontramos partidas en el nomenclador. Ampliá la descripción del artículo.",

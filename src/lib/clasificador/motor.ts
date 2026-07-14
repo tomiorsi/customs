@@ -1389,12 +1389,46 @@ export async function partidasMotor(args: ArgsPartidasPaquete): Promise<string[]
   return resolverPartidasPaquete(args);
 }
 
+/** Tope del paquete cuando se suman candidatas de la expansión léxica (Fase 0). */
+const MAX_PARTIDAS_PAQUETE_EXPANDIDO = 7;
+
 /**
- * Paquete para IA: las ~5 partidas del motor con todas sus SIMs.
- * Sin ranking ni tope: la IA elige partida y NCM con marco legal.
+ * Une las partidas del retrieval normal con las del retrieval sobre el texto
+ * expandido (términos legales de la Fase 0). Preserva las base (no las desplaza)
+ * y agrega las que la expansión aporta, hasta el tope expandido.
  */
-export async function paquetePartidasParaIa(args: ArgsPartidasPaquete): Promise<BloqueCandidatos[]> {
-  const partidas4 = await resolverPartidasPaquete(args);
+export async function resolverPartidasConExpansion(
+  args: ArgsPartidasPaquete,
+  terminosExpansion: string[],
+): Promise<string[]> {
+  const base = await resolverPartidasPaquete(args);
+  const extra = (terminosExpansion ?? []).join(" ").trim();
+  if (!extra) return base;
+  const conExtra = (t: string) => (t.trim() ? `${t} ${extra}` : extra);
+  const exp = await resolverPartidasPaquete({
+    textoNombreBase: conExtra(args.textoNombreBase),
+    textoFiltro: conExtra(args.textoFiltro),
+    textoSims: conExtra(args.textoSims),
+  });
+  const union = [...base];
+  for (const p of exp) {
+    if (union.length >= MAX_PARTIDAS_PAQUETE_EXPANDIDO) break;
+    if (!union.includes(p)) union.push(p);
+  }
+  return union;
+}
+
+/**
+ * Paquete para IA: las partidas del motor con todas sus SIMs.
+ * `terminosExpansion` (Fase 0) amplía el recall sin desplazar las candidatas base.
+ */
+export async function paquetePartidasParaIa(
+  args: ArgsPartidasPaquete,
+  terminosExpansion?: string[],
+): Promise<BloqueCandidatos[]> {
+  const partidas4 = terminosExpansion?.length
+    ? await resolverPartidasConExpansion(args, terminosExpansion)
+    : await resolverPartidasPaquete(args);
   if (!partidas4.length) return [];
 
   const bloques: BloqueCandidatos[] = [];

@@ -17,7 +17,10 @@ import {
   faltaDiscriminanteEntreHermanas,
   ncmPorCadenaHechosEnPartida,
   ncmPreferidaPorCadenaSegmentosHechos,
+  candidatosDePartida,
+  descripcionPartida,
 } from "./motor";
+import { marcoLegalClasificacion } from "./marco-legal";
 import {
   CRITERIO_PARQUET,
   INSTRUCCION_ELECCION_PARTIDA,
@@ -201,6 +204,45 @@ async function pedir(system: string, user: string, maxTokens = 900): Promise<IaR
     return extraerJson(
       await llamarUnaVezRaw(systemFinal, user, Math.min(maxTokens * 2, 2048)),
     );
+  }
+}
+
+// ─── Fase 0: expansión léxica (comercial → términos del nomenclador) ─────────
+
+const SYSTEM_EXPANSION =
+  "Traducís una descripción comercial de producto (en español) a los TÉRMINOS que usa " +
+  "la nomenclatura arancelaria NCM, para buscar la partida. Devolvé sinónimos y términos " +
+  "técnicos/legales del artículo, su tipo o función y su material, tal como los nombraría " +
+  "el nomenclador. Ejemplos de estilo: «junta/sello/retén» → «empaquetadura, junta metaloplástica»; " +
+  "«correa» → «correa de transmisión»; «filtro» → «aparato para filtrar»; «manguera» → «tubo de caucho». " +
+  "NO clasifiques, NO devuelvas códigos ni partidas. Solo términos en español.\n" +
+  'JSON: {"terminos":["...", "..."]} (máximo 8, breves).\n';
+
+/**
+ * Fase 0 (barata): expande la descripción con términos del nomenclador para el retrieval.
+ * NO altera los HECHOS legales: solo ayuda al motor a encontrar la partida candidata.
+ * Si falla o no hay IA, devuelve [] y la clasificación sigue sin expansión.
+ */
+export async function expandirConsultaLegal(producto: string): Promise<string[]> {
+  const p = (producto ?? "").trim();
+  if (!p || !iaDisponible()) return [];
+  try {
+    const raw = await llamarUnaVezRaw(
+      SYSTEM_EXPANSION + "Respondé únicamente con JSON válido, sin markdown.\n",
+      p,
+      160,
+    );
+    const limpio = raw.replace(/```json\s*/gi, "").replace(/```/g, "").trim();
+    const start = limpio.indexOf("{");
+    if (start < 0) return [];
+    const obj = JSON.parse(extraerObjetoJson(limpio, start)) as { terminos?: unknown };
+    if (!Array.isArray(obj.terminos)) return [];
+    return obj.terminos
+      .filter((t): t is string => typeof t === "string" && t.trim().length > 1)
+      .map((t) => t.trim())
+      .slice(0, 8);
+  } catch {
+    return [];
   }
 }
 
@@ -442,19 +484,28 @@ export async function cruzarCandidatos(args: {
   const corregidaCadena = partidaPreferidaPorCadenaHechos(args.bloques, args.hechos);
   if (corregidaCadena) partida = corregidaCadena;
 
-  const bloque = args.bloques.find((b) => b.partida === partida);
+  let bloque = args.bloques.find((b) => b.partida === partida);
+  let marcoLegal = args.marcoLegal;
+  if (!bloque) {
+    // La IA eligió una partida que el retrieval no trajo pero que existe en el
+    // nomenclador: la recuperamos (mejor que descartar) para que pueda cerrar el NCM.
+    const sims = await candidatosDePartida(partida);
+    if (sims.length) {
+      bloque = { partida, partidaDesc: (await descripcionPartida(partida)) || "", sims };
+      // Sumar las notas legales de la partida recuperada al marco.
+      marcoLegal = await marcoLegalClasificacion([
+        ...args.bloques.map((b) => b.partida),
+        partida,
+      ]);
+    }
+  }
   if (!bloque) {
     return {
       confirma: false,
       faltaDato: null,
-      justificacion: `La partida sugerida (${paso1.partida}) no está en el listado del nomenclador.`,
+      justificacion: `La partida sugerida (${paso1.partida}) no está en el nomenclador.`,
     };
   }
 
-  return cerrarSimsEnPartida({
-    hechos: args.hechos,
-    bloque,
-    marcoLegal: args.marcoLegal,
-    partida,
-  });
+  return cerrarSimsEnPartida({ hechos: args.hechos, bloque, marcoLegal, partida });
 }
