@@ -25,6 +25,21 @@ const RELEVANTES: DocType[] = [
 ];
 const MAX_ARCHIVOS = 4;
 
+/** ¿La mercadería y el producto describen lo mismo? (evita auto-referencia de contexto). */
+function textosSeSolapan(a: string, b: string): boolean {
+  const norm = (s: string) =>
+    s
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+  const na = norm(a);
+  const nb = norm(b);
+  if (!na || !nb) return true;
+  return na === nb || na.includes(nb) || nb.includes(na);
+}
+
 export async function POST(
   req: NextRequest,
   ctx: { params: Promise<{ id: string }> },
@@ -113,9 +128,15 @@ export async function POST(
   }
 
   try {
+    // Contexto de máquina padre: si el cliente no lo declaró, usamos la mercadería
+    // de la operación (p. ej. "hincadora de pilotes") como destino, salvo que sea
+    // lo mismo que se está clasificando (evita auto-referencia al clasificar el bien).
+    const mercaderia = op.mercaderia?.trim();
+    const equipoDesdeOperacion =
+      mercaderia && !textosSeSolapan(mercaderia, producto) ? mercaderia : undefined;
     const baseCtx: ContextoClasificacion = {
       ncmMaquina: body.ncmMaquina?.trim() || undefined,
-      equipoReferencia: body.equipoReferencia?.trim() || undefined,
+      equipoReferencia: body.equipoReferencia?.trim() || equipoDesdeOperacion,
     };
     const contexto = await enriquecerContextoClasificacion(
       producto,
