@@ -178,6 +178,38 @@ function extraerObjetoJson(texto: string, start: number): string {
   return tail;
 }
 
+/** Escapa saltos de línea/tabs crudos dentro de strings (causa común de JSON inválido del LLM). */
+function repararControlEnStrings(s: string): string {
+  let out = "";
+  let inString = false;
+  let escape = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i]!;
+    if (escape) {
+      out += c;
+      escape = false;
+      continue;
+    }
+    if (c === "\\") {
+      out += c;
+      escape = true;
+      continue;
+    }
+    if (c === '"') {
+      inString = !inString;
+      out += c;
+      continue;
+    }
+    if (inString) {
+      if (c === "\n") { out += "\\n"; continue; }
+      if (c === "\r") { out += "\\r"; continue; }
+      if (c === "\t") { out += "\\t"; continue; }
+    }
+    out += c;
+  }
+  return out;
+}
+
 function extraerJson(txt: string): IaRespuesta {
   const limpio = txt
     .replace(/```json\s*/gi, "")
@@ -185,26 +217,41 @@ function extraerJson(txt: string): IaRespuesta {
     .trim();
   const start = limpio.indexOf("{");
   if (start < 0) throw new Error("Respuesta de IA sin JSON");
+  const crudo = extraerObjetoJson(limpio, start);
   try {
-    return JSON.parse(extraerObjetoJson(limpio, start)) as IaRespuesta;
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    throw new Error(`Respuesta de IA con JSON inválido: ${msg}`);
+    return JSON.parse(crudo) as IaRespuesta;
+  } catch {
+    // Reintento con control chars escapados dentro de strings.
+    try {
+      return JSON.parse(repararControlEnStrings(crudo)) as IaRespuesta;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      throw new Error(`Respuesta de IA con JSON inválido: ${msg}`);
+    }
   }
 }
 
 async function pedir(system: string, user: string, maxTokens = 900): Promise<IaRespuesta> {
-  const systemFinal =
+  const base =
     system + "\nRespondé únicamente con un objeto JSON válido, sin markdown ni texto extra.\n";
-  try {
-    return extraerJson(await llamarUnaVezRaw(systemFinal, user, maxTokens));
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "";
-    if (!/JSON/i.test(msg)) throw e;
-    return extraerJson(
-      await llamarUnaVezRaw(systemFinal, user, Math.min(maxTokens * 2, 2048)),
-    );
+  // En el reintento cambiamos el prompt (a temperatura 0, repetir el mismo daría el
+  // mismo JSON malo): pedimos evitar comillas/saltos dentro de los textos.
+  const correctivo =
+    base +
+    "IMPORTANTE: dentro de los valores de texto NO uses comillas dobles ni saltos de línea; " +
+    "si necesitás comillas usá comillas simples. Escapá cualquier carácter especial.\n";
+  let ultimoError: unknown = null;
+  for (let intento = 0; intento < 3; intento++) {
+    const sys = intento === 0 ? base : correctivo;
+    const tokens = intento === 0 ? maxTokens : Math.min(maxTokens * 2, 2048);
+    try {
+      return extraerJson(await llamarUnaVezRaw(sys, user, tokens));
+    } catch (e) {
+      ultimoError = e;
+      if (!/JSON/i.test(e instanceof Error ? e.message : "")) throw e;
+    }
   }
+  throw ultimoError;
 }
 
 // ─── Fase 0: expansión léxica (comercial → términos del nomenclador) ─────────
