@@ -54,7 +54,7 @@ function campo(
 }
 
 function moneyUsd(n: number): string {
-  return formatMoneda("USD", String(Math.round(n)));
+  return formatMoneda("USD", String(Math.round(n))) ?? `USD ${Math.round(n)}`;
 }
 
 export async function armarFichaMalvina(
@@ -72,7 +72,7 @@ export async function armarFichaMalvina(
 
   const perfil = perfilDesdeCondicionIva(op.client_iva_condition);
   const perfilLabel =
-    PERFILES_FISCALES.find((p) => p.id === perfil)?.label ?? perfil;
+    PERFILES_FISCALES.find((p) => p.value === perfil)?.label ?? perfil;
 
   const c = liq.cotiz;
   const totalTributos =

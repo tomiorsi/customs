@@ -148,7 +148,6 @@ function paisEnTexto(valor: string, texto: string): boolean {
     if (iso) aliases.add(iso);
 
     if (
-      buscado?.codigo === "US" ||
       normUpper(nombre).includes("ESTADOS UNIDOS") ||
       normUpper(p).includes("ESTADOS UNIDOS")
     ) {
@@ -179,10 +178,7 @@ function paisEnTexto(valor: string, texto: string): boolean {
 
     let ok = false;
     const tu = normUpper(texto);
-    if (
-      buscado?.codigo === "US" ||
-      normUpper(nombre).includes("ESTADOS UNIDOS")
-    ) {
+    if (normUpper(nombre).includes("ESTADOS UNIDOS")) {
       if (/\bUSA\b/.test(tu) || /\bU\.S\.A?\.?\b/.test(texto)) ok = true;
       else if (/\b[A-Z]{2}\s*-\s*USA\b/.test(tu)) ok = true;
     }
@@ -383,13 +379,13 @@ function descartar(
   vacios.push({ campo, donde: "interpretación", motivo });
 }
 
-function limpiarObjeto<T extends Record<string, unknown>>(o: T | null | undefined): T | undefined {
-  if (!o) return undefined;
+function limpiarObjeto<T extends Record<string, unknown>>(o: T | null | undefined): T | null {
+  if (!o) return null;
   const out = { ...o };
   for (const k of Object.keys(out)) {
     if (out[k] == null || out[k] === "") delete out[k];
   }
-  return Object.keys(out).length ? out : undefined;
+  return Object.keys(out).length ? out : null;
 }
 
 /** Monto en formato brasileño (16.673,200) — a veces la IA le agrega «kg» por error. */
@@ -1191,7 +1187,7 @@ export function fundamentarDatosDesdeTranscripcion(
       }
       return true;
     });
-    if (!out.partes.length) delete out.partes;
+    if (!out.partes.length) out.partes = null;
   }
 
   const orig = out.origen ? { ...out.origen } : undefined;
@@ -1319,7 +1315,7 @@ export function fundamentarDatosDesdeTranscripcion(
     const re = patrones[out.via];
     if (re && !re.test(t) && tipo !== "transporte" && tipo !== "despacho") {
       descartar(vacios, "via", `vía «${out.via}» no indicada en el documento`);
-      delete out.via;
+      out.via = null;
     }
   }
 
