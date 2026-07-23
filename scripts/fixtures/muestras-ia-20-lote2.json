@@ -1,0 +1,130 @@
+{
+  "seed": 20260631,
+  "n": 20,
+  "fuente": [
+    "muestras-motor-100.json"
+  ],
+  "excluidos": 20,
+  "muestras": [
+    {
+      "ncm": "0105.15.00.000Y",
+      "partida": "0105",
+      "producto": "De peso inferior o igual a 185 g:, Pintadas",
+      "descripcion_ncm": "--Pintadas"
+    },
+    {
+      "ncm": "0210.12.00.000X",
+      "partida": "0210",
+      "producto": "Carne de la especie porcina:, Tocino entreverado de panza (panceta) y sus trozos",
+      "descripcion_ncm": "--Tocino entreverado de panza (panceta) y sus trozos"
+    },
+    {
+      "ncm": "0402.21.30.111U",
+      "partida": "0402",
+      "producto": "Nata (crema), En envases inmediatos de contenido neto inferior o igual a 2 kg (R.420/99 MEYOSP), Enlatadas, Elaborada con leche de cabra, búfala u A ovina",
+      "descripcion_ncm": "Elaborada con leche de cabra, búfala u A ovina"
+    },
+    {
+      "ncm": "1108.12.00.000B",
+      "partida": "1108",
+      "producto": "Almidón y fécula:, Almidon de maiz",
+      "descripcion_ncm": "--Almidon de maiz"
+    },
+    {
+      "ncm": "1210.20.20.000Q",
+      "partida": "1210",
+      "producto": "Conos de lúpulo triturados, molidos o en «pellets»; lupulino, Lupulino",
+      "descripcion_ncm": "Lupulino"
+    },
+    {
+      "ncm": "2932.20.00.430K",
+      "partida": "2932",
+      "producto": "Lactonas:, Principios activos de plaguicidas agroquímicos (R. 2013/93 ANA), Giberelina",
+      "descripcion_ncm": "Giberelina"
+    },
+    {
+      "ncm": "3301.29.22.100Q",
+      "partida": "3301",
+      "producto": "Aceites esenciales, excepto los de agrios (cítricos):, De lavanda (espliego) o lavadín; espicanardo (\"vetiver\"), De espicanardo (\"vetiver\"), Productos domisanitarios definidos en la Resolución 709/98 ex MSyAS",
+      "descripcion_ncm": "Productos domisanitarios definidos en la Resolución 709/98 ex MSyAS"
+    },
+    {
+      "ncm": "4011.10.00.133K",
+      "partida": "4011",
+      "producto": "los tipos utilizados en automóviles de turismo (incluidos los del tipo familiar(\"break\" o \"station wagon\")y los de carreras), Diagonales, con diámetro de llanta inferior o igual a 406,4 mm(16\") y ancho seccional inferior o igual a 215 mm, Con ancho seccional igual a 195 mm, Con diámetro de llanta igual a 355,6 mm (14\")",
+      "descripcion_ncm": "Con diámetro de llanta igual a 355,6 mm (14\")"
+    },
+    {
+      "ncm": "4412.33.00.213T",
+      "partida": "4412",
+      "producto": "Fenólicos, sin recubrimiento de plástico, De espesor superior o igual a 3 mm pero inferior a 7 mm, De espesor inferior a 4 mm, de tercera calidad e inferiores (calidad C e inferiores, según Norma IRAM 9506)",
+      "descripcion_ncm": "De espesor inferior a 4 mm, de tercera calidad e inferiores (calidad C e inferiores, según Norma IRAM 9506)"
+    },
+    {
+      "ncm": "5311.00.00.340G",
+      "partida": "5311",
+      "producto": "De hilados de papel, De peso superior o igual a 400 g/m2 pero inferior a 500 g/m2",
+      "descripcion_ncm": "De peso superior o igual a 400 g/m2 pero inferior a 500 g/m2"
+    },
+    {
+      "ncm": "5407.52.10.110M",
+      "partida": "5407",
+      "producto": "Teñidos, Sin hilos de caucho, De ligamento tafetán, De densidad inferior o igual a 30 hilos por cm2",
+      "descripcion_ncm": "De densidad inferior o igual a 30 hilos por cm2"
+    },
+    {
+      "ncm": "5603.12.40.100W",
+      "partida": "5603",
+      "producto": "De filamentos sinteticos o artificiales:, De peso superior a 25 g/m2 pero inferior o igual a 70 g/m2, De polipropileno, En rollos, de anchura superior o igual a 90 cm",
+      "descripcion_ncm": "En rollos, de anchura superior o igual a 90 cm"
+    },
+    {
+      "ncm": "6302.31.00.220F",
+      "partida": "6302",
+      "producto": "De algodón, Fundas de almohadas, De 1 1/2 plaza",
+      "descripcion_ncm": "De 1 1/2 plaza"
+    },
+    {
+      "ncm": "6601.91.10.100P",
+      "partida": "6601",
+      "producto": "Con astil o mango telescópico, Con cubierta de tejidos de seda o de materia textil sintetica o artificial, Paraguas y sombrillas (R. 2506/93 ex-ANA)",
+      "descripcion_ncm": "Paraguas y sombrillas (R. 2506/93 ex-ANA)"
+    },
+    {
+      "ncm": "6702.90.00.110W",
+      "partida": "6702",
+      "producto": "De las demás materias, Artículos confeccionados principalmente con follajes, árboles o arbustos",
+      "descripcion_ncm": "árboles o arbustos"
+    },
+    {
+      "ncm": "7116.20.20.000X",
+      "partida": "7116",
+      "producto": "De piedras preciosas o semipreciosas (naturales, sinteticas o reconstituidas), Guías de agujas, de rubí, para cabezales de impresión",
+      "descripcion_ncm": "Guías de agujas, de rubí, para cabezales de impresión"
+    },
+    {
+      "ncm": "7216.33.00.100P",
+      "partida": "7216",
+      "producto": "Perfiles en U, en I o en H, simplemente laminados o extrudidos en caliente, de altura superior o igual a 80 mm:, Perfiles en H, De altura inferior o igual a 100 mm",
+      "descripcion_ncm": "De altura inferior o igual a 100 mm"
+    },
+    {
+      "ncm": "7307.19.10.144U",
+      "partida": "7307",
+      "producto": "De fundición maleable, de diámetro interior superior a 50,8 mm, Con revestimiento epoxi, de diámetro interior inferior a 600 mm, Cuplas, De diámetro interior igual a 113 mm (designación 100) según norma IRAM 2548 y equivalentes de otras normas",
+      "descripcion_ncm": "De diámetro interior igual a 113 mm (designación 100) según norma IRAM 2548 y equivalentes de otras normas"
+    },
+    {
+      "ncm": "7603.10.00.100A",
+      "partida": "7603",
+      "producto": "Polvo de estructura no laminar, De grano esferico que presente una distribución de partículas inferior o igual a 60 micrómetros, con un contenido de aluminio superior o igual al 99% en peso (Dto. 437/00).",
+      "descripcion_ncm": "De grano esferico que presente una distribución de partículas inferior o igual a 60 micrómetros, con un contenido de aluminio superior o igual al 99% en peso (Dto. 437/00)."
+    },
+    {
+      "ncm": "8607.11.20.000J",
+      "partida": "8607",
+      "producto": "Bojes, \"bissels\", ejes y ruedas, y sus partes:, Bojes y \"bissels\", de tracción, \"Bissels\"",
+      "descripcion_ncm": "\"Bissels\""
+    }
+  ]
+}

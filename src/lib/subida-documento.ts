@@ -19,7 +19,8 @@ import {
 } from "@/lib/ia-documentos";
 import { iaFin, iaInicio } from "@/lib/ia-estado";
 import { contextoOperacionIA } from "@/lib/marco-validacion";
-import { evaluarHallazgosDocumentoSubido, vaciosVisiblesUsuario } from "@/lib/hallazgos-documento";
+import { esOperacionExportacion } from "@/lib/operacion-aduana";
+import { evaluarHallazgosDocumentoSubido, resumenCruceDespacho, vaciosVisiblesUsuario } from "@/lib/hallazgos-documento";
 import { clasificarDocumentoPorContenido } from "@/lib/clasificar-documento";
 import { lecturaTieneContenido } from "@/lib/ia-extraccion";
 import { actualizarChecklistAutomatico } from "@/lib/checklist-documentos";
@@ -74,6 +75,7 @@ export async function procesarAnalisisDocumentoSubido(
     const analisis = await analizarDocumentoSubidoCompleto(archivo, {
       tipoConocido: ctx.tipoManual,
       contextoOperacion: contextoOperacionIA(op),
+      esImportacion: !esOperacionExportacion(op.tipo),
     });
 
     const docVivo = await getDocumentById(ctx.docId);
@@ -144,7 +146,10 @@ export async function procesarAnalisisDocumentoSubido(
     await setHallazgosDocumento(ctx.userId, op.id, docType, {
       doc: docLabelDe(docType, op.via),
       etapa: DOC_ETAPA_DE[docType] ?? "documentacion",
-      resumen: analisis.resumen,
+      resumen:
+        docType === "despacho"
+          ? resumenCruceDespacho(hallazgosFinales)
+          : analisis.resumen,
       at: new Date().toISOString(),
       hallazgos: hallazgosFinales,
     });

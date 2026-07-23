@@ -3,38 +3,31 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ListChecks } from "lucide-react";
-import type {
-  DocumentRow,
-  EventoRow,
-  OperationRow,
-  ParticipanteRow,
-} from "@/lib/data";
+import type { DocumentRow, EventoRow, OperationRow } from "@/lib/data";
 import { OperacionDetalle } from "@/components/operaciones-lista";
 import { EditarOperacionForm } from "@/components/editar-operacion-form";
 import { OperacionMenu } from "@/components/operacion-menu";
-import { ParticipantesControl } from "@/components/participantes-control";
 import { SeguimientoOperacion } from "@/components/seguimiento-operacion";
 
 export function OperacionEditable({
   op,
   docs,
   eventos = [],
-  participantes = [],
-  noLeidos = {},
   completo = false,
   volverHref,
   showClient = false,
   editableEstado = false,
+  soloNombre = false,
 }: {
   op: OperationRow;
   docs: DocumentRow[];
   eventos?: EventoRow[];
-  participantes?: ParticipanteRow[];
-  noLeidos?: Record<string, number>;
   completo?: boolean;
   volverHref?: string;
   showClient?: boolean;
   editableEstado?: boolean;
+  /** Modo cliente: sólo puede editar el nombre (su alias) y no eliminar. */
+  soloNombre?: boolean;
 }) {
   const [editando, setEditando] = useState(false);
 
@@ -43,6 +36,7 @@ export function OperacionEditable({
       <EditarOperacionForm
         op={op}
         completo={completo}
+        soloNombre={soloNombre}
         onDone={() => setEditando(false)}
       />
     );
@@ -66,18 +60,11 @@ export function OperacionEditable({
               <span className="hidden sm:inline">Ir al despacho</span>
             </Link>
           )}
-          {/* El cliente gestiona participantes, pero el chat es interno del estudio. */}
-          <ParticipantesControl
-            operationId={op.id}
-            participantes={participantes}
-            noLeidos={noLeidos}
-            puedeEliminar
-            chatHabilitado={completo}
-          />
           <OperacionMenu
             operationId={op.id}
             onEditar={() => setEditando(true)}
             volverHref={volverHref}
+            soloNombre={soloNombre}
           />
         </div>
       }

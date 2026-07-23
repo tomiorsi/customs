@@ -6,7 +6,7 @@
  *   python3 scripts/generar-muestras-motor.py --seed 20260628 --out scripts/fixtures/muestras-motor-40-lote2.json --excluir scripts/fixtures/muestras-motor-40.json
  *   npx tsx --require ./scripts/register-server-only-stub.cjs scripts/benchmark-motor-partidas.mjs
  *   npx tsx --require ./scripts/register-server-only-stub.cjs scripts/benchmark-motor-partidas.mjs --todos
- *   npx tsx --require ./scripts/register-server-only-stub.cjs scripts/benchmark-motor-partidas.mjs --verbose scripts/fixtures/muestras-motor-40-lote2.json
+ *   npx tsx --require ./scripts/register-server-only-stub.cjs scripts/benchmark-motor-partidas.mjs scripts/fixtures/muestras-motor-100.json
  */
 import fs from "node:fs";
 import path from "node:path";

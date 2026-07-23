@@ -1,0 +1,222 @@
+{
+  "total_segundos": 19.9,
+  "ok": 21,
+  "total": 21,
+  "items": [
+    {
+      "archivo": "1/1510299e26 COD.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 2012,
+      "paginas": 1,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "1/1510299e26 CRT copy.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 5984,
+      "paginas": 1,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "1/1510299e26 Fatura Nexa.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 1862,
+      "paginas": 1,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "1/1510299e26 Packing List & Analisys Certificate.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 4449,
+      "paginas": 2,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "2/Despacho arca.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.3,
+      "chars": 143136,
+      "paginas": 37,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "2/comercial invoice 2.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 10.3,
+      "chars": 3070,
+      "paginas": 3,
+      "ocr": true,
+      "paginas_ocr": [
+        3
+      ]
+    },
+    {
+      "archivo": "2/comercial invoice 3.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 2084,
+      "paginas": 3,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "2/comercial invoice.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 8.5,
+      "chars": 4512,
+      "paginas": 4,
+      "ocr": true,
+      "paginas_ocr": [
+        3,
+        4
+      ]
+    },
+    {
+      "archivo": "2/factura.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 5221,
+      "paginas": 1,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "2/guia aerea.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 652,
+      "paginas": 1,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "3/afip.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 16338,
+      "paginas": 5,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "3/awl.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 676,
+      "paginas": 1,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "3/invoice.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 1077,
+      "paginas": 1,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "4/afip.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 12521,
+      "paginas": 4,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "4/co.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 2337,
+      "paginas": 1,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "4/crt.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 4980,
+      "paginas": 1,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "4/invoice.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 3438,
+      "paginas": 1,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "5/afip.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 10541,
+      "paginas": 3,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "5/bl.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 22970,
+      "paginas": 8,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "5/gastos.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 1154,
+      "paginas": 1,
+      "ocr": false,
+      "paginas_ocr": []
+    },
+    {
+      "archivo": "5/invoice.pdf",
+      "ok": true,
+      "motivo": "ok",
+      "segundos": 0.0,
+      "chars": 1960,
+      "paginas": 1,
+      "ocr": false,
+      "paginas_ocr": []
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+---
+description: Pipeline de lectura y cruce de documentos — PDF, extracción, validación
+globs: src/lib/{ia-extraccion,ia-documentos,capa-texto-pdf,pdf-preparar,resolucion-documentos,validacion-documento-legal,extraccion-doc-cache,interpretacion-documento}*.ts
+alwaysApply: false
+---
+
+# Pipeline de documentos
+
+## Flujo
+
+```
+PDF subido
+  → extraerTextoEmbebidoPdf / imagenesPdfEscaneo (pdf-preparar → Python si OCR)
+  → ia-extraccion: lectura bruta + interpretación estructurada
+  → caché en documento.extraccion_ia (extraccion-doc-cache)
+  → resolucion-documentos: cruce con otros docs de la operación
+  → validacion-documento-legal: cierra requisitos según hallazgos_ia
+  → checklist / alertas en UI
+```
+
+## Reglas
+
+- **Leer el contenido real** antes de clasificar tipo o validar. Nombre de archivo = provisional.
+- **Misma extracción** en subida, cruce y checklist (reusar caché; no releer PDF sin motivo).
+- `warn` y `error` en hallazgos bloquean validez; solo `ok` cierra requisitos.
+- Python OCR: **un script a la vez** (`python-runtime.ts` cola global + `pdf_lock.py`).
+
+## Capas
+
+| Archivo | Rol |
+|---------|-----|
+| `capa-texto-pdf.ts` | Texto embebido, meta lectura, dual validación |
+| `pdf-preparar.ts` | Puente a scripts Python |
+| `ia-extraccion.ts` | Pipeline completo por documento |
+| `ia-documentos.ts` | Vision API, tipos DatosDocumentoOperacion |
+| `resolucion-documentos.ts` | Reconciliación multi-doc, sincronizar operación |
+| `validacion-documento-legal.ts` | ¿Cierra requisito? según IA |
+
+## Anti-parches
+
+- Validar tipo de documento con regex sobre nombre de archivo
+- Hardcodear campos esperados por `docType` en código (va en prompt/marco)
+- Arreglar cruce solo en UI sin tocar `resolucion-documentos.ts`
+- Paralelizar OCR ignorando la cola Python
+
+## Prueba
+
+```bash
+python3 scripts/benchmark_pdf_texto.py
+```
+
+Fix en lectura/contexto, no en fixture.

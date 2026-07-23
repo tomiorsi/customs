@@ -1,0 +1,572 @@
+[
+  {
+    "carpeta": "2",
+    "ok": 6,
+    "total": 6,
+    "docs": [
+      {
+        "archivo": "Despacho arca.pdf",
+        "tipo": "despacho",
+        "ok": true,
+        "vacios_revalidacion": [],
+        "datos": {
+          "comercial": {
+            "valor_factura": "103.06976",
+            "valor_fob": "103.06976",
+            "flete": "6.868",
+            "incoterm": "FCA"
+          },
+          "via": null,
+          "logistica": null,
+          "mercaderia": null,
+          "partes": null,
+          "origen": {
+            "pais_destino": "Argentina"
+          },
+          "transporte": null,
+          "pago": null,
+          "formalidades": null
+        }
+      },
+      {
+        "archivo": "comercial invoice 2.pdf",
+        "tipo": "factura_comercial",
+        "ok": true,
+        "vacios_revalidacion": [],
+        "datos": {
+          "comercial": {
+            "valor_factura": "2265",
+            "incoterm": "FCA MIAMI"
+          },
+          "via": "terrestre",
+          "logistica": {
+            "volumen_cbm": "0.3"
+          },
+          "mercaderia": null,
+          "partes": [
+            {
+              "etiqueta": "Seller",
+              "nombre": "SHURE INCORPORATED",
+              "domicilio": "5800 West Touhy Avenue, NILES IL 60714-4608",
+              "pais": "USA"
+            },
+            {
+              "etiqueta": "Buyer",
+              "nombre": "ICAP SA",
+              "domicilio": "AV. DIAZ VELEZ 3531, CABA 01 C1200AAC",
+              "pais": "AR"
+            },
+            {
+              "etiqueta": "Shipper",
+              "nombre": "Shure Incorporated",
+              "domicilio": "995 CHADDICK DRIVE, Wheeling IL 60090-6449",
+              "pais": "USA"
+            },
+            {
+              "etiqueta": "Forward To",
+              "nombre": "CATHEL ICAP MIAMI",
+              "domicilio": "10300 NW 19th St Ste 111, Doral FL 33172-2538",
+              "pais": "US"
+            }
+          ],
+          "origen": {
+            "pais_origen": "MX, CN",
+            "pais_destino": "Argentina"
+          },
+          "transporte": {
+            "transporte_doc_nro": "301042576",
+            "transportista": "UNITED PARCEL SERVICE",
+            "medio_transporte": "Road"
+          },
+          "pago": {
+            "fecha_factura": "2026-04-30",
+            "plazo_pago_dias": "30",
+            "forma_pago": "Z130, NET 30"
+          },
+          "formalidades": null
+        }
+      },
+      {
+        "archivo": "comercial invoice 3.pdf",
+        "tipo": "factura_comercial",
+        "ok": true,
+        "vacios_revalidacion": [],
+        "datos": {
+          "comercial": {
+            "valor_factura": "2702",
+            "incoterm": "FCA MIAMI",
+            "moneda": "USD"
+          },
+          "logistica": null,
+          "mercaderia": null,
+          "partes": [
+            {
+              "etiqueta": "Seller",
+              "nombre": "SHURE INCORPORATED",
+              "domicilio": "5800 West Touhy Avenue, NILES IL 60714-4608",
+              "pais": "USA"
+            },
+            {
+              "etiqueta": "Buyer",
+              "nombre": "ICAP SA",
+              "domicilio": "AV. DIAZ VELEZ 3531, CABA 01 C1200AAC",
+              "pais": "AR"
+            },
+            {
+              "etiqueta": "Forward To",
+              "nombre": "CATHEL ICAP MIAMI",
+              "domicilio": "10300 NW 19th St Ste 11, Doral FL 33172-2538",
+              "pais": "US"
+            },
+            {
+              "etiqueta": "Producer",
+              "nombre": "SHURE INCORPORATED",
+              "domicilio": "995 CHADDICK DRIVE, WHEELING IL 60090-6449",
+              "pais": "USA"
+            }
+          ],
+          "origen": {
+            "pais_origen": "CN, MX",
+            "pais_destino": "Argentina"
+          },
+          "transporte": {
+            "transporte_doc_nro": "1Z610650354365276",
+            "transportista": "UNITED PARCEL SERVICE",
+            "medio_transporte": "UPS Ground/Standard"
+          },
+          "pago": {
+            "plazo_pago_dias": "30",
+            "forma_pago": "Z130, NET 30"
+          },
+          "formalidades": {
+            "observaciones_visuales": "Artículos controlados por el Gobierno de EE.UU. autorizados para exportación solo al país de destino final para uso por el consignatario final o usos identificados. No pueden ser revendidos, transferidos o dispuestos de otra manera a otro país o persona sin aprobación previa del Gobierno de EE.UU."
+          }
+        }
+      },
+      {
+        "archivo": "comercial invoice.pdf",
+        "tipo": "factura_comercial",
+        "ok": true,
+        "vacios_revalidacion": [],
+        "datos": {
+          "comercial": {
+            "valor_factura": "7605",
+            "incoterm": "FCA MIAMI"
+          },
+          "via": "terrestre",
+          "logistica": null,
+          "mercaderia": null,
+          "partes": [
+            {
+              "etiqueta": "Seller",
+              "nombre": "SHURE INCORPORATED",
+              "domicilio": "5800 West Touhy Avenue, NILES IL 60714-4608",
+              "pais": "USA"
+            },
+            {
+              "etiqueta": "Shipped From",
+              "nombre": "Shure Incorporated",
+              "domicilio": "995 CHADDICK DRIVE, Wheeling IL 60090-6449",
+              "pais": "USA"
+            },
+            {
+              "etiqueta": "Sold To",
+              "nombre": "ICAP SA",
+              "domicilio": "AV. DIAZ VELEZ 3531, CABA 01 C 1200AAC",
+              "pais": "AR"
+            },
+            {
+              "etiqueta": "Ship To",
+              "nombre": "ICAP SA",
+              "domicilio": "AV. DIAZ VELEZ 3531, CABA 01 C 1200AAC",
+              "pais": "AR"
+            },
+            {
+              "etiqueta": "Forward To",
+              "nombre": "CATHEL ICAP MIAMI",
+              "domicilio": "10300 NW 19th St Ste 111, Doral FL 33172-2538",
+              "pais": "US"
+            }
+          ],
+          "origen": {
+            "pais_origen": "CN, MX",
+            "pais_destino": "Argentina"
+          },
+          "transporte": {
+            "transporte_doc_nro": "301042574",
+            "transportista": "UNITED PARCEL SERVICE",
+            "medio_transporte": "Road"
+          },
+          "pago": {
+            "fecha_factura": "2026-04-30",
+            "plazo_pago_dias": "30",
+            "forma_pago": "Z130, NET 30"
+          },
+          "formalidades": {
+            "observaciones_visuales": "Items controlled by U.S. Government, authorized for export only to country of ultimate destination. May not be resold, transferred, or disposed of to any other country without U.S. government approval."
+          }
+        }
+      },
+      {
+        "archivo": "factura.pdf",
+        "tipo": "factura_comercial",
+        "ok": true,
+        "vacios_revalidacion": [],
+        "datos": {
+          "comercial": {
+            "valor_factura": "90.49776",
+            "incoterm": "FCA MIAMI",
+            "moneda": "USD"
+          },
+          "via": null,
+          "logistica": null,
+          "mercaderia": null,
+          "partes": null,
+          "origen": {
+            "pais_destino": "Argentina"
+          },
+          "transporte": null,
+          "pago": null,
+          "formalidades": null
+        }
+      },
+      {
+        "archivo": "guia aerea.pdf",
+        "tipo": "transporte",
+        "ok": true,
+        "vacios_revalidacion": [],
+        "datos": {
+          "comercial": {
+            "valor_factura": "6868",
+            "flete": "6868",
+            "moneda": "USD"
+          },
+          "via": "aerea",
+          "logistica": null,
+          "mercaderia": {
+            "mercaderia": "DISTRIBUIDOR",
+            "ncm": "8537.10.20",
+            "unidad": "K",
+            "peso_neto": "1,616.00 K"
+          },
+          "partes": [
+            {
+              "etiqueta": "Shipper",
+              "nombre": "AVI-SPL LLC",
+              "domicilio": "6301 BENJAMIN ROAD, TAMPA, FL 33634",
+              "pais": "UNITED STATES OF AMERICA"
+            },
+            {
+              "etiqueta": "Consignee",
+              "nombre": "ICAP S.A.",
+              "domicilio": "Av. Diaz Vélez 3531, C1200AAC, CABA",
+              "pais": "Argentina",
+              "identificacion": "CUIT: 30-50382598-4"
+            },
+            {
+              "etiqueta": "Notify",
+              "nombre": "ALMAX CARGO LLC",
+              "domicilio": "10300 NW 19Th St. Ste 111, DORAL, FL 33172",
+              "pais": "UNITED STATES OF AMERICA"
+            }
+          ],
+          "origen": {
+            "pais_origen": "Estados Unidos",
+            "pais_destino": "Argentina"
+          },
+          "transporte": {
+            "transporte_doc_nro": "001 MIA 25083424",
+            "transportista": "AMERICAN AIRLINES",
+            "puerto_origen": "MIAMI",
+            "puerto_destino": "EZE",
+            "eta": "2026-05-29",
+            "medio_transporte": "aéreo"
+          },
+          "pago": {
+            "fecha_factura": "2026-05-29"
+          },
+          "formalidades": {
+            "observaciones_visuales": "INV. AVI SPL Nro: 260010; SHURE 301043071, 301042574, 301042576; AES ITN: X20260529733988, X20260529733479; Authorized agent: Carolina Puppo"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "carpeta": "4",
+    "ok": 4,
+    "total": 4,
+    "docs": [
+      {
+        "archivo": "afip.pdf",
+        "tipo": "despacho",
+        "ok": true,
+        "vacios_revalidacion": [
+          {
+            "campo": "origen.pais_destino",
+            "donde": "interpretación",
+            "motivo": "«Argentina» no figura en el documento"
+          }
+        ],
+        "datos": {
+          "comercial": {
+            "valor_factura": "14.9532",
+            "valor_fob": "13.22318",
+            "flete": "3.4",
+            "incoterm": "DAP"
+          },
+          "via": "terrestre",
+          "logistica": null,
+          "mercaderia": {
+            "mercaderia": "Placas, láminas, hojas y tiras de plástico no celular de policarbonatos, de espesor superior a 6mm pero inferior o igual a 8mm, alveolares de dos capas",
+            "ncm": "3920.61.00",
+            "marca": "POLYVANTIS",
+            "cantidad": "4.275,18 kilogramos KILOGRAMO",
+            "unidad": "KILOGRAMO",
+            "bultos": "1 bulto",
+            "tipo_embalaje": "BULTOS",
+            "peso_neto": "4.275,18 kg",
+            "peso_bruto": "4.565,18 kg"
+          },
+          "partes": [
+            {
+              "etiqueta": "Importador",
+              "nombre": "DAYPLAS S A",
+              "pais": "Argentina",
+              "identificacion": "20-17379361-9"
+            },
+            {
+              "etiqueta": "Vendedor",
+              "nombre": "FILMS & SHEETS SOUTH AMERICA LTDA",
+              "pais": "BRASIL",
+              "identificacion": "50.421.396/0001-19"
+            },
+            {
+              "etiqueta": "Despachante de Aduana",
+              "nombre": "ORSI RICARDO CESAR VICENT",
+              "identificacion": "33-58249873-9"
+            },
+            {
+              "etiqueta": "Agente de Transporte Aduanero",
+              "nombre": "VILLARREAL SERGIO DANIEL",
+              "identificacion": "20-22106433-0"
+            }
+          ],
+          "origen": {
+            "pais_origen": "Brasil",
+            "pais_procedencia": "Brasil",
+            "pais_destino": "Argentina"
+          },
+          "transporte": {
+            "transporte_doc_nro": "008BR677600270",
+            "transportista": "HKE4013",
+            "medio_transporte": "CAMION"
+          },
+          "pago": {
+            "fecha_factura": "2026-05-12"
+          },
+          "formalidades": {
+            "entidad_emisora": "Aduana Campana",
+            "observaciones_visuales": "Documentos de Exportación: DCEXP 26BR0008445026. Certificación PAC-Origen: CCROM. Domicilio establecimiento: Combatientes de Malvinas 3197 (1427). Código de producto: WLS82TS1300. Cotización: 1.398,000000"
+          }
+        }
+      },
+      {
+        "archivo": "co.pdf",
+        "tipo": "certificado_origen",
+        "ok": true,
+        "vacios_revalidacion": [],
+        "datos": {
+          "comercial": {
+            "valor_factura": "16.6732",
+            "incoterm": "DAP",
+            "moneda": "USD"
+          },
+          "via": null,
+          "logistica": null,
+          "mercaderia": {
+            "ncm": "3920.61.00",
+            "cantidad": "270,000 pç"
+          },
+          "partes": [
+            {
+              "etiqueta": "Exportador",
+              "nombre": "FILMS & SHEETS SOUTH AMERICA LTDA",
+              "domicilio": "Rua Manoel Thomaz, 545 - Vila Lunardi - Campinas - SP",
+              "pais": "Brasil"
+            },
+            {
+              "etiqueta": "Importador",
+              "nombre": "DAYPLAS, S.A",
+              "domicilio": "COMBATENTES DE MALVINAS, 3197 - CIUDAD AUTONOMA BUENOS AIRES, 1427",
+              "pais": "Argentina",
+              "identificacion": "CUIT: 33582498739"
+            }
+          ],
+          "origen": {
+            "pais_origen": "Brasil",
+            "pais_destino": "Argentina"
+          },
+          "transporte": {
+            "puerto_origen": "Campinas-SP"
+          },
+          "pago": null,
+          "formalidades": {
+            "entidad_emisora": "FEDERAÇÃO DAS INDÚSTRIAS DO ESTADO DE SÃO PAULO",
+            "observaciones_visuales": "Certificado de Origen del Mercosul. Asignado digitalmente por FABIO DA SILVA TAVARES (08307454832) el 13/05/2026 a las 14:36 y certificado por KARINA AYUMI OHIRA (50776025813) el 14/05/2026 a las 09:56. Válido solo con firma y código QR impreso."
+          }
+        }
+      },
+      {
+        "archivo": "crt.pdf",
+        "tipo": "transporte",
+        "ok": true,
+        "vacios_revalidacion": [],
+        "datos": {
+          "comercial": {
+            "valor_factura": "16.6732",
+            "valor_fob": "13.22318",
+            "flete": "3.4",
+            "incoterm": "DAP",
+            "moneda": "USD"
+          },
+          "via": "terrestre",
+          "logistica": null,
+          "mercaderia": {
+            "mercaderia": "Sheet/film of polycarbonates WLS82TS1300-112-8,0 -2100-5800,00-000",
+            "ncm": "3920.61.00",
+            "cantidad": "1 BULTO",
+            "unidad": "BULTO",
+            "peso_neto": "4.275,180 kg",
+            "peso_bruto": "4.565,180 kg"
+          },
+          "partes": [
+            {
+              "etiqueta": "Shipper/Remetente",
+              "nombre": "Films & Sheets South America Ltda",
+              "domicilio": "Rua Manoel Thomaz. 545, Campinas, SP, 13067-230",
+              "pais": "Brasil",
+              "identificacion": "CNPJ 50.421.396/0001-19"
+            },
+            {
+              "etiqueta": "Transportista",
+              "nombre": "RTC LOGISTICA E TRANSPORTES LTDA",
+              "domicilio": "RUA JOSE POSSER SOBRINHO, 1000, SALA 03 - CX POSTAL 42, SANTA LUCIA, MARAU / RS",
+              "pais": "Brasil",
+              "identificacion": "CNPJ 09.247.387/0001-50"
+            },
+            {
+              "etiqueta": "Consignee/Destinatario",
+              "nombre": "DAYPLAS, S.A.",
+              "domicilio": "COMBATIENTES DE MALVINAS, 3197, CIUDAD AUTONOMA BUENOS AIRES",
+              "pais": "Argentina",
+              "identificacion": "CUIT 33582498739"
+            },
+            {
+              "etiqueta": "Notify",
+              "nombre": "DAYPLAS, S.A.",
+              "domicilio": "COMBATIENTES DE MALVINAS, 3197, CIUDAD AUTONOMA BUENOS AIRES",
+              "pais": "Argentina",
+              "identificacion": "CUIT 33582498739"
+            }
+          ],
+          "origen": {
+            "pais_origen": "Brasil",
+            "pais_procedencia": "Brasil",
+            "pais_destino": "Argentina"
+          },
+          "transporte": {
+            "transporte_doc_nro": "BR6776.00270",
+            "transportista": "RTC LOGISTICA E TRANSPORTES LTDA",
+            "puerto_origen": "CAMPINAS - SP - BRASIL",
+            "puerto_destino": "BUENOS AIRES - ARGENTINA",
+            "medio_transporte": "Transporte Rodoviario"
+          },
+          "pago": {
+            "fecha_factura": "2026-05-13"
+          },
+          "formalidades": {
+            "observaciones_visuales": "Las mercancías consignadas en esta Carta de Porte fueron recibidas por el porteador aparentemente en buen estado, bajo las condiciones generales que figuran al dorso."
+          }
+        }
+      },
+      {
+        "archivo": "invoice.pdf",
+        "tipo": "factura_comercial",
+        "ok": true,
+        "vacios_revalidacion": [],
+        "datos": {
+          "comercial": {
+            "valor_factura": "16673.2",
+            "valor_fob": "13223.18",
+            "flete": "3400",
+            "seguro": "50.02",
+            "incoterm": "DAP",
+            "moneda": "USD"
+          },
+          "via": "terrestre",
+          "logistica": {
+            "cantidad_contenedores": "1"
+          },
+          "mercaderia": {
+            "mercaderia": "Sheet/film of polycarbonates WLS82TS1300-112-8,0 -2100-5800,00-000",
+            "ncm": "39206100",
+            "cantidad": "4275.180 KG",
+            "unidad": "PC",
+            "bultos": "270 PC",
+            "peso_neto": "4275.180 KG",
+            "peso_bruto": "4565.180 KG"
+          },
+          "partes": [
+            {
+              "etiqueta": "Seller",
+              "nombre": "Films & Sheets South America Ltda",
+              "domicilio": "Rua Manoel Thomaz. 545, Campinas, SP, 13067-230",
+              "pais": "BR",
+              "identificacion": "50.421.396/0001-19"
+            },
+            {
+              "etiqueta": "Buyer",
+              "nombre": "DAYPLAS, S.A.",
+              "domicilio": "COMBATENTES DE MALVINAS, 3197, CIUDAD AUTONOMA BUENOS AIRES, Buenos Aires, 1427",
+              "pais": "AR",
+              "identificacion": "CUIT 33582498739"
+            },
+            {
+              "etiqueta": "Ultimate Consignee",
+              "nombre": "DAYPLAS, S.A.",
+              "domicilio": "COMBATENTES DE MALVINAS, 3197, CIUDAD AUTONOMA BUENOS AIRES, Buenos Aires, 1427",
+              "pais": "AR",
+              "identificacion": "CUIT 33582498739"
+            },
+            {
+              "etiqueta": "Ship To",
+              "nombre": "DAYPLAS, S.A.",
+              "domicilio": "Ruta Provincial 6 Km 96,7 - 97,5, Cañuelas, Buenos Aires, Argentina",
+              "pais": "AR",
+              "identificacion": "CUIT 33582498739"
+            }
+          ],
+          "origen": {
+            "pais_origen": "Brasil",
+            "pais_destino": "Argentina"
+          },
+          "transporte": {
+            "transporte_doc_nro": "8000118258",
+            "puerto_origen": "Campinas/SP",
+            "puerto_destino": "Buenos Aires",
+            "medio_transporte": "Road"
+          },
+          "pago": {
+            "fecha_factura": "2026-05-13",
+            "plazo_pago_dias": "30",
+            "forma_pago": "30 Days After Invoice Date"
+          },
+          "formalidades": {
+            "observaciones_visuales": "Documento firmado digitalmente por WALTER PEREIRA GONCALVES JUNIOR el 13/05/2026 a las 10:11:37 -03'00'. Sales Order No.: 2000099871. Customer PO No.: 02-2026. Exporter ID: LU_ACF3. Seller ID: FTO_9723. Delivery Number: 3000191377. HAZMAT: UNCONTROLLED. ECCN: 72137948. HS No. (Export): 39206100."
+          }
+        }
+      }
+    ]
+  }
+]

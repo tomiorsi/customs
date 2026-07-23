@@ -5,10 +5,11 @@ import Link from "next/link";
 import {
   ArrowRight,
   CheckCircle2,
+  Circle,
   ClipboardCheck,
-  Clock3,
   Container,
   FileCheck2,
+  FileText,
   Plane,
   Ship,
   ShieldCheck,
@@ -63,6 +64,63 @@ function useReveal() {
   return rootRef;
 }
 
+/* ───────────────────── Scroll suave con easing para anclas ─────────────────────
+ * Los enlaces internos (#portal, #proceso) hacen un desplazamiento animado con
+ * curva easeInOutCubic en vez del salto directo. Respeta prefers-reduced-motion.
+ */
+function useSmoothAnchors(rootRef: React.RefObject<HTMLDivElement | null>) {
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let rafId: number | null = null;
+
+    const animarHasta = (destino: number) => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      const inicio = window.scrollY;
+      const delta = destino - inicio;
+      const duracion = Math.min(900, Math.max(450, Math.abs(delta) * 0.6));
+      const t0 = performance.now();
+      const ease = (t: number) =>
+        t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+      const paso = (now: number) => {
+        const t = Math.min(1, (now - t0) / duracion);
+        window.scrollTo({ top: inicio + delta * ease(t), behavior: "instant" });
+        if (t < 1) rafId = requestAnimationFrame(paso);
+        else rafId = null;
+      };
+      rafId = requestAnimationFrame(paso);
+    };
+
+    const onClick = (e: MouseEvent) => {
+      const enlace = (e.target as HTMLElement)?.closest?.(
+        'a[href^="#"]',
+      ) as HTMLAnchorElement | null;
+      if (!enlace) return;
+      const id = enlace.getAttribute("href")?.slice(1);
+      if (!id) return;
+      const destinoEl = document.getElementById(id);
+      if (!destinoEl) return;
+      e.preventDefault();
+      const margen = 24;
+      const destino = Math.max(
+        0,
+        window.scrollY + destinoEl.getBoundingClientRect().top - margen,
+      );
+      animarHasta(destino);
+      history.replaceState(null, "", `#${id}`);
+    };
+
+    root.addEventListener("click", onClick);
+    return () => {
+      root.removeEventListener("click", onClick);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
+  }, [rootRef]);
+}
+
 /* ───────────────────────── Pieza visual del hero ─────────────────────────
  * Círculo con ruta punteada animada y el modo de transporte que rota:
  * avión → barco → camión (CSS puro, sin timers).
@@ -76,7 +134,7 @@ function TransportOrb() {
   ];
 
   return (
-    <div className="landing-orb relative mx-auto aspect-square w-[280px] sm:w-[340px] lg:w-[420px]">
+    <div className="landing-orb relative mx-auto aspect-square w-[280px] sm:w-[340px] md:w-[400px] lg:w-[420px]">
       {/* Anillos */}
       <div className="absolute inset-0 rounded-full border border-border/70" />
       <div className="absolute inset-[12%] rounded-full border border-border/50" />
@@ -184,10 +242,20 @@ const PIPELINE = [
   "Entregada",
 ];
 
+/** Documentos reales de la operación (tipos que maneja el portal). */
+const DOCS_MOCK = [
+  { label: "Factura comercial", done: true },
+  { label: "Packing list", done: true },
+  { label: "Documento de transporte", done: true },
+  { label: "Certificado de origen", done: true },
+  { label: "Despacho SIM", done: false },
+];
+
 /* ───────────────────────── Página ───────────────────────── */
 
 export function Landing() {
   const rootRef = useReveal();
+  useSmoothAnchors(rootRef);
 
   return (
     <div ref={rootRef} className="relative min-h-screen overflow-x-clip">
@@ -206,11 +274,11 @@ export function Landing() {
           className="absolute left-1/2 top-0 -z-10 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-accent/10 blur-[140px]"
         />
 
-        <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 py-16 sm:px-8 lg:min-h-[calc(100vh-4rem)] lg:grid-cols-[1.05fr_0.95fr] lg:py-10">
-          <div>
+        <div className="relative mx-auto grid min-h-[calc(100dvh-4rem)] max-w-6xl content-center items-center gap-14 px-5 py-14 sm:px-8 md:min-h-[calc(100vh-4rem)] md:py-10 md:grid-cols-[1.05fr_0.95fr]">
+          <div className="text-center md:text-left">
             <h1
               data-reveal
-              className="landing-reveal text-4xl font-extrabold leading-[1.06] tracking-tight text-foreground sm:text-5xl lg:text-6xl"
+              className="landing-reveal text-5xl font-extrabold leading-[1.04] tracking-tight text-foreground md:text-6xl"
             >
               Tu carga cruza fronteras.
               <br />
@@ -219,14 +287,27 @@ export function Landing() {
 
             <p
               data-reveal
-              className="landing-reveal mt-6 max-w-xl text-base leading-relaxed text-muted sm:text-lg"
+              className="landing-reveal mt-6 text-lg text-muted"
             >
-              Importaciones y exportaciones con clasificación arancelaria fundada,
-              cotización de tributos antes de embarcar y seguimiento de cada
-              despacho en tiempo real, desde la proforma hasta la entrega.
+              Despachamos tu importación o exportación de punta a punta.
             </p>
 
-            <div data-reveal className="landing-reveal mt-9 flex flex-wrap items-center gap-3">
+            <div data-reveal className="landing-reveal mt-8 flex flex-wrap items-center justify-center gap-4 md:justify-start">
+              <div className="flex flex-col items-center rounded-2xl bg-accent-soft px-5 py-3">
+                <span className="text-3xl font-extrabold text-accent">+20</span>
+                <span className="text-xs font-medium uppercase tracking-wide text-accent">
+                  años
+                </span>
+              </div>
+              <div className="flex flex-col items-center rounded-2xl bg-accent-soft px-5 py-3">
+                <span className="text-3xl font-extrabold text-accent">+10K</span>
+                <span className="text-xs font-medium uppercase tracking-wide text-accent">
+                  despachos
+                </span>
+              </div>
+            </div>
+
+            <div data-reveal className="landing-reveal mt-10 flex flex-wrap items-center justify-center gap-3 md:justify-start">
               <a
                 href="#portal"
                 className="inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-semibold text-accent-foreground shadow-[0_12px_32px_-12px_var(--ring)] transition-all hover:opacity-90"
@@ -238,8 +319,184 @@ export function Landing() {
 
           </div>
 
-          <div data-reveal className="landing-reveal">
+          <div data-reveal className="landing-reveal hidden md:block">
             <TransportOrb />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Portal ── */}
+      <section
+        id="portal"
+        className="relative overflow-hidden border-t border-border/60 bg-surface/40"
+      >
+        <div
+          aria-hidden
+          className="absolute -right-40 top-1/2 h-[420px] w-[420px] -translate-y-1/2 rounded-full bg-accent/10 blur-[120px]"
+        />
+        <div className="relative mx-auto grid max-w-6xl items-start gap-12 px-5 py-20 sm:px-8 sm:py-28 md:grid-cols-5">
+          <div data-reveal className="landing-reveal md:col-span-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+              Portal de clientes
+            </p>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              Tu despacho, en vivo
+            </h2>
+            <p className="mt-4 max-w-lg text-base leading-relaxed text-muted">
+              Cada operación tiene su tablero: estado, documentos y avisos del
+              estudio en el momento.
+            </p>
+            <ul className="mt-7 space-y-3.5">
+              {[
+                "Seguimiento paso a paso, de «Recibida» a «Entregada»",
+                "Documentos de la operación en un solo lugar",
+                "Cotizaciones y liquidaciones en PDF",
+                "Avisos del estudio directo en tu tablero",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2.5 text-sm text-foreground">
+                  <CheckCircle2 className="mt-0.5 h-[18px] w-[18px] shrink-0 text-accent" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <Link
+                href="/reunion"
+                className="inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-semibold text-accent-foreground shadow-[0_12px_32px_-12px_var(--ring)] transition-all hover:opacity-90"
+              >
+                ¿Querés acceder a todo esto?
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <a
+                href="#proceso"
+                className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface/70 px-6 py-3.5 text-sm font-semibold text-foreground transition-colors hover:border-accent/50"
+              >
+                ¿Cómo trabajamos?
+              </a>
+            </div>
+          </div>
+
+          {/* Mock del portal — refleja el tablero real del cliente */}
+          <div data-reveal className="landing-reveal md:col-span-3">
+            <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 shadow-[0_30px_80px_-40px_var(--ring)] sm:p-6">
+              {/* Encabezado de la operación */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-accent-foreground shadow-[0_8px_20px_-8px_var(--ring)]">
+                    <Container className="h-[22px] w-[22px]" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">IMPO 2324</p>
+                    <p className="text-[11px] text-muted">
+                      Importación · Marítima · China → Argentina
+                    </p>
+                  </div>
+                </div>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-accent">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
+                  En curso
+                </span>
+              </div>
+
+              {/* Progreso: 6 etapas reales */}
+              <div className="mt-6">
+                <div className="flex items-baseline justify-between">
+                  <p className="text-sm font-semibold text-foreground">
+                    Canal asignado
+                  </p>
+                  <p className="text-[11px] font-medium text-muted">Paso 4 de 6</p>
+                </div>
+                <div className="mt-2.5 flex items-center gap-1">
+                  {PIPELINE.map((etapa, i) => (
+                    <span
+                      key={etapa}
+                      className={`h-1.5 flex-1 rounded-full ${
+                        i <= 3 ? "bg-accent" : "bg-surface-2"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <div className="mt-1.5 flex items-center justify-between text-[10px] text-muted">
+                  <span>Recibida</span>
+                  <span>Entregada</span>
+                </div>
+              </div>
+
+              {/* Datos clave de la operación */}
+              <div className="mt-5 grid grid-cols-3 gap-2">
+                <div className="rounded-xl border border-border bg-surface-2/40 p-3">
+                  <p className="text-[9px] font-medium uppercase tracking-wide text-muted">
+                    NCM
+                  </p>
+                  <p className="mt-1 text-[13px] font-semibold text-foreground">
+                    8471.30.12
+                  </p>
+                </div>
+                <div className="rounded-xl border border-border bg-surface-2/40 p-3">
+                  <p className="text-[9px] font-medium uppercase tracking-wide text-muted">
+                    Incoterm
+                  </p>
+                  <p className="mt-1 text-[13px] font-semibold text-foreground">
+                    FOB Shanghái
+                  </p>
+                </div>
+                <div className="rounded-xl border border-accent/30 bg-accent-soft p-3">
+                  <p className="text-[9px] font-medium uppercase tracking-wide text-accent">
+                    Valor CIF
+                  </p>
+                  <p className="mt-1 text-[13px] font-bold text-accent">
+                    USD 48.500
+                  </p>
+                </div>
+              </div>
+
+              {/* Documentos */}
+              <div className="mt-5">
+                <div className="flex items-center justify-between">
+                  <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                    <FileText className="h-3.5 w-3.5 text-muted" />
+                    Documentos
+                  </p>
+                  <span className="text-[11px] font-medium text-muted">4 de 5</span>
+                </div>
+                <div className="mt-2.5 grid grid-cols-2 gap-2">
+                  {DOCS_MOCK.map(({ label, done }) => (
+                    <div
+                      key={label}
+                      className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-2 text-[11px] ${
+                        done
+                          ? "border-border bg-surface-2/40 text-foreground"
+                          : "border-dashed border-border text-muted"
+                      }`}
+                    >
+                      {done ? (
+                        <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-accent" />
+                      ) : (
+                        <Circle className="h-3.5 w-3.5 shrink-0 text-muted" />
+                      )}
+                      <span className="truncate">{label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Aviso del estudio */}
+              <div className="mt-5 rounded-xl border border-border bg-surface-2/40 p-3.5">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-accent-foreground">
+                    RO
+                  </span>
+                  <p className="text-[11px] font-semibold text-foreground">
+                    Estudio RCV Orsi
+                  </p>
+                  <span className="ml-auto text-[10px] text-muted">hoy 10:24</span>
+                </div>
+                <p className="mt-2 text-[11px] leading-relaxed text-muted">
+                  La Aduana asignó el canal de control. Avanzamos con la
+                  verificación que corresponda para liberar la mercadería.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -277,118 +534,6 @@ export function Landing() {
               </li>
             ))}
           </ol>
-        </div>
-      </section>
-
-      {/* ── Portal ── */}
-      <section
-        id="portal"
-        className="relative overflow-hidden border-t border-border/60 bg-surface/40"
-      >
-        <div
-          aria-hidden
-          className="absolute -right-40 top-1/2 h-[420px] w-[420px] -translate-y-1/2 rounded-full bg-accent/10 blur-[120px]"
-        />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 sm:px-8 sm:py-28 lg:grid-cols-2">
-          <div data-reveal className="landing-reveal">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
-              Portal de clientes
-            </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Tu despacho, en vivo
-            </h2>
-            <p className="mt-4 max-w-lg text-base leading-relaxed text-muted">
-              Cada operación tiene su tablero: estado, documentos y avisos del
-              estudio en el momento. Sin cadenas de mails ni &laquo;¿cómo viene lo
-              mío?&raquo;.
-            </p>
-            <ul className="mt-7 space-y-3.5">
-              {[
-                "Seguimiento paso a paso, de «Recibida» a «Entregada»",
-                "Documentos de la operación en un solo lugar",
-                "Cotizaciones y liquidaciones en PDF, al instante",
-                "Avisos del estudio directo en tu tablero",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-sm text-foreground">
-                  <CheckCircle2 className="mt-0.5 h-[18px] w-[18px] shrink-0 text-accent" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/reunion"
-              className="mt-9 inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-semibold text-accent-foreground shadow-[0_12px_32px_-12px_var(--ring)] transition-all hover:opacity-90"
-            >
-              ¿Querés acceder a todo esto?
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          {/* Mock del pipeline */}
-          <div data-reveal className="landing-reveal">
-            <div className="rounded-2xl border border-border bg-surface p-6 shadow-[0_30px_80px_-40px_var(--ring)] sm:p-8">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground">
-                    <Container className="h-[18px] w-[18px]" />
-                  </span>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">IMPO 2324</p>
-                    <p className="text-[11px] text-muted">Importación · Marítima</p>
-                  </div>
-                </div>
-                <span className="rounded-full bg-accent-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-accent">
-                  En curso
-                </span>
-              </div>
-
-              <ol className="mt-7 space-y-0">
-                {PIPELINE.map((etapa, i) => {
-                  const done = i < 3;
-                  const current = i === 3;
-                  return (
-                    <li key={etapa} className="relative flex items-center gap-3.5 pb-5 last:pb-0">
-                      {i < PIPELINE.length - 1 && (
-                        <span
-                          className={`absolute left-[11px] top-6 h-full w-px ${
-                            done ? "bg-accent/50" : "bg-border"
-                          }`}
-                        />
-                      )}
-                      <span
-                        className={`relative z-10 flex h-[23px] w-[23px] shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
-                          done
-                            ? "bg-accent text-accent-foreground"
-                            : current
-                              ? "bg-accent-soft text-accent ring-2 ring-accent"
-                              : "bg-surface-2 text-muted"
-                        }`}
-                      >
-                        {done ? <CheckCircle2 className="h-3.5 w-3.5" /> : i + 1}
-                      </span>
-                      <span
-                        className={`text-sm ${
-                          current
-                            ? "font-semibold text-foreground"
-                            : done
-                              ? "text-foreground"
-                              : "text-muted"
-                        }`}
-                      >
-                        {etapa}
-                      </span>
-                      {current && (
-                        <span className="ml-auto inline-flex items-center gap-1.5 text-[11px] font-medium text-accent">
-                          <Clock3 className="h-3.5 w-3.5" />
-                          Hoy
-                        </span>
-                      )}
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
-          </div>
         </div>
       </section>
 

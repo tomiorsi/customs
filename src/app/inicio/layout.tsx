@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 import { Topbar } from "@/components/topbar";
 import { getCurrentUser } from "@/lib/auth-server";
+import { esEquipo } from "@/lib/roles";
+import { clienteTienePortal } from "@/lib/portal-cliente";
+import { PortalDeshabilitado } from "@/components/portal-deshabilitado";
 
 export default async function InicioLayout({
   children,
@@ -9,7 +12,13 @@ export default async function InicioLayout({
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (user.role === "admin") redirect("/admin");
+  if (esEquipo(user.role)) redirect("/admin/operaciones");
+
+  // Acceso por-cliente: el portal solo se muestra a los clientes que el estudio
+  // habilitó. El resto ve un aviso (sin redirigir, para no ciclar el login).
+  if (!clienteTienePortal(user)) {
+    return <PortalDeshabilitado />;
+  }
 
   return (
     <div className="min-h-screen">

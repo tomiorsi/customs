@@ -59,6 +59,7 @@ const SECCIONES: { titulo: string; campos: Campo[] }[] = [
   {
     titulo: "Valoración",
     campos: [
+      { campo: "nro_factura", label: "N° de factura", basico: true },
       { campo: "incoterm", label: "Incoterm", basico: true },
       { campo: "moneda", label: "Moneda", basico: true },
       { campo: "valor_factura", label: "Valor factura", basico: true },
@@ -111,10 +112,13 @@ export function EditarOperacionForm({
   op,
   onDone,
   completo = false,
+  soloNombre = false,
 }: {
   op: OperationRow;
   onDone: () => void;
   completo?: boolean;
+  /** Modo cliente: sólo el nombre. Se guarda como alias que sólo ve el cliente. */
+  soloNombre?: boolean;
 }) {
   const router = useRouter();
   const fuente = op as unknown as Record<string, string | null>;
@@ -153,7 +157,7 @@ export function EditarOperacionForm({
       const res = await fetch(`/api/operaciones/${op.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(soloNombre ? { titulo: form.titulo } : form),
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => null)) as
@@ -173,11 +177,29 @@ export function EditarOperacionForm({
     <div className="neon-top overflow-hidden rounded-2xl border border-border bg-surface/80 backdrop-blur-sm">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface-2/40 px-5 py-4">
         <p className="text-base font-semibold text-foreground">
-          Editar operación
+          {soloNombre ? "Editar nombre" : "Editar operación"}
         </p>
       </div>
 
       <div className="space-y-6 px-5 py-5">
+        {soloNombre ? (
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-foreground">
+              Nombre de la operación<span className="text-accent"> *</span>
+            </label>
+            <input
+              className={inputCls}
+              value={form.titulo}
+              onChange={(e) => set("titulo", e.target.value)}
+              placeholder="Ponele un nombre para reconocerla"
+              autoFocus
+            />
+            <p className="text-[11px] leading-snug text-muted">
+              Este nombre lo ves sólo vos. No cambia cómo lo ve el estudio.
+            </p>
+          </div>
+        ) : (
+          <>
         {secciones.map((sec) => (
           <div key={sec.titulo}>
             <div className="mb-3 flex items-center gap-3">
@@ -253,6 +275,8 @@ export function EditarOperacionForm({
             onChange={(e) => set("detalle", e.target.value)}
           />
         </div>
+        </>
+        )}
 
         {error && (
           <p className="rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm font-medium text-red-500">

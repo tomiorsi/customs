@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { Brand } from "@/components/brand";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { signupRequest } from "@/lib/auth-client";
 
 const inputCls =
@@ -49,9 +48,8 @@ export default function RegistroPage() {
   return (
     <main className="min-h-screen px-6 py-10">
       <div className="mx-auto w-full max-w-2xl">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex items-center">
           <Brand size="md" />
-          <ThemeToggle />
         </div>
 
         <Link

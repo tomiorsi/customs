@@ -1,0 +1,128 @@
+{
+  "seed": 20260702,
+  "n": 20,
+  "excluidos": 200,
+  "solo_partes": true,
+  "muestras": [
+    {
+      "ncm": "6117.90.00.191Y",
+      "partida": "6117",
+      "producto": "Partes, De prendas de vestir, De las demás materias textiles, De las partidas 61.01 o 61.02, repuesto suelto",
+      "descripcion_ncm": "De las partidas 61.01 o 61.02"
+    },
+    {
+      "ncm": "6217.10.00.900D",
+      "partida": "6217",
+      "producto": "Complementos (accesorios) de vestir, De las demás materias textiles, repuesto suelto",
+      "descripcion_ncm": "De las demás materias textiles"
+    },
+    {
+      "ncm": "6406.90.90.111Q",
+      "partida": "6406",
+      "producto": "De cuero natural o regenerado (R.134/96 ex-ANA), De cuero natural, Polainas, repuesto suelto",
+      "descripcion_ncm": "Polainas"
+    },
+    {
+      "ncm": "8443.31.16.000U",
+      "partida": "8443",
+      "producto": "impresion, copia o fax, aptas para ser conectadas a una maquina automatica para tratamiento o procesamiento de datos o a una red, Alimentadas con hojas, con velocidad de impresión, medida en formato A4 (210 mm x 297 mm), inferior o igual a 45 páginas por minuto (ppm), Las demás, con ancho de impresión superior a 420 mm, repuesto suelto",
+      "descripcion_ncm": "Las demás, con ancho de impresión superior a 420 mm"
+    },
+    {
+      "ncm": "8607.12.00.000B",
+      "partida": "8607",
+      "producto": "Bojes, \"bissels\", ejes y ruedas, y sus partes:, Los demás bojes y \"bissels\", repuesto suelto",
+      "descripcion_ncm": "--Los demás bojes y \"bissels\""
+    },
+    {
+      "ncm": "8708.50.91.000E",
+      "partida": "8708",
+      "producto": "PARTES Y ACCESORIOS PARA VEHÍCULOS AUTOMÓVILES DE LAS PARTIDAS 87.01 A 87.05., Ejes con diferencial, incluso provistos con otros órganos de trasmisión, y ejes portadores; sus partes, Partes, De ejes portadores de los vehículos de las subpartidas 8701.10, 8701.30, 8701.91 a 8701.95 u 8704.10, repuesto suelto",
+      "descripcion_ncm": "De ejes portadores de los vehículos de las subpartidas 8701.10, 8701.30, 8701.91 a 8701.95 u 8704.10"
+    },
+    {
+      "ncm": "9209.30.00.100F",
+      "partida": "9209",
+      "producto": "Cuerdas armónicas, De tripa, repuesto suelto",
+      "descripcion_ncm": "De tripa"
+    },
+    {
+      "ncm": "6117.90.00.123E",
+      "partida": "6117",
+      "producto": "Partes, De prendas de vestir, De algodon, De camisas, blusas o blusas camiseras, repuesto suelto",
+      "descripcion_ncm": "De camisas, blusas o blusas camiseras"
+    },
+    {
+      "ncm": "6217.90.00.310M",
+      "partida": "6217",
+      "producto": "Partes, De fibras sinteticas o artificiales, De las partidas 62.01 o 62.02, repuesto suelto",
+      "descripcion_ncm": "De las partidas 62.01 o 62.02"
+    },
+    {
+      "ncm": "6406.10.00.222A",
+      "partida": "6406",
+      "producto": "Partes superiores de calzado y sus partes, excepto los contrafuertes y punteras duras, Partes de partes superiores, De cuero de reptil, Palas o empeines, repuesto suelto",
+      "descripcion_ncm": "Palas o empeines"
+    },
+    {
+      "ncm": "8448.32.20.900L",
+      "partida": "8448",
+      "producto": "Partes y accesorios de las máquinas de la partida 84.45 o de sus máquinas o aparatos auxiliares:, De máquinas para la preparación de materia textil, excepto las guarniciones de cardas, Para peinadoras, Partes (R.909/94 MEOSP), repuesto suelto",
+      "descripcion_ncm": "Partes (R.909/94 MEOSP)"
+    },
+    {
+      "ncm": "8607.11.10.000Z",
+      "partida": "8607",
+      "producto": "Bojes, \"bissels\", ejes y ruedas, y sus partes:, Bojes y \"bissels\", de tracción, Bojes, repuesto suelto",
+      "descripcion_ncm": "Bojes"
+    },
+    {
+      "ncm": "8714.99.90.914U",
+      "partida": "8714",
+      "producto": "PARTES Y ACCESORIOS DE VEHÍCULOS DE LAS PARTIDAS 87.11 A 87.13., Partes, Ruedas de bicicleta, De los tipos de las utilizadas como estabilizadoras, repuesto suelto",
+      "descripcion_ncm": "De los tipos de las utilizadas como estabilizadoras"
+    },
+    {
+      "ncm": "9209.30.00.300R",
+      "partida": "9209",
+      "producto": "Cuerdas armónicas, De monofilamentos de materia textil sintética, repuesto suelto",
+      "descripcion_ncm": "De monofilamentos de materia textil sintética"
+    },
+    {
+      "ncm": "6117.90.00.121A",
+      "partida": "6117",
+      "producto": "Partes, De prendas de vestir, De algodon, De las partidas 61.01 o 61.02, repuesto suelto",
+      "descripcion_ncm": "De las partidas 61.01 o 61.02"
+    },
+    {
+      "ncm": "6217.90.00.220K",
+      "partida": "6217",
+      "producto": "Partes, De algodón, De pantalones, repuesto suelto",
+      "descripcion_ncm": "De pantalones"
+    },
+    {
+      "ncm": "6406.10.00.111P",
+      "partida": "6406",
+      "producto": "Partes superiores de calzado y sus partes, excepto los contrafuertes y punteras duras, Partes superiores, De cuero vacuno, Inferior o igual al número 24, o sus equivalentes, repuesto suelto",
+      "descripcion_ncm": "Inferior o igual al número 24, o sus equivalentes"
+    },
+    {
+      "ncm": "8431.49.21.100Y",
+      "partida": "8431",
+      "producto": "De máquinas o aparatos de las partidas 84.26, 84.29 u 84.30:, De maquinas o aparatos de las partidas 84.29 u 84.30, Cabinas, De maquinas o aparatos de la partida 84.29, repuesto suelto",
+      "descripcion_ncm": "De maquinas o aparatos de la partida 84.29"
+    },
+    {
+      "ncm": "8708.80.00.110K",
+      "partida": "8708",
+      "producto": "PARTES Y ACCESORIOS PARA VEHÍCULOS AUTOMÓVILES DE LAS PARTIDAS 87.01 A 87.05., Sistemas de suspensión y sus partes (incluídos los amortiguadores), Amortiguadores, Del tipo MacPherson, repuesto suelto",
+      "descripcion_ncm": "Del tipo MacPherson"
+    },
+    {
+      "ncm": "6117.90.00.131D",
+      "partida": "6117",
+      "producto": "Partes, De prendas de vestir, De fibras sinteticas artificiales, De las partidas 61.01 o 61.02, repuesto suelto",
+      "descripcion_ncm": "De las partidas 61.01 o 61.02"
+    }
+  ]
+}

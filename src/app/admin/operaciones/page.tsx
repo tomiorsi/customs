@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
-import { Ship } from "lucide-react";
+import Link from "next/link";
+import { Plus, Ship } from "lucide-react";
 import {
   esNovedadEstudio,
   getAllOperations,
   getDocumentsByOperation,
   getEventosByOperation,
-  noLeidosEstudioTodas,
   vistasEstudioTodas,
 } from "@/lib/data";
 import { getCurrentUser } from "@/lib/auth-server";
@@ -22,7 +22,6 @@ export default async function AdminOperacionesPage() {
 
   const ops = await getAllOperations();
   const vistas = vistasEstudioTodas();
-  const noLeidos = noLeidosEstudioTodas();
   const items: OperacionItem[] = await Promise.all(
     ops.map(async (op) => {
       const [docs, eventos] = await Promise.all([
@@ -30,23 +29,28 @@ export default async function AdminOperacionesPage() {
         getEventosByOperation(op.user_id, op.id),
       ]);
       const visto = vistas[op.id] ?? "";
-      // Novedades sin ver generadas por el cliente o un tercero (no el equipo):
-      // cargas de documentos, alta de participante, etc., posteriores a la última
-      // visita del estudio + los mensajes de chat del tercero sin leer.
-      const eventosNuevos = eventos.filter(
+      // Novedades sin ver generadas por el cliente (no el equipo): cargas de
+      // documentos posteriores a la última visita del estudio.
+      const novedades = eventos.filter(
         (e) => esNovedadEstudio(e) && e.created_at > visto,
       ).length;
-      const novedades = eventosNuevos + (noLeidos[op.id] ?? 0);
       return { op, docs, novedades };
     }),
   );
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Operaciones
         </h1>
+        <Link
+          href="/admin/operaciones/nueva"
+          className="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-accent-foreground transition-colors hover:opacity-90"
+        >
+          <Plus className="h-4 w-4" />
+          Nueva operación
+        </Link>
       </div>
 
       {items.length === 0 ? (
@@ -58,8 +62,8 @@ export default async function AdminOperacionesPage() {
             Todavía no hay operaciones
           </p>
           <p className="mt-1 max-w-sm text-xs text-muted">
-            Cuando un cliente abra una nueva importación o exportación desde su
-            portal, va a aparecer acá con la documentación que haya adjuntado.
+            Creá la primera con «Nueva operación» a nombre de un cliente, o esperá a que
+            llegue documentación para cargarla.
           </p>
         </div>
       ) : (

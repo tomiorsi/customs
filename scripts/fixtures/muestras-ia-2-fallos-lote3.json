@@ -1,0 +1,16 @@
+{
+  "muestras": [
+    {
+      "ncm": "4101.90.30.312Q",
+      "partida": "4101",
+      "producto": "Divididos sin la flor, Cueros y pieles de bovino (incluido el bufalo), Enteros, Frescos o salados verdes (húmedos)",
+      "descripcion_ncm": "Frescos o salados verdes (húmedos)"
+    },
+    {
+      "ncm": "6210.50.00.411J",
+      "partida": "6210",
+      "producto": "Las demás prendas de vestir para mujeres o niñas, Con productos de la partida 59.07, Productos alcanzados por la Res. 163/2005 SCT, De talle superior al 16 o sus equivalentes",
+      "descripcion_ncm": "De talle superior al 16 o sus equivalentes"
+    }
+  ]
+}

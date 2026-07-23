@@ -52,6 +52,50 @@ def instalar_dependencias(npm: str) -> None:
         sys.exit(resultado.returncode)
 
 
+def instalar_dependencias_python() -> None:
+    req = RAIZ / "requirements.txt"
+    if not req.is_file():
+        return
+
+    venv_python = RAIZ / ".venv" / "bin" / "python3"
+    if not venv_python.is_file():
+        log("Creando entorno Python del proyecto (.venv)...")
+        r = subprocess.run([sys.executable, "-m", "venv", str(RAIZ / ".venv")], cwd=RAIZ)
+        if r.returncode != 0:
+            print("\n  [ERROR] No se pudo crear .venv (¿python3-venv instalado?).\n", file=sys.stderr)
+            sys.exit(r.returncode)
+
+    pip_marker = RAIZ / ".venv" / ".pip-upgraded"
+    if not pip_marker.is_file():
+        log("Actualizando pip del entorno del proyecto...")
+        r = subprocess.run(
+            [str(venv_python), "-m", "pip", "install", "--upgrade", "pip"],
+            cwd=RAIZ,
+        )
+        if r.returncode == 0:
+            pip_marker.write_text("ok\n", encoding="utf-8")
+        else:
+            print(
+                "\n  [WARN] No se pudo actualizar pip en .venv. Continúo con la versión actual.\n",
+                file=sys.stderr,
+            )
+
+    pip = RAIZ / ".venv" / "bin" / "pip"
+    marker = RAIZ / ".venv" / ".requirements-installed"
+    if not marker.is_file():
+        log("Instalando dependencias Python (requirements.txt)...")
+        log("  (PyMuPDF + EasyOCR; puede tardar varios minutos la primera vez)")
+        r = subprocess.run([str(pip), "install", "-r", str(req)], cwd=RAIZ)
+        if r.returncode != 0:
+            print("\n  [ERROR] Falló 'pip install -r requirements.txt'.\n", file=sys.stderr)
+            sys.exit(r.returncode)
+        marker.write_text("ok\n", encoding="utf-8")
+
+    setup = RAIZ / "scripts" / "setup_python_deps.py"
+    if setup.is_file():
+        subprocess.run([str(venv_python), str(setup)], cwd=RAIZ, check=False)
+
+
 def abrir_navegador(url: str) -> None:
     def _abrir() -> None:
         time.sleep(2.5)
@@ -73,6 +117,7 @@ def main() -> int:
 
     npm = buscar_npm()
     instalar_dependencias(npm)
+    instalar_dependencias_python()
 
     url = f"http://{args.host}:{args.port}"
 

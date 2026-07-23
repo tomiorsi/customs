@@ -7,6 +7,7 @@ import {
   estadoClienteDeEtapa,
   etapaDesdeEstadoViejo,
   normalizarEtapa,
+  parseChecklist,
 } from "./workflow";
 import {
   clienteDir,
@@ -29,6 +30,8 @@ export type ClientRow = {
   contact_name: string | null;
   phone: string | null;
   op_status: string | null;
+  /** '1' si el cliente tiene acceso al portal (login creado). */
+  portal_habilitado: string | null;
   /** Tipo de carta de garantía: 'anual' | 'puntual' | 'no' | null. */
   carta_garantia: string | null;
   /** Vencimiento de la carta anual (ISO 'YYYY-12-31'); null para puntual/sin. */
@@ -43,6 +46,7 @@ type ClienteBasico = {
   id: string;
   company_name: string | null;
   email: string | null;
+  cuit: string | null;
   iva_condition: string | null;
   cert_exencion: string | null;
   carta_garantia: string | null;
@@ -51,17 +55,191 @@ type ClienteBasico = {
 function clientesBasicos(): ClienteBasico[] {
   return getDb()
     .prepare(
-      `SELECT id, company_name, email, iva_condition, cert_exencion, carta_garantia
+      `SELECT id, company_name, email, cuit, iva_condition, cert_exencion, carta_garantia
        FROM users WHERE role = 'client'`,
     )
     .all() as ClienteBasico[];
+}
+
+/** ¿Existe un cliente con ese id? (para que el equipo cree operaciones a su nombre). */
+export function existeCliente(id: string): boolean {
+  if (!id?.trim()) return false;
+  const row = getDb()
+    .prepare("SELECT 1 FROM users WHERE id = ? AND role = 'client' LIMIT 1")
+    .get(id) as { 1: number } | undefined;
+  return Boolean(row);
+}
+
+export type NuevoCliente = {
+  companyName: string;
+  email?: string | null;
+  cuit?: string | null;
+  ivaCondition?: string | null;
+  contactName?: string | null;
+  phone?: string | null;
+  personType?: string | null;
+};
+
+/**
+ * Alta de cliente por el equipo (control interno). El cliente es un registro que
+ * gestiona el estudio; no loguea (password aleatorio) mientras el portal esté
+ * deshabilitado. Se puede resetear la contraseña si más adelante se reactiva.
+ */
+export function createCliente(input: NuevoCliente): { id: string; error?: string } {
+  const companyName = input.companyName.trim();
+  if (!companyName) return { id: "", error: "El nombre / razón social es obligatorio." };
+  const email = input.email?.trim().toLowerCase() || null;
+  const db = getDb();
+  if (email) {
+    const existe = db.prepare("SELECT id FROM users WHERE email = ?").get(email);
+    if (existe) return { id: "", error: "Ya existe un cliente con ese email." };
+  }
+  const id = cryptoId();
+  const password = `${cryptoId()}${cryptoId()}`;
+  const personType = input.personType === "fisica" ? "fisica" : "juridica";
+  db.prepare(
+    `INSERT INTO users
+       (id, username, email, password_hash, role, company_name, person_type,
+        cuit, iva_condition, contact_name, phone, op_status)
+     VALUES (?, NULL, ?, ?, 'client', ?, ?, ?, ?, ?, ?, 'approved')`,
+  ).run(
+    id,
+    email,
+    hashPassword(password),
+    companyName,
+    personType,
+    input.cuit?.trim() || null,
+    input.ivaCondition?.trim() || null,
+    input.contactName?.trim() || null,
+    input.phone?.trim() || null,
+  );
+  return { id };
+}
+
+export type ClienteEditable = {
+  id: string;
+  company_name: string | null;
+  email: string | null;
+  cuit: string | null;
+  iva_condition: string | null;
+  contact_name: string | null;
+  phone: string | null;
+  person_type: string | null;
+};
+
+/** Datos de un cliente para prellenar el formulario de edición. */
+export function getClienteById(id: string): ClienteEditable | null {
+  if (!id?.trim()) return null;
+  const row = getDb()
+    .prepare(
+      `SELECT id, company_name, email, cuit, iva_condition, contact_name, phone, person_type
+       FROM users WHERE id = ? AND role = 'client'`,
+    )
+    .get(id) as ClienteEditable | undefined;
+  return row ?? null;
+}
+
+/**
+ * Modifica los datos de un cliente existente (razón social, contacto, mail, etc.).
+ * Actualización PARCIAL: sólo toca los campos presentes en `input` (así se puede
+ * editar una sola celda sin borrar el resto). Lo pueden hacer admin y operador. No
+ * toca la contraseña; si cambia el email, ese pasa a ser también su usuario de ingreso.
+ */
+export function updateCliente(
+  id: string,
+  input: Partial<NuevoCliente>,
+): { error?: string } {
+  const db = getDb();
+  const cliente = db
+    .prepare("SELECT id FROM users WHERE id = ? AND role = 'client'")
+    .get(id);
+  if (!cliente) return { error: "Cliente no encontrado." };
+
+  const sets: string[] = [];
+  const vals: (string | null)[] = [];
+  const push = (col: string, valor: string | null) => {
+    sets.push(`${col} = ?`);
+    vals.push(valor);
+  };
+
+  if (input.companyName !== undefined) {
+    const companyName = input.companyName.trim();
+    if (!companyName) return { error: "El nombre / razón social es obligatorio." };
+    push("company_name", companyName);
+  }
+  if (input.email !== undefined) {
+    const email = input.email?.trim().toLowerCase() || null;
+    if (email) {
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        return { error: "Ingresá un email válido." };
+      }
+      const enUso = db
+        .prepare("SELECT id FROM users WHERE email = ? AND id <> ?")
+        .get(email, id);
+      if (enUso) return { error: "Ese email ya está en uso por otra cuenta." };
+    }
+    push("email", email);
+  }
+  if (input.cuit !== undefined) push("cuit", input.cuit?.trim() || null);
+  if (input.ivaCondition !== undefined)
+    push("iva_condition", input.ivaCondition?.trim() || null);
+  if (input.contactName !== undefined)
+    push("contact_name", input.contactName?.trim() || null);
+  if (input.phone !== undefined) push("phone", input.phone?.trim() || null);
+  if (input.personType !== undefined)
+    push("person_type", input.personType === "fisica" ? "fisica" : "juridica");
+
+  if (sets.length === 0) return {};
+  db.prepare(
+    `UPDATE users SET ${sets.join(", ")} WHERE id = ? AND role = 'client'`,
+  ).run(...vals, id);
+  return {};
+}
+
+/**
+ * Genera/actualiza el acceso (login) de un cliente existente: fija su email y
+ * contraseña para poder entregárselos. El email es el identificador de ingreso.
+ */
+export function darAccesoCliente(
+  clienteId: string,
+  email: string,
+  password: string,
+): { error?: string } {
+  const em = email.trim().toLowerCase();
+  if (!em || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) {
+    return { error: "Ingresá un email válido para el acceso del cliente." };
+  }
+  if (password.length < 6) {
+    return { error: "La contraseña debe tener al menos 6 caracteres." };
+  }
+  const db = getDb();
+  const cliente = db
+    .prepare("SELECT id FROM users WHERE id = ? AND role = 'client'")
+    .get(clienteId);
+  if (!cliente) return { error: "Cliente no encontrado." };
+  const enUso = db
+    .prepare("SELECT id FROM users WHERE email = ? AND id <> ?")
+    .get(em, clienteId);
+  if (enUso) return { error: "Ese email ya está en uso por otra cuenta." };
+  // Al crear el acceso, habilitamos el portal SOLO para este cliente (acceso por-cliente).
+  db.prepare(
+    "UPDATE users SET email = ?, password_hash = ?, portal_habilitado = '1' WHERE id = ? AND role = 'client'",
+  ).run(em, hashPassword(password), clienteId);
+  return {};
+}
+
+/** Habilita o revoca el acceso al portal de un cliente (sin tocar sus credenciales). */
+export function setPortalHabilitadoCliente(clienteId: string, habilitado: boolean): void {
+  getDb()
+    .prepare("UPDATE users SET portal_habilitado = ? WHERE id = ? AND role = 'client'")
+    .run(habilitado ? "1" : "0", clienteId);
 }
 
 export async function getClients(): Promise<ClientRow[]> {
   const users = getDb()
     .prepare(
       `SELECT id, email, company_name, cuit, iva_condition,
-              contact_name, phone, op_status,
+              contact_name, phone, op_status, portal_habilitado,
               carta_garantia, carta_garantia_vence, created_at
        FROM users
        WHERE role = 'client'
@@ -247,27 +425,27 @@ export type EventoRow = {
 };
 
 /**
- * Sufijos con los que marcamos al autor de un evento según QUIÉN lo generó,
- * cuando NO es el estudio: un TERCERO por el link de participante
- * ("Forwarder SA (participante)") o el CLIENTE dueño de la operación
- * ("Acme SA (cliente)"). Sirve para detectar novedades que el equipo debe ver.
+ * Sufijo con el que marcamos al autor de un evento generado por el CLIENTE dueño
+ * de la operación ("Acme SA (cliente)"). Sirve para detectar novedades que el
+ * equipo debe ver.
  */
-export const SUFIJO_PARTICIPANTE = " (participante)";
 export const SUFIJO_CLIENTE = " (cliente)";
 
 /**
- * ¿El evento es una novedad para el estudio? Es decir, lo generó el cliente o un
- * tercero (no el equipo). Se reconoce por el sufijo de rol en el autor, que se
- * agrega al crear el evento (carga de documentos, alta de participante, etc.).
+ * ¿El evento es una novedad para el estudio? Es decir, lo generó el cliente (no
+ * el equipo). Se reconoce por el sufijo de rol en el autor, que se agrega al
+ * crear el evento (carga de documentos, etc.).
  */
 export function esNovedadEstudio(e: { autor: string | null }): boolean {
-  const a = e.autor ?? "";
-  return a.endsWith(SUFIJO_PARTICIPANTE) || a.endsWith(SUFIJO_CLIENTE);
+  return (e.autor ?? "").endsWith(SUFIJO_CLIENTE);
 }
 
 /** Campos opcionales de una operación (además de tipo/via/contraparte). */
 export const OP_CAMPOS = [
   "titulo",
+  // Alias del nombre puesto por el CLIENTE: sólo lo ve él. El título "oficial"
+  // (titulo) lo maneja el equipo; si el cliente lo edita, se guarda acá.
+  "titulo_cliente",
   "via",
   "contraparte",
   "detalle",
@@ -299,6 +477,12 @@ export const OP_CAMPOS = [
   "seguro",
   "valor_cif",
   "forma_pago",
+  /** N° de la factura comercial (Invoice No.). No confundir con el doc de transporte. */
+  "nro_factura",
+  // Detalle de las facturas comerciales cuando hay MÁS DE UNA en la operación
+  // (consolidado / varios proveedores). JSON: [{nro, proveedor, total, moneda}].
+  // El valor_factura de la operación pasa a ser la SUMA de estos totales (base CIF).
+  "facturas_json",
   /** Fecha de emisión de la factura comercial (ISO YYYY-MM-DD). */
   "fecha_factura",
   /** Plazo de pago comercial en días (cuenta abierta, D/A, etc.). */
@@ -364,6 +548,7 @@ export type OperationRow = {
 export type OperationWithClient = OperationRow & {
   company_name: string | null;
   client_email: string | null;
+  client_cuit: string | null;
   /** Condición de IVA del cliente (alta), para liquidar según su perfil fiscal. */
   client_iva_condition: string | null;
   /** Certificado MiPyME / exclusión vigente ("si"/"no") del cliente. */
@@ -473,6 +658,32 @@ function aDocumentRow(f: Fila): DocumentRow {
 
 function porFechaDesc(a: { created_at: string }, b: { created_at: string }) {
   return a.created_at < b.created_at ? 1 : a.created_at > b.created_at ? -1 : 0;
+}
+
+/** Extrae el nombre de la operación del evento de alta («CRT Brasil», etc.). */
+function tituloDesdeEventoCreacion(detalle: string | null): string | null {
+  if (!detalle) return null;
+  const m = detalle.match(/«([^»]+)»/);
+  const t = m?.[1]?.trim();
+  return t || null;
+}
+
+/**
+ * Si el título se perdió al limpiar datos provisionales del Paso 1, lo recupera
+ * del evento de creación y lo persiste de nuevo.
+ */
+async function asegurarTituloOperacion(
+  userId: string,
+  opId: string,
+  titulo: string | null,
+): Promise<string | null> {
+  if ((titulo ?? "").trim()) return titulo;
+  const eventos = await getEventosByOperation(userId, opId);
+  const creacion = eventos.find((e) => e.titulo === "Recibimos tu operación");
+  const recuperado = tituloDesdeEventoCreacion(creacion?.detalle ?? null);
+  if (!recuperado) return null;
+  await updateOperationCampos(userId, opId, { titulo: recuperado });
+  return recuperado;
 }
 
 /** Genera una referencia legible: IMP-2026-0007 / EXP-2026-0012. */
@@ -977,7 +1188,7 @@ export async function updateOperationEtapa(
   const filas = await leerFilas(opsFile(ownerId), OPERACION_COLS);
   const fila = filas.find((o) => o.id === operationId);
   if (!fila) return null;
-  fila.etapa = etapa;
+  fila.etapa = normalizarEtapa(etapa);
   // Mantenemos el estado del cliente sincronizado con la etapa interna.
   fila.estado = estadoClienteDeEtapa(etapa);
   await escribirFilas(opsFile(ownerId), OPERACION_COLS, filas);
@@ -1010,14 +1221,7 @@ export async function setChecklistItem(
   const filas = await leerFilas(opsFile(ownerId), OPERACION_COLS);
   const fila = filas.find((o) => o.id === operationId);
   if (!fila) return false;
-  let checklist: Record<string, { at: string; by: string | null }> = {};
-  if (fila.checklist) {
-    try {
-      checklist = JSON.parse(fila.checklist);
-    } catch {
-      checklist = {};
-    }
-  }
+  const checklist = parseChecklist(fila.checklist);
   if (done) checklist[clave] = { at: nowIso(), by: autor };
   else delete checklist[clave];
   fila.checklist = JSON.stringify(checklist);
@@ -1098,11 +1302,14 @@ export async function getOperationsByUser(
     leerFilas(opsFile(userId), OPERACION_COLS),
     leerFilas(docsFile(userId), DOCUMENTO_COLS),
   ]);
-  return ops
-    .map((o) =>
-      aOperationRow(o, docs.filter((d) => d.operation_id === o.id).length),
-    )
-    .sort(porFechaDesc);
+  const rows: OperationRow[] = [];
+  for (const o of ops) {
+    const row = aOperationRow(o, docs.filter((d) => d.operation_id === o.id).length);
+    const titulo = await asegurarTituloOperacion(userId, row.id, row.titulo);
+    if (titulo) row.titulo = titulo;
+    rows.push(row);
+  }
+  return rows.sort(porFechaDesc);
 }
 
 export async function getAllOperations(): Promise<OperationWithClient[]> {
@@ -1113,13 +1320,17 @@ export async function getAllOperations(): Promise<OperationWithClient[]> {
       leerFilas(docsFile(c.id), DOCUMENTO_COLS),
     ]);
     for (const o of ops) {
+      const row = aOperationRow(
+        o,
+        docs.filter((d) => d.operation_id === o.id).length,
+      );
+      const titulo = await asegurarTituloOperacion(c.id, row.id, row.titulo);
+      if (titulo) row.titulo = titulo;
       all.push({
-        ...aOperationRow(
-          o,
-          docs.filter((d) => d.operation_id === o.id).length,
-        ),
+        ...row,
         company_name: c.company_name,
         client_email: c.email,
+        client_cuit: c.cuit,
         client_iva_condition: c.iva_condition,
         client_cert_exencion: c.cert_exencion,
         client_carta_garantia: c.carta_garantia,
@@ -1137,10 +1348,14 @@ export async function getOperationById(
     const o = ops.find((x) => x.id === id);
     if (!o) continue;
     const docs = await leerFilas(docsFile(c.id), DOCUMENTO_COLS);
+    const row = aOperationRow(o, docs.filter((d) => d.operation_id === id).length);
+    const titulo = await asegurarTituloOperacion(c.id, row.id, row.titulo);
+    if (titulo) row.titulo = titulo;
     return {
-      ...aOperationRow(o, docs.filter((d) => d.operation_id === id).length),
+      ...row,
       company_name: c.company_name,
       client_email: c.email,
+      client_cuit: c.cuit,
       client_iva_condition: c.iva_condition,
       client_cert_exencion: c.cert_exencion,
       client_carta_garantia: c.carta_garantia,
@@ -1167,210 +1382,6 @@ export async function getDocumentById(id: string): Promise<DocumentRow | null> {
     if (d) return aDocumentRow(d);
   }
   return null;
-}
-
-/* ───────────────────────── Participantes (terceros) ─────────────────────────
- * Un participante es un tercero (ej: forwarder, proveedor) al que el cliente le
- * da un link de acceso (sin cuenta) para subir documentos y dejar comentarios
- * en una operación puntual. El token se guarda en SQLite para poder resolverlo
- * globalmente desde el link público.
- */
-
-export type ParticipanteRow = {
-  id: string;
-  operation_id: string;
-  owner_id: string;
-  nombre: string;
-  email: string | null;
-  /** Rol/función del tercero (texto libre): qué hace o qué le pedimos. */
-  rol: string | null;
-  token: string;
-  created_at: string;
-};
-
-function nuevoToken(): string {
-  return `${cryptoId()}${cryptoId()}`.replace(/-/g, "");
-}
-
-export function addParticipante(input: {
-  operationId: string;
-  ownerId: string;
-  nombre: string;
-  email?: string | null;
-  rol?: string | null;
-}): ParticipanteRow {
-  const row: ParticipanteRow = {
-    id: cryptoId(),
-    operation_id: input.operationId,
-    owner_id: input.ownerId,
-    nombre: input.nombre,
-    email: input.email ?? null,
-    rol: input.rol ?? null,
-    token: nuevoToken(),
-    created_at: nowIso(),
-  };
-  getDb()
-    .prepare(
-      `INSERT INTO participants (id, operation_id, owner_id, nombre, email, rol, token, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    )
-    .run(
-      row.id,
-      row.operation_id,
-      row.owner_id,
-      row.nombre,
-      row.email,
-      row.rol,
-      row.token,
-      row.created_at,
-    );
-  return row;
-}
-
-export function getParticipantesByOperation(
-  operationId: string,
-): ParticipanteRow[] {
-  return getDb()
-    .prepare(
-      `SELECT * FROM participants WHERE operation_id = ? ORDER BY created_at ASC`,
-    )
-    .all(operationId) as ParticipanteRow[];
-}
-
-export function getParticipanteByToken(token: string): ParticipanteRow | null {
-  const row = getDb()
-    .prepare(`SELECT * FROM participants WHERE token = ?`)
-    .get(token) as ParticipanteRow | undefined;
-  return row ?? null;
-}
-
-export function getParticipanteById(id: string): ParticipanteRow | null {
-  const row = getDb()
-    .prepare(`SELECT * FROM participants WHERE id = ?`)
-    .get(id) as ParticipanteRow | undefined;
-  return row ?? null;
-}
-
-export function removeParticipante(id: string): void {
-  getDb().prepare(`DELETE FROM participants WHERE id = ?`).run(id);
-  getDb()
-    .prepare(`DELETE FROM participant_messages WHERE participant_id = ?`)
-    .run(id);
-}
-
-/* ───────────────── Chat con participantes (estudio ↔ tercero) ─────────────────
- * Hilo de mensajes bidireccional entre el estudio (operador/cliente dueño) y el
- * tercero que entra por el link. Reemplaza el ir y venir por mail: queda todo
- * registrado en la operación. "leido_estudio" sirve para marcar como no leídos
- * los mensajes que mandó el tercero hasta que el estudio abre el hilo.
- */
-
-export type MensajeOrigen = "estudio" | "participante";
-
-export type MensajeParticipanteRow = {
-  id: string;
-  participant_id: string;
-  operation_id: string;
-  owner_id: string;
-  origen: MensajeOrigen;
-  autor: string | null;
-  texto: string;
-  created_at: string;
-};
-
-export function addMensajeParticipante(input: {
-  participantId: string;
-  operationId: string;
-  ownerId: string;
-  origen: MensajeOrigen;
-  autor?: string | null;
-  texto: string;
-}): MensajeParticipanteRow {
-  const row: MensajeParticipanteRow = {
-    id: cryptoId(),
-    participant_id: input.participantId,
-    operation_id: input.operationId,
-    owner_id: input.ownerId,
-    origen: input.origen,
-    autor: input.autor ?? null,
-    texto: input.texto,
-    created_at: nowIso(),
-  };
-  getDb()
-    .prepare(
-      `INSERT INTO participant_messages
-         (id, participant_id, operation_id, owner_id, origen, autor, texto, leido_estudio, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    )
-    .run(
-      row.id,
-      row.participant_id,
-      row.operation_id,
-      row.owner_id,
-      row.origen,
-      row.autor,
-      row.texto,
-      // Lo que escribe el estudio ya está leído por el estudio.
-      row.origen === "estudio" ? "1" : "0",
-      row.created_at,
-    );
-  return row;
-}
-
-export function getMensajesByParticipante(
-  participantId: string,
-): MensajeParticipanteRow[] {
-  return getDb()
-    .prepare(
-      `SELECT id, participant_id, operation_id, owner_id, origen, autor, texto, created_at
-       FROM participant_messages
-       WHERE participant_id = ?
-       ORDER BY created_at ASC`,
-    )
-    .all(participantId) as MensajeParticipanteRow[];
-}
-
-/** Marca como leídos (por el estudio) los mensajes que mandó el tercero. */
-export function marcarHiloLeidoEstudio(participantId: string): void {
-  getDb()
-    .prepare(
-      `UPDATE participant_messages
-       SET leido_estudio = '1'
-       WHERE participant_id = ? AND origen = 'participante'`,
-    )
-    .run(participantId);
-}
-
-/** Cantidad de mensajes del tercero sin leer por el estudio, por participante. */
-export function noLeidosEstudioPorOperacion(
-  operationId: string,
-): Record<string, number> {
-  const filas = getDb()
-    .prepare(
-      `SELECT participant_id AS pid, COUNT(*) AS n
-       FROM participant_messages
-       WHERE operation_id = ? AND origen = 'participante' AND leido_estudio = '0'
-       GROUP BY participant_id`,
-    )
-    .all(operationId) as { pid: string; n: number }[];
-  const out: Record<string, number> = {};
-  for (const f of filas) out[f.pid] = f.n;
-  return out;
-}
-
-/** Mensajes del tercero sin leer por el estudio, agrupados por operación. */
-export function noLeidosEstudioTodas(): Record<string, number> {
-  const filas = getDb()
-    .prepare(
-      `SELECT operation_id AS id, COUNT(*) AS n
-       FROM participant_messages
-       WHERE origen = 'participante' AND leido_estudio = '0'
-       GROUP BY operation_id`,
-    )
-    .all() as { id: string; n: number }[];
-  const out: Record<string, number> = {};
-  for (const f of filas) out[f.id] = f.n;
-  return out;
 }
 
 /* ───────────────── «Visto» por el estudio (novedades) ─────────────────

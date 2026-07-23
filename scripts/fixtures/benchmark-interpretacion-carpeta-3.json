@@ -1,0 +1,226 @@
+{
+  "carpeta": "3",
+  "ok": 3,
+  "total": 3,
+  "vision_cloud_veces": 0,
+  "segundos": 16.4,
+  "items": [
+    {
+      "archivo": "afip.pdf",
+      "tipo_nombre": "despacho",
+      "tipo_final": "despacho",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 16338,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 7.1,
+      "resumen": "Las demás placas, láminas, hojas y tiras, de plástico no celular y sin refuerzo,",
+      "datos": {
+        "comercial": {
+          "valor_fob": "22767.2",
+          "flete": "3539",
+          "incoterm": "FCA",
+          "moneda": "USD",
+          "seguro": "263.06"
+        },
+        "via": "aerea",
+        "logistica": null,
+        "mercaderia": {
+          "mercaderia": "Las demás placas, láminas, hojas y tiras, de plástico no celular y sin refuerzo, estratificación ni soporte o combinación similar con otras materias",
+          "ncm": "3920.99.90.900Y",
+          "marca": "ARGOBOND",
+          "cantidad": "616,89 KILOGRAMO",
+          "unidad": "KILOGRAMO",
+          "bultos": "1 BULTOS",
+          "tipo_embalaje": "BULTOS",
+          "peso_neto": "616,8900 KILOGRAMO",
+          "peso_bruto": "850,000 kg"
+        },
+        "partes": [
+          {
+            "etiqueta": "Importador / Exportador",
+            "nombre": "DAYPLAS S A",
+            "identificacion": "20-17379361-9"
+          },
+          {
+            "etiqueta": "Despachante de Aduana",
+            "nombre": "ORSI RICARDO CESAR VICENT",
+            "identificacion": "33-58249873-9"
+          },
+          {
+            "etiqueta": "Agente de Transporte Aduanero",
+            "nombre": "ORGANIZACION DE SERVICIOS ADUA",
+            "identificacion": "30-71616310-1"
+          },
+          {
+            "etiqueta": "Vendedor",
+            "nombre": "MJR ENTERPRISES OF COLLIER CORP.",
+            "pais": "ESTADOS UNIDOS"
+          }
+        ],
+        "origen": {
+          "pais_origen": "Estados Unidos",
+          "pais_procedencia": "Estados Unidos",
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "MJR5351",
+          "transportista": "ORGANIZACION DE SERVICIOS ADUA",
+          "puerto_origen": "ESTADOS UNIDOS",
+          "eta": "2026-02-21",
+          "medio_transporte": "AVION"
+        },
+        "pago": null,
+        "formalidades": {
+          "entidad_emisora": "AFIP - Aduana Ezeiza"
+        }
+      },
+      "vacios": []
+    },
+    {
+      "archivo": "awl.pdf",
+      "tipo_nombre": "otro",
+      "tipo_final": "transporte",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 676,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 5.3,
+      "resumen": "Polyurethane HP800",
+      "datos": {
+        "comercial": {
+          "moneda": "USD",
+          "flete": "3043"
+        },
+        "via": "aerea",
+        "logistica": null,
+        "mercaderia": {
+          "mercaderia": "Polyurethane HP800",
+          "ncm": "3920.99",
+          "cantidad": "850 Kg",
+          "peso_neto": "850 Kg"
+        },
+        "partes": [
+          {
+            "etiqueta": "Shipper",
+            "nombre": "MJR ENTERPRISES CORP",
+            "pais": "United States"
+          },
+          {
+            "etiqueta": "Consignee",
+            "nombre": "DAYPLAS S.A.",
+            "domicilio": "AV. COMBATIENTES DE MALVINAS 3197, Buenos Aires, C1427ARC",
+            "pais": "Argentina",
+            "identificacion": "CUIT: 33582498739"
+          },
+          {
+            "etiqueta": "Forwarder",
+            "nombre": "AMEX LOGSITICS CORP",
+            "domicilio": "8200 NW 93rd, St. Suite #4, USA",
+            "pais": "United States"
+          },
+          {
+            "etiqueta": "Transportista",
+            "nombre": "ATLAS AIR"
+          }
+        ],
+        "origen": {
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "AXL219875",
+          "puerto_origen": "MIA",
+          "puerto_destino": "BUE",
+          "medio_transporte": "aéreo"
+        },
+        "pago": null,
+        "formalidades": null
+      },
+      "vacios": [
+        {
+          "campo": "mercaderia.peso_bruto",
+          "donde": "interpretación",
+          "motivo": "total cargo AWB; no es peso bruto"
+        },
+        {
+          "campo": "comercial.flete",
+          "donde": "interpretación",
+          "motivo": "columna peso×tarifa AWB; flete es el cargo total"
+        }
+      ]
+    },
+    {
+      "archivo": "invoice.pdf",
+      "tipo_nombre": "factura_comercial",
+      "tipo_final": "factura_comercial",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 1077,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 4,
+      "resumen": "POLYURETHANE HP-8000 .025\" x 60\" (2 ROLLS); POLYURETHANE HP-8000 .050\" x 60\" (6",
+      "datos": {
+        "comercial": {
+          "valor_factura": "22767.2",
+          "incoterm": "FCA MIAMI",
+          "moneda": "USD"
+        },
+        "via": "aerea",
+        "logistica": null,
+        "mercaderia": {
+          "mercaderia": "POLYURETHANE HP-8000 .025\" x 60\" (2 ROLLS); POLYURETHANE HP-8000 .050\" x 60\" (6 ROLLS); SD-1700 PET/TPU 60\" x 200' (1 ROLL)",
+          "ncm": "3920.99.0000",
+          "bultos": "9 ROLLS"
+        },
+        "partes": [
+          {
+            "etiqueta": "Bill To",
+            "nombre": "DAYPLAS S.A.",
+            "domicilio": "Combatientes de Malvinas 3207 (1427), Buenos Aires",
+            "pais": "Argentina",
+            "identificacion": "33-58249873-9"
+          },
+          {
+            "etiqueta": "Ship To",
+            "nombre": "EGL c/o Dayplas",
+            "domicilio": "8451 NW 68 St., Miami, FL 33166",
+            "pais": "USA"
+          },
+          {
+            "etiqueta": "Seller",
+            "nombre": "MJR Enterprises of Collier Corp",
+            "domicilio": "2277 Trade Center Way, Ste. 202, Naples, FL 34109",
+            "pais": "USA",
+            "identificacion": "02-0656676"
+          }
+        ],
+        "origen": {
+          "pais_origen": "Estados Unidos",
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "MJR5351",
+          "medio_transporte": "AIR Freight"
+        },
+        "pago": {
+          "fecha_factura": "2026-02-10",
+          "forma_pago": "AT SIGHT PAYMENT"
+        },
+        "formalidades": null
+      },
+      "vacios": [
+        {
+          "campo": "mercaderia.peso_neto",
+          "donde": "interpretación",
+          "motivo": "peso sin etiqueta total explícita en factura multiproducto; probable línea parcial"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "carpeta": "5",
+  "operacion": {
+    "tipo": "importacion",
+    "via": "maritima",
+    "ncm": "3907.40.90.000J",
+    "pais_origen": "China",
+    "incoterm": "CFR"
+  },
+  "documentos": [
+    {
+      "file": "afip.pdf",
+      "tipo": "despacho"
+    },
+    {
+      "file": "bl.pdf",
+      "tipo": "transporte"
+    },
+    {
+      "file": "gastos.pdf",
+      "tipo": "factura_gastos"
+    },
+    {
+      "file": "invoice.pdf",
+      "tipo": "factura_comercial"
+    }
+  ],
+  "cruce_documentacion": {
+    "etapa": "documentacion",
+    "tipos_presentes": [
+      "despacho",
+      "transporte",
+      "factura_gastos",
+      "factura_comercial"
+    ],
+    "resumen": "Importación de policarbonatos (NCM 3907.40.90.000J) desde China vía marítima. Se dispone de 4 documentos: despacho aduanero (SIM), conocimiento de embarque (BL), factura de gastos y factura comercial. Se detectan inconsistencias en cantidad de bultos, peso neto expresado en unidades distintas, y discrepancia en el número de documento de transporte entre despacho y BL. Falta certificado de origen o declaración de origen del proveedor (requisito VUCE para importación). Operación con incoterm CFR requiere validación de inclusión de flete en valor aduanal.",
+    "faltantes": [],
+    "inconsistencias": [],
+    "alertas": [
+      {
+        "nivel": "ok",
+        "texto": "Origen China (extrazona): no aplica Régimen de Origen Mercosur (ROM/ACE 18). Tributación aplicable: DIE 0%, AEC 12.6%, DII 0%, TE 3%, IVA 21%, DE 4.5%. Operación sujeta a despacho de importación conforme Art. 217 Código Aduanero."
+      },
+      {
+        "nivel": "ok",
+        "texto": "Factura comercial presente con datos completos: buyer, seller, descripción, NCM, cantidad, peso, incoterm, valor, FOB, flete, condiciones de pago. Cumple requisitos de documentación comercial."
+      }
+    ],
+    "refs_faltantes_ok": "0/0",
+    "refs_alertas_warn": 0
+  },
+  "cruce_embarque": {
+    "etapa": "embarque",
+    "tipos_presentes": [
+      "despacho",
+      "transporte",
+      "factura_gastos",
+      "factura_comercial"
+    ],
+    "resumen": "Importación de policarbonatos (NCM 3907.40.90.000J) desde China vía marítima. Se detectan inconsistencias en cantidad de bultos, peso neto expresado en unidades distintas y discrepancias en referencias de documentos de transporte. Faltante: Certificado de Origen o autocertificación según acuerdos preferenciales aplicables (si corresponde). Alertas sobre valoración aduanera y documentación de transporte.",
+    "faltantes": [],
+    "inconsistencias": [],
+    "alertas": [
+      {
+        "nivel": "ok",
+        "texto": "CONSIGNEE: BL y Factura comercial coinciden en consignatario final: DAYPLAS S.A. (Buenos Aires, Argentina, CUIT 33-58249873-9). Despacho aduanero identifica importador como DAYPLAS S.A. (20-17379361-9). Nota: CUIT en BL (33-58249873-9) corresponde a despachante ORSI RICARDO CESAR VICENT en despacho; verificar si DAYPLAS tiene CUIT 20-17379361-9 o 33-58249873-9."
+      }
+    ],
+    "refs_faltantes_ok": "0/0",
+    "refs_alertas_warn": 0
+  },
+  "segundos_cruce": 50.7
+}

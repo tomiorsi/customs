@@ -1,0 +1,249 @@
+{
+  "carpeta": "2",
+  "pasos": [
+    {
+      "paso": 1,
+      "archivo": "comercial invoice 2.pdf",
+      "tipo": "factura_comercial",
+      "etapas": [
+        "apertura",
+        "documentacion",
+        "embarque"
+      ],
+      "abrirEmbarque": false,
+      "segundos": 19.3,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Factura comercial legible con partes identificadas (vendedor Shure Inc., comprador ICAP SA Argentina), mercadería descrita con cantidades, peso bruto (58 LB), bultos (2 cartons), incoterm FCA MIAMI, valor total USD 2265 y referencia 301042576. Documento aisladamente sin defecto legal evidente."
+        },
+        {
+          "nivel": "ok",
+          "texto": "Destino aduanero Argentina confirmado (SHIP TO e ICAP SA domicilio CABA). Forward Miami es hub logístico, no destino final. Operación clasificada correctamente como importación a Argentina."
+        }
+      ],
+      "cruce_documentacion": {
+        "resumen": "No se detectan inconsistencias ni faltantes en los documentos presentes.",
+        "faltantes": [
+          {
+            "doc": "Clasificación arancelaria (NCM)",
+            "motivo": "Sin NCM específica no se pueden determinar intervenciones, antidumping ni tributos. Confirmá la posición antes de oficializar.",
+            "ref": "CA · Art. 40"
+          }
+        ],
+        "inconsistencias": [],
+        "alertas": [
+          {
+            "nivel": "ok",
+            "texto": "Partes comerciales coherentes: Seller (Shure USA), Shipper (Shure USA), Buyer/Ship To (ICAP SA Argentina), Forward (Cathel ICAP Miami). Estructura típica de importación con consolidador logístico en hub."
+          }
+        ]
+      },
+      "cruce_embarque": null,
+      "operacion": {
+        "ncm": null,
+        "pais_origen": "MX, CN",
+        "via": null,
+        "incoterm": "FCA MIAMI",
+        "valor_factura": "2265"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial"
+      ]
+    },
+    {
+      "paso": 2,
+      "archivo": "comercial invoice 3.pdf",
+      "tipo": "factura_comercial",
+      "etapas": [
+        "apertura",
+        "documentacion",
+        "embarque"
+      ],
+      "abrirEmbarque": false,
+      "segundos": 20.4,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Factura comercial legible con partes identificadas (vendedor SHURE INCORPORATED, comprador ICAP SA Argentina), mercadería descrita, valor total 2702 USD, Incoterm FCA MIAMI, país de origen CN/MX, destino aduanero Argentina. Documento en aislamiento sin defecto legal evidente."
+        }
+      ],
+      "cruce_documentacion": {
+        "resumen": "No se detectan inconsistencias ni faltantes en los documentos presentes.",
+        "faltantes": [
+          {
+            "doc": "Clasificación arancelaria (NCM)",
+            "motivo": "Sin NCM específica no se pueden determinar intervenciones, antidumping ni tributos. Confirmá la posición antes de oficializar.",
+            "ref": "CA · Art. 40"
+          }
+        ],
+        "inconsistencias": [],
+        "alertas": []
+      },
+      "cruce_embarque": null,
+      "operacion": {
+        "ncm": null,
+        "pais_origen": "MX, CN",
+        "via": null,
+        "incoterm": "FCA MIAMI",
+        "valor_factura": "2265"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial"
+      ]
+    },
+    {
+      "paso": 3,
+      "archivo": "comercial invoice.pdf",
+      "tipo": "factura_comercial",
+      "etapas": [
+        "apertura",
+        "documentacion",
+        "embarque"
+      ],
+      "abrirEmbarque": false,
+      "segundos": 22,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Factura comercial legible con partes identificadas (vendedor Shure Inc., comprador ICAP SA Argentina), mercadería descrita, cantidad (9 items), peso bruto (88 LB), valor total (7605 USD), incoterm (FCA MIAMI) y país de origen (CN, MX) consignados. Destino aduanero correcto: Argentina."
+        }
+      ],
+      "cruce_documentacion": {
+        "resumen": "No se detectan inconsistencias ni faltantes en los documentos presentes.",
+        "faltantes": [
+          {
+            "doc": "Clasificación arancelaria (NCM)",
+            "motivo": "Sin NCM específica no se pueden determinar intervenciones, antidumping ni tributos. Confirmá la posición antes de oficializar.",
+            "ref": "CA · Art. 40"
+          }
+        ],
+        "inconsistencias": [],
+        "alertas": [
+          {
+            "nivel": "ok",
+            "texto": "Partes comerciales coherentes: Seller (Shure USA), Shipper (Shure USA), Buyer y Ship To (ICAP SA, Argentina), Forward To (CATHEL ICAP MIAMI, hub logístico). Estructura típica de importación con consolidador en Miami. No hay inconsistencia."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Valor factura USD 7605 con incoterm FCA MIAMI es compatible con Acuerdo de Valoración OMC Art. 1 (valor de transacción). Flete y seguros posteriores a Miami corren a cargo del importador (FCA) y no deben incluirse en valor en aduana base, pero sí en valor CIF para despacho aduanero."
+          }
+        ]
+      },
+      "cruce_embarque": null,
+      "operacion": {
+        "ncm": null,
+        "pais_origen": "MX, CN",
+        "via": null,
+        "incoterm": "FCA MIAMI",
+        "valor_factura": "2265"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial"
+      ]
+    },
+    {
+      "paso": 4,
+      "archivo": "factura.pdf",
+      "tipo": "factura_comercial",
+      "etapas": [
+        "apertura",
+        "documentacion",
+        "embarque"
+      ],
+      "abrirEmbarque": false,
+      "segundos": 23.8,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Factura comercial legible con partes identificadas (vendedor AVI-SPL LLC, comprador ICAP S.A., destinatario logístico ALMAX CARGO en Miami). Valor declarado USD 90.497,76, Incoterm FCA MIAMI, destino aduanero Argentina. Documento en aislamiento sin defecto legal evidente de estructura."
+        }
+      ],
+      "cruce_documentacion": {
+        "resumen": "No se detectan inconsistencias ni faltantes en los documentos presentes.",
+        "faltantes": [
+          {
+            "doc": "Clasificación arancelaria (NCM)",
+            "motivo": "Sin NCM específica no se pueden determinar intervenciones, antidumping ni tributos. Confirmá la posición antes de oficializar.",
+            "ref": "CA · Art. 40"
+          }
+        ],
+        "inconsistencias": [],
+        "alertas": []
+      },
+      "cruce_embarque": null,
+      "operacion": {
+        "ncm": null,
+        "pais_origen": "MX, CN",
+        "via": null,
+        "incoterm": "FCA MIAMI",
+        "valor_factura": "2265"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial"
+      ]
+    },
+    {
+      "paso": 5,
+      "archivo": "guia aerea.pdf",
+      "tipo": "transporte",
+      "etapas": [
+        "embarque"
+      ],
+      "abrirEmbarque": true,
+      "segundos": 49.4,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Consignee (ICAP S.A., CUIT 30-50382598-4, Argentina) coincide con destino aduanero Argentina. Documento de transporte presenta partes comerciales legibles (shipper, consignee, agent) con domicilios y referencias. NCM 8537.10.20 registrado en guía aérea coincide con operación."
+        }
+      ],
+      "cruce_documentacion": null,
+      "cruce_embarque": {
+        "resumen": "No se detectan inconsistencias ni faltantes en los documentos presentes.",
+        "faltantes": [],
+        "inconsistencias": [],
+        "alertas": []
+      },
+      "operacion": {
+        "ncm": "8537.10.20",
+        "pais_origen": "MX, CN",
+        "via": "aerea",
+        "incoterm": "FCA MIAMI",
+        "valor_factura": "2265"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial",
+        "transporte"
+      ]
+    },
+    {
+      "paso": 6,
+      "archivo": "Despacho arca.pdf",
+      "tipo": "despacho",
+      "etapas": [],
+      "abrirEmbarque": true,
+      "segundos": 13.8,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Importador (ICAP SA, CUIT 20-17379361-9), despachante (ORSI RICARDO CESAR VICENT, CUIT 30-50382598-4) y agente de transporte (AMERICAN AIRLINES INC, CUIT 30-63908514-3) están identificados. Vía aérea y destino aduanero Argentina son coherentes con operación declarada."
+        }
+      ],
+      "cruce_documentacion": null,
+      "cruce_embarque": null,
+      "operacion": {
+        "ncm": "8537.10.20",
+        "pais_origen": "MX, CN",
+        "via": "aerea",
+        "incoterm": "FCA MIAMI",
+        "valor_factura": "2265"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial",
+        "transporte",
+        "despacho"
+      ]
+    }
+  ]
+}

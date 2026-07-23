@@ -1,10 +1,10 @@
 import "server-only";
 
-import { execFileSync } from "node:child_process";
 import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { extraerCapaTextoPdf } from "@/lib/capa-texto-pdf";
+import { ejecutarPythonScript } from "@/lib/python-runtime";
 
 export type PaginaImagen = {
   n: number;
@@ -30,19 +30,16 @@ function limpiarTemp(dir: string): void {
 }
 
 /** Texto embebido del PDF, o null si es escaneo sin capa de texto. */
-export function extraerTextoEmbebidoPdf(buf: Buffer): string | null {
-  const capa = extraerCapaTextoPdf(buf);
+export async function extraerTextoEmbebidoPdf(buf: Buffer): Promise<string | null> {
+  const capa = await extraerCapaTextoPdf(buf);
   return capa.tieneTexto ? capa.texto : null;
 }
 
 /** Escaneo: imágenes JPEG por página (zoom 2× estándar). */
-export function imagenesPdfEscaneo(buf: Buffer): PaginaImagen[] {
+export async function imagenesPdfEscaneo(buf: Buffer): Promise<PaginaImagen[]> {
   const { dir, path } = pdfEnTemp(buf);
   try {
-    const out = execFileSync("python3", [SCRIPT_IMAGENES, path], {
-      encoding: "utf8",
-      maxBuffer: 80 * 1024 * 1024,
-    });
+    const out = await ejecutarPythonScript(SCRIPT_IMAGENES, [path], 80 * 1024 * 1024);
     const raw = JSON.parse(out.trim()) as { paginas?: unknown[] };
     const paginas: PaginaImagen[] = [];
     if (Array.isArray(raw.paginas)) {

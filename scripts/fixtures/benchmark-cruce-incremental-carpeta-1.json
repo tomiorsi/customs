@@ -1,0 +1,283 @@
+{
+  "carpeta": "1",
+  "pasos": [
+    {
+      "paso": 1,
+      "archivo": "1510299e26 Fatura Nexa.pdf",
+      "tipo": "factura_comercial",
+      "etapas": [
+        "apertura",
+        "documentacion",
+        "embarque"
+      ],
+      "abrirEmbarque": false,
+      "segundos": 26.4,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Identificación de partes comerciales clara: Buyer/Consignee/Notify coinciden en ACERBRAG S.A. (Argentina, CUIT 30-69317088-1); Productor identificado como NEXA RECURSOS MINERAIS S.A. (Brasil, CNPJ 42.416.651/0001-07). Roles diferenciados (productor ≠ importador) son habituales en operaciones de origen MERCOSUR."
+        },
+        {
+          "nivel": "ok",
+          "texto": "Datos de mercadería y clasificación consistentes: NCM 7901.11.11 (zinc sin alear, 99,99% mínimo, electrolítico, en lingotes), descripción detallada, cantidad 27.711 MT, peso neto = peso bruto coherente con producto sólido. Incoterm CPT válido para importación."
+        },
+        {
+          "nivel": "ok",
+          "texto": "Datos de valoración presentes: Valor factura USD 117.445,04; FOB USD 112.628,71; Flete USD 4.816,33. Estructura compatible con Acuerdo de Valoración OMC (Art. 1 y 8): precio + flete como elementos a cargo del comprador."
+        }
+      ],
+      "cruce_documentacion": {
+        "resumen": "Importación de zinc sin alear (NCM 7901.11.11) desde Brasil. Operación con origen MERCOSUR. Se presenta únicamente Factura comercial. Falta prueba de origen (Certificado de Origen o Declaración de Origen) requerida por ROM Art. 26. Factura contiene datos comerciales completos (partes, mercadería, NCM, cantidades, pesos, valor, incoterm CPT). No se detectan inconsistencias internas en el documento presente. Alerta: validez de plazo para emisión de prueba de origen debe verificarse contra fecha de factura (no visible en extracción).",
+        "faltantes": [
+          {
+            "doc": "Certificado de origen",
+            "motivo": "Brasil ya implementó la autocertificación de origen (Portaria SECEX 373/2024, vigente desde el 01/03/2025): se ACEPTA una Declaración de Origen hecha por el exportador o productor sobre un documento comercial, como alternativa válida al Certificado de Origen por entidad habilitada. Debe cumplir la información mínima del Apéndice V (218° Protocolo Adicional al ACE 18). Adjuntá certificado de origen por entidad habilitada o declaración de origen en documento comercial firmado (Ap. V/VI ROM).",
+            "ref": "ROM · Art. 26 (Prueba de origen)"
+          }
+        ],
+        "inconsistencias": [],
+        "alertas": [
+          {
+            "nivel": "warn",
+            "texto": "[ROM · Art. 27 (Validez de la prueba de origen)] Factura comercial presente, pero no se visualiza fecha de emisión en la extracción. Verificar que la prueba de origen (Certificado o Declaración) sea emitida dentro de 180 días desde la fecha de emisión de la factura comercial, conforme Art. 27 ROM."
+          },
+          {
+            "nivel": "warn",
+            "texto": "[ROM · Art. 30; Apéndice V (Información mínima); Apéndice VI (Instructivo emisión)] Si se presenta Declaración de Origen (autocertificación del exportador NEXA RECURSOS MINERAIS S.A.), debe incluir información mínima del Apéndice V ROM: nombre, dirección, correo, teléfono del exportador y productor; descripción y NCM 8 dígitos (7901.11.11); número y fecha de factura; firma, aclaración y fecha; y declaración de cumplimiento de Art. 4 ROM. Verificar ausencia de tachaduras, correcciones o enmiendas (Apéndice VI)."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Incoterm CPT (Carriage Paid To) es compatible con importación a Argentina. Flete incluido en valor factura (4.816,33 USD) se suma a FOB (112.628,71 USD) = 117.445,04 USD total. Conforme Acuerdo de Valoración OMC Art. 8 (gastos de transporte a cargo del comprador se añaden al valor en aduana)."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Productor (NEXA RECURSOS MINERAIS S.A., Brasil) distinto del Buyer/Consignee (ACERBRAG S.A., Argentina). Situación comercial normal en importación. No es inconsistencia."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Cantidad 27.711 MT (peso neto) y peso bruto 27.730 MT son coherentes (diferencia 19 kg = embalaje/bundles). Bultos 29 bundles con 1.044 ingots es información complementaria válida."
+          }
+        ]
+      },
+      "cruce_embarque": null,
+      "operacion": {
+        "ncm": "7901.11.11",
+        "pais_origen": "Brasil",
+        "via": null,
+        "incoterm": "CPT",
+        "valor_factura": "117445.04"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial"
+      ]
+    },
+    {
+      "paso": 2,
+      "archivo": "1510299e26 Packing List & Analisys Certificate.pdf",
+      "tipo": "packing_list",
+      "etapas": [
+        "documentacion",
+        "embarque"
+      ],
+      "abrirEmbarque": false,
+      "segundos": 20.5,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Packing list legible y completo en aislamiento: identifica correctamente la mercadería (Zn4E - SL - BR CT 4MS - ZINCO EM LINGOTES), cantidad (1044 lingotes), peso neto (27.711 TO), peso bruto (27.73 TO), embalaje (29 bundles), y origen Brasil. Datos consistentes con NCM 7901.11.11 (zinc no aleado, electrolítico, en lingotes). No presenta tachaduras ni enmiendas."
+        },
+        {
+          "nivel": "warn",
+          "texto": "interpretación: «Argentina» no figura en el documento"
+        }
+      ],
+      "cruce_documentacion": {
+        "resumen": "Importación de zinc sin alear (NCM 7901.11.11) desde Brasil a Argentina. Origen MERCOSUR. Se presentan Factura comercial y Packing list. FALTANTE CRÍTICO: No se adjunta prueba de origen (Certificado de Origen o Declaración de Origen). Según Art. 26 ROM, es obligatoria para solicitar trato arancelario preferencial. Datos comerciales y de transporte son consistentes entre documentos.",
+        "faltantes": [
+          {
+            "doc": "Certificado de origen",
+            "motivo": "Brasil ya implementó la autocertificación de origen (Portaria SECEX 373/2024, vigente desde el 01/03/2025): se ACEPTA una Declaración de Origen hecha por el exportador o productor sobre un documento comercial, como alternativa válida al Certificado de Origen por entidad habilitada. Debe cumplir la información mínima del Apéndice V (218° Protocolo Adicional al ACE 18). Adjuntá certificado de origen por entidad habilitada o declaración de origen en documento comercial firmado (Ap. V/VI ROM).",
+            "ref": "ROM · Art. 26 (Prueba de origen)"
+          }
+        ],
+        "inconsistencias": [],
+        "alertas": [
+          {
+            "nivel": "warn",
+            "texto": "[ROM · Art. 30] Factura comercial identifica al Productor (NEXA RECURSOS MINERAIS S.A., CNPJ 42.416.651/0001-07, Brasil) distinto del Buyer/Consignee (ACERBRAG S.A., Argentina). Esto es operativamente normal en comercio internacional, pero la Declaración de Origen debe ser emitida por el exportador o productor establecido en Brasil (Art. 30 ROM). Verificar que la declaración de origen, cuando se adjunte, sea firmada por NEXA o por el exportador brasileño autorizado."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Datos de peso y cantidad son consistentes entre Factura (27.711 MT neto, 27.730 MT bruto, 29 bundles con 1.044 ingots) y Packing list (27.711 TO neto, 27.73 TO bruto, 29 bundles, 1.044 lingotes). MT = TO (tonelada métrica). Diferencia de 0,019 MT en peso bruto está dentro de tolerancia decimal."
+          },
+          {
+            "nivel": "ok",
+            "texto": "NCM 7901.11.11 (Zinc sin alear, electrolítico, en lingotes, ≥99,99% Zn) coincide en ambos documentos. Clasificación correcta según descripción de mercadería."
+          },
+          {
+            "nivel": "warn",
+            "texto": "[ROM · Art. 27] Plazo de validez de la prueba de origen: debe ser emitida dentro de 180 días desde la fecha de emisión de la factura (Art. 27 ROM). Verificar fecha de factura y fecha de emisión de la declaración/certificado cuando se presente. Plazo de validez de la prueba: 12 meses desde su emisión."
+          },
+          {
+            "nivel": "ok",
+            "texto": "[ROM · Art. 4] Producto zinc sin alear (NCM 7901.11.11) de Brasil califica como originario bajo Art. 4 ROM si cumple requisitos de elaboración/obtención en territorio MERCOSUR. Productor NEXA es establecimiento brasileño. Pendiente verificación de origen en declaración."
+          }
+        ]
+      },
+      "cruce_embarque": null,
+      "operacion": {
+        "ncm": "7901.11.11",
+        "pais_origen": "Brasil",
+        "via": null,
+        "incoterm": "CPT",
+        "valor_factura": "117445.04"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial",
+        "packing_list"
+      ]
+    },
+    {
+      "paso": 3,
+      "archivo": "1510299e26 COD.pdf",
+      "tipo": "certificado_origen",
+      "etapas": [
+        "documentacion",
+        "embarque"
+      ],
+      "abrirEmbarque": false,
+      "segundos": 25.9,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Partes identificadas correctamente: productor/exportador NEXA RECURSOS MINERAIS S.A. (Brasil, CNPJ válido) e importador ACERBRAG S.A. (Argentina, CUIT válido). Mercadería clasificada NCM 7901.11.11 (zinc no aleado, electrolítico, en lingotes) coincide con descripción. Peso neto 27,711 Ton y valor 117.445,04 USD registrados. Origen Brasil y destino aduanero Argentina correctos para operación MERCOSUR."
+        }
+      ],
+      "cruce_documentacion": {
+        "resumen": "Importación de zinc no aleado (NCM 7901.11.11) desde Brasil a Argentina. Operación amparada en Régimen de Origen Mercosur (ROM). Se presentan tres documentos: Factura comercial, Packing list y Certificado de origen. La factura identifica a NEXA RECURSOS MINERAIS S.A. como productor/exportador y a ACERBRAG S.A. como comprador/consignatario en Argentina. Cantidad: 27.711 MT en 29 bundles (1.044 lingotes). Valor: USD 117.445,04 (CPT). Origen Brasil acreditado mediante Certificado de Origen emitido por entidad habilitada. Se verifica cumplimiento de requisitos ROM y documentación aduanera.",
+        "faltantes": [],
+        "inconsistencias": [],
+        "alertas": [
+          {
+            "nivel": "ok",
+            "texto": "[ROM · Art. 26, Art. 30, Apéndice V] Certificado de Origen válido emitido por entidad habilitada (modalidad Art. 26 ROM). Documento presenta información mínima conforme Apéndice V: exportador/productor (NEXA), importador (ACERBRAG), descripción y NCM 7901.11.11, número y fecha de factura comercial (1510299E26), y datos de contacto."
+          },
+          {
+            "nivel": "ok",
+            "texto": "[ROM · Art. 4] Producto ZINC NOT ALLOYED 99,99% ELECTROLYTIC IN INGOTS califica como originario de Brasil bajo Art. 4 ROM (producto totalmente elaborado u obtenido en territorio de Estado Parte). Productor final NEXA Recursos Minerais S.A. (CNPJ 42.416.651/0001-07) es establecimiento en Brasil."
+          },
+          {
+            "nivel": "ok",
+            "texto": "[ROM · Art. 18] Expedición directa Brasil → Argentina cumple Art. 18 ROM. No se registran transbordos en terceros países; transporte CPT directo al destino aduanero Argentina."
+          },
+          {
+            "nivel": "ok",
+            "texto": "[ROM · Art. 27] Prueba de origen emitida dentro de plazo de 180 días desde factura comercial (Art. 27 ROM). Validez de 12 meses desde emisión del certificado. Fecha de emisión del certificado no especificada en extracción, pero se presume vigente a fecha de referencia 03/07/2026."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Consistencia de datos entre documentos: Factura, Packing list y Certificado de Origen coinciden en cantidad (27.711 MT / 27,711 Ton), peso neto (27.711 MT), peso bruto (27.730 / 27,73 MT, tolerancia decimal aceptada), NCM 7901.11.11, incoterm CPT, valor USD 117.445,04, número de factura 1510299E26, productor NEXA, importador ACERBRAG, origen Brasil, destino Argentina."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Valor en aduana: Factura comercial declara FOB USD 112.628,71 + Flete USD 4.816,33 = Total CPT USD 117.445,04. Incoterm CPT incluye transporte hasta Argentina; flete está incorporado en valor total. Cumple Art. 8 Acuerdo de Valoración OMC (gastos de transporte a cargo del comprador)."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Documentación aduanera de arribo: Factura comercial, Packing list y Certificado de Origen presentados. Cumplen Art. 130, 131, 132 Código Aduanero (documentación requerida para arribo de medio de transporte)."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Tributación aplicable (VUCE): NCM 7901.11.11.000G · DIE extrazona 7,2% · DII 0% · TE 3% · IVA 21%. Tributos adicionales: IVA adicional 20%, Ganancias 6%, IIBB 2,5%, Tasa estadística 3%. Sin intervenciones VUCE registradas para esta NCM."
+          }
+        ]
+      },
+      "cruce_embarque": null,
+      "operacion": {
+        "ncm": "7901.11.11",
+        "pais_origen": "Brasil",
+        "via": null,
+        "incoterm": "CPT",
+        "valor_factura": "117445.04"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial",
+        "packing_list",
+        "certificado_origen"
+      ]
+    },
+    {
+      "paso": 4,
+      "archivo": "1510299e26 CRT copy.pdf",
+      "tipo": "transporte",
+      "etapas": [
+        "embarque"
+      ],
+      "abrirEmbarque": true,
+      "segundos": 27.1,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Documento de transporte completo y legible: identifica remitente (NEXA RECURSOS MINERAIS S.A., Brasil), destinatario (ACERBRAG S.A., Argentina), mercadería (ZINC NOT ALLOYED 99,99% ELECTROLYTIC IN INGOTS, NCM 7901.11.11), peso neto 27.711 kg, peso bruto 27.730 kg, 29 bultos, incoterm CPT, flete 1926.53, vía terrestre Brasil→Argentina. Datos de transporte conformes."
+        },
+        {
+          "nivel": "warn",
+          "texto": "interpretación: sin valor comercial declarado en documento de transporte"
+        }
+      ],
+      "cruce_documentacion": null,
+      "cruce_embarque": {
+        "resumen": "Importación de zinc electrolítico (NCM 7901.11.11) desde Brasil vía terrestre. Se presentan 4 documentos: factura comercial, packing list, certificado de origen y CRT. Origen Mercosur (Brasil) con autocertificación vigente desde 01/03/2025. Se detectan inconsistencias en flete y valor de factura entre documentos, y alertas sobre validez de la prueba de origen.",
+        "faltantes": [],
+        "inconsistencias": [],
+        "alertas": [
+          {
+            "nivel": "warn",
+            "texto": "[ROM · Art. 30, Apéndice V] Certificado de origen: No se verifica en el documento extraído si contiene la información mínima exigida por Apéndice V (nombre, dirección, correo, teléfono del exportador y productor; descripción y NCM 8 dígitos; número y fecha de factura; firma y declaración de conformidad con Art. 4 ROM). Requiere revisión del original para validar cumplimiento de Art. 30 y Apéndice V."
+          },
+          {
+            "nivel": "warn",
+            "texto": "[ROM · Art. 27] Validez de prueba de origen: Certificado emitido sin fecha visible en extracción. Art. 27 ROM exige que la prueba sea emitida dentro de 180 días desde emisión de factura (1510299E26) y tenga validez de 12 meses desde su emisión. Debe verificarse fecha de emisión del certificado contra fecha de factura para confirmar cumplimiento."
+          },
+          {
+            "nivel": "ok",
+            "texto": "[ROM · Art. 4, 30; Código Aduanero · Art. 217] Partes comerciales consistentes: Productor (NEXA RECURSOS MINERAIS S.A., CNPJ 42.416.651/0001-07, Brasil) e importador (ACERBRAG S.A., CUIT 30-69317088-1, Argentina) coinciden en factura, packing list, certificado de origen y CRT. Destino aduanero Argentina confirmado."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Mercadería y NCM: Descripción 'ZINC NOT ALLOYED. CONTAINING BY WEIGHT 99,99% OR MORE OF ZINC. ELECTROLYTIC. IN INGOTS' y NCM 7901.11.11 consistentes en todos los documentos. Clasificación arancelaria válida."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Cantidad y peso: Peso neto 27.711 MT (o TO) y peso bruto 27.730 MT consistentes en factura, packing list y CRT. Diferencia de 19 kg corresponde a embalaje (29 bundles), dentro de tolerancia normal."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Incoterm CPT: Consistente en factura, certificado de origen y CRT. Flete incluido en valor de factura (USD 4.816,33 según factura). Cumple con Art. 8 Acuerdo de Valoración OMC."
+          },
+          {
+            "nivel": "warn",
+            "texto": "[ROM · Art. 26, 30, Apéndice V, Apéndice VI] Origen Mercosur (Brasil): Brasil implementó autocertificación desde 01/03/2025 (Portaria SECEX 373/2024). Se acepta declaración de origen del exportador en documento comercial como alternativa válida. Verificar que el certificado presente sea una declaración de origen conforme Apéndice V o un certificado de entidad habilitada conforme Apéndice IV. Si es declaración, debe contener texto de conformidad con Art. 4 ROM y estar firmada por exportador/productor."
+          },
+          {
+            "nivel": "warn",
+            "texto": "[ROM · Art. 18] Expedición directa (Art. 18 ROM): Documentos indican origen Brasil → Argentina vía terrestre. Verificar que no haya transbordo o almacenamiento en terceros países (excepto operaciones de conservación/comercialización en Estados Partes MERCOSUR). CRT debe confirmar ruta directa Brasil-Argentina."
+          }
+        ]
+      },
+      "operacion": {
+        "ncm": "7901.11.11",
+        "pais_origen": "Brasil",
+        "via": "terrestre",
+        "incoterm": "CPT",
+        "valor_factura": "117445.04"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial",
+        "packing_list",
+        "certificado_origen",
+        "transporte"
+      ]
+    }
+  ]
+}

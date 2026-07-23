@@ -1,0 +1,49 @@
+---
+description: Arquitectura del clasificador NCM — separación de capas
+globs: src/lib/clasificador/**/*
+alwaysApply: false
+---
+
+# Clasificador NCM — arquitectura
+
+Referencia de dominio: `docs/clasificacion-ncm.md`.
+
+## Capas (no mezclar responsabilidades)
+
+| Módulo | Rol | NO debe |
+|--------|-----|---------|
+| `principios-clasificacion.ts` | Instrucciones IA (Fases, RGI, HECHOS, cierre) | Flujo, parquet, `if` por producto |
+| `ia.ts` | Prompts desde principios; llamadas Anthropic; JSON | Reglas legales inline por tipo |
+| `motor.ts` | Parquet NCM, menú partidas/SIM, aranceles | Decidir clasificación legal |
+| `index.ts` | Orquestación Fase 1→2→3, preguntas, reintentos | Duplicar principios; post-procesar para un caso |
+| `estado-clasificacion.ts` | HECHOS, sanitización opciones | Validar dominio con keywords |
+| `marco-legal.ts` | RGI/notas para Fase 3 | Filtrar candidatos por caso puntual |
+
+## Flujo
+
+```
+HECHOS (descripción facturada + respuestas)
+  → motor: candidatos desde data/Nomenclatura/ncm.parquet
+  → IA Fase B: cruce legal con marco RGI
+  → confirma / pregunta / error
+```
+
+- **Arancel (DI):** viene del parquet, no lo inventa la IA.
+- **Filtro parquet:** acota menú de búsqueda; **no** confirma validez legal.
+- **NCM equipo padre:** solo si el operador la declaró; no inferir del texto.
+
+## Anti-parches (rechazar en review)
+
+- Constantes en principios que nombran producto/NCM del benchmark actual
+- `if (ncm === '...')` o keywords para confirmar clasificación
+- Enriquecer menú solo top-N para pasar un caso
+- Post-procesar output IA en `index.ts` para un documento
+
+## Benchmark
+
+```bash
+node scripts/benchmark-ia-ncm.mjs
+node scripts/benchmark-motor-partidas.mjs
+```
+
+Mejorar el motor/prompts hasta pasar **sin** tocar fixtures para encajar el caso.

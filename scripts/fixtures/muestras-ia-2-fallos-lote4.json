@@ -1,0 +1,16 @@
+{
+  "muestras": [
+    {
+      "ncm": "3004.49.90.448E",
+      "partida": "3004",
+      "producto": "Los demás, que contengan alcaloides o sus derivados:, Que contengan otros estupefacientes (R.2017/93 ex-ANA), Ecgonina y sus esteres; etilmorfina; folcodina; acetildihidrocodeína; dihidrocodeína; nicocodina; nicodicodina, Nicocodina",
+      "descripcion_ncm": "Nicocodina"
+    },
+    {
+      "ncm": "5003.00.10.000J",
+      "partida": "5003",
+      "producto": "ESPERDICIOS DE SEDA (INCLUIDOS LOS CAPULLOS NO APTOS PARA EL DEVANADO, DESPERDICIOS DE HILADOS E HILACHAS)., Sin cardar ni peinar",
+      "descripcion_ncm": "Sin cardar ni peinar"
+    }
+  ]
+}

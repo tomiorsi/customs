@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 /.pnp
+.venv/
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -46,3 +47,10 @@ next-env.d.ts
 *.db
 *.db-shm
 *.db-wal
+
+# herramientas de agentes / sesiones locales (worktrees, estado de sesión)
+/.claude/
+
+# imágenes sueltas / adjuntos que no son parte del proyecto
+WhatsApp Image *.jpeg
+WhatsApp Image *.jpg

@@ -1,0 +1,50 @@
+---
+description: Misión del proyecto — control documental y operativo de un estudio aduanero
+alwaysApply: true
+---
+
+# Objetivo del proyecto
+
+## Qué estamos construyendo
+
+Un **portal de control** para un estudio de despachantes de aduana en Argentina. La plataforma acompaña operaciones de **importación y exportación** desde que el cliente abre la carpeta hasta el cierre.
+
+**No es un ERP genérico.** Es control inteligente:
+
+- ¿Están todos los documentos?
+- ¿Lo que dice la factura coincide con el packing, el BL y lo que declaró el cliente?
+- ¿La NCM es fundada legalmente (RGI)?
+- ¿Hay intervenciones, certificados u organismos pendientes?
+- ¿Los tributos y la cotización tienen sentido con el perfil del cliente?
+
+El operador del estudio **decide**; el sistema **detecta faltantes, inconsistencias e ilegalidades** y guía el paso a paso real (`src/lib/workflow.ts`).
+
+## Usuarios y permisos
+
+| Rol | Acceso |
+|-----|--------|
+| `admin` / `operador` | Todos los clientes, mesa de trabajo, nomenclador |
+| `client` | Solo sus operaciones y documentos |
+
+Nunca mezclar datos entre clientes. Rutas API deben validar `owner_id` / sesión.
+
+## Qué significa “bien hecho” en este repo
+
+1. **Legalmente fundado** — clasificación y validación con marco normativo, no intuición.
+2. **Coherente entre etapas** — misma lectura/caché/contexto en subida, cruce y checklist.
+3. **Robusto ante cualquier documento** — no optimizado para un PDF de prueba puntual.
+4. **Operable** — el operador entiende qué falta y por qué (estados, alertas, guías).
+
+## Qué NO es el objetivo
+
+- Hacer pasar un benchmark editando fixtures o hardcodeando el caso del momento.
+- Decorar la UI mientras el pipeline sigue mal.
+- Sustituir al despachante: la IA **asiste y controla**, no oficializa sola.
+
+## Contexto Argentina 2026
+
+- NCM MERCOSUR (parquet en `data/Nomenclatura/`)
+- VUCE, tributos, VEP, logística de retiro BL/contenedor
+- Normas en `docs/` y datos oficiales en `data/` (fuera de git)
+
+Cuando el usuario reporta un caso concreto, el objetivo es **arreglar el flujo para todos los casos equivalentes**, no solo ese archivo.

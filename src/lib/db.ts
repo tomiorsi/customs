@@ -140,6 +140,11 @@ function migrate(db: Database.Database) {
   if (!tiene("op_reviewed_at")) {
     db.exec("ALTER TABLE users ADD COLUMN op_reviewed_at TEXT");
   }
+  // Acceso por-cliente al portal self-service ('1' = habilitado). Por defecto off:
+  // el estudio habilita el portal cliente por cliente al crearle el acceso.
+  if (!tiene("portal_habilitado")) {
+    db.exec("ALTER TABLE users ADD COLUMN portal_habilitado TEXT DEFAULT '0'");
+  }
 
   // Rol/función del participante (texto libre que carga quien lo invita).
   const pCols = db

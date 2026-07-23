@@ -1,0 +1,430 @@
+{
+  "carpeta": "2",
+  "ok": 6,
+  "total": 6,
+  "vision_cloud_veces": 0,
+  "segundos": 75.9,
+  "items": [
+    {
+      "archivo": "Despacho arca.pdf",
+      "tipo_nombre": "despacho",
+      "tipo_final": "despacho",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 143136,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 19.9,
+      "resumen": "Los dem?s -Colgadores, perchas, soportes y artículos similares GUARNICIONES, HER",
+      "datos": {
+        "comercial": {
+          "valor_fob": "103069.76",
+          "flete": "6868",
+          "incoterm": "FCA",
+          "moneda": "USD"
+        },
+        "via": "aerea",
+        "logistica": null,
+        "mercaderia": {
+          "peso_bruto": "1.616,000 kg",
+          "mercaderia": "Los dem?s -Colgadores, perchas, soportes y artículos similares GUARNICIONES, HERRAJES Y ARTÍCULOS SIMILARES, DE METAL COMÚN, PARA MUEBLES, PUERTAS, ESCALERAS, VENTANAS, PERSIANAS, CARROCERÍAS, ARTÍCULOS DE GUARNICIONERÍA, BAÚLES, ARCAS, COFRE S Y DEMÁS MANUFACTURAS DE ESTA CLASE; COLGADORES, PERCHAS, SOPORTES Y ARTÍCULOS SIMILARES, DE METAL COMÚN; RUEDAS CON MONTURAS DE METAL COMÚN; CIERRAPUERTAS AUTOMATICOS DE METAL COMÚN.; Teclados Unidades de entrada -Unidades de entrada o salida, aunque incluyan unidades de memoria en la misma envoltura MÁQUINAS AUTOMÁTICAS PARA TRATAMIENTO O PROCESAMIENTO DE DATOS Y SUS UNIDADES; LECTORES MAGNETICOS U ÓPTICOS, MÁQUINAS PARA REGISTRO DE DATOS SOBRE SOPORTE EN FORMA CODIFICADA Y MÁQUINAS PARA TRATAMIENTO O PROCESAMIENTO DE ESTOS DATOS, NO EXPRESADOS NI COMPRENDIDOS EN OTRA PARTE.; Convertidores de corriente continua -Convertidores estáticos TRANSFORMADORES ELECTRICOS, CONVERTIDORES ELECTRICOS ESTATICOS (POR EJEMPLO, RECTIFICADORES) Y BOBINAS DE REACTANCIA (AUTOINDUCCION)."
+        },
+        "partes": [
+          {
+            "etiqueta": "Importador / Exportador",
+            "nombre": "I C A P  SA",
+            "identificacion": "20-17379361-9"
+          },
+          {
+            "etiqueta": "Despachante de Aduana",
+            "nombre": "ORSI RICARDO CESAR VICENT",
+            "identificacion": "30-50382598-4"
+          },
+          {
+            "etiqueta": "Agente de Transporte Aduanero",
+            "nombre": "AMERICAN AIRLINES INC",
+            "identificacion": "30-63908514-3"
+          },
+          {
+            "etiqueta": "Vendedor",
+            "nombre": "AVI-SPL LLC / SHURE INCORPORATED"
+          }
+        ],
+        "origen": {
+          "pais_origen": "Estados Unidos",
+          "pais_procedencia": "Estados Unidos",
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "00125083424",
+          "transportista": "AMERICAN AIRLINES INC",
+          "medio_transporte": "AVION"
+        },
+        "pago": {
+          "fecha_factura": "2026-05-27"
+        },
+        "formalidades": {
+          "entidad_emisora": "Aduana Ezeiza"
+        }
+      },
+      "vacios": []
+    },
+    {
+      "archivo": "comercial invoice 2.pdf",
+      "tipo_nombre": "factura_comercial",
+      "tipo_final": "factura_comercial",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 3070,
+      "vision_cloud": false,
+      "ocr_local": true,
+      "fuente": "embebido",
+      "segundos": 15.3,
+      "resumen": "BLX24R VOCAL SYSTEM WITH SM58 (1 unidad), ULXD2/SM58=-G55 Handheld Transmitter (",
+      "datos": {
+        "comercial": {
+          "valor_factura": "2265",
+          "incoterm": "FCA MIAMI"
+        },
+        "via": "terrestre",
+        "logistica": {
+          "volumen_cbm": "0.3"
+        },
+        "mercaderia": {
+          "mercaderia": "BLX24R VOCAL SYSTEM WITH SM58 (1 unidad), ULXD2/SM58=-G55 Handheld Transmitter (2 unidades), ULXD1=-G55 Bodypack Transmitter (2 unidades), SB900C RECHARGEABLE BATTERY (4 unidades)",
+          "cantidad": "9 EA",
+          "unidad": "EA",
+          "bultos": "2 cartons",
+          "peso_bruto": "58 LB"
+        },
+        "partes": [
+          {
+            "etiqueta": "SOLD FROM",
+            "nombre": "SHURE INCORPORATED",
+            "domicilio": "5800 West Touhy Avenue, NILES IL 60714-4608",
+            "pais": "USA"
+          },
+          {
+            "etiqueta": "SHIPPED FROM",
+            "nombre": "Shure Incorporated",
+            "domicilio": "995 CHADDICK DRIVE, Wheeling IL 60090-6449",
+            "pais": "USA"
+          },
+          {
+            "etiqueta": "SOLD TO",
+            "nombre": "ICAP SA",
+            "domicilio": "AV. DIAZ VELEZ 3531, CABA 01 C1200AAC",
+            "pais": "AR"
+          },
+          {
+            "etiqueta": "SHIP TO",
+            "nombre": "ICAP SA",
+            "domicilio": "AV. DIAZ VELEZ 3531, CABA 01 C1200AAC",
+            "pais": "AR"
+          },
+          {
+            "etiqueta": "FORWARD TO",
+            "nombre": "CATHEL ICAP MIAMI",
+            "domicilio": "10300 NW 19th St Ste 111, Doral FL 33172-2538",
+            "pais": "US"
+          }
+        ],
+        "origen": {
+          "pais_origen": "MX, CN",
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "301042576",
+          "transportista": "UNITED PARCEL SERVICE",
+          "medio_transporte": "Road"
+        },
+        "pago": {
+          "fecha_factura": "2026-04-30",
+          "plazo_pago_dias": "30",
+          "forma_pago": "Z130, NET 30"
+        },
+        "formalidades": null
+      },
+      "vacios": [
+        {
+          "campo": "comercial.moneda",
+          "donde": "interpretación",
+          "motivo": "«USD» no figura en el documento"
+        }
+      ]
+    },
+    {
+      "archivo": "comercial invoice 3.pdf",
+      "tipo_nombre": "factura_comercial",
+      "tipo_final": "factura_comercial",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 2084,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 3.9,
+      "resumen": "UA864US WALL/CEILING ANTENNA 470-698MHZ, SBC200 2-UP UNIVERSAL CHARGER NO PWR SU",
+      "datos": {
+        "comercial": {
+          "valor_factura": "2702",
+          "incoterm": "FCA MIAMI",
+          "moneda": "USD"
+        },
+        "via": "terrestre",
+        "logistica": null,
+        "mercaderia": {
+          "mercaderia": "UA864US WALL/CEILING ANTENNA 470-698MHZ, SBC200 2-UP UNIVERSAL CHARGER NO PWR SU, SB900C RECHARGEABLE BATTERY, SBC900C RECHARGEABLE BATTERY"
+        },
+        "partes": [
+          {
+            "etiqueta": "SOLD FROM",
+            "nombre": "SHURE INCORPORATED",
+            "domicilio": "5800 West Touhy Avenue, NILES IL 60714-4608",
+            "pais": "USA"
+          },
+          {
+            "etiqueta": "SOLD TO",
+            "nombre": "ICAP SA",
+            "domicilio": "AV. DIAZ VELEZ 3531, CABA 01 C1200AAC",
+            "pais": "AR"
+          },
+          {
+            "etiqueta": "FORWARD TO",
+            "nombre": "CATHEL ICAP MIAMI",
+            "domicilio": "10300 NW 19th St Ste 11, Doral FL 33172-2538",
+            "pais": "US"
+          },
+          {
+            "etiqueta": "SHIPPED FROM",
+            "nombre": "SHURE INCORPORATED",
+            "domicilio": "995 CHADDICK DRIVE, WHEELING IL 60090-6449",
+            "pais": "USA"
+          }
+        ],
+        "origen": {
+          "pais_origen": "CN, MX",
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "301043071",
+          "transportista": "UNITED PARCEL SERVICE",
+          "medio_transporte": "UPS Ground/Standard"
+        },
+        "pago": {
+          "fecha_factura": "2026-05-05",
+          "plazo_pago_dias": "30",
+          "forma_pago": "Z130, NET 30"
+        },
+        "formalidades": null
+      },
+      "vacios": []
+    },
+    {
+      "archivo": "comercial invoice.pdf",
+      "tipo_nombre": "factura_comercial",
+      "tipo_final": "factura_comercial",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 4512,
+      "vision_cloud": false,
+      "ocr_local": true,
+      "fuente": "embebido",
+      "segundos": 21.8,
+      "resumen": "100' UHF Coaxial Antenna Cable, WALL/CEILING ANTENNA 470-698 MHZ, 2-UP UNIVERSAL",
+      "datos": {
+        "comercial": {
+          "valor_factura": "7605",
+          "incoterm": "FCA MIAMI"
+        },
+        "via": "terrestre",
+        "logistica": null,
+        "mercaderia": {
+          "mercaderia": "100' UHF Coaxial Antenna Cable, WALL/CEILING ANTENNA 470-698 MHZ, 2-UP UNIVERSAL CHARGER W/ PS60US, Wireless Receiver Quad, LAVALIER MICROPHONE CARDIOID BLACK, XLR/USB SPEECH MICROPHONE BLACK +STAND, Gooseneck 12\" with cardioid",
+          "cantidad": "9 items",
+          "peso_bruto": "88 LB"
+        },
+        "partes": [
+          {
+            "etiqueta": "SOLD FROM",
+            "nombre": "SHURE INCORPORATED",
+            "domicilio": "5800 West Touhy Avenue, NILES IL 60714-4608",
+            "pais": "USA"
+          },
+          {
+            "etiqueta": "SHIPPED FROM",
+            "nombre": "Shure Incorporated",
+            "domicilio": "995 CHADDICK DRIVE, Wheeling IL 60090-6449",
+            "pais": "USA"
+          },
+          {
+            "etiqueta": "SOLD TO",
+            "nombre": "ICAP SA",
+            "domicilio": "AV. DIAZ VELEZ 3531, CABA 01 C 1200AAC",
+            "pais": "AR"
+          },
+          {
+            "etiqueta": "SHIP TO",
+            "nombre": "ICAP SA",
+            "domicilio": "AV. DIAZ VELEZ 3531, CABA 01 C 1200AAC",
+            "pais": "AR"
+          },
+          {
+            "etiqueta": "FORWARD TO",
+            "nombre": "CATHEL ICAP MIAMI",
+            "domicilio": "10300 NW 19th St Ste 111, Doral FL 33172-2538",
+            "pais": "US"
+          }
+        ],
+        "origen": {
+          "pais_origen": "CN, MX",
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "301042574",
+          "transportista": "UNITED PARCEL SERVICE",
+          "medio_transporte": "Road"
+        },
+        "pago": {
+          "fecha_factura": "2026-04-30",
+          "plazo_pago_dias": "30",
+          "forma_pago": "Z130, NET 30"
+        },
+        "formalidades": null
+      },
+      "vacios": [
+        {
+          "campo": "comercial.moneda",
+          "donde": "interpretación",
+          "motivo": "«USD» no figura en el documento"
+        }
+      ]
+    },
+    {
+      "archivo": "factura.pdf",
+      "tipo_nombre": "factura_comercial",
+      "tipo_final": "factura_comercial",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 5221,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 11.7,
+      "resumen": "VALENS EVX6-USB-KT-POE USB EXTENDER, BRIGHTSIGN XT245 MULTIMEDIA PLAYER, CHIEF F",
+      "datos": {
+        "comercial": {
+          "valor_factura": "90497.76",
+          "incoterm": "FCA MIAMI",
+          "moneda": "USD"
+        },
+        "via": null,
+        "logistica": null,
+        "mercaderia": {
+          "mercaderia": "VALENS EVX6-USB-KT-POE USB EXTENDER, BRIGHTSIGN XT245 MULTIMEDIA PLAYER, CHIEF FCAV1U PULL OUT ACCESSORY, CHIEF CSPR ACCESSORY PANEL, CHIEF LSM1U ADJUSTABLE WALL MOUNT, CHIEF FCAXV1U SUPPORT, CHIEF XSM1U WALL MOUNT, CHIEF TS318SU FIXED LCD MONITOR WALL MOUNT UP TO 34 KG, CHIEF MSM1U LCD MONITOR WALL MOUNT, CHIEF CSMP9X12 MOUNTING KIT, CHIEF CSSLP15X10 SLIDING LOCK PANEL, CRESTRON HD-RXC-4KZ-101 HDMI RS-232 & IR EXT O RECEIVER, CRESTRON HD-RXU-4KZ-101-E RECEIVER, CRESTRON HD-TXC-4KZ-101 DM LITE HDMI RS-232 TRANSMITTER, CRESTRON GLS-PART-CN PARTITION SENSOR, HECKLER DESIGN H806A-BG ACCESSORY PANEL, HECKLER DESIGN H800-BG SUPPORT, HECKLER DESIGN H803-BG SUPPORT, HECKLER DESIGN H735-BG VIDEO CONFERENCE, KRAMER C-U32/FF-6 HDMI CABLE, KRAMER C-USB/AB-6 USB CABLE 2.0 A (M) to B (M) 1.80 CM, KRAMER TP-789RXR RECEIVER, KRAMER C-HM/HM-6 1.8 M HDMI CABLE, KRAMER C-MHM/MHM-6 4K 2M HDMI CABLE, KRAMER PA-120NET AMPLIFIER, PANDUIT FP6X88MTG CONNECTOR ACCESSORY, QSC NV-21-HU A/V DISTRIBUTOR, SURGEX SX-DC-8-1224-230 ENERGY MANAGEMENT MODULE, VADDIO 535-2000-293 FOLDABLE CAMERA SUPPORT, QSC CORE 8 FLEX 64X64 AUDIO PROCESSOR, QSC AC-C6T MORTISE SPEAKER, QSC TSC-101-G3 TOUCH SCREEN 10.1\" IN WALL MOUNTING BLACK, PEERLESS ACC-WMVCS BLACK WALL MOUNT, ICRON 2312 EXTENDER, QSC TSC-710T-G3 ACCESSORY FOR TSC-70-G3 & TSC-101-G3, QSC NV-1-H-WE Q-SYS NETWORK VIDEO ENDPOINTS ENCODER, DELL KB216 WIRED KEYBOARD BLACK, POLYCOM 77P41AA SYNC 60 SPEAKER, HECKLER DESIGN H807-BG SUPPORT, HECKLER DESIGN H802-BG WALL MOUNT FOR TWO SCREENS, VADDIO 535-2000-290 CAMERA SUPPORT DROP DOWN FOR SMALL PTZ C"
+        },
+        "partes": [
+          {
+            "etiqueta": "Seller",
+            "nombre": "AVI-SPL LLC",
+            "domicilio": "6301 Benjamin Road, Suite 101, Tampa, Florida, 33634, USA",
+            "pais": "USA",
+            "identificacion": "EIN: 59-195893500"
+          },
+          {
+            "etiqueta": "Bill To",
+            "nombre": "ICAP S.A.",
+            "domicilio": "Av. Díaz Vélez 3531, CABA, C1200AAC, Argentina",
+            "pais": "Argentina",
+            "identificacion": "CUIT: 30-50382598-4"
+          },
+          {
+            "etiqueta": "Ship To",
+            "nombre": "ALMAX CARGO",
+            "domicilio": "10300 NW 19th St, Suite 111, Doral, FL 33172 USA",
+            "pais": "USA"
+          }
+        ],
+        "origen": {
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "260010"
+        },
+        "pago": {
+          "fecha_factura": "2026-05-27",
+          "plazo_pago_dias": "30",
+          "forma_pago": "Net 30 days from invoice"
+        },
+        "formalidades": null
+      },
+      "vacios": []
+    },
+    {
+      "archivo": "guia aerea.pdf",
+      "tipo_nombre": "transporte",
+      "tipo_final": "transporte",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 652,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 3.3,
+      "resumen": "DISTRIBUIDOR",
+      "datos": {
+        "comercial": {
+          "flete": "6868",
+          "moneda": "USD"
+        },
+        "via": "aerea",
+        "logistica": null,
+        "mercaderia": {
+          "mercaderia": "DISTRIBUIDOR",
+          "ncm": "8537.10.20",
+          "cantidad": "4 K",
+          "unidad": "K",
+          "peso_neto": "1,616.00 K",
+          "peso_bruto": "6,868.00 K"
+        },
+        "partes": [
+          {
+            "etiqueta": "Shipper",
+            "nombre": "AVI-SPL LLC",
+            "domicilio": "6301 BENJAMIN ROAD, TAMPA, FL 33634",
+            "pais": "UNITED STATES OF AMERICA"
+          },
+          {
+            "etiqueta": "Consignee",
+            "nombre": "ICAP S.A.",
+            "domicilio": "Av. Diaz Vélez 3531, C1200AAC, CABA, Argentina",
+            "pais": "Argentina",
+            "identificacion": "CUIT: 30-50382598-4"
+          },
+          {
+            "etiqueta": "Agent",
+            "nombre": "ALMAX CARGO LLC",
+            "domicilio": "10300 NW 19Th St. Ste 111, DORAL, FL 33172",
+            "pais": "UNITED STATES OF AMERICA"
+          }
+        ],
+        "origen": {
+          "pais_procedencia": "Estados Unidos",
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "25083424",
+          "transportista": "AMERICAN AIRLINES",
+          "puerto_origen": "MIAMI",
+          "puerto_destino": "EZE",
+          "eta": "2026-05-29",
+          "medio_transporte": "aéreo"
+        },
+        "pago": null,
+        "formalidades": null
+      },
+      "vacios": []
+    }
+  ]
+}

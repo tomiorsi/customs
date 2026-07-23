@@ -638,16 +638,17 @@ export async function actualizarValidacionEtapaDesdeCache(
   const recon =
     opts?.recon ??
     (await reconciliarDocumentosSiCambio(op)).recon;
+  const opCruce = (await getOperationById(op.id)) ?? op;
 
   if (
     !opts?.sinCruce &&
     opts?.forzarCruce
   ) {
-    const cruce = await cruzarDocumentacionEtapaTexto(op, etapa, docs);
+    const cruce = await cruzarDocumentacionEtapaTexto(opCruce, etapa, docs);
     if (cruce) fusionarCruceEnResultado(resultado, cruce);
   }
 
-  let opFresh = (await getOperationById(op.id)) ?? op;
+  let opFresh = opCruce;
   await aplicarEnriquecimientoReconciliacion(opFresh, etapa, resultado, recon, {
     soloCache: true,
   });

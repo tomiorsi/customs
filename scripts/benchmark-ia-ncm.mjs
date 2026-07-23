@@ -3,6 +3,7 @@
  *
  * Uso:
  *   python3 scripts/generar-muestras-ia-20.py
+ *   python3 scripts/generar-muestras-ia-20.py --seed 20260631 --excluir scripts/fixtures/muestras-ia-20.json --out scripts/fixtures/muestras-ia-20-lote2.json
  *   npx tsx --require ./scripts/register-server-only-stub.cjs scripts/benchmark-ia-ncm.mjs
  *   npx tsx --require ./scripts/register-server-only-stub.cjs scripts/benchmark-ia-ncm.mjs --verbose
  */
@@ -21,9 +22,15 @@ import {
   textoParaSimsParquet,
 } from "../src/lib/clasificador/estado-clasificacion";
 
-const FIXTURE = path.join(process.cwd(), "scripts/fixtures/muestras-ia-20.json");
+const FIXTURES_DIR = path.join(process.cwd(), "scripts/fixtures");
+const DEFAULT = path.join(FIXTURES_DIR, "muestras-ia-20.json");
 const verbose = process.argv.includes("--verbose");
 const MAX_PASOS = 4;
+
+const fixtureArg = process.argv.find((a) => !a.startsWith("--") && a.endsWith(".json"));
+const FIXTURE = fixtureArg
+  ? path.resolve(fixtureArg)
+  : DEFAULT;
 
 function normNcm(s) {
   return (s ?? "").trim().toUpperCase().replace(/\s/g, "");

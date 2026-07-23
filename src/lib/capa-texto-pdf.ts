@@ -1,9 +1,9 @@
 import "server-only";
 
-import { execFileSync } from "node:child_process";
 import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
+import { ejecutarPythonScript } from "@/lib/python-runtime";
 
 const SCRIPT_TEXTO = join(process.cwd(), "scripts", "pdf_texto.py");
 
@@ -13,6 +13,11 @@ export type CapaTextoPdf = {
   texto: string;
   paginas: number;
   tieneTexto: boolean;
+  /** Páginas transcritas con OCR local (EasyOCR), sin cloud. */
+  ocrUsado?: boolean;
+  paginasOcr?: number[];
+  /** Alguna página solo-imagen no pudo transcribirse (OCR off o fallo). */
+  ocrFallo?: boolean;
 };
 
 export type MetaLectura = {
@@ -30,6 +35,9 @@ export type MetaLectura = {
   lectura_arbitrada?: boolean;
   /** true = capa y visión difirieron en sustancia; se re-verificó contra el PDF. */
   lectura_verificada_pdf?: boolean;
+  /** Páginas transcritas con OCR local (EasyOCR). */
+  ocr_usado?: boolean;
+  paginas_ocr?: number[];
 };
 
 export type ResultadoDiffLectura = {
@@ -56,24 +64,30 @@ function limpiarTemp(dir: string): void {
   }
 }
 
-/** Texto embebido + metadatos de página (siempre local, $0). */
-export function extraerCapaTextoPdf(buf: Buffer): CapaTextoPdf {
+/** Texto embebido + OCR local en páginas solo-imagen (cola global, $0). */
+export async function extraerCapaTextoPdf(buf: Buffer): Promise<CapaTextoPdf> {
   const { dir, path } = pdfEnTemp(buf);
   try {
-    const out = execFileSync("python3", [SCRIPT_TEXTO, path], {
-      encoding: "utf8",
-      maxBuffer: 20 * 1024 * 1024,
-    });
+    const out = await ejecutarPythonScript(SCRIPT_TEXTO, [path]);
     const raw = JSON.parse(out.trim()) as {
       texto?: string;
       paginas?: number;
       tiene_texto?: boolean;
+      ocr_usado?: boolean;
+      paginas_ocr?: number[];
+      ocr_fallo?: boolean;
     };
     const texto = String(raw.texto ?? "").trim();
+    const paginasOcr = Array.isArray(raw.paginas_ocr)
+      ? raw.paginas_ocr.map((n) => Number(n)).filter((n) => n > 0)
+      : undefined;
     return {
       texto,
       paginas: Math.max(1, Number(raw.paginas) || 1),
       tieneTexto: Boolean(raw.tiene_texto && texto),
+      ocrUsado: Boolean(raw.ocr_usado),
+      paginasOcr: paginasOcr?.length ? paginasOcr : undefined,
+      ocrFallo: Boolean(raw.ocr_fallo),
     };
   } finally {
     limpiarTemp(dir);
@@ -85,6 +99,8 @@ export function extraerCapaTextoPdf(buf: Buffer): CapaTextoPdf {
  * Cubre PDFs nativos reales y detecta escaneos / capas rotas o vacías.
  */
 export function embebidoEsConfiable(capa: CapaTextoPdf): boolean {
+  if (capa.ocrFallo) return false;
+
   const t = capa.texto.trim();
   if (!capa.tieneTexto || t.length < 80) return false;
 

@@ -1,0 +1,130 @@
+{
+  "seed": 20260703,
+  "n": 20,
+  "fuente": [
+    "muestras-motor-100.json"
+  ],
+  "excluidos": 80,
+  "muestras": [
+    {
+      "ncm": "0504.00.11.510E",
+      "partida": "0504",
+      "producto": "Tripas, De bovino, Chinchulines, Frescos, refrigerados o congelados (Dto. 499/98; RG 159/98 AFIP)",
+      "descripcion_ncm": "Frescos, refrigerados o congelados (Dto. 499/98; RG 159/98 AFIP)"
+    },
+    {
+      "ncm": "1513.21.11.000A",
+      "partida": "1513",
+      "producto": "Aceites de almendra de palma (palmiste)* o de babasu, y sus fracciones:, Aceites en bruto, De almendra de palma (palmiste)*, De coco mbocaya (Acrocomia total)",
+      "descripcion_ncm": "De coco mbocaya (Acrocomia total)"
+    },
+    {
+      "ncm": "2103.30.10.000G",
+      "partida": "2103",
+      "producto": "Harina de mostaza y mostaza preparada, Harina de mostaza",
+      "descripcion_ncm": "Harina de mostaza"
+    },
+    {
+      "ncm": "3404.20.20.000Z",
+      "partida": "3404",
+      "producto": "De poli(oxietileno) (polietilenglicol), Ceras preparadas",
+      "descripcion_ncm": "Ceras preparadas"
+    },
+    {
+      "ncm": "3501.10.00.100X",
+      "partida": "3501",
+      "producto": "Caseína, Elaborada con leche bovina",
+      "descripcion_ncm": "Elaborada con leche bovina"
+    },
+    {
+      "ncm": "3823.70.40.000N",
+      "partida": "3823",
+      "producto": "Alcoholes grasos industriales, Cetilico",
+      "descripcion_ncm": "Cetilico"
+    },
+    {
+      "ncm": "4202.31.00.230K",
+      "partida": "4202",
+      "producto": "Artículos de bolsillo o de bolso de mano (cartera):, Con la superficie exterior de cuero natural o cuero regenerado, De cuero regenerado, Pitilleras",
+      "descripcion_ncm": "Pitilleras"
+    },
+    {
+      "ncm": "6113.00.00.210Z",
+      "partida": "6113",
+      "producto": "Prendas de vestir confeccionadas con tejidos de punto de las partidas 59.03, 59.06 o 59.07., Confeccionadas con tejidos de la partida 59.06, Definidas en la Res. N° 421/2018 SC",
+      "descripcion_ncm": "Definidas en la Res. N° 421/2018 SC"
+    },
+    {
+      "ncm": "6403.99.90.124C",
+      "partida": "6403",
+      "producto": "Pantuflas, chinelas y sandalias tipo ojotas, Con parte superior de cuero de reptil, Superior al número 40 e inferior o igual al número 45, o sus equivalentes",
+      "descripcion_ncm": "Superior al número 40 e inferior o igual al número 45, o sus equivalentes"
+    },
+    {
+      "ncm": "6805.10.00.111X",
+      "partida": "6805",
+      "producto": "Con soporte constituido solamente por tejido de materia textil, Tela esmeril (R.386/99 SICYM), En hojas de 225x275 mm, De grano 36 a 320",
+      "descripcion_ncm": "De grano 36 a 320"
+    },
+    {
+      "ncm": "6909.11.00.000D",
+      "partida": "6909",
+      "producto": "Aparatos y artículos para usos químicos o demás usos técnicos:, De porcelana",
+      "descripcion_ncm": "--De porcelana"
+    },
+    {
+      "ncm": "7411.21.10.100G",
+      "partida": "7411",
+      "producto": "De aleaciones de cobre:, A base de cobre-cinc (latón), Sin aletas ni ranuras, Cortados o conformados en las dimensiones finales para utilizacion en vehiculos o autopartes",
+      "descripcion_ncm": "Cortados o conformados en las dimensiones finales para utilizacion en vehiculos o autopartes"
+    },
+    {
+      "ncm": "7505.11.10.000X",
+      "partida": "7505",
+      "producto": "Barras y perfiles:, De níquel sin alear, Barras",
+      "descripcion_ncm": "Barras"
+    },
+    {
+      "ncm": "7801.10.11.000N",
+      "partida": "7801",
+      "producto": "PLOMO EN BRUTO., Plomo refinado, Electrolítico, En lingotes",
+      "descripcion_ncm": "En lingotes"
+    },
+    {
+      "ncm": "8204.11.00.125F",
+      "partida": "8204",
+      "producto": "No ajustables, Dinamométrica (torquímetro), De nonio, Con rango de medición 250-700 Nm (25-70 kgm)",
+      "descripcion_ncm": "Con rango de medición 250-700 Nm (25-70 kgm)"
+    },
+    {
+      "ncm": "8423.90.10.000E",
+      "partida": "8423",
+      "producto": "Pesas para toda clase de básculas o balanzas; partes de aparatos o instrumentos de pesar, Pesas",
+      "descripcion_ncm": "Pesas"
+    },
+    {
+      "ncm": "8532.21.20.000L",
+      "partida": "8532",
+      "producto": "De tantalio, Aptos para montaje por insercion (PTH - <Pin Through Hole, )",
+      "descripcion_ncm": "Aptos para montaje por insercion (PTH - <Pin Through Hole>)"
+    },
+    {
+      "ncm": "8903.23.00.100D",
+      "partida": "8903",
+      "producto": "rcos de vela, distintos de los inflables, incluso con motor auxiliar:, De longitud superior a 24 m, Embarcaciones destinadas a la practica deportiva olimpica, paraolimpica, panamericana y parapanamericana, con certificacion de la SECRETARIA DE DEPORTES dependiente de la SECRETARIA GENERAL DE LA PRESIDENCIA DE LA NACION",
+      "descripcion_ncm": "Embarcaciones destinadas a la practica deportiva olimpica, paraolimpica, panamericana y parapanamericana, con certificacion de la SECRETARIA DE DEPORTES dependiente de la SECRETARIA GENERAL DE LA PRESIDENCIA DE LA NACION"
+    },
+    {
+      "ncm": "9205.10.00.500A",
+      "partida": "9205",
+      "producto": "Instrumentos llamados <<metales, Trombones",
+      "descripcion_ncm": "Trombones"
+    },
+    {
+      "ncm": "9607.19.00.121H",
+      "partida": "9607",
+      "producto": "Cierres de cremallera (cierres relámpago):, De monofilamento de nailón o poliester, Separables, Con corredera automática",
+      "descripcion_ncm": "Con corredera automática"
+    }
+  ]
+}

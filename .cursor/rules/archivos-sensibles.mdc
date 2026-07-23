@@ -1,0 +1,66 @@
+---
+description: Archivos y zonas sensibles — preguntar antes de modificar
+alwaysApply: true
+---
+
+# Archivos sensibles — preguntar antes
+
+Si la tarea implica cambiar algo de esta lista, **detenete y preguntá al usuario** (o explicá el plan y esperá OK). No improvisar en silencio.
+
+## Crítico — siempre preguntar
+
+| Zona | Por qué |
+|------|---------|
+| `src/lib/clasificador/principios-clasificacion.ts` | Única fuente de verdad legal NCM; un cambio mal hecho afecta todas las clasificaciones |
+| `data/Nomenclatura/*`, `scripts/build_nomenclatura.py` | Datos oficiales NCM; regenerar puede cambiar miles de clasificaciones |
+| `src/lib/db.ts` (esquema SQLite) | Migraciones pueden romper login/sesiones |
+| `src/lib/auth-server.ts`, `src/lib/hash.ts` | Seguridad y sesiones |
+| `.env`, secretos API | Nunca commitear ni loguear |
+| `data/clientes/` (datos reales) | Datos de clientes en producción local |
+
+## Alto impacto — explicar plan antes
+
+| Zona | Por qué |
+|------|---------|
+| `src/lib/clasificador/motor.ts` | Índice parquet, menú candidatos; error = NCMs incorrectas masivas |
+| `src/lib/clasificador/index.ts` | Orquestación completa Fase 1–3 |
+| `src/lib/resolucion-documentos.ts` | Cruce multi-documento; archivo grande y central |
+| `src/lib/ia-extraccion.ts`, `ia-documentos.ts` | Pipeline lectura; afecta todos los PDFs |
+| `scripts/pdf_texto.py`, `pdf_imagenes.py` | OCR; cambios = lecturas distintas en todo el sistema |
+| `src/lib/parquet-store.ts` | Formato de persistencia por cliente |
+| `package.json`, `requirements.txt` | Nuevas dependencias = install pesado (PyTorch/OCR) |
+
+## Cuidado — no romper sin necesidad
+
+| Zona | Nota |
+|------|------|
+| `scripts/fixtures/*.json` | Son regresión; no editar para hacer pasar un caso |
+| `src/lib/workflow.ts` | Etapas reales del operador; cambio afecta toda la UI de seguimiento |
+| `src/lib/data.ts` | Tipos y columnas parquet; cambiar implica migración de datos |
+| `run.py` | Punto de entrada; solo tocar si la tarea es explícitamente de arranque |
+
+## Operaciones prohibidas sin pedido explícito
+
+- `git commit`, `git push`, crear PR
+- Borrar o resetear `data/`
+- `--force` en git
+- Cambiar contraseñas por defecto documentadas en README
+- Subir PDFs o datos de clientes a servicios externos
+
+## Datos fuera de git
+
+Todo `data/` está en `.gitignore`. Si necesitás nomenclatura o DB para probar:
+
+- Ver si hay scripts de build en `scripts/`
+- Preguntar al usuario cómo regenerar en su máquina
+- **No** inventar parquet ni NCM de memoria
+
+## Cuando sí podés actuar solo
+
+- Bug claro en UI con fix localizado
+- Typo, lint, tipos
+- Nueva feature acotada que el usuario pidió explícitamente
+- Tests/benchmarks **sin** alterar fixtures para trampa
+- Documentación en `.cursor/` o `docs/` si el usuario lo pidió
+
+Si dudás entre “preguntar” y “hacer”: **preguntá**. Es preferible una pregunta de más que un parche que rompa el estudio entero.

@@ -72,6 +72,7 @@ export const CAMPOS_LABEL = {
   seguro: "Seguro",
   forma_pago: "Forma de pago",
   liberacion_doc: "Liberación del transporte (origen/destino · original/telex)",
+  nro_factura: "N° de factura",
   fecha_factura: "Fecha de factura",
   plazo_pago_dias: "Plazo de pago (días)",
   contenedor: "Contenedor (números / detalle)",
@@ -611,6 +612,13 @@ export async function analizarApertura(
     else delete campos.via;
   }
 
+  // Separamos el código de Incoterm del lugar convenido ("FCAMIAMI" → "FCA Miami").
+  if (campos.incoterm) {
+    const inc = normalizarIncoterm(campos.incoterm);
+    if (inc) campos.incoterm = inc;
+    else delete campos.incoterm;
+  }
+
   parsed.campos = campos;
   if (!Array.isArray(parsed.alertas)) parsed.alertas = [];
   // Comparación base del cliente vs. documento (la decisión final es del operador).
@@ -844,6 +852,8 @@ export type DocumentacionIA = {
   pago?: {
     forma_pago?: string;
     liberacion_doc?: string;
+    /** Número de la factura comercial (Invoice No./Number). NO es doc de transporte. */
+    nro_factura?: string;
     /** Fecha de emisión de la factura (DD/MM/AAAA o ISO). */
     fecha_factura?: string;
     /** Plazo de pago en días (30, 60, 90…). */
@@ -859,10 +869,64 @@ export type DocumentacionIA = {
 function montoDesdeTexto(v: unknown): number | null {
   if (typeof v === "number") return Number.isFinite(v) ? v : null;
   if (typeof v !== "string") return null;
-  const limpio = v.replace(/[^0-9.,-]/g, "").replace(/,/g, "").trim();
-  if (!limpio) return null;
-  const n = Number(limpio);
-  return Number.isFinite(n) ? n : null;
+  let s = v.replace(/[^0-9.,-]/g, "").trim();
+  if (!s) return null;
+  const neg = s.startsWith("-");
+  s = s.replace(/-/g, "");
+  if (!s) return null;
+
+  // Detecta formato US ("90,497.76") vs europeo/latino ("90.497,76") sin asumir
+  // uno fijo: el ÚLTIMO separador que actúa como decimal manda; el otro es de
+  // miles. Con un solo tipo de separador, sólo es decimal si va seguido de 1-2
+  // dígitos (evita romper "90.497" miles o convertir "90,50" en 9050).
+  const lastComma = s.lastIndexOf(",");
+  const lastDot = s.lastIndexOf(".");
+  let normalizado: string;
+  if (lastComma >= 0 && lastDot >= 0) {
+    normalizado =
+      lastComma > lastDot
+        ? s.replace(/\./g, "").replace(",", ".")
+        : s.replace(/,/g, "");
+  } else if (lastComma >= 0) {
+    const dec = (s.match(/,/g) ?? []).length === 1 && s.length - lastComma - 1 <= 2;
+    normalizado = dec ? s.replace(",", ".") : s.replace(/,/g, "");
+  } else if (lastDot >= 0) {
+    const dec = (s.match(/\./g) ?? []).length === 1 && s.length - lastDot - 1 <= 2;
+    normalizado = dec ? s : s.replace(/\./g, "");
+  } else {
+    normalizado = s;
+  }
+
+  const n = Number(normalizado);
+  return Number.isFinite(n) ? (neg ? -n : n) : null;
+}
+
+/** Los 11 Incoterms 2020 (códigos de 3 letras, sin prefijos que colisionen). */
+const INCOTERMS_2020 = [
+  "EXW", "FCA", "FAS", "FOB", "CFR", "CIF", "CPT", "CIP", "DAP", "DPU", "DDP",
+] as const;
+
+/**
+ * Separa el CÓDIGO de Incoterm del lugar convenido y lo devuelve formateado
+ * "FCA Miami". General para los 11 Incoterms 2020, aun si vienen pegados
+ * ("FCAMIAMI"), en minúscula o con separadores. Si no reconoce un código válido,
+ * devuelve el texto en mayúsculas (comportamiento previo).
+ */
+export function normalizarIncoterm(
+  raw: string | null | undefined,
+): string | undefined {
+  const v = String(raw ?? "").trim();
+  if (!v) return undefined;
+  const up = v.toUpperCase();
+  for (const code of INCOTERMS_2020) {
+    if (up.startsWith(code)) {
+      const resto = v.slice(code.length).replace(/^[\s.\-·,:]+/, "").trim();
+      if (!resto) return code;
+      const lugar = resto.toLowerCase().replace(/\b\p{L}/gu, (c) => c.toUpperCase());
+      return `${code} ${lugar}`;
+    }
+  }
+  return up;
 }
 
 /** Normaliza el bloque comercial que devuelve la IA (strings → montos limpios). */
@@ -886,7 +950,7 @@ function normalizarComercial(
   if (cif) norm.valor_cif = cif;
   if (fl) norm.flete = fl;
   if (se) norm.seguro = se;
-  const inc = String(raw.incoterm ?? "").trim().toUpperCase();
+  const inc = normalizarIncoterm(raw.incoterm as string | undefined);
   if (inc) norm.incoterm = inc;
   const mon = String(raw.moneda ?? "").trim().toUpperCase();
   if (mon) norm.moneda = mon;
@@ -902,9 +966,11 @@ function normalizarPago(
   const out: NonNullable<DocumentacionIA["pago"]> = {};
   const fp = String(raw.forma_pago ?? "").trim();
   const lib = String(raw.liberacion_doc ?? "").trim();
+  const nroFac = String(raw.nro_factura ?? "").trim();
   let ff = String(raw.fecha_factura ?? "").trim();
   const plazo = String(raw.plazo_pago_dias ?? "").trim();
   if (lib) out.liberacion_doc = lib;
+  if (nroFac) out.nro_factura = nroFac;
   if (ff) {
     const iso = parseFechaComercial(ff);
     out.fecha_factura = iso ?? ff;
@@ -1059,13 +1125,15 @@ export function normalizarDatosDocumentoOperacion(
     ),
     transporte,
   );
+  const viaRaw = normalizarViaDocumento(
+    raw.datos && typeof raw.datos === "object"
+      ? (raw.datos as Record<string, unknown>).via ?? raw.via
+      : raw.via,
+  );
+  const via = viaRaw ?? normalizarViaCanon(transporte?.medio_transporte ?? "");
   return {
     comercial,
-    via: normalizarViaDocumento(
-      raw.datos && typeof raw.datos === "object"
-        ? (raw.datos as Record<string, unknown>).via ?? raw.via
-        : raw.via,
-    ),
+    via,
     logistica: normalizarLogisticaDocumento(
       raw.datos && typeof raw.datos === "object"
         ? (raw.datos as Record<string, unknown>).logistica ?? raw.logistica
@@ -1154,15 +1222,46 @@ function montoNormalizado(v: unknown): string | null {
   return n != null ? String(n) : null;
 }
 
+function numeroDesdeCampo(v: unknown): number | null {
+  return montoDesdeTexto(v);
+}
+
+/** ¿Parece código NCM/HS arancelario y no un nº de lote u orden? */
+function ncmArancelarioValido(raw: string): boolean {
+  const t = raw.trim().toUpperCase();
+  if (!t) return false;
+  if (/^\d{4}(\.\d{2}){1,2}(\.\d{2})?[A-Z0-9]{0,2}$/.test(t)) return true;
+  const dig = t.replace(/\D/g, "");
+  return dig.length >= 8 && dig.length <= 10;
+}
+
+function corregirCantidadVsPeso(merc: MercaderiaDocumento): MercaderiaDocumento {
+  const c = merc.cantidad;
+  const pn = merc.peso_neto;
+  if (!c || !pn) return merc;
+  const nc = numeroDesdeCampo(c);
+  const np = numeroDesdeCampo(pn);
+  if (nc == null || np == null || np <= 0) return merc;
+  const texto = `${c} ${pn}`;
+  if (!/\b(MT|TNE|TON|KG|KGS)\b/i.test(texto)) return merc;
+  // Precio unitario USD/MT confundido con cantidad (orden de magnitud menor que el peso).
+  if (nc < np * 0.2) {
+    const out = { ...merc };
+    out.cantidad = pn;
+    return out;
+  }
+  return merc;
+}
+
 /** Descarta cantidad/peso que repite el total de la factura (error frecuente en CO). */
 function filtrarMercaderiaRuidoComercial(
   merc: MercaderiaDocumento | null,
   comercial: DatosDocumentoOperacion["comercial"],
 ): MercaderiaDocumento | null {
   if (!merc) return null;
+  let out = corregirCantidadVsPeso(merc);
   const vf = montoNormalizado(comercial?.valor_factura);
-  if (!vf) return merc;
-  const out = { ...merc };
+  if (!vf) return out;
   if (out.cantidad && montoNormalizado(out.cantidad) === vf) delete out.cantidad;
   if (out.peso_neto && montoNormalizado(out.peso_neto) === vf) delete out.peso_neto;
   if (out.peso_bruto && montoNormalizado(out.peso_bruto) === vf) {
@@ -1199,22 +1298,65 @@ function normalizarPartes(raw: unknown): ParteDocumento[] | null {
     if (id) parte.identificacion = id;
     out.push(parte);
   }
-  return out.length ? out : null;
+  return depurarPartesDocumento(out);
+}
+
+function claveParteCanon(parte: ParteDocumento): string {
+  const bits = [parte.nombre, parte.domicilio, parte.pais, parte.identificacion]
+    .map((v) =>
+      String(v ?? "")
+        .toUpperCase()
+        .normalize("NFD")
+        .replace(/\p{M}/gu, "")
+        .replace(/[^A-Z0-9]+/g, " ")
+        .trim(),
+    )
+    .filter(Boolean);
+  return bits.join(" | ");
+}
+
+function etiquetaParteEsOrigen(etiqueta: string): boolean {
+  return /\b(SELLER|SHIPPER|SHIP(?:PED)? FROM|EXPORTER|PRODUCER|SOLD FROM|REMITENTE|EXPORTADOR|VENDEDOR)\b/i.test(
+    etiqueta,
+  );
+}
+
+function etiquetaParteEsDestino(etiqueta: string): boolean {
+  return /\b(BUYER|BILL TO|SHIP TO|SOLD TO|CONSIGNEE|ULTIMATE CONSIGNEE|DESTINATARIO|CONSIGNATARIO|IMPORTADOR)\b/i.test(
+    etiqueta,
+  );
+}
+
+function depurarPartesDocumento(partes: ParteDocumento[]): ParteDocumento[] | null {
+  const unicas: ParteDocumento[] = [];
+  const vistas = new Set<string>();
+  for (const parte of partes) {
+    const key = `${parte.etiqueta.toUpperCase()}::${claveParteCanon(parte)}`;
+    if (vistas.has(key)) continue;
+    vistas.add(key);
+    unicas.push(parte);
+  }
+  const origen = unicas.filter((p) => etiquetaParteEsOrigen(p.etiqueta));
+  const destino = unicas.filter((p) => etiquetaParteEsDestino(p.etiqueta));
+  const tieneDestinoDistinto = destino.some(
+    (d) => !origen.some((o) => claveParteCanon(o) === claveParteCanon(d)),
+  );
+  const filtradas = unicas.filter((parte) => {
+    if (!tieneDestinoDistinto || !etiquetaParteEsDestino(parte.etiqueta)) return true;
+    return !origen.some((o) => claveParteCanon(o) === claveParteCanon(parte));
+  });
+  return filtradas.length ? filtradas : null;
 }
 
 /** Vendedor/exportador para importación (preferir partes[] sobre contraparte ambigua). */
 export function vendedorDesdeExtraccion(
   datos: Pick<DatosDocumentoOperacion, "partes" | "mercaderia">,
 ): string | undefined {
-  const patrones = [
-    /\bseller\b/i,
-    /\bvendedor\b/i,
-    /\bexportador\b/i,
-    /\bshipper\b/i,
-    /\bsold to\b/i,
-  ];
+  // El vendedor es la parte del lado ORIGEN (Seller / Sold From / Shipper /
+  // Exporter), NUNCA la del lado destino (Sold To / Bill To / Consignee =
+  // comprador). Reusamos la clasificación canónica para no volver a errar.
   for (const p of datos.partes ?? []) {
-    if (patrones.some((re) => re.test(p.etiqueta))) {
+    if (etiquetaParteEsOrigen(p.etiqueta) && !etiquetaParteEsDestino(p.etiqueta)) {
       const linea = [p.nombre, p.domicilio, p.pais].filter(Boolean).join(", ");
       if (linea.trim()) return linea.trim();
     }
@@ -1228,7 +1370,8 @@ function normalizarMercaderiaDocumento(raw: unknown): MercaderiaDocumento | null
   const out: MercaderiaDocumento = {};
   const contraparte = strCampo(src.contraparte);
   const mercaderia = strCampo(src.mercaderia);
-  const ncm = strCampo(src.ncm);
+  const ncmRaw = strCampo(src.ncm);
+  const ncm = ncmRaw && ncmArancelarioValido(ncmRaw) ? ncmRaw : undefined;
   const marca = strCampo(src.marca);
   const unidad = strCampo(src.unidad);
   const tipoEmb = strCampo(src.tipo_embalaje);
@@ -1275,6 +1418,7 @@ function normalizarMercaderiaDocumento(raw: unknown): MercaderiaDocumento | null
   if (pn) out.peso_neto = pn;
   if (pb) out.peso_bruto = pb;
   completarUnidadPeso(out);
+  sanearCantidadMercaderia(out);
   return Object.keys(out).length ? out : null;
 }
 
@@ -1292,6 +1436,62 @@ function completarUnidadPeso(merc: MercaderiaDocumento): void {
     if (/\b(mt|mts|ton|metric ton)\b/i.test(refUnidad)) {
       merc[key] = `${n} MT`;
     }
+  }
+}
+
+function sanearCantidadMercaderia(merc: MercaderiaDocumento): void {
+  const cantidad = merc.cantidad?.trim();
+  if (merc.bultos && UNIDAD_PESO_DOC.test(merc.bultos)) {
+    const pesoBultos = merc.bultos;
+    if (!merc.peso_bruto) merc.peso_bruto = pesoBultos;
+    delete merc.bultos;
+  }
+  if (!cantidad) return;
+  const tienePeso = UNIDAD_PESO_DOC.test(cantidad);
+  const tieneBulto =
+    /\b(rl|rolls?|ea|pcs?|pieces?|pc|p[çc]|units?|bags?|bundles?|pallets?|bultos?)\b/i.test(
+      cantidad,
+    );
+
+  if (tienePeso && tieneBulto) {
+    const m = cantidad.match(
+      /([\d][\d.,]*)\s*(MT|MTS|TM|TON|TONS|KGS?|KG|LBS?|LB)\b/i,
+    );
+    if (m && !merc.peso_neto) {
+      merc.peso_neto = `${m[1]} ${m[2].toUpperCase()}`;
+    }
+    delete merc.cantidad;
+    if (merc.unidad && !UNIDAD_PESO_DOC.test(merc.unidad)) delete merc.unidad;
+    return;
+  }
+
+  if (
+    tienePeso &&
+    merc.bultos &&
+    !UNIDAD_PESO_DOC.test(merc.bultos) &&
+    merc.unidad &&
+    !UNIDAD_PESO_DOC.test(merc.unidad)
+  ) {
+    if (!merc.peso_neto) {
+      merc.peso_neto = cantidad;
+    }
+    delete merc.cantidad;
+    if (new RegExp(`\\b${merc.unidad.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(merc.bultos)) {
+      delete merc.unidad;
+    }
+  }
+
+  if (
+    merc.cantidad &&
+    merc.peso_neto &&
+    merc.bultos &&
+    /\b(KG|KGS|LB|LBS)\b/i.test(merc.cantidad) &&
+    montoDesdeTexto(merc.cantidad) != null &&
+    montoDesdeTexto(merc.peso_neto) != null &&
+    Math.abs(montoDesdeTexto(merc.cantidad)! - montoDesdeTexto(merc.peso_neto)!) < 0.05
+  ) {
+    delete merc.cantidad;
+    if (merc.unidad && !UNIDAD_PESO_DOC.test(merc.unidad)) delete merc.unidad;
   }
 }
 
@@ -1337,17 +1537,26 @@ function enriquecerOrigenDocumento(
   transporte: TransporteDocumento | null,
 ): OrigenDocumento | null {
   const out: OrigenDocumento = { ...(origen ?? {}) };
+  const tieneContextoTransporte = Boolean(
+    transporte?.puerto_origen?.trim() ||
+      transporte?.puerto_destino?.trim() ||
+      transporte?.medio_transporte?.trim() ||
+      transporte?.transportista?.trim() ||
+      transporte?.transporte_doc_nro?.trim(),
+  );
 
-  if (!out.pais_origen?.trim() && out.pais_procedencia?.trim()) {
+  if (!tieneContextoTransporte && !out.pais_origen?.trim() && out.pais_procedencia?.trim()) {
     out.pais_origen = out.pais_procedencia;
   }
 
   const puerto = transporte?.puerto_origen?.trim() ?? "";
-  if (!out.pais_origen?.trim() && puerto) {
+  if (!out.pais_procedencia?.trim() && puerto) {
     for (const frag of puerto.split(/[,/]/).map((s) => s.trim()).filter(Boolean)) {
-      const canon = nombrePaisCanonico(frag) ?? buscarPais(frag)?.nombre ?? null;
+      // Del puerto solo tomamos países realmente reconocidos; "MIA"/"BUE" no deben
+      // terminar persistiéndose como si fueran un país de origen/procedencia.
+      const canon = buscarPais(frag)?.nombre ?? null;
       if (canon) {
-        out.pais_origen = canon;
+        out.pais_procedencia = canon;
         break;
       }
     }
@@ -1356,7 +1565,7 @@ function enriquecerOrigenDocumento(
   const o = nombrePaisCanonico(out.pais_origen);
   const a = nombrePaisCanonico(out.pais_adquisicion);
   const p = nombrePaisCanonico(out.pais_procedencia);
-  if (o && a && p && o === a && p !== o) {
+  if (!tieneContextoTransporte && o && a && p && o === a && p !== o) {
     out.pais_origen = p;
   }
 
@@ -1393,7 +1602,7 @@ function normalizarTransporteDocumento(raw: unknown): TransporteDocumento | null
   const pd = strCampo(src.puerto_destino);
   const etaRaw = strCampo(src.eta);
   const eta = etaRaw ? parseFechaComercial(etaRaw) : null;
-  const medio = strCampo(src.medio_transporte);
+  const medio = traducirMedioTransporte(strCampo(src.medio_transporte));
   if (docNro) out.transporte_doc_nro = docNro;
   if (transportista) out.transportista = transportista;
   if (po) out.puerto_origen = po;
@@ -1401,6 +1610,20 @@ function normalizarTransporteDocumento(raw: unknown): TransporteDocumento | null
   if (eta) out.eta = eta;
   if (medio) out.medio_transporte = medio;
   return Object.keys(out).length ? out : null;
+}
+
+/**
+ * Traduce el modo de transporte al español (red de seguridad determinística por si
+ * el documento venía en inglés). Preserva el texto si no reconoce el modo.
+ */
+function traducirMedioTransporte(medio: string | undefined): string | undefined {
+  if (!medio) return undefined;
+  const v = medio.trim().toLowerCase();
+  if (/\b(road|ground|truck|carretera|cami[óo]n)\b/.test(v)) return "Terrestre";
+  if (/\b(air|aéreo|aereo|avi[óo]n)\b/.test(v)) return "Aéreo";
+  if (/\b(sea|ocean|maritim|vessel|buque|marítimo|maritimo)\b/.test(v)) return "Marítimo";
+  if (/\b(rail|ferrocarril|ferroviario|tren)\b/.test(v)) return "Ferroviario";
+  return medio;
 }
 
 function normalizarFormalidadesDocumento(raw: unknown): FormalidadesDocumento | null {
@@ -1737,6 +1960,7 @@ export async function leerDocumentoSubido(
   opts?: {
     tipoConocido?: DocType | null;
     contextoOperacion?: string | null;
+    esImportacion?: boolean;
   },
 ): Promise<
   Pick<
@@ -1758,6 +1982,7 @@ export async function leerDocumentoSubido(
     const r = await pipelineDocumentoSubido(archivo, {
       tipoConocido: opts?.tipoConocido,
       contextoOperacion: opts?.contextoOperacion,
+      esImportacion: opts?.esImportacion,
     });
     return {
       tipo: r.tipo,
@@ -1777,6 +2002,7 @@ export async function analizarDocumentoSubido(
   opts?: {
     tipoConocido?: DocType | null;
     contextoOperacion?: string | null;
+    esImportacion?: boolean;
   },
 ): Promise<AnalisisDocumentoSubido> {
   const leido = await leerDocumentoSubido(archivo, opts);

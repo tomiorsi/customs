@@ -349,9 +349,23 @@ export function normalizarViaCanon(
 ): ViaCanon | null {
   const v = (value ?? "").trim().toLowerCase();
   if (!v) return null;
-  if (v === "aerea" || v === "aereo" || v.startsWith("aer")) return "aerea";
-  if (v === "terrestre" || v.startsWith("terr")) return "terrestre";
-  if (v === "maritima" || v.startsWith("mar")) return "maritima";
+  if (v === "aerea" || v === "aereo" || v.startsWith("aer") || /\b(air|awb|airway)\b/.test(v)) {
+    return "aerea";
+  }
+  if (
+    v === "terrestre" ||
+    v.startsWith("terr") ||
+    /\b(road|ground|truck|crt|carretera|camion|camión)\b/.test(v)
+  ) {
+    return "terrestre";
+  }
+  if (
+    v === "maritima" ||
+    v.startsWith("mar") ||
+    /\b(ocean|vessel|bl|b\/l|sea|naviera|acuatico|acuático)\b/.test(v)
+  ) {
+    return "maritima";
+  }
   return null;
 }
 

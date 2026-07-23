@@ -1,0 +1,79 @@
+{
+  "carpeta": "2",
+  "operacion": {
+    "tipo": "importacion",
+    "via": "aerea",
+    "ncm": "8537.10.20",
+    "pais_origen": "MX, CN",
+    "incoterm": "FCA"
+  },
+  "documentos": [
+    {
+      "file": "Despacho arca.pdf",
+      "tipo": "despacho"
+    },
+    {
+      "file": "comercial invoice 2.pdf",
+      "tipo": "factura_comercial"
+    },
+    {
+      "file": "comercial invoice 3.pdf",
+      "tipo": "factura_comercial"
+    },
+    {
+      "file": "comercial invoice.pdf",
+      "tipo": "factura_comercial"
+    },
+    {
+      "file": "factura.pdf",
+      "tipo": "factura_comercial"
+    },
+    {
+      "file": "guia aerea.pdf",
+      "tipo": "transporte"
+    }
+  ],
+  "cruce_documentacion": {
+    "etapa": "documentacion",
+    "tipos_presentes": [
+      "despacho",
+      "factura_comercial",
+      "transporte"
+    ],
+    "resumen": "No se detectan inconsistencias ni faltantes en los documentos presentes.",
+    "faltantes": [],
+    "inconsistencias": [],
+    "alertas": [
+      {
+        "nivel": "ok",
+        "texto": "Consignatario aduanero (ICAP SA, CABA, Argentina) coincide con Ship To y Sold To. Destino aduanero Argentina confirmado. No hay inconsistencia por hub logístico Miami (forward point compatible con importación aérea)."
+      },
+      {
+        "nivel": "ok",
+        "texto": "NCM 8537.10.20 (herrajes, artículos similares de metal) es compatible con descripción de mercadería (transmisores inalámbricos, componentes de metal/electrónica). Tributación VUCE: DIE 12.6%, DII 0%, TE 0%, IVA 10.5%."
+      }
+    ],
+    "refs_faltantes_ok": "0/0",
+    "refs_alertas_warn": 0
+  },
+  "cruce_embarque": {
+    "etapa": "embarque",
+    "tipos_presentes": [
+      "despacho",
+      "factura_comercial",
+      "transporte"
+    ],
+    "resumen": "No se detectan inconsistencias ni faltantes en los documentos presentes.",
+    "faltantes": [],
+    "inconsistencias": [],
+    "alertas": [
+      {
+        "nivel": "ok",
+        "texto": "Consignatario aduanero en AWB (ICAP S.A., Argentina) coincide con Sold To / Ship To en factura. Destino aduanero Argentina confirmado."
+      }
+    ],
+    "refs_faltantes_ok": "0/0",
+    "refs_alertas_warn": 0
+  },
+  "segundos_cruce": 70.9
+}

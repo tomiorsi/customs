@@ -16,9 +16,10 @@ import {
   embebidoEsConfiable,
   extraerCapaTextoPdf,
   textosLecturaIdenticos,
+  type CapaTextoPdf,
   type MetaLectura,
 } from "@/lib/capa-texto-pdf";
-import { interpretarLecturaDocumento, serializarDatosDocumento } from "@/lib/interpretacion-documento";
+import { interpretarLecturaDocumentoFundada, serializarDatosDocumento } from "@/lib/interpretacion-documento";
 import {
   type ArchivoIA,
   type DatosDocumentoOperacion,
@@ -191,7 +192,7 @@ async function visionDesdePdf(
   archivo: ArchivoIA,
   buf: Buffer,
 ): Promise<{ texto: string; alertas: AlertaLectura[] }> {
-  const paginas = imagenesPdfEscaneo(buf);
+  const paginas = await imagenesPdfEscaneo(buf);
   if (paginas.length) {
     return transcribirConVision(archivo, buf, paginas);
   }
@@ -214,7 +215,7 @@ async function visionDesdePdf(
 }
 
 function metaDesdeCapa(
-  capa: ReturnType<typeof extraerCapaTextoPdf>,
+  capa: CapaTextoPdf,
   fuente: MetaLectura["fuente"],
   extra?: Partial<MetaLectura>,
 ): MetaLectura {
@@ -224,6 +225,8 @@ function metaDesdeCapa(
     chars_embebido: capa.texto.length,
     texto_embebido: capa.tieneTexto ? capa.texto : undefined,
     confiable_embebido: embebidoEsConfiable(capa),
+    ocr_usado: capa.ocrUsado,
+    paginas_ocr: capa.paginasOcr,
     ...extra,
   };
 }
@@ -237,11 +240,22 @@ async function transcribirPdf(
   meta: MetaLectura;
   interpretar: boolean;
 }> {
-  const capa = extraerCapaTextoPdf(buf);
+  const capa = await extraerCapaTextoPdf(buf);
   const confiable = embebidoEsConfiable(capa);
 
   // PDF nativo confiable, sin API: capa embebida ($0); interpretar sin validación dual.
   if (confiable && !iaDocsDisponible()) {
+    const alertas = auditarLectura(capa.texto).alertas;
+    return {
+      texto: capa.texto,
+      alertas,
+      meta: metaDesdeCapa(capa, "embebido"),
+      interpretar: true,
+    };
+  }
+
+  // OCR local (EasyOCR) ya transcribió páginas solo-imagen: no validación dual en cloud.
+  if (confiable && capa.ocrUsado && !capa.ocrFallo) {
     const alertas = auditarLectura(capa.texto).alertas;
     return {
       texto: capa.texto,
@@ -270,7 +284,7 @@ async function transcribirPdf(
       };
     }
 
-    const paginas = imagenesPdfEscaneo(buf);
+    const paginas = await imagenesPdfEscaneo(buf);
     const verificado = await verificarLecturaConPdf(
       archivo,
       paginas,
@@ -467,7 +481,11 @@ export function serializarLectura(lectura: LecturaDocumento): string {
 
 export async function pipelineDocumentoSubido(
   archivo: ArchivoIA,
-  opts?: { tipoConocido?: DocType | null; contextoOperacion?: string | null },
+  opts?: {
+    tipoConocido?: DocType | null;
+    contextoOperacion?: string | null;
+    esImportacion?: boolean;
+  },
 ): Promise<ResultadoPipelineDocumento> {
   const tipo = opts?.tipoConocido ?? "otro";
 
@@ -512,13 +530,18 @@ export async function pipelineDocumentoSubido(
 
     let datos: DatosDocumentoOperacion = { ...VACIO_DATOS_DOC };
     if (lecturaTieneContenido(lectura) && interpretar) {
-      datos = await interpretarLecturaDocumento({
+      const fundado = await interpretarLecturaDocumentoFundada({
         texto: lectura.texto,
         nombreArchivo: archivo.nombre,
         tipo,
         rol: archivo.rol,
         contextoOperacion: opts?.contextoOperacion ?? null,
+        esImportacion: opts?.esImportacion,
       });
+      datos = fundado.datos;
+      for (const v of fundado.vacios) {
+        vacios.push(v);
+      }
     }
 
     const resumenDatos =
@@ -559,7 +582,12 @@ function lecturaDesdeCache(doc: DocMeta): LecturaDocumento | null {
 }
 
 export function contextoDocumentosParaCruce(docs: DocMeta[]): string | null {
-  const lineas: string[] = [];
+  const lineas: string[] = [
+    "NOTA: transporte_doc_nro y referencias pueden ser nº de factura, de certificado de origen o de documento de transporte (cada uno con formato propio).",
+    "NOTA valoración: transporte sin valor propio (NVD/NCV, as per invoice) o cargo/flete del carrier ≠ valor factura. " +
+    "CRT/CMR casilla 16 con valor declarado sí es comparable con factura.",
+    "NOTA pesos: cantidad/peso neto de mercadería ≠ peso bruto total del embarque (gross weight en transporte).",
+  ];
   for (const d of docs) {
     const lectura = lecturaDesdeCache(d);
     const raw = rawDatosDesdeCache(d);
@@ -582,7 +610,7 @@ export function contextoDocumentosParaCruce(docs: DocMeta[]): string | null {
     }
     lineas.push("");
   }
-  return lineas.length ? lineas.join("\n").trim() : null;
+  return lineas.length > 1 ? lineas.join("\n").trim() : null;
 }
 
 export const lecturaBrutaTieneContenido = lecturaTieneContenido;

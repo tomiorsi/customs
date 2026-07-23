@@ -29,11 +29,50 @@ const SYSTEM_EVALUAR =
   "REGLAS GLOBALES:\n" +
   "1. Fundamentá warn/error SOLO con artículos del MARCO provisto (ref obligatoria).\n" +
   "2. ok: documento legible y, en aislamiento, sin defecto legal evidente — sé concreto.\n" +
-  "3. No exijas otros documentos (certificado, BL, etc.): eso es cruce posterior.\n" +
-  "4. No apliques requisitos de prueba de origen (ROM) a un packing list o factura " +
-  "en aislamiento salvo que el documento SEA la declaración/certificado de origen.\n" +
+  "3. No exijas otros documentos (certificado, BL, packing, CO, etc.): eso es cruce posterior.\n" +
+  "4. No apliques requisitos de prueba de origen (ROM) a un packing list, factura, transporte " +
+  "o gastos en aislamiento salvo que el documento SEA la declaración/certificado de origen.\n" +
   "5. No marques error por roles comerciales distintos (productor ≠ importador) si es habitual.\n" +
   "6. No inventes datos que no estén en la transcripción.\n";
+
+function filtrarHallazgosEvaluacionAislada(
+  hallazgos: HallazgoItem[],
+  docType: DocType,
+): HallazgoItem[] {
+  const sinRomNiOtrosDocs = new Set<DocType>([
+    "transporte",
+    "transporte_borrador",
+    "packing_list",
+    "factura_comercial",
+    "proforma",
+    "factura_gastos",
+    "remito",
+    "liberacion_transporte",
+    "cotizacion_forwarder",
+  ]);
+  if (!sinRomNiOtrosDocs.has(docType)) return hallazgos;
+
+  return hallazgos.filter((h) => {
+    const ref = String(h.ref ?? "").trim().toUpperCase();
+    if (ref.startsWith("ROM")) return false;
+    const t = h.texto.toLowerCase();
+    if (
+      /certificado de origen|prueba de origen|declaraci[oó]n de origen|autocertific|sin prueba de origen/.test(
+        t,
+      )
+    ) {
+      return false;
+    }
+    if (
+      /adjunt[aeá]\s+(el\s+)?(certificado|co\b|packing|bl\b|conocimiento|origen)/i.test(
+        t,
+      )
+    ) {
+      return false;
+    }
+    return true;
+  });
+}
 
 function parseHallazgos(raw: Record<string, unknown>): HallazgoItem[] {
   if (!Array.isArray(raw.hallazgos)) return [];
@@ -70,6 +109,10 @@ export function vaciosVisiblesUsuario(
 ): VacioInterpretacion[] {
   return (vacios ?? []).filter((v) => {
     if (v.campo === "lectura_dual") return false;
+    // Los descartes de "interpretación" son limpieza interna del motor
+    // (p. ej. campos inventados/no anclados). Ayudan a depurar la extracción,
+    // pero no aportan al operador al subir el documento y generan ruido.
+    if (String(v.donde ?? "").trim().toLowerCase() === "interpretación") return false;
     const m = `${v.donde} ${v.motivo}`.toLowerCase();
     return !/capa|visi[oó]n|arbitraje|embebida|py\s*mupdf/.test(m);
   });
@@ -106,6 +149,258 @@ export type EvaluarHallazgosInput = {
   vacios?: VacioInterpretacion[];
 };
 
+function parseNumeroFlexible(raw: string | null | undefined): number | null {
+  if (raw == null) return null;
+  let s = String(raw).replace(/[^\d.,-]/g, "").trim();
+  if (!s) return null;
+  const tieneComa = s.includes(",");
+  const tienePunto = s.includes(".");
+  if (tieneComa && tienePunto) {
+    if (s.lastIndexOf(",") > s.lastIndexOf(".")) {
+      s = s.replace(/\./g, "").replace(",", ".");
+    } else {
+      s = s.replace(/,/g, "");
+    }
+  } else if (tieneComa) {
+    s = s.replace(",", ".");
+  }
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+}
+
+function ncm8(raw: string | null | undefined): string {
+  return (raw ?? "").replace(/\D/g, "").slice(0, 8);
+}
+
+function incotermCodigo(raw: string | null | undefined): string {
+  const v = (raw ?? "").trim().toUpperCase();
+  const m = v.match(/\b([A-Z]{3})\b/);
+  return m?.[1] ?? v.slice(0, 3);
+}
+
+function esUnidadPiezas(raw: string): boolean {
+  return /\b(PC|PIEZA|PÇ|PZ|PCS|PEÇA|PEÇAS)\b/i.test(raw);
+}
+
+function esUnidadPeso(raw: string): boolean {
+  return /\b(KG|KILO|KILOGRAMO|KGS|TON|TO|MT)\b/i.test(raw);
+}
+
+function esEmbalajeFisico(raw: string): boolean {
+  return /\b(BULTO|BULTOS|COLIS|PACKAGE|BAG|ROLL|ROLLS|PALLET)\b/i.test(raw);
+}
+
+/** Bultos físicos (camión, pallet, etc.), no piezas comerciales (270 PC). */
+function numeroBultosFisicos(raw: string | null | undefined): number | null {
+  const s = (raw ?? "").trim();
+  if (!s) return null;
+  if (esUnidadPiezas(s) && !esEmbalajeFisico(s)) return null;
+  const m = s.match(/^(\d+)/);
+  if (m) return Number(m[1]);
+  const n = parseNumeroFlexible(s);
+  return n != null && n <= 999 ? n : null;
+}
+
+function numerosEquivalentes(
+  a: string,
+  b: string,
+  tolPct = 0.01,
+): boolean {
+  const na = parseNumeroFlexible(a);
+  const nb = parseNumeroFlexible(b);
+  if (na == null || nb == null) return false;
+  const tol = Math.max(1, Math.abs(na) * tolPct);
+  if (Math.abs(na - nb) <= tol) return true;
+  // Punto decimal perdido en extracción (5002 ↔ 50,02).
+  if (na >= 100 && nb < 1000 && Math.abs(na / 100 - nb) <= tol) return true;
+  if (nb >= 100 && na < 1000 && Math.abs(nb / 100 - na) <= tol) return true;
+  return false;
+}
+
+function normalizarDocTransporte(raw: string): string {
+  return raw.replace(/[^A-Z0-9]/gi, "").toUpperCase();
+}
+
+function docsTransporteEquivalentes(
+  carpeta: string,
+  sim: string,
+): boolean {
+  const na = normalizarDocTransporte(carpeta);
+  const nb = normalizarDocTransporte(sim);
+  if (!na || !nb) return false;
+  if (na === nb) return true;
+  if (na.endsWith(nb) || nb.endsWith(na)) return true;
+  return na.includes(nb) || nb.includes(na);
+}
+
+function pareceReferenciaFactura(raw: string): boolean {
+  const n = normalizarDocTransporte(raw);
+  return /^\d{7,14}$/.test(n);
+}
+
+function pareceDocumentoTransporte(raw: string): boolean {
+  return /[A-Z]{2,}/i.test(raw);
+}
+
+/** Paso 5: cruce despacho SIM vs carpeta; no revalida intervenciones VUCE. */
+function evaluarHallazgosDespachoContraCarpeta(
+  op: OperationWithClient,
+  input: EvaluarHallazgosInput,
+): HallazgoItem[] {
+  const hallazgos: HallazgoItem[] = [];
+  const vaciosHallazgos = hallazgoDesdeVacios(input.vacios ?? []);
+  const d = input.datos;
+
+  const compararTexto = (
+    label: string,
+    carpeta: string | null | undefined,
+    sim: string | null | undefined,
+  ) => {
+    const a = (carpeta ?? "").trim();
+    const b = (sim ?? "").trim();
+    if (!a || !b) return;
+    if (a.toLowerCase() === b.toLowerCase()) return;
+    hallazgos.push({
+      nivel: "warn",
+      texto: `${label}: carpeta «${a}» · SIM «${b}».`,
+    });
+  };
+
+  const compararNumero = (
+    label: string,
+    carpeta: string | null | undefined,
+    sim: string | null | undefined,
+  ) => {
+    const a = (carpeta ?? "").trim();
+    const b = (sim ?? "").trim();
+    if (!a || !b) return;
+    if (numerosEquivalentes(a, b)) return;
+    hallazgos.push({
+      nivel: "warn",
+      texto: `${label}: carpeta ${a} · SIM ${b}.`,
+    });
+  };
+
+  const compararNcm = (
+    carpeta: string | null | undefined,
+    sim: string | null | undefined,
+  ) => {
+    const a = ncm8(carpeta);
+    const b = ncm8(sim);
+    if (!a || !b) return;
+    if (a === b) return;
+    hallazgos.push({
+      nivel: "warn",
+      texto: `NCM: carpeta ${carpeta?.trim()} · SIM ${sim?.trim()}.`,
+    });
+  };
+
+  const compararIncoterm = (
+    carpeta: string | null | undefined,
+    sim: string | null | undefined,
+  ) => {
+    const a = incotermCodigo(carpeta);
+    const b = incotermCodigo(sim);
+    if (!a || !b) return;
+    if (a === b) return;
+    hallazgos.push({
+      nivel: "warn",
+      texto: `Incoterm: carpeta ${carpeta?.trim()} · SIM ${sim?.trim()}.`,
+    });
+  };
+
+  const compararBultosFisicos = () => {
+    const nbCarpeta = numeroBultosFisicos(op.bultos);
+    const nbSim = numeroBultosFisicos(d.mercaderia?.bultos);
+    if (nbCarpeta == null || nbSim == null) return;
+    if (nbCarpeta === nbSim) return;
+    hallazgos.push({
+      nivel: "warn",
+      texto: `Bultos físicos: carpeta ${op.bultos?.trim()} · SIM ${d.mercaderia?.bultos?.trim()}.`,
+    });
+  };
+
+  const compararCantidadOPeso = () => {
+    const simCant = (d.mercaderia?.cantidad ?? "").trim();
+    const simPeso = (d.mercaderia?.peso_neto ?? "").trim();
+    const carpetaCant = (op.cantidad ?? "").trim();
+    const carpetaPeso = (op.peso_neto ?? "").trim();
+    const carpetaUnidad = (op.unidad ?? "").trim();
+
+    // SIM declara cantidad estadística en kg → comparar peso neto, no piezas.
+    if (esUnidadPeso(simCant) || esUnidadPeso(simPeso)) {
+      const refSim = simPeso || simCant;
+      if (carpetaPeso && refSim) {
+        compararNumero("Peso neto (cant. estadística SIM)", carpetaPeso, refSim);
+      }
+      return;
+    }
+
+    if (
+      esUnidadPiezas(carpetaCant) ||
+      esUnidadPiezas(carpetaUnidad) ||
+      esUnidadPiezas(op.bultos ?? "")
+    ) {
+      return;
+    }
+
+    if (carpetaCant && simCant) {
+      compararNumero("Cantidad", carpetaCant, simCant);
+    }
+  };
+
+  const compararDocumentoTransporte = () => {
+    const carpeta = (op.transporte_doc_nro ?? "").trim();
+    const sim = (d.transporte?.transporte_doc_nro ?? "").trim();
+    if (!carpeta || !sim) return;
+    if (docsTransporteEquivalentes(carpeta, sim)) return;
+    // Carpeta con nro de factura y SIM con CRT: no es contradicción del despacho.
+    if (pareceReferenciaFactura(carpeta) && pareceDocumentoTransporte(sim)) {
+      return;
+    }
+    compararTexto("Documento de transporte", carpeta, sim);
+  };
+
+  compararNcm(op.ncm, d.mercaderia?.ncm);
+  compararNumero("Peso neto", op.peso_neto, d.mercaderia?.peso_neto);
+  compararNumero("Peso bruto", op.peso_bruto, d.mercaderia?.peso_bruto);
+  compararBultosFisicos();
+  compararCantidadOPeso();
+  compararNumero("FOB", op.valor_fob, d.comercial?.valor_fob);
+  compararNumero("Flete", op.flete, d.comercial?.flete);
+  compararNumero("Seguro", op.seguro, d.comercial?.seguro);
+  compararNumero("Valor en aduana (CIF)", op.valor_cif, d.comercial?.valor_cif);
+  compararIncoterm(op.incoterm, d.comercial?.incoterm);
+  compararDocumentoTransporte();
+  compararTexto("País de origen", op.pais_origen, d.origen?.pais_origen);
+  compararTexto(
+    "País de procedencia",
+    op.pais_procedencia,
+    d.origen?.pais_procedencia,
+  );
+
+  if (hallazgos.length === 0) {
+    return [
+      {
+        nivel: "ok",
+        texto:
+          "Despacho oficializado coherente con la carpeta en NCM, pesos, bultos, valoración y transporte.",
+      },
+      ...vaciosHallazgos,
+    ];
+  }
+  return [...hallazgos, ...vaciosHallazgos];
+}
+
+/** Texto breve del cruce post-oficialización (reemplaza el resumen narrativo largo). */
+export function resumenCruceDespacho(hallazgos: HallazgoItem[]): string {
+  const difs = hallazgos.filter((h) => h.nivel === "warn" || h.nivel === "error");
+  if (difs.length === 0) {
+    return "Cruce post-oficialización: el SIM coincide con la carpeta en los campos clave.";
+  }
+  return `Cruce post-oficialización: ${difs.length} diferencia${difs.length === 1 ? "" : "s"} contra la carpeta (ver abajo).`;
+}
+
 /**
  * Hallazgos legales/técnicos de UN documento (siempre ≥1 ítem).
  */
@@ -115,6 +410,19 @@ export async function evaluarHallazgosDocumentoSubido(
 ): Promise<HallazgoItem[]> {
   const lectura = input.lectura.trim();
   const vaciosHallazgos = hallazgoDesdeVacios(input.vacios ?? []);
+
+  if (input.docType === "despacho") {
+    if (!lectura || lectura.length < 40) {
+      return vaciosHallazgos.length
+        ? vaciosHallazgos
+        : hallazgoMinimo(
+            input.docType,
+            input.fileName,
+            "lectura insuficiente; revisar PDF o reintentar.",
+          );
+    }
+    return evaluarHallazgosDespachoContraCarpeta(op, input);
+  }
 
   if (!lectura || lectura.length < 40) {
     return vaciosHallazgos.length
@@ -172,6 +480,7 @@ export async function evaluarHallazgosDocumentoSubido(
     });
 
     let hallazgos = parseHallazgos(raw);
+    hallazgos = filtrarHallazgosEvaluacionAislada(hallazgos, input.docType);
     if (!hallazgos.length) {
       hallazgos = [
         {

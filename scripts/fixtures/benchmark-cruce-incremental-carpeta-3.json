@@ -1,0 +1,143 @@
+{
+  "carpeta": "3",
+  "pasos": [
+    {
+      "paso": 1,
+      "archivo": "invoice.pdf",
+      "tipo": "factura_comercial",
+      "etapas": [
+        "apertura",
+        "documentacion",
+        "embarque"
+      ],
+      "abrirEmbarque": false,
+      "segundos": 18.4,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Factura comercial legible. Partes identificadas (vendedor USA, importador Argentina DAYPLAS S.A., destino aduanero correcto). Mercadería descrita con especificaciones técnicas (poliuretano, medidas, cantidad de rollos). NCM 3920.99.0000 coherente con producto. Incoterm FCA MIAMI válido. Valor factura 22.767,20 USD declarado. Documento apto para trámite aduanero en aislamiento."
+        },
+        {
+          "nivel": "warn",
+          "texto": "interpretación: peso sin etiqueta total explícita en factura multiproducto; probable línea parcial"
+        }
+      ],
+      "cruce_documentacion": {
+        "resumen": "Importación de poliuretano (NCM 3920.99.0000) desde Estados Unidos. Operación con factura comercial presente. Origen extrazona (EE.UU.) no requiere ROM. Incoterm FCA MIAMI coherente con hub logístico en Miami. Se identifican faltantes críticos de documentación de transporte y aduanera.",
+        "faltantes": [],
+        "inconsistencias": [],
+        "alertas": [
+          {
+            "nivel": "ok",
+            "texto": "Origen Estados Unidos (extrazona): ROM/ACE 18 no aplica. Operación correctamente clasificada como importación de terceros países."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Incoterm FCA MIAMI coherente con operación: punto de entrega en Miami (hub logístico), consignatario aduanero final es DAYPLAS S.A. en Argentina. No hay contradicción entre Ship To (Miami) y Bill To (Buenos Aires)."
+          }
+        ]
+      },
+      "cruce_embarque": null,
+      "operacion": {
+        "ncm": "3920.99.0000",
+        "pais_origen": "Estados Unidos",
+        "via": null,
+        "incoterm": "FCA MIAMI",
+        "valor_factura": "22767.2"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial"
+      ]
+    },
+    {
+      "paso": 2,
+      "archivo": "awl.pdf",
+      "tipo": "transporte",
+      "etapas": [
+        "embarque"
+      ],
+      "abrirEmbarque": true,
+      "segundos": 21.6,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Documento de transporte aéreo (AWL/AWB) legible. Identifica shipper (MJR ENTERPRISES CORP, USA), consignee (DAYPLAS S.A., Buenos Aires, CUIT 33582498739), transportista (ATLAS AIR), mercadería (Polyurethane HP800), peso neto 850 kg, NCM 3920.99, destino aduanero Argentina, incoterm FCA MIAMI. En aislamiento, documento presenta estructura y datos esenciales sin defecto legal evidente para transporte aéreo."
+        },
+        {
+          "nivel": "warn",
+          "texto": "interpretación: total cargo AWB; no es peso bruto"
+        },
+        {
+          "nivel": "warn",
+          "texto": "interpretación: columna peso×tarifa AWB; flete es el cargo total"
+        }
+      ],
+      "cruce_documentacion": null,
+      "cruce_embarque": {
+        "resumen": "Importación aérea de poliuretanos (NCM 3920.99.0000) desde EE.UU. a Argentina. Se presentan Factura comercial y AWB. Se detectan inconsistencias en identificación de mercadería, cantidad/peso y numeración de documentos. Faltante: declaración de valor en aduana (DUA/DUCA) conforme Código Aduanero Arts. 130-132, 217.",
+        "faltantes": [],
+        "inconsistencias": [
+          "Descripción de mercadería: Factura detalla 'POLYURETHANE HP-8000 .025\" x 60\" (2 ROLLS); POLYURETHANE HP-8000 .050\" x 60\" (6 ROLLS); SD-1700 PET/TPU 60\" x 200' (1 ROLL)' vs AWB solo menciona 'Polyurethane HP800' sin especificar tipos, espesores ni cantidades de rolls. Inconsistencia en identificación de ítems.",
+          "Numeración de documentos: Factura nº 'MJR5351' vs AWB nº 'AXL219875'. Son identificadores de documentos distintos (factura vs transporte), pero no consta referencia cruzada explícita entre ambos en los datos extraídos."
+        ],
+        "alertas": [
+          {
+            "nivel": "ok",
+            "texto": "NCM 3920.99.0000 (poliuretanos) coincide entre factura y AWB. Tributación VUCE: DIE 16%, DII 0%, TE 3%, IVA 21%. Sin intervenciones registradas."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Origen Estados Unidos (extrazona): no aplica Régimen de Origen Mercosur (ROM/ACE 18). No se exige certificado de origen MERCOSUR."
+          }
+        ]
+      },
+      "operacion": {
+        "ncm": "3920.99.0000",
+        "pais_origen": "Estados Unidos",
+        "via": "aerea",
+        "incoterm": "FCA MIAMI",
+        "valor_factura": "22767.2"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial",
+        "transporte"
+      ]
+    },
+    {
+      "paso": 3,
+      "archivo": "afip.pdf",
+      "tipo": "despacho",
+      "etapas": [],
+      "abrirEmbarque": true,
+      "segundos": 11.3,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Documentación de transporte y partes identificadas: importador (DAYPLAS S.A.), despachante (ORSI RICARDO CESAR VICENT), agente de transporte aduanero, vendedor (MJR ENTERPRISES OF COLLIER CORP., Estados Unidos). Datos de peso neto (616,89 kg), peso bruto (850 kg), bultos (1), incoterm (FCA MIAMI), vía aérea y referencia de factura (MJR5351) presentes."
+        },
+        {
+          "nivel": "ok",
+          "texto": "Valores de FOB (22.767,2) y flete (3.539) declarados. En aislamiento, estos datos permiten cálculo de valor CIF conforme Art. 8 OMC. No se detecta omisión de elementos de valoración en el documento de despacho."
+        },
+        {
+          "nivel": "ok",
+          "texto": "Origen Estados Unidos: no aplica Régimen de Origen Mercosur (ROM/ACE 18). No se exige certificado de origen MERCOSUR ni autocertificación ROM para esta operación."
+        }
+      ],
+      "cruce_documentacion": null,
+      "cruce_embarque": null,
+      "operacion": {
+        "ncm": "3920.99.0000",
+        "pais_origen": "Estados Unidos",
+        "via": "aerea",
+        "incoterm": "FCA MIAMI",
+        "valor_factura": "22767.2"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial",
+        "transporte",
+        "despacho"
+      ]
+    }
+  ]
+}

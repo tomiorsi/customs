@@ -1,7 +1,7 @@
 /**
  * Workflow interno del despachante (vista del operador), separado de lo que ve
  * el cliente. Modela el paso a paso real de una operación en Argentina (2026):
- * 10 etapas con sub-tareas y una "guía" que indica qué revisar en cada una.
+ * 8 etapas con sub-tareas y una "guía" que indica qué revisar en cada una.
  *
  * No es "server-only": se usa también en componentes cliente.
  */
@@ -51,12 +51,10 @@ const ETAPAS_IMPO: EtapaDef[] = [
     subtareas: [
       { id: "datos_cliente", label: "Datos del cliente revisados (tipo, vía, pago, país, mercadería, estado)" },
       { id: "doc_comercial", label: "Documento comercial recibido (pedido, proforma o factura)" },
-      { id: "ia_analisis", label: "IA: documento analizado y cruzado con lo que cargó el cliente" },
       { id: "ficha", label: "Ficha técnica / catálogo recibido (si aplica)" },
       { id: "incoterm", label: "Incoterm confirmado (define el reparto de tareas)" },
       { id: "importador", label: "Datos del importador verificados" },
       { id: "cotizacion_prelim", label: "Cotización preliminar compartida con el cliente" },
-      { id: "cargada", label: "Operación entendida y cargada" },
     ],
   },
   {
@@ -85,21 +83,13 @@ const ETAPAS_IMPO: EtapaDef[] = [
   },
   {
     id: "liquidacion",
-    label: "Liquidación de tributos",
-    guia: "Verificá el valor en aduana (CIF) y la liquidación de derechos, tasa estadística, IVA y percepciones. El panel arma la COTIZACIÓN TOTAL (tributos + logística + honorarios) según la NCM y el perfil fiscal del cliente. Los tributos los paga el cliente por VEP; el pago de logística que cobraste en embarque cubre los gastos de destino.",
+    label: "Liquidación y pago de tributos",
+    guia: "Verificá el valor en aduana (CIF) y la liquidación de derechos, tasa estadística, IVA y percepciones. El panel arma el resumen de fondos (VEP + adelanto logístico) según la NCM y el perfil fiscal del cliente. Generá el VEP y confirmá que el pago esté acreditado antes de oficializar. El VEP lo paga el cliente directo desde su CUIT; el adelanto de logística cubre los gastos de destino que el despachante adelanta.",
     estadoCliente: ESTADO_PREPARACION,
     subtareas: [
       { id: "cif", label: "Valor en aduana (CIF) determinado" },
       { id: "tributos", label: "Derechos, tasa, IVA y percepciones liquidados" },
-      { id: "cotizacion_total", label: "Cotización total confirmada con el cliente" },
-    ],
-  },
-  {
-    id: "pago",
-    label: "Pago de tributos (VEP)",
-    guia: "Generá el VEP y confirmá que el pago esté acreditado antes de oficializar. El VEP de tributos lo paga el cliente directo desde su CUIT (no se adelanta).",
-    estadoCliente: ESTADO_PREPARACION,
-    subtareas: [
+      { id: "cotizacion_total", label: "Resumen de fondos confirmado con el cliente" },
       { id: "vep", label: "VEP generado" },
       { id: "pago", label: "Pago del VEP confirmado (cliente)" },
     ],
@@ -107,19 +97,14 @@ const ETAPAS_IMPO: EtapaDef[] = [
   {
     id: "oficializacion",
     label: "Oficialización en SIM (Malvina)",
-    guia: "Revisá la carátula y todos los datos: una vez oficializada la destinación no se corrige fácil.",
+    guia: "Armá la carátula con la ficha y oficializá en Malvina. Después descargá el despacho oficializado y subilo en Documentos (la IA lo cruza contra la ficha). Cuando Aduana asigne el canal (verde / naranja / rojo), registrálo acá y avanzá a verificación.",
     estadoCliente: ESTADO_PRESENTADA,
     subtareas: [
       { id: "caratula", label: "Carátula armada y revisada" },
       { id: "oficializada", label: "Destinación oficializada en SIM" },
+      { id: "despacho", label: "Despacho oficializado cargado" },
+      { id: "canal", label: "Canal asignado registrado" },
     ],
-  },
-  {
-    id: "canal",
-    label: "Canal de selectividad",
-    guia: "Registrá el canal asignado (verde / naranja / rojo) y preparate según corresponda.",
-    estadoCliente: ESTADO_CANAL,
-    subtareas: [{ id: "canal", label: "Canal asignado registrado" }],
   },
   {
     id: "verificacion",
@@ -180,19 +165,13 @@ const EXPO_OVERRIDES: Record<string, Partial<EtapaDef>> = {
     ],
   },
   liquidacion: {
-    label: "Derechos de exportación",
-    guia: "Determiná el valor FOB (base imponible). Liquidá el DERECHO DE EXPORTACIÓN (retención) según la NCM y calculá el REINTEGRO que le corresponde al exportador (se cobra después del cumplido). Armá el COSTO de exportar hasta a bordo (retención + honorarios + gastos en origen). El reintegro NO es parte del costo: es un recupero posterior.",
+    label: "Derechos de exportación y pago",
+    guia: "Determiná el valor FOB (base imponible). Liquidá el DERECHO DE EXPORTACIÓN (retención) según la NCM y calculá el REINTEGRO que le corresponde al exportador (se cobra después del cumplido). Armá el COSTO de exportar hasta a bordo (retención + honorarios + gastos en origen). Si la posición tributa, generá y confirmá el pago de la retención antes de oficializar el permiso de embarque. El reintegro NO es parte del costo: es un recupero posterior.",
     subtareas: [
       { id: "fob", label: "Valor FOB (base imponible) determinado" },
       { id: "derecho_exportacion", label: "Derecho de exportación (retención) liquidado" },
       { id: "reintegro", label: "Reintegro calculado (recupero posterior al cumplido)" },
       { id: "costo_total", label: "Costo de exportar confirmado con el cliente" },
-    ],
-  },
-  pago: {
-    label: "Pago de derechos de exportación",
-    guia: "Si la posición tributa derecho de exportación, generá y confirmá el pago de la retención antes de oficializar el permiso de embarque. Muchas posiciones industriales están a 0%.",
-    subtareas: [
       { id: "vep", label: "VEP de derechos de exportación generado (si tributa)" },
       { id: "pago", label: "Pago de la retención confirmado (si corresponde)" },
     ],
@@ -640,6 +619,10 @@ export const ETAPA_IDS = ETAPAS_IMPO.map((e) => e.id);
  */
 const MIGRACION_ETAPAS: Record<string, string> = {
   clasificacion: "documentacion",
+  /** El pago del VEP se unificó con la liquidación de tributos. */
+  pago: "liquidacion",
+  /** El canal de selectividad se unificó con la oficialización en SIM. */
+  canal: "oficializacion",
 };
 
 /** Normaliza una etapa vieja a su equivalente actual. */
@@ -654,7 +637,7 @@ export function etapaIndex(etapaId: string | null): number {
 }
 
 export function esEtapaValida(etapaId: string): boolean {
-  return ETAPA_IDS.includes(etapaId);
+  return ETAPA_IDS.includes(normalizarEtapa(etapaId));
 }
 
 export function etapaDef(
@@ -677,7 +660,7 @@ export function etapaDesdeEstadoViejo(estado: string | null): string | null {
     case "Documentación":
       return "documentacion";
     case "Canal":
-      return "canal";
+      return "oficializacion";
     case "Liberada":
       return "retiro";
     case "Finalizada":
@@ -696,11 +679,27 @@ export function parseChecklist(raw: string | null): ChecklistEstado {
   if (!raw) return {};
   try {
     const obj = JSON.parse(raw) as unknown;
-    if (obj && typeof obj === "object") return obj as ChecklistEstado;
+    if (obj && typeof obj === "object") {
+      return migrarClavesChecklist(obj as ChecklistEstado);
+    }
   } catch {
     /* ignorar JSON inválido */
   }
   return {};
+}
+
+/** Reescribe claves de etapas fusionadas (ej. pago.vep → liquidacion.vep). */
+function migrarClavesChecklist(estado: ChecklistEstado): ChecklistEstado {
+  const out: ChecklistEstado = {};
+  for (const [clave, marca] of Object.entries(estado)) {
+    const punto = clave.indexOf(".");
+    const etapa = punto >= 0 ? clave.slice(0, punto) : clave;
+    const sub = punto >= 0 ? clave.slice(punto + 1) : "";
+    const etapaNueva = MIGRACION_ETAPAS[etapa] ?? etapa;
+    const claveNueva = sub ? `${etapaNueva}.${sub}` : etapaNueva;
+    if (!out[claveNueva]) out[claveNueva] = marca;
+  }
+  return out;
 }
 
 /** Clave única de una sub-tarea dentro de la operación: "<etapa>.<subtarea>". */

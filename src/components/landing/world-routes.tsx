@@ -56,12 +56,13 @@ export function WorldRoutes({ className = "" }: { className?: string }) {
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
-    /** Proyección: el mapa (2:1) se apoya centrado, apenas más ancho que el hero. */
+    /** Proyección: el mapa (2:1) centrado; en heros altos (mobile) se ancla
+     * más arriba para que no quede hundido al fondo de la sección. */
     function proyectar(nx: number, ny: number): [number, number] {
       const mapW = Math.max(W * 1.04, 900);
       const mapH = mapW * 0.5;
       const ox = (W - mapW) / 2;
-      const oy = (H - mapH) / 2;
+      const oy = Math.min((H - mapH) / 2, H * 0.16);
       return [ox + nx * mapW, oy + ny * mapH];
     }
 

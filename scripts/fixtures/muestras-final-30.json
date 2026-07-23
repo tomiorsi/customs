@@ -1,0 +1,222 @@
+{
+  "seed": 20260704,
+  "n": 30,
+  "plan": {
+    "maquina": 12,
+    "repuesto": 10,
+    "accesorio": 8
+  },
+  "excluidos": 250,
+  "muestras": [
+    {
+      "tipo": "maquina",
+      "ncm": "8438.20.11.000B",
+      "partida": "8438",
+      "producto": "Máquinas y aparatos para confitería, elaboración de cacao o la fabricación de chocolate, Para confitería, Elaboradora de bombones de chocolate por moldeo, de capacidad de producción superior o igual a 150 kg/h",
+      "descripcion_ncm": "Elaboradora de bombones de chocolate por moldeo, de capacidad de producción superior o igual a 150 kg/h"
+    },
+    {
+      "tipo": "maquina",
+      "ncm": "8482.10.10.141T",
+      "partida": "8482",
+      "producto": "Rodamientos de bolas, De una hilera de bolas, de diámetro exterior superior o igual a 30 mm pero inferior o igual a 120 mm, excepto: los tipificados como RST y los de aro interior extendido, De diámetro interior igual a 20 mm y diámetro exterior igual a 47 mm (Serie 6204 o designación equivalente a esa serie)",
+      "descripcion_ncm": "De diámetro interior igual a 20 mm y diámetro exterior igual a 47 mm (Serie 6204 o designación equivalente a esa serie)"
+    },
+    {
+      "tipo": "maquina",
+      "ncm": "8479.40.00.300E",
+      "partida": "8479",
+      "producto": "Máquinas de cordelería o cablería, Cableadoras",
+      "descripcion_ncm": "Cableadoras"
+    },
+    {
+      "tipo": "maquina",
+      "ncm": "8541.30.11.000N",
+      "partida": "8541",
+      "producto": "Tiristores, diacs y triacs, excepto los dispositivos fotosensibles, Sin montar, De intensidad de corriente inferior o igual a 3 A",
+      "descripcion_ncm": "De intensidad de corriente inferior o igual a 3 A"
+    },
+    {
+      "tipo": "maquina",
+      "ncm": "8511.80.20.000Z",
+      "partida": "8511",
+      "producto": "Los demás aparatos y dispositivos, Reguladores disyuntores",
+      "descripcion_ncm": "Reguladores disyuntores"
+    },
+    {
+      "tipo": "maquina",
+      "ncm": "8711.10.00.130J",
+      "partida": "8711",
+      "producto": "Con motor de embolo (pistón) de cilindrada inferior o igual a 50 cm3, Completas, Totalmente armada (CBU)",
+      "descripcion_ncm": "Totalmente armada (CBU)"
+    },
+    {
+      "tipo": "maquina",
+      "ncm": "8477.40.10.000L",
+      "partida": "8477",
+      "producto": "Máquinas de moldear en vacío y demás máquinas para termoformado, De moldear en vacío poliestireno expandido (EPS) o polipropileno expandido (EPP)",
+      "descripcion_ncm": "De moldear en vacío poliestireno expandido (EPS) o polipropileno expandido (EPP)"
+    },
+    {
+      "tipo": "maquina",
+      "ncm": "8413.50.10.300U",
+      "partida": "8413",
+      "producto": "Las demás bombas volumétricas alternativas, De potencia superior a 3,73 kW (5 HP) e inferior o igual a 447,42 kW (600 HP), excluidas las para oxígeno líquido, Con motor de accionamiento de potencia superior a 100 HP pero inferior o igual a 300 HP",
+      "descripcion_ncm": "Con motor de accionamiento de potencia superior a 100 HP pero inferior o igual a 300 HP"
+    },
+    {
+      "tipo": "maquina",
+      "ncm": "8456.11.11.000D",
+      "partida": "8456",
+      "producto": "Que operen mediante láser u otros haces de luz o de fotones:, Que operen mediante láser, De control numerico, Para corte de chapas metálicas de espesor superior a 8 mm",
+      "descripcion_ncm": "Para corte de chapas metálicas de espesor superior a 8 mm"
+    },
+    {
+      "tipo": "maquina",
+      "ncm": "9001.50.00.742Y",
+      "partida": "9001",
+      "producto": "Lentes de otras materias para gafas (anteojos), De poliuretano, con índice de refracción distinto de 1,53, Fotocromáticas, monofocales, De potencia esferica superior a +/- 2 dioptrías pero inferior o igual a +/- 4 dioptrías",
+      "descripcion_ncm": "De potencia esferica superior a +/- 2 dioptrías pero inferior o igual a +/- 4 dioptrías"
+    },
+    {
+      "tipo": "maquina",
+      "ncm": "8609.00.00.140U",
+      "partida": "8609",
+      "producto": "De carga seca, del tipo de los utilizados en el transporte marítimo de mercaderías (R.231/99 MEOSP), Plataforma (flat rag)",
+      "descripcion_ncm": "Plataforma (flat rag)"
+    },
+    {
+      "tipo": "maquina",
+      "ncm": "8701.91.00.000Y",
+      "partida": "8701",
+      "producto": "TRACTORES (EXCEPTO LAS CARRETILLAS TRACTOR DE LA PARTIDA 87.09)., Los demás, con motor de potencia:, Inferior o igual a 18 kW",
+      "descripcion_ncm": "--Inferior o igual a 18 kW"
+    },
+    {
+      "tipo": "repuesto",
+      "ncm": "8708.94.83.120B",
+      "partida": "8708",
+      "producto": "PARTES Y ACCESORIOS PARA VEHÍCULOS AUTOMÓVILES DE LAS PARTIDAS 87.01 A 87.05., Cajas de dirección, Del tipo piñón y cremallera, utilizadas en automoviles de turismo (incluidos los vehiculos del tipo familiar \"Break\" o \"Station Wagon\" y los de carrera), Asistida electricamente (EPS), repuesto suelto",
+      "descripcion_ncm": "Asistida electricamente (EPS)"
+    },
+    {
+      "tipo": "repuesto",
+      "ncm": "8448.32.40.100M",
+      "partida": "8448",
+      "producto": "Partes y accesorios de las máquinas de la partida 84.45 o de sus máquinas o aparatos auxiliares:, De máquinas para la preparación de materia textil, excepto las guarniciones de cardas, De máquinas para la preparación de la seda, Accesorios, repuesto suelto",
+      "descripcion_ncm": "Accesorios"
+    },
+    {
+      "tipo": "repuesto",
+      "ncm": "6406.10.00.293A",
+      "partida": "6406",
+      "producto": "Partes superiores de calzado y sus partes, excepto los contrafuertes y punteras duras, Partes de partes superiores, De las demás materias, Punteras, repuesto suelto",
+      "descripcion_ncm": "Punteras"
+    },
+    {
+      "tipo": "repuesto",
+      "ncm": "8708.93.00.930K",
+      "partida": "8708",
+      "producto": "PARTES Y ACCESORIOS PARA VEHÍCULOS AUTOMÓVILES DE LAS PARTIDAS 87.01 A 87.05., Embragues y sus partes, Partes., Disco, repuesto suelto",
+      "descripcion_ncm": "Disco"
+    },
+    {
+      "tipo": "repuesto",
+      "ncm": "8466.94.20.900Z",
+      "partida": "8466",
+      "producto": "Para máquinas de las partidas 84.62 u 84.63, Para maquinas de las subpartidas 8462.22 a 8462.29, Partes (R.909/94 MEOSP), repuesto suelto",
+      "descripcion_ncm": "Partes (R.909/94 MEOSP)"
+    },
+    {
+      "tipo": "repuesto",
+      "ncm": "8708.92.00.100V",
+      "partida": "8708",
+      "producto": "PARTES Y ACCESORIOS PARA VEHÍCULOS AUTOMÓVILES DE LAS PARTIDAS 87.01 A 87.05., Las demás partes y accesorios:, Silenciadores y tubos (caños) de escape; sus partes, Silenciadores y tubos (caños) de escape, repuesto suelto",
+      "descripcion_ncm": "Silenciadores y tubos (caños) de escape"
+    },
+    {
+      "tipo": "repuesto",
+      "ncm": "8708.21.00.000D",
+      "partida": "8708",
+      "producto": "PARTES Y ACCESORIOS PARA VEHÍCULOS AUTOMÓVILES DE LAS PARTIDAS 87.01 A 87.05., Las demás partes y accesorios de carrocería (incluidas las de cabina):, Cinturones de seguridad, repuesto suelto",
+      "descripcion_ncm": "--Cinturones de seguridad"
+    },
+    {
+      "tipo": "repuesto",
+      "ncm": "8473.30.31.000A",
+      "partida": "8473",
+      "producto": "Partes y accesorios de máquinas de la partida 84.71, De unidades de discos o cintas magnéticas, excepto los de la subpartida regional 8473.30.4, Conjuntos cabeza disco montados («HDA (Head Disk Assembly)») de unidades de discos rígidos, repuesto suelto",
+      "descripcion_ncm": "Conjuntos cabeza disco montados («HDA (Head Disk Assembly)») de unidades de discos rígidos"
+    },
+    {
+      "tipo": "repuesto",
+      "ncm": "8473.30.33.000Q",
+      "partida": "8473",
+      "producto": "Partes y accesorios de máquinas de la partida 84.71, De unidades de discos o cintas magnéticas, excepto los de la subpartida regional 8473.30.4, Cabezales magnéticos, repuesto suelto",
+      "descripcion_ncm": "Cabezales magnéticos"
+    },
+    {
+      "tipo": "repuesto",
+      "ncm": "8708.91.00.900B",
+      "partida": "8708",
+      "producto": "PARTES Y ACCESORIOS PARA VEHÍCULOS AUTOMÓVILES DE LAS PARTIDAS 87.01 A 87.05., Las demás partes y accesorios:, Radiadores y sus partes, Partes, repuesto suelto",
+      "descripcion_ncm": "Partes"
+    },
+    {
+      "tipo": "accesorio",
+      "ncm": "9021.31.20.900L",
+      "partida": "9021",
+      "producto": "Los demas articulos y aparatos de protesis:, Prótesis articulares, Mioeléctricas, Partes (R.909/94 MEOSP), accesorio",
+      "descripcion_ncm": "Partes (R.909/94 MEOSP)"
+    },
+    {
+      "tipo": "accesorio",
+      "ncm": "9503.00.40.138N",
+      "partida": "9503",
+      "producto": "Trenes eléctricos, incluidos los carriles (rieles), señales y demás accesorios, Partes y accesorios de metal común (R. 457/96 ex ANA), Escala HO (1:87), Señales",
+      "descripcion_ncm": "Señales"
+    },
+    {
+      "tipo": "accesorio",
+      "ncm": "9018.90.31.900K",
+      "partida": "9018",
+      "producto": "Los demás instrumentos y aparatos, Litotomos y litotritores, Litotritores por onda de choque, Partes y accesorios",
+      "descripcion_ncm": "Partes y accesorios"
+    },
+    {
+      "tipo": "accesorio",
+      "ncm": "9018.90.21.900A",
+      "partida": "9018",
+      "producto": "Los demás instrumentos y aparatos, Bisturíes, Eléctricos, Partes (R.909/94 MEOSP), accesorio",
+      "descripcion_ncm": "Partes (R.909/94 MEOSP)"
+    },
+    {
+      "tipo": "accesorio",
+      "ncm": "9503.00.29.130V",
+      "partida": "9503",
+      "producto": "Muñecas y muñecos que representen solamente seres humanos, Partes y accesorios, Prendas y sus complementos (accesorios), de vestir, calzado, sombreros y demás tocados, Calzados",
+      "descripcion_ncm": "Calzados"
+    },
+    {
+      "tipo": "accesorio",
+      "ncm": "9018.11.00.910A",
+      "partida": "9018",
+      "producto": "Aparatos de electrodiagnóstico (incluidos los aparatos de exploración funcional o de vigilancia de parámetros fisiológicos):, Electrocardiógrafos, Partes y accesorios, Electrodos, excepto los descartables",
+      "descripcion_ncm": "Electrodos, excepto los descartables"
+    },
+    {
+      "tipo": "accesorio",
+      "ncm": "9503.00.10.913K",
+      "partida": "9503",
+      "producto": "Triciclos, patinetes, coches de pedal y juguetes similares con ruedas; coches y sillas de ruedas para muñecas o muñecos, Partes y accesorios, De triciclos, Asientos",
+      "descripcion_ncm": "Asientos"
+    },
+    {
+      "tipo": "accesorio",
+      "ncm": "9018.90.50.900X",
+      "partida": "9018",
+      "producto": "Los demás instrumentos y aparatos, Aparatos de diatermia, Partes (R.909/94 MEOSP), accesorio",
+      "descripcion_ncm": "Partes (R.909/94 MEOSP)"
+    }
+  ]
+}

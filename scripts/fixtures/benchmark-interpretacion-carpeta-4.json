@@ -1,0 +1,311 @@
+{
+  "carpeta": "4",
+  "ok": 4,
+  "total": 4,
+  "vision_cloud_veces": 0,
+  "segundos": 28.3,
+  "items": [
+    {
+      "archivo": "afip.pdf",
+      "tipo_nombre": "despacho",
+      "tipo_final": "despacho",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 12521,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 7.6,
+      "resumen": "Placas, láminas, hojas y tiras de plástico no celular de policarbonato, de espes",
+      "datos": {
+        "comercial": {
+          "valor_fob": "13223.18",
+          "valor_cif": "14953.2",
+          "flete": "3400",
+          "incoterm": "DAP",
+          "moneda": "USD",
+          "seguro": "50.02"
+        },
+        "via": "terrestre",
+        "logistica": null,
+        "mercaderia": {
+          "mercaderia": "Placas, láminas, hojas y tiras de plástico no celular de policarbonato, de espesor superior a 6mm pero inferior o igual a 8mm, alveolares de dos capas",
+          "ncm": "3920.61.00.913G",
+          "marca": "POLYVANTIS",
+          "cantidad": "4.275,18 KILOGRAMO",
+          "bultos": "1 BULTOS",
+          "peso_neto": "4.275,1800 KILOGRAMO",
+          "peso_bruto": "4.565,180 kg",
+          "unidad": "KILOGRAMO"
+        },
+        "partes": [
+          {
+            "etiqueta": "Importador",
+            "nombre": "DAYPLAS S A",
+            "pais": "Argentina",
+            "identificacion": "20-17379361-9"
+          },
+          {
+            "etiqueta": "Despachante de Aduana",
+            "nombre": "ORSI RICARDO CESAR VICENT",
+            "identificacion": "33-58249873-9"
+          },
+          {
+            "etiqueta": "Vendedor",
+            "nombre": "FILMS & SHEETS SOUTH AMERICA LTDA",
+            "pais": "BRASIL",
+            "identificacion": "50.421.396/0001-19"
+          },
+          {
+            "etiqueta": "Agente de Transporte Aduanero",
+            "nombre": "VILLARREAL SERGIO DANIEL",
+            "identificacion": "20-22106433-0"
+          }
+        ],
+        "origen": {
+          "pais_origen": "Brasil",
+          "pais_procedencia": "Brasil",
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "8000118258",
+          "transportista": "VILLARREAL SERGIO DANIEL",
+          "medio_transporte": "CAMION"
+        },
+        "pago": {
+          "fecha_factura": "2026-05-12"
+        },
+        "formalidades": {
+          "entidad_emisora": "Aduana Campana"
+        }
+      },
+      "vacios": []
+    },
+    {
+      "archivo": "co.pdf",
+      "tipo_nombre": "otro",
+      "tipo_final": "certificado_origen",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 2337,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 6.6,
+      "resumen": "Outras chapas, folhas, películas, tiras e lâminas, de plástico não alveolar, não",
+      "datos": {
+        "comercial": {
+          "incoterm": "DAP",
+          "moneda": "USD"
+        },
+        "via": null,
+        "logistica": null,
+        "mercaderia": {
+          "mercaderia": "Outras chapas, folhas, películas, tiras e lâminas, de plástico não alveolar, não reforçadas nem estratificadas, sem suporte, nem associadas de forma semelhante a outras matérias. De policarbonatos, de resinas alquídicas, de poliésteres alílicos ou de outros poliésteres: De policarbonatos. Chapa de Policarbonato WLS82TS1300-112-8,0",
+          "ncm": "3920.61.00",
+          "cantidad": "270,000 pç",
+          "peso_neto": "16.673,200 kg"
+        },
+        "partes": [
+          {
+            "etiqueta": "Produtor Final ou Exportador",
+            "nombre": "FILMS & SHEETS SOUTH AMERICA LTDA",
+            "domicilio": "Rua Manoel Thomaz, 545 - Vila Lunardi - Campinas - SP",
+            "pais": "Brasil"
+          },
+          {
+            "etiqueta": "Importador",
+            "nombre": "DAYPLAS, S.A",
+            "domicilio": "COMBATENTES DE MALVINAS, 3197 - CIUDAD AUTONOMA BUENOS AIRES, 1427",
+            "pais": "Argentina",
+            "identificacion": "CUIT: 33582498739"
+          }
+        ],
+        "origen": {
+          "pais_origen": "Brasil",
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "8000118258"
+        },
+        "pago": {
+          "fecha_factura": "2026-05-12"
+        },
+        "formalidades": {
+          "entidad_emisora": "FEDERAÇÃO DAS INDÚSTRIAS DO ESTADO DE SÃO PAULO",
+          "sellos_firmas_vistos": "Asignado digitalmente 13/05/2026 14:36 por FABIO DA SILVA TAVARES (08307454832); Asignado digitalmente 14/05/2026 09:56 por KARINA AYUMI OHIRA (50776025813)",
+          "observaciones_visuales": "Certificado de Origen del Mercosul. Norma de Origen: C. DJO: 1214886 - 04/05/2026. Código de autenticación: BR041A18260024130200. Válido con firma y QR Code impreso."
+        }
+      },
+      "vacios": []
+    },
+    {
+      "archivo": "crt.pdf",
+      "tipo_nombre": "transporte",
+      "tipo_final": "transporte",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 4980,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 6.6,
+      "resumen": "Sheet/film of polycarbonates WLS82TS1300-112-8,0 -2100-5800,00-000",
+      "datos": {
+        "comercial": {
+          "valor_factura": "13223.18",
+          "flete": "3400",
+          "incoterm": "DAP",
+          "moneda": "USD"
+        },
+        "via": "terrestre",
+        "logistica": null,
+        "mercaderia": {
+          "mercaderia": "Sheet/film of polycarbonates WLS82TS1300-112-8,0 -2100-5800,00-000",
+          "ncm": "3920.61.00",
+          "bultos": "01 BULTO",
+          "peso_neto": "4.275,180 kg",
+          "peso_bruto": "4.565,180 kg"
+        },
+        "partes": [
+          {
+            "etiqueta": "Remetente / Shipper",
+            "nombre": "Films & Sheets South America Ltda",
+            "domicilio": "Rua Manoel Thomaz. 545, Campinas, SP, 13067-230",
+            "pais": "Brasil",
+            "identificacion": "CNPJ: 50.421.396/0001-19"
+          },
+          {
+            "etiqueta": "Consignatário / Consignee",
+            "nombre": "DAYPLAS, S.A.",
+            "domicilio": "COMBATENTES DE MALVINAS, 3197, CIUDAD AUTONOMA BUENOS AIRES",
+            "pais": "Argentina",
+            "identificacion": "CUIT: 33582498739"
+          },
+          {
+            "etiqueta": "Transportador / Carrier",
+            "nombre": "RTC LOGISTICA E TRANSPORTES LTDA",
+            "domicilio": "RUA JOSE POSSER SOBRINHO, 1000, SALA 03 - CX POSTAL 42, SANTA LUCIA, MARAU / RS",
+            "pais": "Brasil",
+            "identificacion": "CNPJ: 09.247.387/0001-50"
+          }
+        ],
+        "origen": {
+          "pais_origen": "Brasil",
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "BR6776.00270",
+          "transportista": "RTC LOGISTICA E TRANSPORTES LTDA",
+          "puerto_origen": "CAMPINAS - SP - BRASIL",
+          "puerto_destino": "BUENOS AIRES - ARGENTINA",
+          "medio_transporte": "Transporte Rodoviário / Terrestre"
+        },
+        "pago": null,
+        "formalidades": null
+      },
+      "vacios": []
+    },
+    {
+      "archivo": "invoice.pdf",
+      "tipo_nombre": "factura_comercial",
+      "tipo_final": "factura_comercial",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 3438,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 7.4,
+      "resumen": "Sheet/film of polycarbonates",
+      "datos": {
+        "comercial": {
+          "valor_factura": "16673.2",
+          "valor_fob": "13223.18",
+          "flete": "3400",
+          "seguro": "50.02",
+          "incoterm": "DAP",
+          "moneda": "USD"
+        },
+        "via": "terrestre",
+        "logistica": {
+          "cantidad_contenedores": "1"
+        },
+        "mercaderia": {
+          "mercaderia": "Sheet/film of polycarbonates",
+          "ncm": "39206100",
+          "bultos": "270 PC",
+          "peso_neto": "4275.180 KG",
+          "peso_bruto": "4565.180 KG"
+        },
+        "partes": [
+          {
+            "etiqueta": "EXPORTER",
+            "nombre": "Films & Sheets South America Ltda",
+            "domicilio": "Rua Manoel Thomaz. 545, Campinas, SP, 13067-230",
+            "pais": "BR",
+            "identificacion": "50.421.396/0001-19"
+          },
+          {
+            "etiqueta": "SELLER",
+            "nombre": "Films & Sheets South America Ltda",
+            "domicilio": "Rua Manoel Thomaz. 545, Campinas, SP, 13067-230",
+            "pais": "BR",
+            "identificacion": "50.421.396/0001-19"
+          },
+          {
+            "etiqueta": "ULTIMATE CONSIGNEE",
+            "nombre": "DAYPLAS, S.A.",
+            "domicilio": "COMBATENTES DE MALVINAS, 3197, CIUDAD AUTONOMA BUENOS AIRES, Buenos Aires, 1427",
+            "pais": "AR",
+            "identificacion": "33582498739"
+          },
+          {
+            "etiqueta": "SHIP TO",
+            "nombre": "DAYPLAS, S.A.",
+            "domicilio": "COMBATENTES DE MALVINAS, 3197, CIUDAD AUTONOMA BUENOS AIRES, Buenos Aires, 1427",
+            "pais": "AR",
+            "identificacion": "33582498739"
+          },
+          {
+            "etiqueta": "SOLD TO / BUYER",
+            "nombre": "DAYPLAS, S.A.",
+            "domicilio": "COMBATENTES DE MALVINAS, 3197, CIUDAD AUTONOMA BUENOS AIRES, Buenos Aires, 1427",
+            "pais": "AR",
+            "identificacion": "33582498739"
+          },
+          {
+            "etiqueta": "BILL TO",
+            "nombre": "DAYPLAS, S.A.",
+            "domicilio": "COMBATENTES DE MALVINAS, 3197, CIUDAD AUTONOMA BUENOS AIRES, Buenos Aires, 1427",
+            "pais": "AR",
+            "identificacion": "33582498739"
+          }
+        ],
+        "origen": {
+          "pais_origen": "Brasil",
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "8000118258",
+          "puerto_origen": "Campinas/BR",
+          "puerto_destino": "Buenos Aires/AR",
+          "medio_transporte": "Road"
+        },
+        "pago": {
+          "fecha_factura": "2026-05-12",
+          "plazo_pago_dias": "30",
+          "forma_pago": "30 Days After Invoice Date"
+        },
+        "formalidades": null
+      },
+      "vacios": [
+        {
+          "campo": "mercaderia.cantidad",
+          "donde": "interpretación",
+          "motivo": "cantidad duplica peso neto; conservar bultos/unidades y peso"
+        }
+      ]
+    }
+  ]
+}

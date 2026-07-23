@@ -8,8 +8,13 @@ from __future__ import annotations
 import base64
 import json
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import fitz
+
+from pdf_lock import candado_pdf
 
 MAX_BYTES = 9_500_000
 ZOOM = 1.75
@@ -31,13 +36,14 @@ def _jpeg_pagina(page: fitz.Page) -> tuple[str, str]:
 
 
 def imagenes(path: str) -> dict:
-    doc = fitz.open(path)
-    paginas = []
-    for i, page in enumerate(doc):
-        b64, media = _jpeg_pagina(page)
-        paginas.append({"n": i + 1, "base64": b64, "media_type": media})
-    doc.close()
-    return {"paginas": paginas}
+    with candado_pdf():
+        doc = fitz.open(path)
+        paginas = []
+        for i, page in enumerate(doc):
+            b64, media = _jpeg_pagina(page)
+            paginas.append({"n": i + 1, "base64": b64, "media_type": media})
+        doc.close()
+        return {"paginas": paginas}
 
 
 if __name__ == "__main__":

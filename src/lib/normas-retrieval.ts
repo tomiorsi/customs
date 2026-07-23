@@ -161,7 +161,10 @@ export async function recuperarMarcoNormativo(
   });
 
   const refsMap = new Map<string, RefArticulo>();
-  for (const r of REF_DOCUMENTACION) refsMap.set(claveRef(r), r);
+  const baseline = senales.includes("pais_mercosur")
+    ? REF_DOCUMENTACION
+    : REF_DOCUMENTACION.filter((r) => r.norma !== "ROM");
+  for (const r of baseline) refsMap.set(claveRef(r), r);
   for (const a of porSenales) {
     refsMap.set(`${a.normaId}::${a.articulo}`, {
       norma: a.normaId,

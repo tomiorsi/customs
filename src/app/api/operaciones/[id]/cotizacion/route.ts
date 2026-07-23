@@ -8,7 +8,12 @@ import {
 } from "@/lib/data";
 import { limpiarProvisionalPaso1 } from "@/lib/valores-comercial";
 import { calcularLiquidacion } from "@/lib/liquidacion";
-import { formatUsd, generarCotizacionPDF } from "@/lib/cotizacion-pdf";
+import { PREFIJO_ARCHIVO_RESUMEN_FONDOS } from "@/lib/cotizacion-labels";
+import {
+  formatUsd,
+  generarCotizacionPDF,
+  type VistaCotizacionPdf,
+} from "@/lib/cotizacion-pdf";
 import { requisitosOperacion } from "@/lib/requisitos";
 import {
   emailDisponible,
@@ -26,6 +31,10 @@ import type { Destino } from "@/lib/cotizador";
 
 function destinoDe(raw: string | null): Destino {
   return raw === "uso_propio" ? "uso_propio" : "reventa";
+}
+
+function vistaPdfDe(raw: string | null): VistaCotizacionPdf {
+  return raw === "liquidacion" ? "liquidacion" : "cotizacion";
 }
 
 /**
@@ -51,6 +60,7 @@ export async function GET(
   }
 
   try {
+    const vista = vistaPdfDe(req.nextUrl.searchParams.get("vista"));
     const [liq, { requisitos }] = await Promise.all([
       calcularLiquidacion(
         op,
@@ -58,14 +68,16 @@ export async function GET(
       ),
       requisitosOperacion(op),
     ]);
-    const pdf = await generarCotizacionPDF(op, liq, requisitos);
+    const pdf = await generarCotizacionPDF(op, liq, requisitos, { vista });
     // dl=1 fuerza la descarga; si no, se muestra embebido en el navegador.
     const descargar = req.nextUrl.searchParams.get("dl") === "1";
     const disposition = descargar ? "attachment" : "inline";
+    const nombreBase =
+      vista === "liquidacion" ? PREFIJO_ARCHIVO_RESUMEN_FONDOS : "Cotizacion";
     return new NextResponse(Buffer.from(pdf), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `${disposition}; filename="Cotizacion-${op.ref}.pdf"`,
+        "Content-Disposition": `${disposition}; filename="${nombreBase}-${op.ref}.pdf"`,
       },
     });
   } catch (e) {

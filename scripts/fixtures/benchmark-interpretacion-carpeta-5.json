@@ -1,0 +1,283 @@
+{
+  "carpeta": "5",
+  "ok": 4,
+  "total": 4,
+  "vision_cloud_veces": 0,
+  "segundos": 29.1,
+  "items": [
+    {
+      "archivo": "afip.pdf",
+      "tipo_nombre": "despacho",
+      "tipo_final": "despacho",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 10541,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 11.7,
+      "resumen": "Los demás -Policarbonatos POLIACETALES, LOS DEMÁS POLIETERES Y RESINAS EPOXI, EN",
+      "datos": {
+        "comercial": {
+          "valor_fob": "89002",
+          "valor_cif": "92855.36",
+          "flete": "2934",
+          "incoterm": "CFR",
+          "moneda": "USD",
+          "seguro": "919.36"
+        },
+        "via": "maritima",
+        "logistica": null,
+        "mercaderia": {
+          "mercaderia": "Los demás -Policarbonatos POLIACETALES, LOS DEMÁS POLIETERES Y RESINAS EPOXI, EN FORMAS PRIMARIAS; POLICARBONATOS, RESINAS ALCÍDICAS, POLIESTERES ALÍLICOS Y DEMÁS POLIESTERES, EN FORMAS PRIMARIAS.",
+          "ncm": "3907.40.90.000J",
+          "marca": "AA(CLARNATE)",
+          "cantidad": "54.400,00 KILOGRAMO",
+          "unidad": "KILOGRAMO",
+          "bultos": "2",
+          "tipo_embalaje": "CONTENEDOR",
+          "peso_neto": "54.400,0000 KILOGRAMO",
+          "peso_bruto": "55.328,000 kg"
+        },
+        "partes": [
+          {
+            "etiqueta": "Importador",
+            "nombre": "DAYPLAS S A",
+            "identificacion": "20-17379361-9"
+          },
+          {
+            "etiqueta": "Despachante de Aduana",
+            "nombre": "ORSI RICARDO CESAR VICENT",
+            "identificacion": "33-58249873-9"
+          },
+          {
+            "etiqueta": "Vendedor",
+            "nombre": "SIMKO FAR EAST, LTD.",
+            "identificacion": "68533574-000"
+          },
+          {
+            "etiqueta": "Agente de Transporte Aduanero",
+            "nombre": "MAERSK LINE ARGENTINA S.A.",
+            "identificacion": "30-68841553-1"
+          }
+        ],
+        "origen": {
+          "pais_origen": "China",
+          "pais_procedencia": "China",
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "SF-3549",
+          "transportista": "MAERSK LINE ARGENTINA S.A.",
+          "puerto_origen": "S/M",
+          "eta": "2026-02-01",
+          "medio_transporte": "ACUATICO"
+        },
+        "pago": {
+          "fecha_factura": "2025-12-14"
+        },
+        "formalidades": {
+          "entidad_emisora": "AFIP"
+        }
+      },
+      "vacios": []
+    },
+    {
+      "archivo": "bl.pdf",
+      "tipo_nombre": "transporte",
+      "tipo_final": "transporte",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 22970,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 6.5,
+      "resumen": "POLYCARBONATE RESIN CLARNATE PC-A1077",
+      "datos": {
+        "comercial": {
+          "incoterm": "CY/CY"
+        },
+        "via": "maritima",
+        "logistica": {
+          "contenedor": "TLLU6883378, CAAU6600378",
+          "cantidad_contenedores": "2",
+          "volumen_cbm": "80.0000 CBM"
+        },
+        "mercaderia": {
+          "mercaderia": "POLYCARBONATE RESIN CLARNATE PC-A1077",
+          "ncm": "3907.40",
+          "cantidad": "64 BAGS",
+          "bultos": "32 PALLETS = 64 BAGS",
+          "peso_neto": "54.4 MT",
+          "peso_bruto": "55328 kg"
+        },
+        "partes": [
+          {
+            "etiqueta": "Shipper",
+            "nombre": "WANHUA CHEMICAL (SINGAPORE) PTE. LTD.",
+            "domicilio": "50 RAFFLES PLACE 33-06 SINGAPORE LAND TOWER SINGAPORE, 048623",
+            "pais": "Singapore",
+            "identificacion": "ON BEHALF OF SIMKO FAR EAST, LTD."
+          },
+          {
+            "etiqueta": "Consignee",
+            "nombre": "DAYPLAS S.A.",
+            "domicilio": "Av. Combatientes de Malvinas 3197, C1427ARC - Buenos Aires, Argentina",
+            "pais": "Argentina",
+            "identificacion": "CUIT: 33-58249873-9"
+          },
+          {
+            "etiqueta": "Notify Party",
+            "nombre": "Same as cnee"
+          }
+        ],
+        "origen": {
+          "pais_origen": "China",
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "264774649",
+          "transportista": "Maersk A/S (MAEU)",
+          "puerto_origen": "QINGDAO, CHINA",
+          "puerto_destino": "BUENOS AIRES, ARGENTINA",
+          "medio_transporte": "Ocean Transport"
+        },
+        "pago": null,
+        "formalidades": {
+          "entidad_emisora": "Maersk A/S",
+          "observaciones_visuales": "SHIPPER'S LOAD, STOW, WEIGHT AND COUNT; FREIGHT PREPAID; Declared Value field empty (no valor aduanero propio declarado en BL)"
+        }
+      },
+      "vacios": [
+        {
+          "campo": "comercial.moneda",
+          "donde": "interpretación",
+          "motivo": "«NO DECLARADA» no figura en el documento"
+        },
+        {
+          "campo": "mercaderia.peso_bruto",
+          "donde": "interpretación",
+          "motivo": "total bruto en KGS; no es MT"
+        }
+      ]
+    },
+    {
+      "archivo": "gastos.pdf",
+      "tipo_nombre": "factura_gastos",
+      "tipo_final": "factura_gastos",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 1154,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 3,
+      "resumen": "Buenos Aires,01-02-2026\nSeñores\nDirección General de Aduanas\nDe nuestra mayor consideración,\nEn nuestro carácter de agen",
+      "datos": {
+        "comercial": {
+          "moneda": "USD / CNY"
+        },
+        "via": "maritima",
+        "logistica": null,
+        "mercaderia": null,
+        "partes": [
+          {
+            "etiqueta": "Consignee",
+            "nombre": "DAYPLAS S.A.",
+            "pais": "Argentina"
+          },
+          {
+            "etiqueta": "Transportista",
+            "nombre": "MAERSK LINE ARGENTINA S.A.",
+            "domicilio": "Av. del Libertador 1969, B1638 Vicente López, Provincia de Buenos Aires, Argentina",
+            "pais": "Argentina"
+          }
+        ],
+        "origen": {
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "264774649",
+          "transportista": "MAERSK LINE ARGENTINA S.A.",
+          "medio_transporte": "maritimo"
+        },
+        "formalidades": {
+          "entidad_emisora": "MAERSK LINE ARGENTINA S.A.",
+          "observaciones_visuales": "Desglose de flete y gastos del conocimiento de embarque. Documento declarado bajo juramento por agentes de transporte aduanero ante Dirección General de Aduanas."
+        }
+      },
+      "vacios": [
+        {
+          "campo": "pago.fecha_factura",
+          "donde": "interpretación",
+          "motivo": "fecha no hallada en transcripción"
+        }
+      ]
+    },
+    {
+      "archivo": "invoice.pdf",
+      "tipo_nombre": "factura_comercial",
+      "tipo_final": "factura_comercial",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 1960,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 8,
+      "resumen": "CLARNATE PC-A1077",
+      "datos": {
+        "comercial": {
+          "valor_factura": "91936",
+          "valor_fob": "89002",
+          "valor_cif": "91936",
+          "flete": "2934",
+          "incoterm": "CFR",
+          "moneda": "USD"
+        },
+        "via": "maritima",
+        "logistica": null,
+        "mercaderia": {
+          "mercaderia": "CLARNATE PC-A1077",
+          "ncm": "3907.40",
+          "cantidad": "54,4 MT",
+          "unidad": "MT",
+          "bultos": "64 big bags",
+          "tipo_embalaje": "Big bags 850kgs each",
+          "peso_neto": "54,4 MT"
+        },
+        "partes": [
+          {
+            "etiqueta": "Buyer",
+            "nombre": "DAYPLAS S.A.",
+            "domicilio": "Av. Combatientes de Malvinas 3197, C1427ARC – Buenos Aires",
+            "pais": "Argentina",
+            "identificacion": "CUIT 33-58249873-9"
+          },
+          {
+            "etiqueta": "Seller",
+            "nombre": "SIMKO FAR EAST, LTD.",
+            "pais": "Hong Kong"
+          }
+        ],
+        "origen": {
+          "pais_origen": "China",
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "SF-3549",
+          "transportista": "ESSEN EXPRESS 550W",
+          "medio_transporte": "maritimo"
+        },
+        "pago": {
+          "fecha_factura": "2025-12-14",
+          "plazo_pago_dias": "90",
+          "forma_pago": "NET 90 · TT (Transferencia Telegráfica)"
+        },
+        "formalidades": null
+      },
+      "vacios": []
+    }
+  ]
+}

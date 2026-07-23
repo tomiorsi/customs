@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Selecciona 20 muestras de los fixtures motor para benchmark IA (sin repetir lógica)."""
+"""Selecciona N muestras de fixtures motor para benchmark IA (misma lógica de producto)."""
 import argparse
 import importlib.util
 import json
@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "scripts" / "fixtures"
 PARQUET = ROOT / "data" / "Nomenclatura" / "ncm.parquet"
 DEFAULT_OUT = FIXTURES / "muestras-ia-20.json"
+DEFAULT_FUENTE = FIXTURES / "muestras-motor-100.json"
 
 
 def _gen_motor():
@@ -61,19 +62,36 @@ def cargar_muestras(paths: list[Path]) -> list[dict]:
     return out
 
 
+def ncms_excluidos(paths: list[Path]) -> set[str]:
+    out: set[str] = set()
+    for p in paths:
+        if not p.is_file():
+            continue
+        data = json.loads(p.read_text(encoding="utf-8"))
+        for m in data.get("muestras", []):
+            if m.get("ncm"):
+                out.add(m["ncm"])
+    return out
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", type=int, default=20)
-    parser.add_argument("--seed", type=int, default=20260629)
+    parser.add_argument("--seed", type=int, default=20260630)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument(
         "fixtures",
         nargs="*",
         type=Path,
-        default=[
-            FIXTURES / "muestras-motor-40.json",
-            FIXTURES / "muestras-motor-40-lote2.json",
-        ],
+        default=[DEFAULT_FUENTE],
+        help="Pool de muestras motor (p. ej. muestras-motor-100.json)",
+    )
+    parser.add_argument(
+        "--excluir",
+        type=Path,
+        nargs="*",
+        default=[],
+        help="Fixtures IA previos cuyos NCM no deben repetirse (lote 2, 3, …)",
     )
     parser.add_argument(
         "--refresh",
@@ -98,8 +116,13 @@ def main() -> None:
         return
 
     pool = cargar_muestras(args.fixtures)
+    excluir = ncms_excluidos(args.excluir)
+    if excluir:
+        pool = [m for m in pool if m["ncm"] not in excluir]
     if len(pool) < args.n:
-        raise SystemExit(f"Solo hay {len(pool)} muestras únicas; se pidieron {args.n}")
+        raise SystemExit(
+            f"Solo hay {len(pool)} muestras únicas tras exclusiones; se pidieron {args.n}",
+        )
 
     rng = random.Random(args.seed)
     elegidas = rng.sample(pool, args.n)
@@ -109,6 +132,7 @@ def main() -> None:
         "seed": args.seed,
         "n": len(elegidas),
         "fuente": [str(p.name) for p in args.fixtures],
+        "excluidos": len(excluir),
         "muestras": elegidas,
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)

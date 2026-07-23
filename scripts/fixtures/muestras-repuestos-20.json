@@ -1,0 +1,128 @@
+{
+  "seed": 20260701,
+  "n": 20,
+  "excluidos": 180,
+  "solo_partes": true,
+  "muestras": [
+    {
+      "ncm": "6117.90.00.132F",
+      "partida": "6117",
+      "producto": "Partes, De prendas de vestir, De fibras sinteticas artificiales, De pantalones, repuesto suelto",
+      "descripcion_ncm": "De pantalones"
+    },
+    {
+      "ncm": "6217.90.00.910V",
+      "partida": "6217",
+      "producto": "Partes, De las demás materias textiles, De las partidas 62.01 o 62.02, repuesto suelto",
+      "descripcion_ncm": "De las partidas 62.01 o 62.02"
+    },
+    {
+      "ncm": "6406.10.00.261L",
+      "partida": "6406",
+      "producto": "Partes superiores de calzado y sus partes, excepto los contrafuertes y punteras duras, Partes de partes superiores, De materias textiles, Cañas, repuesto suelto",
+      "descripcion_ncm": "Cañas"
+    },
+    {
+      "ncm": "8448.51.10.000U",
+      "partida": "8448",
+      "producto": "Partes y accesorios de máquinas o aparatos de la partida 84.47 o de sus máquinas o aparatos auxiliares:, Platinas, agujas y demás artículos que participen en la formación de mallas, Platinas, repuesto suelto",
+      "descripcion_ncm": "Platinas"
+    },
+    {
+      "ncm": "8529.10.20.000U",
+      "partida": "8529",
+      "producto": "Antenas y reflectores de antena de cualquier tipo; partes identificables para ser utilizadas con dichos articulos, Antenas con reflector parabolico, repuesto suelto",
+      "descripcion_ncm": "Antenas con reflector parabolico"
+    },
+    {
+      "ncm": "8607.21.00.000D",
+      "partida": "8607",
+      "producto": "Frenos y sus partes:, Frenos de aire comprimido y sus partes, repuesto suelto",
+      "descripcion_ncm": "--Frenos de aire comprimido y sus partes"
+    },
+    {
+      "ncm": "8708.93.00.940N",
+      "partida": "8708",
+      "producto": "PARTES Y ACCESORIOS PARA VEHÍCULOS AUTOMÓVILES DE LAS PARTIDAS 87.01 A 87.05., Embragues y sus partes, Partes., Cilindro, repuesto suelto",
+      "descripcion_ncm": "Cilindro"
+    },
+    {
+      "ncm": "9209.30.00.200L",
+      "partida": "9209",
+      "producto": "Cuerdas armónicas, De seda, repuesto suelto",
+      "descripcion_ncm": "De seda"
+    },
+    {
+      "ncm": "9305.20.00.100Z",
+      "partida": "9305",
+      "producto": "PARTES Y ACCESORIOS DE LOS ARTÍCULOS DE LAS PARTIDAS 93.01 A 93.04., De armas largas de la partida 93.03, Cañones de ánima lisa, repuesto suelto",
+      "descripcion_ncm": "Cañones de ánima lisa"
+    },
+    {
+      "ncm": "9402.10.00.900E",
+      "partida": "9402",
+      "producto": "Sillones de dentista, de peluquería y sillones similares, y sus partes, Partes, repuesto suelto",
+      "descripcion_ncm": "Partes"
+    },
+    {
+      "ncm": "6117.90.00.133H",
+      "partida": "6117",
+      "producto": "Partes, De prendas de vestir, De fibras sinteticas artificiales, De camisas, blusas o blusas camiseras, repuesto suelto",
+      "descripcion_ncm": "De camisas, blusas o blusas camiseras"
+    },
+    {
+      "ncm": "6217.90.00.120E",
+      "partida": "6217",
+      "producto": "Partes, De lana o pelo fino, De pantalones, repuesto suelto",
+      "descripcion_ncm": "De pantalones"
+    },
+    {
+      "ncm": "6406.10.00.212X",
+      "partida": "6406",
+      "producto": "Partes superiores de calzado y sus partes, excepto los contrafuertes y punteras duras, Partes de partes superiores, De cuero vacuno, Palas o empeines, repuesto suelto",
+      "descripcion_ncm": "Palas o empeines"
+    },
+    {
+      "ncm": "8448.32.11.000K",
+      "partida": "8448",
+      "producto": "Partes y accesorios de las máquinas de la partida 84.45 o de sus máquinas o aparatos auxiliares:, De máquinas para la preparación de materia textil, excepto las guarniciones de cardas, De cardas, Chapones, repuesto suelto",
+      "descripcion_ncm": "Chapones"
+    },
+    {
+      "ncm": "8607.19.11.000C",
+      "partida": "8607",
+      "producto": "Bojes, \"bissels\", ejes y ruedas, y sus partes:, Los demás, incluidas las partes, Cajas de cojinetes, Con rodamientos incorporados, de diámetro exterior superior a 190 mm, de los tipos utilizados en ejes de ruedas de vagones ferroviarios, repuesto suelto",
+      "descripcion_ncm": "Con rodamientos incorporados, de diámetro exterior superior a 190 mm, de los tipos utilizados en ejes de ruedas de vagones ferroviarios"
+    },
+    {
+      "ncm": "8708.70.10.000X",
+      "partida": "8708",
+      "producto": "PARTES Y ACCESORIOS PARA VEHÍCULOS AUTOMÓVILES DE LAS PARTIDAS 87.01 A 87.05., Ruedas, sus partes y accesorios, De ejes propulsores de los vehículos de las subpartidas 8701.10, 8701.30, 8701.91 a 8701.95 u 8704.10, repuesto suelto",
+      "descripcion_ncm": "De ejes propulsores de los vehículos de las subpartidas 8701.10, 8701.30, 8701.91 a 8701.95 u 8704.10"
+    },
+    {
+      "ncm": "9209.30.00.400X",
+      "partida": "9209",
+      "producto": "Cuerdas armónicas, Metálicas, repuesto suelto",
+      "descripcion_ncm": "Metálicas"
+    },
+    {
+      "ncm": "9305.10.00.100K",
+      "partida": "9305",
+      "producto": "PARTES Y ACCESORIOS DE LOS ARTÍCULOS DE LAS PARTIDAS 93.01 A 93.04., De revólveres o pistolas, Cañones, tambores, correderas, armaduras, cierres, basculas y juegos (KIT) de conversion (R.3115/94 ANA), repuesto suelto",
+      "descripcion_ncm": "Cañones, tambores, correderas, armaduras, cierres, basculas y juegos (KIT) de conversion (R.3115/94 ANA)"
+    },
+    {
+      "ncm": "6117.90.00.113B",
+      "partida": "6117",
+      "producto": "Partes, De prendas de vestir, De lana o pelo fino, De camisas, blusas o blusas camiseras, repuesto suelto",
+      "descripcion_ncm": "De camisas, blusas o blusas camiseras"
+    },
+    {
+      "ncm": "6217.90.00.920Y",
+      "partida": "6217",
+      "producto": "Partes, De las demás materias textiles, De pantalones, repuesto suelto",
+      "descripcion_ncm": "De pantalones"
+    }
+  ]
+}

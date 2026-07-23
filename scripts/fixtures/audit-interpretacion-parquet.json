@@ -1,0 +1,1681 @@
+[
+  {
+    "carpeta": "1",
+    "ok": 1,
+    "total": 4,
+    "docs": [
+      {
+        "archivo": "1510299e26 COD.pdf",
+        "tipo": "certificado_origen",
+        "lectura_chars": 2012,
+        "heuristica": {
+          "ncm": "79011111",
+          "incoterm": "CPT",
+          "moneda": "USDD",
+          "valor_candidato": "10",
+          "fecha_candidata": "2026-06-15"
+        },
+        "ia_resumen": {
+          "ncm": "7901.11.11",
+          "incoterm": "CPT",
+          "moneda": "USD",
+          "valor": "117.44504",
+          "origen": "Brasil",
+          "destino": "ARGENTINA",
+          "via": null,
+          "fecha": "2026-06-15",
+          "mercaderia": "ZINCO EM FORMAS BRUTAS. Zinco não ligado: Que contenha, em peso, 99,99 % ou mais"
+        },
+        "vacios_ia": [],
+        "comparaciones": [
+          {
+            "campo": "ncm",
+            "ia": "7901.11.11",
+            "pdf": "79011111",
+            "estado": "coincide"
+          },
+          {
+            "campo": "incoterm",
+            "ia": "CPT",
+            "pdf": "CPT",
+            "estado": "coincide"
+          },
+          {
+            "campo": "moneda",
+            "ia": "USD",
+            "pdf": "USDD",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_origen",
+            "ia": "Brasil",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_destino",
+            "ia": "ARGENTINA",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "117.44504",
+            "pdf": "10",
+            "estado": "diverge"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2026-06-15",
+            "pdf": "2026-06-15",
+            "estado": "coincide"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "valor_factura",
+            "ia": "117.44504",
+            "pdf": "10",
+            "estado": "diverge"
+          }
+        ],
+        "parquet": {
+          "ncm8": "79011111",
+          "valido": true,
+          "descripcion": null,
+          "die": 7.2,
+          "intervenciones": 0,
+          "antidumping": 0
+        },
+        "origen_preferencia": "mercosur",
+        "ok": false
+      },
+      {
+        "archivo": "1510299e26 CRT copy.pdf",
+        "tipo": "transporte",
+        "lectura_chars": 5984,
+        "heuristica": {
+          "ncm": "79011111",
+          "incoterm": "CPT",
+          "valor_candidato": "4.816,33",
+          "fecha_candidata": "2026-06-30",
+          "via": "terrestre"
+        },
+        "ia_resumen": {
+          "ncm": "7901.11.11",
+          "incoterm": "CPT",
+          "moneda": "USD",
+          "valor": "117.44504",
+          "origen": "Brasil",
+          "destino": "ARGENTINA",
+          "via": "terrestre",
+          "fecha": null,
+          "mercaderia": "ZINC NOT ALLOYED. CONTAINING BY WEIGHT 99,99% OR MORE OF ZINC. ELECTROLYTIC. IN "
+        },
+        "vacios_ia": [],
+        "comparaciones": [
+          {
+            "campo": "ncm",
+            "ia": "7901.11.11",
+            "pdf": "79011111",
+            "estado": "coincide"
+          },
+          {
+            "campo": "incoterm",
+            "ia": "CPT",
+            "pdf": "CPT",
+            "estado": "coincide"
+          },
+          {
+            "campo": "moneda",
+            "ia": "USD",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "pais_origen",
+            "ia": "Brasil",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_destino",
+            "ia": "ARGENTINA",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "via",
+            "ia": "terrestre",
+            "pdf": "terrestre",
+            "estado": "coincide"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "117.44504",
+            "pdf": "4.816,33",
+            "estado": "diverge"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "moneda",
+            "ia": "USD",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "117.44504",
+            "pdf": "4.816,33",
+            "estado": "diverge"
+          }
+        ],
+        "parquet": {
+          "ncm8": "79011111",
+          "valido": true,
+          "descripcion": null,
+          "die": 7.2,
+          "intervenciones": 0,
+          "antidumping": 0
+        },
+        "origen_preferencia": "mercosur",
+        "ok": false
+      },
+      {
+        "archivo": "1510299e26 Fatura Nexa.pdf",
+        "tipo": "factura_comercial",
+        "lectura_chars": 1862,
+        "heuristica": {
+          "ncm": "79011111",
+          "incoterm": "CPT",
+          "moneda": "USDD",
+          "origen_mencion": "PAYMENT TERMS:",
+          "destino_mencion": "ACERBRAG S.A.",
+          "via": "terrestre"
+        },
+        "ia_resumen": {
+          "ncm": "7901.11.11",
+          "incoterm": "CPT",
+          "moneda": "USD",
+          "valor": "117.44504",
+          "origen": "Brasil",
+          "destino": "Argentina",
+          "via": null,
+          "fecha": "2026-06-15",
+          "mercaderia": "ZINC NOT ALLOYED. CONTAINING BY WEIGHT 99,99% OR MORE OF ZINC. ELECTROLYTIC. IN "
+        },
+        "vacios_ia": [],
+        "comparaciones": [
+          {
+            "campo": "ncm",
+            "ia": "7901.11.11",
+            "pdf": "79011111",
+            "estado": "coincide"
+          },
+          {
+            "campo": "incoterm",
+            "ia": "CPT",
+            "pdf": "CPT",
+            "estado": "coincide"
+          },
+          {
+            "campo": "moneda",
+            "ia": "USD",
+            "pdf": "USDD",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_origen",
+            "ia": "Brasil",
+            "pdf": "PAYMENT TERMS:",
+            "estado": "diverge"
+          },
+          {
+            "campo": "pais_destino",
+            "ia": "Argentina",
+            "pdf": "ACERBRAG S.A.",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "117.44504",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2026-06-15",
+            "estado": "ia_sin_ancla"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "pais_origen",
+            "ia": "Brasil",
+            "pdf": "PAYMENT TERMS:",
+            "estado": "diverge"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "117.44504",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2026-06-15",
+            "estado": "ia_sin_ancla"
+          }
+        ],
+        "parquet": {
+          "ncm8": "79011111",
+          "valido": true,
+          "descripcion": null,
+          "die": 7.2,
+          "intervenciones": 0,
+          "antidumping": 0
+        },
+        "origen_preferencia": "mercosur",
+        "ok": false
+      },
+      {
+        "archivo": "1510299e26 Packing List & Analisys Certificate.pdf",
+        "tipo": "packing_list",
+        "lectura_chars": 4449,
+        "heuristica": {
+          "valor_candidato": "27.73",
+          "fecha_candidata": "2026-06-15"
+        },
+        "ia_resumen": {
+          "ncm": null,
+          "incoterm": null,
+          "moneda": null,
+          "valor": null,
+          "origen": "Brasil",
+          "destino": null,
+          "via": null,
+          "fecha": "2026-06-15",
+          "mercaderia": "Zn4E - SL - BR CT 4MS- ZINCO EM LINGOTES"
+        },
+        "vacios_ia": [],
+        "comparaciones": [
+          {
+            "campo": "pais_origen",
+            "ia": "Brasil",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2026-06-15",
+            "pdf": "2026-06-15",
+            "estado": "coincide"
+          }
+        ],
+        "problemas": [],
+        "parquet": null,
+        "origen_preferencia": "mercosur",
+        "ok": true
+      }
+    ]
+  },
+  {
+    "carpeta": "2",
+    "ok": 0,
+    "total": 6,
+    "docs": [
+      {
+        "archivo": "Despacho arca.pdf",
+        "tipo": "despacho",
+        "lectura_chars": 143136,
+        "heuristica": {
+          "ncm": "83025000",
+          "incoterm": "FOB",
+          "valor_candidato": "0",
+          "fecha_candidata": "2026-06-01",
+          "destino_mencion": "/ Salida"
+        },
+        "ia_resumen": {
+          "ncm": null,
+          "incoterm": "FCA",
+          "moneda": null,
+          "valor": "103.06976",
+          "origen": null,
+          "destino": null,
+          "via": null,
+          "fecha": null,
+          "mercaderia": null
+        },
+        "vacios_ia": [
+          {
+            "campo": "comercial.moneda",
+            "donde": "interpretación",
+            "motivo": "«USD» no figura en el documento"
+          }
+        ],
+        "comparaciones": [
+          {
+            "campo": "incoterm",
+            "ia": "FCA",
+            "pdf": "FOB",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "103.06976",
+            "pdf": "0",
+            "estado": "diverge"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "valor_factura",
+            "ia": "103.06976",
+            "pdf": "0",
+            "estado": "diverge"
+          }
+        ],
+        "parquet": {
+          "ncm8": "83025000",
+          "valido": true,
+          "descripcion": null,
+          "die": 35,
+          "intervenciones": 1,
+          "antidumping": 0
+        },
+        "origen_preferencia": null,
+        "ok": false
+      },
+      {
+        "archivo": "comercial invoice 2.pdf",
+        "tipo": "factura_comercial",
+        "lectura_chars": 3070,
+        "heuristica": {
+          "incoterm": "FCA",
+          "valor_candidato": "2,265.00",
+          "destino_mencion": "ICAP SA",
+          "via": "terrestre"
+        },
+        "ia_resumen": {
+          "ncm": null,
+          "incoterm": "FCA MIAMI",
+          "moneda": null,
+          "valor": "2265",
+          "origen": "MX, CN",
+          "destino": "Paraguay",
+          "via": "terrestre",
+          "fecha": "2026-04-30",
+          "mercaderia": null
+        },
+        "vacios_ia": [
+          {
+            "campo": "comercial.moneda",
+            "donde": "interpretación",
+            "motivo": "«USD» no figura en el documento"
+          }
+        ],
+        "comparaciones": [
+          {
+            "campo": "incoterm",
+            "ia": "FCA MIAMI",
+            "pdf": "FCA",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_origen",
+            "ia": "MX, CN",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "pais_destino",
+            "ia": "Paraguay",
+            "pdf": "ICAP SA",
+            "estado": "diverge"
+          },
+          {
+            "campo": "via",
+            "ia": "terrestre",
+            "pdf": "terrestre",
+            "estado": "coincide"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "2265",
+            "pdf": "2,265.00",
+            "estado": "diverge"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2026-04-30",
+            "estado": "ia_ok_literal"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "pais_origen",
+            "ia": "MX, CN",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "pais_destino",
+            "ia": "Paraguay",
+            "pdf": "ICAP SA",
+            "estado": "diverge"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "2265",
+            "pdf": "2,265.00",
+            "estado": "diverge"
+          }
+        ],
+        "parquet": null,
+        "origen_preferencia": null,
+        "ok": false
+      },
+      {
+        "archivo": "comercial invoice 3.pdf",
+        "tipo": "factura_comercial",
+        "lectura_chars": 2084,
+        "heuristica": {
+          "incoterm": "FCA",
+          "moneda": "USDD",
+          "valor_candidato": "2,702.00",
+          "fecha_candidata": "2026-05-05",
+          "destino_mencion": "Doral FL 33172-2538 US"
+        },
+        "ia_resumen": {
+          "ncm": null,
+          "incoterm": "FCA MIAMI",
+          "moneda": "USD",
+          "valor": "2702",
+          "origen": "CN, MX",
+          "destino": "Estados Unidos",
+          "via": null,
+          "fecha": null,
+          "mercaderia": null
+        },
+        "vacios_ia": [
+          {
+            "campo": "pago.fecha_factura",
+            "donde": "interpretación",
+            "motivo": "fecha no hallada en transcripción"
+          }
+        ],
+        "comparaciones": [
+          {
+            "campo": "incoterm",
+            "ia": "FCA MIAMI",
+            "pdf": "FCA",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "moneda",
+            "ia": "USD",
+            "pdf": "USDD",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_origen",
+            "ia": "CN, MX",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "pais_destino",
+            "ia": "Estados Unidos",
+            "pdf": "Doral FL 33172-2538 US",
+            "estado": "diverge"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "2702",
+            "pdf": "2,702.00",
+            "estado": "diverge"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "pais_origen",
+            "ia": "CN, MX",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "pais_destino",
+            "ia": "Estados Unidos",
+            "pdf": "Doral FL 33172-2538 US",
+            "estado": "diverge"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "2702",
+            "pdf": "2,702.00",
+            "estado": "diverge"
+          }
+        ],
+        "parquet": null,
+        "origen_preferencia": null,
+        "ok": false
+      },
+      {
+        "archivo": "comercial invoice.pdf",
+        "tipo": "factura_comercial",
+        "lectura_chars": 4512,
+        "heuristica": {
+          "incoterm": "FCA",
+          "valor_candidato": "7,605.00",
+          "destino_mencion": "for use by",
+          "via": "terrestre"
+        },
+        "ia_resumen": {
+          "ncm": null,
+          "incoterm": "FCA MIAMI",
+          "moneda": null,
+          "valor": "7605",
+          "origen": "CN, MX",
+          "destino": "Paraguay",
+          "via": "terrestre",
+          "fecha": "2026-04-30",
+          "mercaderia": null
+        },
+        "vacios_ia": [
+          {
+            "campo": "comercial.moneda",
+            "donde": "interpretación",
+            "motivo": "«USD» no figura en el documento"
+          }
+        ],
+        "comparaciones": [
+          {
+            "campo": "incoterm",
+            "ia": "FCA MIAMI",
+            "pdf": "FCA",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_origen",
+            "ia": "CN, MX",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "pais_destino",
+            "ia": "Paraguay",
+            "pdf": "for use by",
+            "estado": "diverge"
+          },
+          {
+            "campo": "via",
+            "ia": "terrestre",
+            "pdf": "terrestre",
+            "estado": "coincide"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "7605",
+            "pdf": "7,605.00",
+            "estado": "diverge"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2026-04-30",
+            "estado": "ia_ok_literal"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "pais_origen",
+            "ia": "CN, MX",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "pais_destino",
+            "ia": "Paraguay",
+            "pdf": "for use by",
+            "estado": "diverge"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "7605",
+            "pdf": "7,605.00",
+            "estado": "diverge"
+          }
+        ],
+        "parquet": null,
+        "origen_preferencia": null,
+        "ok": false
+      },
+      {
+        "archivo": "factura.pdf",
+        "tipo": "factura_comercial",
+        "lectura_chars": 5221,
+        "heuristica": {
+          "incoterm": "FCA",
+          "moneda": "USDD",
+          "fecha_candidata": "2026-05-27",
+          "via": "terrestre"
+        },
+        "ia_resumen": {
+          "ncm": null,
+          "incoterm": "FCA MIAMI",
+          "moneda": "USD",
+          "valor": "90.49776",
+          "origen": null,
+          "destino": null,
+          "via": null,
+          "fecha": null,
+          "mercaderia": null
+        },
+        "vacios_ia": [],
+        "comparaciones": [
+          {
+            "campo": "incoterm",
+            "ia": "FCA MIAMI",
+            "pdf": "FCA",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "moneda",
+            "ia": "USD",
+            "pdf": "USDD",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "90.49776",
+            "estado": "ia_sin_ancla"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "valor_factura",
+            "ia": "90.49776",
+            "estado": "ia_sin_ancla"
+          }
+        ],
+        "parquet": null,
+        "origen_preferencia": null,
+        "ok": false
+      },
+      {
+        "archivo": "guia aerea.pdf",
+        "tipo": "transporte",
+        "lectura_chars": 652,
+        "heuristica": {
+          "ncm": "85371020",
+          "moneda": "USDD",
+          "via": "terrestre"
+        },
+        "ia_resumen": {
+          "ncm": "8537.10.20",
+          "incoterm": null,
+          "moneda": "USD",
+          "valor": "6868",
+          "origen": null,
+          "destino": "ARGENTINA",
+          "via": "aerea",
+          "fecha": "2026-05-29",
+          "mercaderia": "DISTRIBUIDOR"
+        },
+        "vacios_ia": [
+          {
+            "campo": "mercaderia.cantidad",
+            "donde": "interpretación",
+            "motivo": "no hallado en transcripción"
+          },
+          {
+            "campo": "origen.pais_origen",
+            "donde": "interpretación",
+            "motivo": "«Estados Unidos» no figura en el documento"
+          }
+        ],
+        "comparaciones": [
+          {
+            "campo": "ncm",
+            "ia": "8537.10.20",
+            "pdf": "85371020",
+            "estado": "coincide"
+          },
+          {
+            "campo": "moneda",
+            "ia": "USD",
+            "pdf": "USDD",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_destino",
+            "ia": "ARGENTINA",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "via",
+            "ia": "aerea",
+            "pdf": "terrestre",
+            "estado": "diverge"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "6868",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2026-05-29",
+            "estado": "ia_sin_ancla"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "via",
+            "ia": "aerea",
+            "pdf": "terrestre",
+            "estado": "diverge"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "6868",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2026-05-29",
+            "estado": "ia_sin_ancla"
+          }
+        ],
+        "parquet": {
+          "ncm8": "85371020",
+          "valido": true,
+          "descripcion": null,
+          "die": 12.6,
+          "intervenciones": 3,
+          "antidumping": 0
+        },
+        "origen_preferencia": null,
+        "ok": false
+      }
+    ]
+  },
+  {
+    "carpeta": "3",
+    "ok": 0,
+    "total": 3,
+    "docs": [
+      {
+        "archivo": "afip.pdf",
+        "tipo": "despacho",
+        "lectura_chars": 16338,
+        "heuristica": {
+          "ncm": "39209990",
+          "incoterm": "FOB",
+          "valor_candidato": "0",
+          "fecha_candidata": "2026-02-24",
+          "destino_mencion": "/ Salida"
+        },
+        "ia_resumen": {
+          "ncm": null,
+          "incoterm": "FCA",
+          "moneda": "DOL",
+          "valor": null,
+          "origen": "Estados Unidos",
+          "destino": "ARGENTINA",
+          "via": "aerea",
+          "fecha": "2026-02-10",
+          "mercaderia": null
+        },
+        "vacios_ia": [],
+        "comparaciones": [
+          {
+            "campo": "incoterm",
+            "ia": "FCA",
+            "pdf": "FOB",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "moneda",
+            "ia": "DOL",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_origen",
+            "ia": "Estados Unidos",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_destino",
+            "ia": "ARGENTINA",
+            "pdf": "/ Salida",
+            "estado": "diverge"
+          },
+          {
+            "campo": "via",
+            "ia": "aerea",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2026-02-10",
+            "pdf": "2026-02-24",
+            "estado": "diverge"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "pais_destino",
+            "ia": "ARGENTINA",
+            "pdf": "/ Salida",
+            "estado": "diverge"
+          },
+          {
+            "campo": "via",
+            "ia": "aerea",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2026-02-10",
+            "pdf": "2026-02-24",
+            "estado": "diverge"
+          }
+        ],
+        "parquet": {
+          "ncm8": "39209990",
+          "valido": true,
+          "descripcion": null,
+          "die": 16,
+          "intervenciones": 0,
+          "antidumping": 0
+        },
+        "origen_preferencia": "eeuu",
+        "ok": false
+      },
+      {
+        "archivo": "awl.pdf",
+        "tipo": "transporte",
+        "lectura_chars": 676,
+        "heuristica": {
+          "moneda": "USDD",
+          "via": "aerea"
+        },
+        "ia_resumen": {
+          "ncm": "3920.99",
+          "incoterm": null,
+          "moneda": "USD",
+          "valor": "3043",
+          "origen": null,
+          "destino": "Argentina",
+          "via": "aerea",
+          "fecha": null,
+          "mercaderia": "Polyurethane HP800"
+        },
+        "vacios_ia": [
+          {
+            "campo": "origen.pais_origen",
+            "donde": "interpretación",
+            "motivo": "«Estados Unidos» no figura en el documento"
+          }
+        ],
+        "comparaciones": [
+          {
+            "campo": "ncm",
+            "ia": "3920.99",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "moneda",
+            "ia": "USD",
+            "pdf": "USDD",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_destino",
+            "ia": "Argentina",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "via",
+            "ia": "aerea",
+            "pdf": "aerea",
+            "estado": "coincide"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "3043",
+            "estado": "ia_ok_literal"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "ncm",
+            "ia": "3920.99",
+            "estado": "ia_sin_ancla"
+          }
+        ],
+        "parquet": {
+          "ncm8": "392099",
+          "valido": false,
+          "motivo": "NCM incompleta"
+        },
+        "origen_preferencia": null,
+        "ok": false
+      },
+      {
+        "archivo": "invoice.pdf",
+        "tipo": "factura_comercial",
+        "lectura_chars": 1077,
+        "heuristica": {
+          "incoterm": "FCA",
+          "moneda": "USDD",
+          "valor_candidato": ".025",
+          "fecha_candidata": "2026-10-02",
+          "origen_mencion": "Greenﬁeld, MA  - USA",
+          "via": "aerea"
+        },
+        "ia_resumen": {
+          "ncm": null,
+          "incoterm": "FCA",
+          "moneda": "USD",
+          "valor": "22767.2",
+          "origen": null,
+          "destino": null,
+          "via": "aerea",
+          "fecha": "2026-02-10",
+          "mercaderia": null
+        },
+        "vacios_ia": [
+          {
+            "campo": "origen.pais_origen",
+            "donde": "interpretación",
+            "motivo": "«Estados Unidos» no figura en el documento"
+          },
+          {
+            "campo": "origen.pais_destino",
+            "donde": "interpretación",
+            "motivo": "«Estados Unidos» no figura en el documento"
+          }
+        ],
+        "comparaciones": [
+          {
+            "campo": "incoterm",
+            "ia": "FCA",
+            "pdf": "FCA",
+            "estado": "coincide"
+          },
+          {
+            "campo": "moneda",
+            "ia": "USD",
+            "pdf": "USDD",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "via",
+            "ia": "aerea",
+            "pdf": "aerea",
+            "estado": "coincide"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "22767.2",
+            "pdf": ".025",
+            "estado": "diverge"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2026-02-10",
+            "pdf": "2026-10-02",
+            "estado": "diverge"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "valor_factura",
+            "ia": "22767.2",
+            "pdf": ".025",
+            "estado": "diverge"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2026-02-10",
+            "pdf": "2026-10-02",
+            "estado": "diverge"
+          }
+        ],
+        "parquet": null,
+        "origen_preferencia": null,
+        "ok": false
+      }
+    ]
+  },
+  {
+    "carpeta": "4",
+    "ok": 1,
+    "total": 4,
+    "docs": [
+      {
+        "archivo": "afip.pdf",
+        "tipo": "despacho",
+        "lectura_chars": 12521,
+        "heuristica": {
+          "ncm": "39206100",
+          "incoterm": "FOB",
+          "valor_candidato": "3450.02000",
+          "fecha_candidata": "2026-05-20",
+          "destino_mencion": "/ Salida"
+        },
+        "ia_resumen": {
+          "ncm": "3920.61.00",
+          "incoterm": "DAP",
+          "moneda": "DOL",
+          "valor": "14.9532",
+          "origen": "Brasil",
+          "destino": null,
+          "via": "terrestre",
+          "fecha": "2026-05-12",
+          "mercaderia": "LAS DEMÁS PLACAS, LÁMINAS, HOJAS Y TIRAS, DE PLÁSTICO NO CELULAR Y SIN REFUERZO,"
+        },
+        "vacios_ia": [
+          {
+            "campo": "origen.pais_destino",
+            "donde": "interpretación",
+            "motivo": "«Argentina» no figura en el documento"
+          }
+        ],
+        "comparaciones": [
+          {
+            "campo": "ncm",
+            "ia": "3920.61.00",
+            "pdf": "39206100",
+            "estado": "coincide"
+          },
+          {
+            "campo": "incoterm",
+            "ia": "DAP",
+            "pdf": "FOB",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "moneda",
+            "ia": "DOL",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_origen",
+            "ia": "Brasil",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "via",
+            "ia": "terrestre",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "14.9532",
+            "pdf": "3450.02000",
+            "estado": "diverge"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2026-05-12",
+            "pdf": "2026-05-20",
+            "estado": "diverge"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "via",
+            "ia": "terrestre",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "14.9532",
+            "pdf": "3450.02000",
+            "estado": "diverge"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2026-05-12",
+            "pdf": "2026-05-20",
+            "estado": "diverge"
+          }
+        ],
+        "parquet": {
+          "ncm8": "39206100",
+          "valido": true,
+          "descripcion": null,
+          "die": 16,
+          "intervenciones": 1,
+          "antidumping": 0
+        },
+        "origen_preferencia": "mercosur",
+        "ok": false
+      },
+      {
+        "archivo": "co.pdf",
+        "tipo": "certificado_origen",
+        "lectura_chars": 2337,
+        "heuristica": {
+          "ncm": "39206100",
+          "incoterm": "DAP",
+          "moneda": "USDD",
+          "fecha_candidata": "2026-05-12"
+        },
+        "ia_resumen": {
+          "ncm": "3920.61.00",
+          "incoterm": "DAP",
+          "moneda": "USD",
+          "valor": null,
+          "origen": "Brasil",
+          "destino": "Argentina",
+          "via": null,
+          "fecha": null,
+          "mercaderia": null
+        },
+        "vacios_ia": [
+          {
+            "campo": "mercaderia.descripcion",
+            "donde": "interpretación",
+            "motivo": "descripción no anclada"
+          }
+        ],
+        "comparaciones": [
+          {
+            "campo": "ncm",
+            "ia": "3920.61.00",
+            "pdf": "39206100",
+            "estado": "coincide"
+          },
+          {
+            "campo": "incoterm",
+            "ia": "DAP",
+            "pdf": "DAP",
+            "estado": "coincide"
+          },
+          {
+            "campo": "moneda",
+            "ia": "USD",
+            "pdf": "USDD",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_origen",
+            "ia": "Brasil",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_destino",
+            "ia": "Argentina",
+            "estado": "ia_ok_literal"
+          }
+        ],
+        "problemas": [],
+        "parquet": {
+          "ncm8": "39206100",
+          "valido": true,
+          "descripcion": null,
+          "die": 16,
+          "intervenciones": 1,
+          "antidumping": 0
+        },
+        "origen_preferencia": "mercosur",
+        "ok": true
+      },
+      {
+        "archivo": "crt.pdf",
+        "tipo": "transporte",
+        "lectura_chars": 4980,
+        "heuristica": {
+          "ncm": "39206100",
+          "incoterm": "FCA",
+          "moneda": "USDD",
+          "fecha_candidata": "2026-05-13",
+          "via": "terrestre"
+        },
+        "ia_resumen": {
+          "ncm": "3920.61.00",
+          "incoterm": "DAP",
+          "moneda": "USD",
+          "valor": "16.6732",
+          "origen": "Brasil",
+          "destino": "Argentina",
+          "via": "terrestre",
+          "fecha": null,
+          "mercaderia": "Sheet/film of polycarbonates WLS82TS1300-112-8,0 -2100-5800,00-000"
+        },
+        "vacios_ia": [],
+        "comparaciones": [
+          {
+            "campo": "ncm",
+            "ia": "3920.61.00",
+            "pdf": "39206100",
+            "estado": "coincide"
+          },
+          {
+            "campo": "incoterm",
+            "ia": "DAP",
+            "pdf": "FCA",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "moneda",
+            "ia": "USD",
+            "pdf": "USDD",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_origen",
+            "ia": "Brasil",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_destino",
+            "ia": "Argentina",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "via",
+            "ia": "terrestre",
+            "pdf": "terrestre",
+            "estado": "coincide"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "16.6732",
+            "estado": "ia_sin_ancla"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "valor_factura",
+            "ia": "16.6732",
+            "estado": "ia_sin_ancla"
+          }
+        ],
+        "parquet": {
+          "ncm8": "39206100",
+          "valido": true,
+          "descripcion": null,
+          "die": 16,
+          "intervenciones": 1,
+          "antidumping": 0
+        },
+        "origen_preferencia": "mercosur",
+        "ok": false
+      },
+      {
+        "archivo": "invoice.pdf",
+        "tipo": "factura_comercial",
+        "lectura_chars": 3438,
+        "heuristica": {
+          "ncm": "20260513",
+          "incoterm": "DAP",
+          "moneda": "USDD",
+          "valor_candidato": "16,673.20",
+          "fecha_candidata": "2026-05-12",
+          "destino_mencion": "SHIP TO",
+          "via": "terrestre"
+        },
+        "ia_resumen": {
+          "ncm": "39206100",
+          "incoterm": "DAP",
+          "moneda": "USD",
+          "valor": "16673.2",
+          "origen": "Brasil",
+          "destino": null,
+          "via": "terrestre",
+          "fecha": "2026-05-13",
+          "mercaderia": "Sheet/film of polycarbonates"
+        },
+        "vacios_ia": [
+          {
+            "campo": "origen.pais_destino",
+            "donde": "interpretación",
+            "motivo": "«Paraguay» no figura en el documento"
+          }
+        ],
+        "comparaciones": [
+          {
+            "campo": "ncm",
+            "ia": "39206100",
+            "pdf": "20260513",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "incoterm",
+            "ia": "DAP",
+            "pdf": "DAP",
+            "estado": "coincide"
+          },
+          {
+            "campo": "moneda",
+            "ia": "USD",
+            "pdf": "USDD",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_origen",
+            "ia": "Brasil",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "via",
+            "ia": "terrestre",
+            "pdf": "terrestre",
+            "estado": "coincide"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "16673.2",
+            "pdf": "16,673.20",
+            "estado": "coincide"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2026-05-13",
+            "pdf": "2026-05-12",
+            "estado": "diverge"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "pais_origen",
+            "ia": "Brasil",
+            "estado": "ia_sin_ancla"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2026-05-13",
+            "pdf": "2026-05-12",
+            "estado": "diverge"
+          }
+        ],
+        "parquet": {
+          "ncm8": "39206100",
+          "valido": true,
+          "descripcion": null,
+          "die": 16,
+          "intervenciones": 1,
+          "antidumping": 0
+        },
+        "origen_preferencia": "mercosur",
+        "ok": false
+      }
+    ]
+  },
+  {
+    "carpeta": "5",
+    "ok": 0,
+    "total": 4,
+    "docs": [
+      {
+        "archivo": "afip.pdf",
+        "tipo": "despacho",
+        "lectura_chars": 10541,
+        "heuristica": {
+          "ncm": "39074090",
+          "incoterm": "FOB",
+          "valor_candidato": "2934",
+          "fecha_candidata": "2026-02-04",
+          "destino_mencion": "/ Salida"
+        },
+        "ia_resumen": {
+          "ncm": "3907.40.90.000",
+          "incoterm": "CFR",
+          "moneda": null,
+          "valor": "92.85536",
+          "origen": "China",
+          "destino": "Argentina",
+          "via": null,
+          "fecha": null,
+          "mercaderia": "Los demás -Policarbonatos POLIACETALES, LOS DEMÁS POLIETERES Y RESINAS EPOXI, EN"
+        },
+        "vacios_ia": [
+          {
+            "campo": "comercial.moneda",
+            "donde": "interpretación",
+            "motivo": "«USD» no figura en el documento"
+          }
+        ],
+        "comparaciones": [
+          {
+            "campo": "ncm",
+            "ia": "3907.40.90.000",
+            "pdf": "39074090",
+            "estado": "coincide"
+          },
+          {
+            "campo": "incoterm",
+            "ia": "CFR",
+            "pdf": "FOB",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_origen",
+            "ia": "China",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_destino",
+            "ia": "Argentina",
+            "pdf": "/ Salida",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "92.85536",
+            "pdf": "2934",
+            "estado": "diverge"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "valor_factura",
+            "ia": "92.85536",
+            "pdf": "2934",
+            "estado": "diverge"
+          }
+        ],
+        "parquet": {
+          "ncm8": "39074090",
+          "valido": true,
+          "descripcion": null,
+          "die": 0,
+          "intervenciones": 0,
+          "antidumping": 0
+        },
+        "origen_preferencia": "extrazona",
+        "ok": false
+      },
+      {
+        "archivo": "bl.pdf",
+        "tipo": "transporte",
+        "lectura_chars": 22970,
+        "heuristica": {
+          "destino_mencion": "upon reasonable proof of identity and without requiring",
+          "via": "maritima"
+        },
+        "ia_resumen": {
+          "ncm": "3907.40",
+          "incoterm": "CY/CY",
+          "moneda": null,
+          "valor": null,
+          "origen": "China",
+          "destino": "Argentina",
+          "via": "maritima",
+          "fecha": null,
+          "mercaderia": "POLYCARBONATE RESIN CLARNATE PC-A1077"
+        },
+        "vacios_ia": [],
+        "comparaciones": [
+          {
+            "campo": "ncm",
+            "ia": "3907.40",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "incoterm",
+            "ia": "CY/CY",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_origen",
+            "ia": "China",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_destino",
+            "ia": "Argentina",
+            "pdf": "upon reasonable proof of identity and without requiring",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "via",
+            "ia": "maritima",
+            "pdf": "maritima",
+            "estado": "coincide"
+          }
+        ],
+        "problemas": [],
+        "parquet": {
+          "ncm8": "390740",
+          "valido": false,
+          "motivo": "NCM incompleta"
+        },
+        "origen_preferencia": "extrazona",
+        "ok": false
+      },
+      {
+        "archivo": "gastos.pdf",
+        "tipo": "factura_gastos",
+        "lectura_chars": 1154,
+        "heuristica": {
+          "moneda": "USDD",
+          "destino_mencion": "0.00",
+          "via": "maritima"
+        },
+        "ia_resumen": {
+          "ncm": null,
+          "incoterm": null,
+          "moneda": "USD / CNY",
+          "valor": null,
+          "origen": null,
+          "destino": null,
+          "via": "maritima",
+          "fecha": null,
+          "mercaderia": null
+        },
+        "vacios_ia": [
+          {
+            "campo": "pago.fecha_factura",
+            "donde": "interpretación",
+            "motivo": "fecha no hallada en transcripción"
+          }
+        ],
+        "comparaciones": [
+          {
+            "campo": "moneda",
+            "ia": "USD / CNY",
+            "pdf": "USDD",
+            "estado": "diverge"
+          },
+          {
+            "campo": "via",
+            "ia": "maritima",
+            "pdf": "maritima",
+            "estado": "coincide"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "moneda",
+            "ia": "USD / CNY",
+            "pdf": "USDD",
+            "estado": "diverge"
+          }
+        ],
+        "parquet": null,
+        "origen_preferencia": null,
+        "ok": false
+      },
+      {
+        "archivo": "invoice.pdf",
+        "tipo": "factura_comercial",
+        "lectura_chars": 1960,
+        "heuristica": {
+          "incoterm": "CFR",
+          "moneda": "USDD",
+          "valor_candidato": "54,4",
+          "via": "terrestre"
+        },
+        "ia_resumen": {
+          "ncm": "3907.40",
+          "incoterm": "CFR",
+          "moneda": "USD",
+          "valor": "91.936",
+          "origen": "China",
+          "destino": "Argentina",
+          "via": "maritima",
+          "fecha": "2025-12-14",
+          "mercaderia": "CLARNATE PC-A1077"
+        },
+        "vacios_ia": [],
+        "comparaciones": [
+          {
+            "campo": "ncm",
+            "ia": "3907.40",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "incoterm",
+            "ia": "CFR",
+            "pdf": "CFR",
+            "estado": "coincide"
+          },
+          {
+            "campo": "moneda",
+            "ia": "USD",
+            "pdf": "USDD",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_origen",
+            "ia": "China",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "pais_destino",
+            "ia": "Argentina",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "via",
+            "ia": "maritima",
+            "pdf": "terrestre",
+            "estado": "diverge"
+          },
+          {
+            "campo": "valor_factura",
+            "ia": "91.936",
+            "pdf": "54,4",
+            "estado": "ia_ok_literal"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2025-12-14",
+            "estado": "ia_sin_ancla"
+          }
+        ],
+        "problemas": [
+          {
+            "campo": "via",
+            "ia": "maritima",
+            "pdf": "terrestre",
+            "estado": "diverge"
+          },
+          {
+            "campo": "fecha_factura",
+            "ia": "2025-12-14",
+            "estado": "ia_sin_ancla"
+          }
+        ],
+        "parquet": {
+          "ncm8": "390740",
+          "valido": false,
+          "motivo": "NCM incompleta"
+        },
+        "origen_preferencia": "extrazona",
+        "ok": false
+      }
+    ]
+  }
+]

@@ -24,4 +24,6 @@ export type PublicUser = {
   op_meeting_at: string | null;
   op_submitted_at: string | null;
   op_reviewed_at: string | null;
+  /** Acceso al portal self-service habilitado por el estudio ('1' = sí). */
+  portal_habilitado: string | null;
 };

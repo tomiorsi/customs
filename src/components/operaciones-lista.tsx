@@ -345,9 +345,32 @@ export function OperacionDetalle({
     { label: "Peso bruto", value: mostrarPeso(op.peso_bruto) },
   ];
 
+  // Varias facturas comerciales (consolidado / varios proveedores): el detalle.
+  const facturasMultiples: {
+    nro: string;
+    proveedor: string | null;
+    total: number;
+    moneda: string | null;
+  }[] = (() => {
+    if (!op.facturas_json) return [];
+    try {
+      const arr = JSON.parse(op.facturas_json);
+      return Array.isArray(arr) ? arr : [];
+    } catch {
+      return [];
+    }
+  })();
+
   const valoracion: Campo[] = [
+    {
+      label: facturasMultiples.length > 1 ? "N° de factura (varias)" : "N° de factura",
+      value: op.nro_factura,
+    },
     { label: "Incoterm", value: op.incoterm },
-    { label: "Valor factura", value: money(op.moneda, op.valor_factura) },
+    {
+      label: facturasMultiples.length > 1 ? "Valor facturas (suma)" : "Valor factura",
+      value: money(op.moneda, op.valor_factura),
+    },
     { label: "Valor FOB", value: money(op.moneda, op.valor_fob) },
     { label: "Valor CIF", value: money(op.moneda, op.valor_cif), accent: true },
     { label: "Gastos en origen", value: money(op.moneda, op.gastos_origen) },
@@ -407,6 +430,43 @@ export function OperacionDetalle({
             <Seccion titulo="General" campos={general} />
             <Seccion titulo="Mercadería" campos={mercaderia} />
             <Seccion titulo="Valoración" campos={valoracion} />
+
+            {facturasMultiples.length > 1 && (
+              <div className="rounded-xl border border-border bg-surface-2/40 px-4 py-3">
+                <p className="text-[10px] font-medium uppercase tracking-wide text-muted">
+                  Facturas comerciales ({facturasMultiples.length})
+                </p>
+                <ul className="mt-2 divide-y divide-border">
+                  {facturasMultiples.map((f, i) => (
+                    <li
+                      key={`${f.nro}-${i}`}
+                      className="flex items-baseline justify-between gap-4 py-2"
+                    >
+                      <div className="min-w-0 flex-1 truncate text-sm">
+                        <span className="font-medium text-foreground">{f.nro}</span>
+                        {f.proveedor && (
+                          <span className="ml-2 text-xs text-muted">
+                            {f.proveedor.split(",")[0]!.trim()}
+                          </span>
+                        )}
+                      </div>
+                      <span className="shrink-0 tabular-nums text-sm text-foreground">
+                        {money(f.moneda, f.total ? String(f.total) : null)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-2 flex items-baseline justify-between gap-4 border-t border-border pt-2">
+                  <span className="text-xs font-medium uppercase tracking-wide text-muted">
+                    Total
+                  </span>
+                  <span className="shrink-0 text-sm font-semibold tabular-nums text-accent">
+                    {money(op.moneda, op.valor_factura)}
+                  </span>
+                </div>
+              </div>
+            )}
+
             <Seccion titulo="Transporte" campos={transporte} />
 
             {op.detalle && (

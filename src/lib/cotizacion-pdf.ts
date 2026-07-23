@@ -4,15 +4,19 @@ import { PDFDocument, StandardFonts, rgb, type PDFFont } from "pdf-lib";
 import type { OperationWithClient } from "@/lib/data";
 import type { LiquidacionResult } from "@/lib/liquidacion";
 import type { Requisito } from "@/lib/requisitos";
+import { nombreOperacion } from "@/lib/operacion-display";
+import {
+  PREFIJO_ARCHIVO_RESUMEN_FONDOS,
+  TITULO_RESUMEN_FONDOS,
+} from "@/lib/cotizacion-labels";
 
 /**
- * Genera el PDF de la COTIZACIÓN PRELIMINAR de importación: el mismo desglose
- * que ve el operador en el paso 1 (mercadería/CIF, tributos, gastos locales y
- * totales), en un documento limpio de una sola página para enviar al cliente.
+ * Genera PDF de importación para el cliente:
+ * - paso 1: cotización preliminar (mercadería/CIF, tributos, gastos locales);
+ * - paso 4: resumen de fondos (VEP + adelanto logístico; CIF solo como base aduanera).
  *
- * Los honorarios no se imprimen con monto (se acuerdan con la dirección) y los
- * valores son estimados/orientativos (el detalle firme se ajusta con el BL real
- * en el paso 2). Devuelve los bytes del PDF.
+ * Los honorarios no se imprimen con monto (se acuerdan con la dirección).
+ * Devuelve los bytes del PDF.
  */
 
 const ESTUDIO = process.env.NEXT_PUBLIC_ESTUDIO_NOMBRE || "RCV Orsi";
@@ -45,6 +49,25 @@ export function formatUsd(n: number): string {
 
 const money = formatUsd;
 
+export type VistaCotizacionPdf = "cotizacion" | "liquidacion";
+
+export {
+  PREFIJO_ARCHIVO_RESUMEN_FONDOS,
+  TITULO_RESUMEN_FONDOS,
+} from "@/lib/cotizacion-labels";
+
+/** Helvetica (WinAnsi) no admite flechas ni comillas tipográficas Unicode. */
+function sanitizePdfText(s: string): string {
+  return s
+    .replace(/\u2192/g, "->")
+    .replace(/\u2190/g, "<-")
+    .replace(/[\u2013\u2014]/g, "-")
+    .replace(/\u2026/g, "...")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/\u00A0/g, " ");
+}
+
 /** Corta un texto en líneas de hasta `max` caracteres, sin partir palabras. */
 function wrap(s: string, max: number): string[] {
   const palabras = s.split(/\s+/);
@@ -66,7 +89,10 @@ export async function generarCotizacionPDF(
   op: OperationWithClient,
   liq: LiquidacionResult,
   requisitos: Requisito[] = [],
+  opts: { vista?: VistaCotizacionPdf } = {},
 ): Promise<Uint8Array> {
+  const vista = opts.vista === "liquidacion" ? "liquidacion" : "cotizacion";
+  const esLiquidacion = vista === "liquidacion";
   const doc = await PDFDocument.create();
   const A4: [number, number] = [595.28, 841.89];
   // `page` es reasignable: si una sección no entra, abrimos una página nueva.
@@ -90,6 +116,7 @@ export async function generarCotizacionPDF(
     c.percGan +
     c.iibb;
   const gastosLocales = liq.logistica.costoLogistica;
+  const fondosOperacion = totalTributos + liq.adelanto;
 
   /* ── helpers de dibujo ── */
   const text = (
@@ -98,7 +125,8 @@ export async function generarCotizacionPDF(
     yy: number,
     opts: { size?: number; font?: PDFFont; color?: ReturnType<typeof rgb> } = {},
   ) => {
-    page.drawText(s, {
+    const safe = sanitizePdfText(s);
+    page.drawText(safe, {
       x,
       y: yy,
       size: opts.size ?? 10,
@@ -112,10 +140,11 @@ export async function generarCotizacionPDF(
     yy: number,
     opts: { size?: number; font?: PDFFont; color?: ReturnType<typeof rgb> } = {},
   ) => {
+    const safe = sanitizePdfText(s);
     const f = opts.font ?? font;
     const size = opts.size ?? 10;
-    const w = f.widthOfTextAtSize(s, size);
-    text(s, xRight - w, yy, opts);
+    const w = f.widthOfTextAtSize(safe, size);
+    text(safe, xRight - w, yy, opts);
   };
   const hr = (yy: number, color = LINE) => {
     page.drawLine({
@@ -142,10 +171,11 @@ export async function generarCotizacionPDF(
     tracking: number,
     opts: { size?: number; font?: PDFFont; color?: ReturnType<typeof rgb> } = {},
   ) => {
+    const safe = sanitizePdfText(s);
     const f = opts.font ?? font;
     const size = opts.size ?? 10;
     let cx = x;
-    for (const ch of s) {
+    for (const ch of safe) {
       text(ch, cx, yy, opts);
       cx += f.widthOfTextAtSize(ch, size) + tracking;
     }
@@ -161,67 +191,55 @@ export async function generarCotizacionPDF(
     if (y - need < M) nuevaPagina();
   };
 
-  /* ── encabezado: logo (cuadro naranja + ícono) + nombre, igual que en la web ── */
+  /* ── encabezado: título + línea naranja en la misma línea que RCV Orsi + logo ── */
   const S = 40; // lado del cuadro del logo
-  const boxTop = y; // borde superior del cuadro
-  const boxBottom = boxTop - S;
-  const boxCenter = boxBottom + S / 2;
-  page.drawSvgPath(roundedRect(S, S, 10), { x: X0, y: boxTop, color: ACCENT });
-  // Ícono de contenedor en blanco, centrado en el cuadro (viewBox 32, translate 4,4).
+  const headerTop = y;
+  const logoY = headerTop - 22;
+  const studioY = logoY - S / 2;
+  const titleY = studioY + 2; // misma altura que "RCV Orsi"
+
+  // Línea naranja + título a la izquierda
+  page.drawSvgPath(roundedRect(3.5, 18, 1.5), {
+    x: X0,
+    y: titleY + 13,
+    color: ACCENT,
+  });
+  text(esLiquidacion ? TITULO_RESUMEN_FONDOS : "Cotización preliminar de importación", X0 + 12, titleY, {
+    size: esLiquidacion ? 12 : 13,
+    font: bold,
+    color: ACCENT_DARK,
+  });
+
+  // Logo a la derecha
+  const logoX = X1 - S - 2;
+  page.drawSvgPath(roundedRect(S, S, 8), { x: logoX, y: logoY, color: ACCENT });
   const k = S / 32;
   for (const p of ICONO_BOX_PATHS) {
     page.drawSvgPath(p, {
-      x: X0 + 4 * k,
-      y: boxTop - 4 * k,
+      x: logoX + 4 * k,
+      y: logoY - 4 * k,
       scale: k,
       borderColor: WHITE,
       borderWidth: 2.2 * k,
     });
   }
-  // Nombre del estudio (gris) + subtítulo, centrados verticalmente contra el cuadro.
-  const tx = X0 + S + 13;
-  text(ESTUDIO, tx, boxCenter + 1.5, { size: 19, font: bold, color: BRAND });
-  textTracked("ESTUDIO ADUANERO", tx + 1, boxCenter - 11, 1.3, {
-    size: 7,
+  // Nombre del estudio centrado con el logo
+  const studioX = logoX - 95;
+  text(ESTUDIO, studioX, studioY + 2, { size: 14, font: bold, color: BRAND });
+  textTracked("ESTUDIO ADUANERO", studioX + 0.5, studioY - 8, 1.3, {
+    size: 6,
     font: bold,
     color: BRAND,
   });
 
-  // Nombre que le puso el cliente a la operación + el cliente debajo.
-  const titulo = (op.titulo || "").trim() || op.ref;
-  right(titulo, X1, boxCenter + 1.5, { size: 11.5, font: bold });
-  if (op.company_name) {
-    right(op.company_name, X1, boxCenter - 11, { size: 9, color: MUTED });
-  }
-  y = boxBottom - 26;
-
-  /* ── banda del título (estilo de la página: naranja suave con barra de acento) ── */
-  const bandH = 50;
-  const bandTop = y;
-  const bandBottom = bandTop - bandH;
-  page.drawSvgPath(roundedRect(X1 - X0, bandH, 12), {
-    x: X0,
-    y: bandTop,
-    color: ACCENT_SOFT,
-  });
-  // Barra de acento a la izquierda.
-  page.drawSvgPath(roundedRect(4, bandH - 20, 2), {
-    x: X0 + 14,
-    y: bandTop - 10,
-    color: ACCENT,
-  });
-  const bandCenter = bandBottom + bandH / 2;
-  const bx = X0 + 28;
-  text("Cotización preliminar de importación", bx, bandCenter - 5, {
-    size: 14,
-    font: bold,
-    color: ACCENT_DARK,
-  });
-  y = bandBottom - 24;
+  y = logoY - S - 8;
 
   /* ── datos de la operación ── */
   y -= 4;
   const datos: [string, string][] = [
+    ...(op.company_name
+      ? [["Cliente", op.company_name] as [string, string]]
+      : []),
     ["Mercadería", op.mercaderia || "—"],
     [
       "Origen",
@@ -242,7 +260,7 @@ export async function generarCotizacionPDF(
     text(v, X0 + 120, y, { size: 9.5, font: bold });
     y -= 16;
   }
-  y -= 6;
+  y -= 22;
 
   /* ── grupos de costos ── */
   const grupo = (titulo: string, total: string) => {
@@ -262,10 +280,10 @@ export async function generarCotizacionPDF(
     y -= 15;
   };
 
-  // 1) Mercadería (CIF)
-  grupo("Mercadería (CIF)", money(c.cif));
+  // 1) Base aduanera / CIF
+  grupo(esLiquidacion ? "Base aduanera de referencia (CIF)" : "Mercadería (CIF)", money(c.cif));
   item(
-    "Valor de la mercadería",
+    esLiquidacion ? "Mercadería / valor base" : "Valor de la mercadería",
     money(valorMercaderia),
     liq.fleteFuente === "incluido"
       ? `${liq.valorFuente} · incluye flete`
@@ -279,6 +297,9 @@ export async function generarCotizacionPDF(
     );
   }
   if (c.seguro > 0) item("Seguro", money(c.seguro), "1% s/ merc. + flete");
+  if (esLiquidacion) {
+    item("Uso del CIF", "base para tributos", "no es cobro del estudio");
+  }
   y -= 8;
 
   // 2) Impuestos y tributos (VEP)
@@ -298,67 +319,63 @@ export async function generarCotizacionPDF(
     item(`Percepción IIBB (${liq.regimen.iibbPct}%)`, money(c.iibb));
   y -= 8;
 
-  // 3) Despacho y gastos locales
-  grupo("Despacho y gastos locales", money(gastosLocales));
+  // 3) Logística y transporte
+  grupo(esLiquidacion ? "Adelanto logístico y transporte" : "Logística y transporte", money(gastosLocales));
   item("Honorarios despachante", "A convenir", "se acuerdan aparte");
-  item("Gastos locales (naviera, terminal, despacho)", money(gastosLocales));
+  item(
+    esLiquidacion ? "Adelanto logístico y transporte" : "Transporte y gastos locales (naviera, terminal)",
+    money(gastosLocales),
+    esLiquidacion ? "adelanto estimado" : undefined,
+  );
   y -= 14;
 
-  /* ── totales: el costo de importación (sin la mercadería) es el número clave ── */
+  /* ── totales ── */
   const costoImportacion = liq.costoTotal - valorMercaderia;
   hr(y, ACCENT);
   y -= 22;
-  // Número principal: lo que cuesta importar, aparte de la mercadería.
-  text("Costo de importación", X0, y, { size: 13, font: bold });
-  right(money(costoImportacion), X1, y, {
-    size: 16,
-    font: bold,
-    color: ACCENT,
-  });
-  y -= 13;
-  text(
-    "seguro, tributos no recuperables y gastos locales · no incluye la mercadería ni los honorarios",
-    X0,
-    y,
-    { size: 8, color: MUTED },
-  );
-  y -= 22;
-  // Referencia: mercadería + costo de importación = costo puesto en depósito.
-  text("Valor de la mercadería (factura)", X0, y, { size: 9.5, color: MUTED });
-  right(money(valorMercaderia), X1, y, { size: 9.5, color: MUTED });
-  y -= 15;
-  text("Costo puesto en depósito (mercadería + importación)", X0, y, {
-    size: 9.5,
-    color: MUTED,
-  });
-  right(money(liq.costoTotal), X1, y, { size: 9.5, color: MUTED });
-  y -= 22;
-
-  // Notas de flujo de fondos (lo que se adelanta y se recupera/reintegra).
-  hr(y);
-  y -= 14;
-  if (c.recuperable > 0) {
-    const notaVep = wrap(
-      `Además adelantás ${money(c.recuperable)} de tributos por VEP que recuperás como ` +
-        `crédito fiscal / pago a cuenta (no son costo para este perfil).`,
-      96,
+  if (esLiquidacion) {
+    text("Fondos a prever para la operación", X0, y, { size: 13, font: bold });
+    right(money(fondosOperacion), X1, y, {
+      size: 16,
+      font: bold,
+      color: ACCENT,
+    });
+    y -= 13;
+    text(
+      "incluye VEP de tributos + adelanto logístico · no incluye mercadería ni pagos al proveedor / forwarder",
+      X0,
+      y,
+      { size: 8, color: MUTED },
     );
-    for (const linea of notaVep) {
-      text(linea, X0, y, { size: 8.5, color: MUTED });
-      y -= 11;
+    y -= 22;
+    item("Tributos por VEP", money(totalTributos), "cliente paga ARCA");
+    item("Adelanto logístico", money(liq.adelanto), "cliente paga al estudio");
+    item("Mercadería, flete y seguro", "se pagan aparte", "proveedor / forwarder");
+    if (c.recuperable > 0) {
+      item("Parte recuperable del VEP", money(c.recuperable), "crédito fiscal / pago a cuenta");
     }
-    y -= 3;
+    y -= 14;
+  } else {
+    // Número principal: lo que cuesta importar, aparte de la mercadería.
+    text("Costo de importación", X0, y, { size: 13, font: bold });
+    right(money(costoImportacion), X1, y, {
+      size: 16,
+      font: bold,
+      color: ACCENT,
+    });
+    y -= 13;
+    text(
+      "seguro, tributos no recuperables y gastos locales · no incluye la mercadería ni los honorarios",
+      X0,
+      y,
+      { size: 8, color: MUTED },
+    );
+    y -= 40;
   }
-  {
-    const notaLog = `Adelanto de logística estimado: ${money(liq.adelanto)}.`;
-    for (const linea of wrap(notaLog, 96)) {
-      text(linea, X0, y, { size: 8.5, color: MUTED });
-      y -= 11;
-    }
-  }
-  y -= 16;
 
-  /* ── certificados, intervenciones y trámites (según NCM + origen) ── */
+
+  /* ── certificados, intervenciones y trámites (solo cotización preliminar) ── */
+  if (!esLiquidacion) {
   ensure(70);
   text("CERTIFICADOS, INTERVENCIONES Y TRÁMITES", X0, y, {
     size: 9,
@@ -418,17 +435,25 @@ export async function generarCotizacionPDF(
     }
   }
   y -= 9;
+  }
 
   /* ── disclaimer ── */
   ensure(70);
   hr(y);
   y -= 16;
-  const disclaimer = [
-    "Cotización ESTIMATIVA y orientativa, en dólares estadounidenses. El cálculo puede variar según la",
-    "clasificación final (NCM), el contenedor real y el flete definitivo del forwarder. Los tributos los abona el",
-    "cliente por VEP; el adelanto de logística cubre los pagos que el despachante realiza por cuenta y orden.",
-    "El retiro del contenedor se habilita con la carta de garantía. Los honorarios del despacho se acuerdan por separado.",
-  ];
+  const disclaimer = esLiquidacion
+    ? [
+        "Resumen ESTIMATIVO de fondos a prever, en dólares estadounidenses. No es factura ni cotización de mercadería.",
+        "El cálculo puede variar según la clasificación final (NCM), el contenedor real y los gastos definitivos del forwarder.",
+        "Los tributos los paga el cliente por VEP; el adelanto de logística cubre solo los pagos que el despachante realiza por cuenta y orden.",
+        "La mercadería, el flete internacional y el seguro se pagan aparte según la documentación del proveedor / forwarder.",
+      ]
+    : [
+        "Cotización ESTIMATIVA y orientativa, en dólares estadounidenses. El cálculo puede variar según la",
+        "clasificación final (NCM), el contenedor real y el flete definitivo del forwarder. Los tributos los abona el",
+        "cliente por VEP; el adelanto de logística cubre los pagos que el despachante realiza por cuenta y orden.",
+        "El retiro del contenedor se habilita con la carta de garantía. Los honorarios del despacho se acuerdan por separado.",
+      ];
   for (const linea of disclaimer) {
     text(linea, X0, y, { size: 8, color: MUTED });
     y -= 12;

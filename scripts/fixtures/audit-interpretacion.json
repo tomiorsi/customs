@@ -1,0 +1,2496 @@
+[
+  {
+    "carpeta": "1",
+    "ok": 2,
+    "total": 4,
+    "documentos": [
+      {
+        "carpeta": "1",
+        "archivo": "1510299e26 COD.pdf",
+        "tipo": "certificado_origen",
+        "lectura_chars": 2012,
+        "ok": true,
+        "resumen": "15 ok · 1 parcial · 0 inventado",
+        "inventados": [],
+        "parciales": [
+          {
+            "campo": "mercaderia.descripcion",
+            "valor": "ZINCO EM FORMAS BRUTAS. Zinco não ligado: Que contenha, em p",
+            "estado": "parcial",
+            "nota": ""
+          }
+        ],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 2012,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": "7901.11.11",
+            "estado": "ok",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.valor_factura",
+            "valor": "117.44504",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.incoterm",
+            "valor": "CPT",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.moneda",
+            "valor": "USD",
+            "estado": "ok",
+            "nota": "moneda debe aparecer en el doc"
+          },
+          {
+            "campo": "mercaderia.cantidad",
+            "valor": "27,711 Ton",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_neto",
+            "valor": "27,711 Ton",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.descripcion",
+            "valor": "ZINCO EM FORMAS BRUTAS. Zinco não ligado: Que contenha, em p",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Exportador.nombre",
+            "valor": "NEXA RECURSOS MINERAIS S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Exportador.id",
+            "valor": "CNPJ: 42.416.651/0001-07",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Importador.nombre",
+            "valor": "ACERBRAG S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Importador.id",
+            "valor": "CUIT: 30-69317088-1",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_origen",
+            "valor": "Brasil",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_destino",
+            "valor": "ARGENTINA",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "BR015A18260201880200",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "pago.fecha_factura",
+            "valor": "2026-06-15",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      },
+      {
+        "carpeta": "1",
+        "archivo": "1510299e26 CRT copy.pdf",
+        "tipo": "transporte",
+        "lectura_chars": 5984,
+        "ok": false,
+        "resumen": "12 ok · 6 parcial · 1 inventado",
+        "inventados": [
+          {
+            "campo": "comercial.moneda",
+            "valor": "USD",
+            "estado": "inventado",
+            "nota": "moneda debe aparecer en el doc"
+          }
+        ],
+        "parciales": [
+          {
+            "campo": "mercaderia.descripcion",
+            "valor": "ZINC NOT ALLOYED. CONTAINING BY WEIGHT 99,99% OR MORE OF ZIN",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Remitente/Shipper.nombre",
+            "valor": "NEXA RECURSOS MINERAIS S.A.",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Remitente/Shipper.id",
+            "valor": "CNPJ 42.416.651/0001-07",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Destinatario/Consignee.nombre",
+            "valor": "ACERBRAG S.A.",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Destinatario/Consignee.id",
+            "valor": "CUIT 30-693.17088-1",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Transportista.nombre",
+            "valor": "TRUCK FENIX TRANSPORTES NAC INTERNAC E OPER LOGISTICAS LTDA",
+            "estado": "parcial",
+            "nota": ""
+          }
+        ],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 5984,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": "7901.11.11",
+            "estado": "ok",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.valor_factura",
+            "valor": "117.44504",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.incoterm",
+            "valor": "CPT",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.moneda",
+            "valor": "USD",
+            "estado": "inventado",
+            "nota": "moneda debe aparecer en el doc"
+          },
+          {
+            "campo": "mercaderia.cantidad",
+            "valor": "27.711,000 KGS",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_neto",
+            "valor": "27.711,000 KGS",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_bruto",
+            "valor": "27.730,000 KGS",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.bultos",
+            "valor": "29 VOLUMES",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.descripcion",
+            "valor": "ZINC NOT ALLOYED. CONTAINING BY WEIGHT 99,99% OR MORE OF ZIN",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Remitente/Shipper.nombre",
+            "valor": "NEXA RECURSOS MINERAIS S.A.",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Remitente/Shipper.id",
+            "valor": "CNPJ 42.416.651/0001-07",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Destinatario/Consignee.nombre",
+            "valor": "ACERBRAG S.A.",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Destinatario/Consignee.id",
+            "valor": "CUIT 30-693.17088-1",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Transportista.nombre",
+            "valor": "TRUCK FENIX TRANSPORTES NAC INTERNAC E OPER LOGISTICAS LTDA",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_origen",
+            "valor": "Brasil",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_destino",
+            "valor": "ARGENTINA",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "BR.5443.04738",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "via",
+            "valor": "terrestre",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      },
+      {
+        "carpeta": "1",
+        "archivo": "1510299e26 Fatura Nexa.pdf",
+        "tipo": "factura_comercial",
+        "lectura_chars": 1862,
+        "ok": false,
+        "resumen": "19 ok · 4 parcial · 1 inventado",
+        "inventados": [
+          {
+            "campo": "origen.pais_origen",
+            "valor": "Brasil",
+            "estado": "inventado",
+            "nota": ""
+          }
+        ],
+        "parciales": [
+          {
+            "campo": "partes.Buyer.id",
+            "valor": "CUIT 30-69317088-1",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Consignee.id",
+            "valor": "CUIT 30-69317088-1",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Notify.id",
+            "valor": "CUIT 30-69317088-1",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Producer.id",
+            "valor": "CNPJ 42.416.651/0001-07",
+            "estado": "parcial",
+            "nota": ""
+          }
+        ],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 1862,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": "7901.11.11",
+            "estado": "ok",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.valor_factura",
+            "valor": "117.44504",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.valor_fob",
+            "valor": "112.62871",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.flete",
+            "valor": "4.81633",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.incoterm",
+            "valor": "CPT",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.moneda",
+            "valor": "USD",
+            "estado": "ok",
+            "nota": "moneda debe aparecer en el doc"
+          },
+          {
+            "campo": "mercaderia.cantidad",
+            "valor": "27,711 MT",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_neto",
+            "valor": "27.711 MT",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_bruto",
+            "valor": "27.730 MT",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.bultos",
+            "valor": "29 Bundles with 1044 Ingots",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.descripcion",
+            "valor": "ZINC NOT ALLOYED. CONTAINING BY WEIGHT 99,99% OR MORE OF ZIN",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Buyer.nombre",
+            "valor": "ACERBRAG S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Buyer.id",
+            "valor": "CUIT 30-69317088-1",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Consignee.nombre",
+            "valor": "ACERBRAG S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Consignee.id",
+            "valor": "CUIT 30-69317088-1",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Notify.nombre",
+            "valor": "ACERBRAG S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Notify.id",
+            "valor": "CUIT 30-69317088-1",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Producer.nombre",
+            "valor": "NEXA RECURSOS MINERAIS S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Producer.id",
+            "valor": "CNPJ 42.416.651/0001-07",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_origen",
+            "valor": "Brasil",
+            "estado": "inventado",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_destino",
+            "valor": "Argentina",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "1510299E26",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "pago.fecha_factura",
+            "valor": "2026-06-15",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      },
+      {
+        "carpeta": "1",
+        "archivo": "1510299e26 Packing List & Analisys Certificate.pdf",
+        "tipo": "packing_list",
+        "lectura_chars": 4449,
+        "ok": true,
+        "resumen": "11 ok · 0 parcial · 0 inventado",
+        "inventados": [],
+        "parciales": [],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 4449,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": null,
+            "estado": "skip",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "mercaderia.cantidad",
+            "valor": "1044 lingotes",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_neto",
+            "valor": "27.711 TO",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_bruto",
+            "valor": "27.73 TO",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.bultos",
+            "valor": "29 bundles",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.descripcion",
+            "valor": "Zn4E - SL - BR CT 4MS- ZINCO EM LINGOTES",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Seller.nombre",
+            "valor": "Nexa Recursos Minerais S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Seller.id",
+            "valor": "VOTORANTIM GROUP",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_origen",
+            "valor": "Brasil",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "1510299E26 - 4519691",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "pago.fecha_factura",
+            "valor": "2026-06-15",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "carpeta": "2",
+    "ok": 3,
+    "total": 6,
+    "documentos": [
+      {
+        "carpeta": "2",
+        "archivo": "Despacho arca.pdf",
+        "tipo": "despacho",
+        "lectura_chars": 143136,
+        "ok": true,
+        "resumen": "5 ok · 0 parcial · 0 inventado",
+        "inventados": [],
+        "parciales": [],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 143136,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": null,
+            "estado": "skip",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.valor_factura",
+            "valor": "103.06976",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.valor_fob",
+            "valor": "103.06976",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.flete",
+            "valor": "6.868",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.incoterm",
+            "valor": "FCA",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      },
+      {
+        "carpeta": "2",
+        "archivo": "comercial invoice 2.pdf",
+        "tipo": "factura_comercial",
+        "lectura_chars": 3070,
+        "ok": false,
+        "resumen": "11 ok · 0 parcial · 2 inventado",
+        "inventados": [
+          {
+            "campo": "origen.pais_origen",
+            "valor": "MX, CN",
+            "estado": "inventado",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_destino",
+            "valor": "Paraguay",
+            "estado": "inventado",
+            "nota": ""
+          }
+        ],
+        "parciales": [],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 3070,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": null,
+            "estado": "skip",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.valor_factura",
+            "valor": "2265",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.incoterm",
+            "valor": "FCA MIAMI",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Seller.nombre",
+            "valor": "SHURE INCORPORATED",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Shipper.nombre",
+            "valor": "Shure Incorporated",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Buyer.nombre",
+            "valor": "ICAP SA",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Consignee.nombre",
+            "valor": "ICAP SA",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Forwarded To.nombre",
+            "valor": "CATHEL ICAP MIAMI",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_origen",
+            "valor": "MX, CN",
+            "estado": "inventado",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_destino",
+            "valor": "Paraguay",
+            "estado": "inventado",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "301042576",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "pago.fecha_factura",
+            "valor": "2026-04-30",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "via",
+            "valor": "terrestre",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      },
+      {
+        "carpeta": "2",
+        "archivo": "comercial invoice 3.pdf",
+        "tipo": "factura_comercial",
+        "lectura_chars": 2084,
+        "ok": false,
+        "resumen": "9 ok · 0 parcial · 2 inventado",
+        "inventados": [
+          {
+            "campo": "origen.pais_origen",
+            "valor": "CN, MX",
+            "estado": "inventado",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_destino",
+            "valor": "Estados Unidos",
+            "estado": "inventado",
+            "nota": ""
+          }
+        ],
+        "parciales": [],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 2084,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": null,
+            "estado": "skip",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.valor_factura",
+            "valor": "2702",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.incoterm",
+            "valor": "FCA MIAMI",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.moneda",
+            "valor": "USD",
+            "estado": "ok",
+            "nota": "moneda debe aparecer en el doc"
+          },
+          {
+            "campo": "partes.Seller.nombre",
+            "valor": "SHURE INCORPORATED",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Buyer.nombre",
+            "valor": "ICAP SA",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Forward To.nombre",
+            "valor": "CATHEL ICAP MIAMI",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Producer.nombre",
+            "valor": "SHURE INCORPORATED",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_origen",
+            "valor": "CN, MX",
+            "estado": "inventado",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_destino",
+            "valor": "Estados Unidos",
+            "estado": "inventado",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "301043071",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      },
+      {
+        "carpeta": "2",
+        "archivo": "comercial invoice.pdf",
+        "tipo": "factura_comercial",
+        "lectura_chars": 4512,
+        "ok": false,
+        "resumen": "11 ok · 0 parcial · 2 inventado",
+        "inventados": [
+          {
+            "campo": "origen.pais_origen",
+            "valor": "CN, MX",
+            "estado": "inventado",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_destino",
+            "valor": "Paraguay",
+            "estado": "inventado",
+            "nota": ""
+          }
+        ],
+        "parciales": [],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 4512,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": null,
+            "estado": "skip",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.valor_factura",
+            "valor": "7605",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.incoterm",
+            "valor": "FCA MIAMI",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Seller.nombre",
+            "valor": "SHURE INCORPORATED",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Shipped From.nombre",
+            "valor": "Shure Incorporated",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Sold To.nombre",
+            "valor": "ICAP SA",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Ship To.nombre",
+            "valor": "ICAP SA",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Forward To.nombre",
+            "valor": "CATHEL ICAP MIAMI",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_origen",
+            "valor": "CN, MX",
+            "estado": "inventado",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_destino",
+            "valor": "Paraguay",
+            "estado": "inventado",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "301042574",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "pago.fecha_factura",
+            "valor": "2026-04-30",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "via",
+            "valor": "terrestre",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      },
+      {
+        "carpeta": "2",
+        "archivo": "factura.pdf",
+        "tipo": "factura_comercial",
+        "lectura_chars": 5221,
+        "ok": true,
+        "resumen": "4 ok · 0 parcial · 0 inventado",
+        "inventados": [],
+        "parciales": [],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 5221,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": null,
+            "estado": "skip",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.valor_factura",
+            "valor": "90.49776",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.incoterm",
+            "valor": "FCA MIAMI",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.moneda",
+            "valor": "USD",
+            "estado": "ok",
+            "nota": "moneda debe aparecer en el doc"
+          }
+        ]
+      },
+      {
+        "carpeta": "2",
+        "archivo": "guia aerea.pdf",
+        "tipo": "transporte",
+        "lectura_chars": 652,
+        "ok": true,
+        "resumen": "14 ok · 0 parcial · 0 inventado",
+        "inventados": [],
+        "parciales": [],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 652,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": "8537.10.20",
+            "estado": "ok",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.valor_factura",
+            "valor": "6868",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.flete",
+            "valor": "6868",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.moneda",
+            "valor": "USD",
+            "estado": "ok",
+            "nota": "moneda debe aparecer en el doc"
+          },
+          {
+            "campo": "mercaderia.descripcion",
+            "valor": "DISTRIBUIDOR",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Shipper.nombre",
+            "valor": "AVI-SPL LLC",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Consignee.nombre",
+            "valor": "ICAP S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Consignee.id",
+            "valor": "CUIT: 30-50382598-4",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Notify.nombre",
+            "valor": "ALMAX CARGO LLC",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_destino",
+            "valor": "ARGENTINA",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "25083424",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "pago.fecha_factura",
+            "valor": "2026-05-29",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "via",
+            "valor": "aerea",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "carpeta": "3",
+    "ok": 2,
+    "total": 3,
+    "documentos": [
+      {
+        "carpeta": "3",
+        "archivo": "afip.pdf",
+        "tipo": "despacho",
+        "lectura_chars": 16338,
+        "ok": true,
+        "resumen": "12 ok · 4 parcial · 0 inventado",
+        "inventados": [],
+        "parciales": [
+          {
+            "campo": "partes.Importador.id",
+            "valor": "CUIT 20-17379361-9",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Despachante de Aduana.id",
+            "valor": "CUIT 33-58249873-9",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Agente de Transporte Aduanero.id",
+            "valor": "CUIT 30-71616310-1",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "XXXXL219875 / Manifiesto 26073MANI021359X / Factura MJR5351",
+            "estado": "parcial",
+            "nota": ""
+          }
+        ],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 16338,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": null,
+            "estado": "skip",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.flete",
+            "valor": "3.539",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.incoterm",
+            "valor": "FCA",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.moneda",
+            "valor": "DOL",
+            "estado": "ok",
+            "nota": "moneda debe aparecer en el doc"
+          },
+          {
+            "campo": "partes.Importador.nombre",
+            "valor": "DAYPLAS S A",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Importador.id",
+            "valor": "CUIT 20-17379361-9",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Despachante de Aduana.nombre",
+            "valor": "ORSI RICARDO CESAR VICENT",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Despachante de Aduana.id",
+            "valor": "CUIT 33-58249873-9",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Agente de Transporte Aduanero.nombre",
+            "valor": "ORGANIZACION DE SERVICIOS ADUA",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Agente de Transporte Aduanero.id",
+            "valor": "CUIT 30-71616310-1",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Vendedor.nombre",
+            "valor": "MJR ENTERPRISES OF COLLIER CORP.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_origen",
+            "valor": "Estados Unidos",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_destino",
+            "valor": "ARGENTINA",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_procedencia",
+            "valor": "Estados Unidos",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "XXXXL219875 / Manifiesto 26073MANI021359X / Factura MJR5351",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "pago.fecha_factura",
+            "valor": "2026-02-10",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "via",
+            "valor": "aerea",
+            "estado": "no_verificable",
+            "nota": ""
+          }
+        ]
+      },
+      {
+        "carpeta": "3",
+        "archivo": "awl.pdf",
+        "tipo": "transporte",
+        "lectura_chars": 676,
+        "ok": true,
+        "resumen": "16 ok · 0 parcial · 0 inventado",
+        "inventados": [],
+        "parciales": [],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 676,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": "3920.99",
+            "estado": "ok",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.valor_factura",
+            "valor": "3043",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.moneda",
+            "valor": "USD",
+            "estado": "ok",
+            "nota": "moneda debe aparecer en el doc"
+          },
+          {
+            "campo": "mercaderia.cantidad",
+            "valor": "850 Kg",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_neto",
+            "valor": "850 Kg",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_bruto",
+            "valor": "850 Kg",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.descripcion",
+            "valor": "Polyurethane HP800",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Shipper.nombre",
+            "valor": "MJR ENTERPRISES CORP",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Consignee.nombre",
+            "valor": "DAYPLAS S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Consignee.id",
+            "valor": "CUIT: 33582498739",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Forwarder.nombre",
+            "valor": "AMEX LOGSITICS CORP",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Carrier.nombre",
+            "valor": "ATLAS AIR",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_destino",
+            "valor": "Argentina",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "AXL219875",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "via",
+            "valor": "aerea",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      },
+      {
+        "carpeta": "3",
+        "archivo": "invoice.pdf",
+        "tipo": "factura_comercial",
+        "lectura_chars": 1077,
+        "ok": false,
+        "resumen": "10 ok · 1 parcial · 1 inventado",
+        "inventados": [
+          {
+            "campo": "pago.fecha_factura",
+            "valor": "2026-02-10",
+            "estado": "inventado",
+            "nota": ""
+          }
+        ],
+        "parciales": [
+          {
+            "campo": "partes.Ship To.nombre",
+            "valor": "EGL c/o Dayplas, Attn: Leo Baca",
+            "estado": "parcial",
+            "nota": ""
+          }
+        ],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 1077,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": null,
+            "estado": "skip",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.valor_factura",
+            "valor": "22767.2",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.incoterm",
+            "valor": "FCA",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.moneda",
+            "valor": "USD",
+            "estado": "ok",
+            "nota": "moneda debe aparecer en el doc"
+          },
+          {
+            "campo": "partes.Buyer.nombre",
+            "valor": "DAYPLAS S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Buyer.id",
+            "valor": "33-58249873-9",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Seller.nombre",
+            "valor": "MJR Enterprises of Collier Corp",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Seller.id",
+            "valor": "02-0656676",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Ship To.nombre",
+            "valor": "EGL c/o Dayplas, Attn: Leo Baca",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "MJR5351",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "pago.fecha_factura",
+            "valor": "2026-02-10",
+            "estado": "inventado",
+            "nota": ""
+          },
+          {
+            "campo": "via",
+            "valor": "aerea",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "carpeta": "4",
+    "ok": 3,
+    "total": 4,
+    "documentos": [
+      {
+        "carpeta": "4",
+        "archivo": "afip.pdf",
+        "tipo": "despacho",
+        "lectura_chars": 12521,
+        "ok": true,
+        "resumen": "23 ok · 0 parcial · 0 inventado",
+        "inventados": [],
+        "parciales": [],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 12521,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": "3920.61.00",
+            "estado": "ok",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.valor_factura",
+            "valor": "14.9532",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.valor_fob",
+            "valor": "13.22318",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.flete",
+            "valor": "3.4",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.incoterm",
+            "valor": "DAP",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.moneda",
+            "valor": "DOL",
+            "estado": "ok",
+            "nota": "moneda debe aparecer en el doc"
+          },
+          {
+            "campo": "mercaderia.cantidad",
+            "valor": "4.275,18 KILOGRAMO",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_neto",
+            "valor": "4.275,18 kg",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_bruto",
+            "valor": "4.565,180 kg",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.bultos",
+            "valor": "1 BULTOS",
+            "estado": "no_verificable",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.descripcion",
+            "valor": "LAS DEMÁS PLACAS, LÁMINAS, HOJAS Y TIRAS, DE PLÁSTICO NO CEL",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Importador.nombre",
+            "valor": "DAYPLAS S A",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Importador.id",
+            "valor": "20-17379361-9",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Vendedor.nombre",
+            "valor": "FILMS & SHEETS SOUTH AMERICA LTDA",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Vendedor.id",
+            "valor": "50.421.396/0001-19",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Despachante de Aduana.nombre",
+            "valor": "ORSI RICARDO CESAR VICENT",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Despachante de Aduana.id",
+            "valor": "33-58249873-9",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Agente de Transporte Aduanero.nombre",
+            "valor": "VILLARREAL SERGIO DANIEL",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Agente de Transporte Aduanero.id",
+            "valor": "20-22106433-0",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_origen",
+            "valor": "Brasil",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_procedencia",
+            "valor": "Brasil",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "008BR677600270",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "pago.fecha_factura",
+            "valor": "2026-05-12",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "via",
+            "valor": "terrestre",
+            "estado": "no_verificable",
+            "nota": ""
+          }
+        ]
+      },
+      {
+        "carpeta": "4",
+        "archivo": "co.pdf",
+        "tipo": "certificado_origen",
+        "lectura_chars": 2337,
+        "ok": true,
+        "resumen": "12 ok · 0 parcial · 0 inventado",
+        "inventados": [],
+        "parciales": [],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 2337,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": "3920.61.00",
+            "estado": "ok",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.incoterm",
+            "valor": "DAP",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.moneda",
+            "valor": "USD",
+            "estado": "ok",
+            "nota": "moneda debe aparecer en el doc"
+          },
+          {
+            "campo": "mercaderia.cantidad",
+            "valor": "270,000 pç",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_neto",
+            "valor": "16.673,200 kg",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Exportador.nombre",
+            "valor": "FILMS & SHEETS SOUTH AMERICA LTDA",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Importador.nombre",
+            "valor": "DAYPLAS, S.A",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Importador.id",
+            "valor": "CUIT: 33582498739",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_origen",
+            "valor": "Brasil",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_destino",
+            "valor": "Argentina",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "BR041A18260024130200",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      },
+      {
+        "carpeta": "4",
+        "archivo": "crt.pdf",
+        "tipo": "transporte",
+        "lectura_chars": 4980,
+        "ok": true,
+        "resumen": "21 ok · 1 parcial · 0 inventado",
+        "inventados": [],
+        "parciales": [
+          {
+            "campo": "partes.Remetente/Shipper.id",
+            "valor": "CNPJ: 50.421.396/0001-19",
+            "estado": "parcial",
+            "nota": ""
+          }
+        ],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 4980,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": "3920.61.00",
+            "estado": "ok",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.valor_factura",
+            "valor": "16.6732",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.flete",
+            "valor": "3.4",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.seguro",
+            "valor": "5002",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.incoterm",
+            "valor": "DAP",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.moneda",
+            "valor": "USD",
+            "estado": "ok",
+            "nota": "moneda debe aparecer en el doc"
+          },
+          {
+            "campo": "mercaderia.cantidad",
+            "valor": "1 BULTO",
+            "estado": "no_verificable",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_neto",
+            "valor": "4.275,180 kg",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_bruto",
+            "valor": "4.565,180 kg",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.descripcion",
+            "valor": "Sheet/film of polycarbonates WLS82TS1300-112-8,0 -2100-5800,",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Remetente/Shipper.nombre",
+            "valor": "Films & Sheets South America Ltda",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Remetente/Shipper.id",
+            "valor": "CNPJ: 50.421.396/0001-19",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Transportador.nombre",
+            "valor": "RTC LOGISTICA E TRANSPORTES LTDA",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Transportador.id",
+            "valor": "CNPJ: 09.247.387/0001-50",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Consignatario/Destinatario.nombre",
+            "valor": "DAYPLAS, S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Consignatario/Destinatario.id",
+            "valor": "CUIT: 33582498739",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Notificar a.nombre",
+            "valor": "DAYPLAS, S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Notificar a.id",
+            "valor": "CUIT: 33582498739",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_origen",
+            "valor": "Brasil",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_destino",
+            "valor": "Argentina",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "BR6776.00270",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "via",
+            "valor": "terrestre",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      },
+      {
+        "carpeta": "4",
+        "archivo": "invoice.pdf",
+        "tipo": "factura_comercial",
+        "lectura_chars": 3438,
+        "ok": false,
+        "resumen": "24 ok · 0 parcial · 1 inventado",
+        "inventados": [
+          {
+            "campo": "origen.pais_origen",
+            "valor": "Brasil",
+            "estado": "inventado",
+            "nota": ""
+          }
+        ],
+        "parciales": [],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 3438,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": "39206100",
+            "estado": "ok",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.valor_factura",
+            "valor": "16673.2",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.valor_fob",
+            "valor": "13223.18",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.flete",
+            "valor": "3400",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.seguro",
+            "valor": "50.02",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.incoterm",
+            "valor": "DAP",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.moneda",
+            "valor": "USD",
+            "estado": "ok",
+            "nota": "moneda debe aparecer en el doc"
+          },
+          {
+            "campo": "mercaderia.cantidad",
+            "valor": "4275.180 kg",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_neto",
+            "valor": "4275.180 kg",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_bruto",
+            "valor": "4565.180 kg",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.bultos",
+            "valor": "270 PC",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.descripcion",
+            "valor": "Sheet/film of polycarbonates",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Seller.nombre",
+            "valor": "Films & Sheets South America Ltda",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Seller.id",
+            "valor": "50.421.396/0001-19",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Buyer.nombre",
+            "valor": "DAYPLAS, S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Buyer.id",
+            "valor": "33582498739",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Ultimate Consignee.nombre",
+            "valor": "DAYPLAS, S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Ultimate Consignee.id",
+            "valor": "33582498739",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Ship To.nombre",
+            "valor": "DAYPLAS, S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Ship To.id",
+            "valor": "33582498739",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_origen",
+            "valor": "Brasil",
+            "estado": "inventado",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "8000118258",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "pago.fecha_factura",
+            "valor": "2026-05-13",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "via",
+            "valor": "terrestre",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "carpeta": "5",
+    "ok": 3,
+    "total": 4,
+    "documentos": [
+      {
+        "carpeta": "5",
+        "archivo": "afip.pdf",
+        "tipo": "despacho",
+        "lectura_chars": 10541,
+        "ok": true,
+        "resumen": "21 ok · 1 parcial · 0 inventado",
+        "inventados": [],
+        "parciales": [
+          {
+            "campo": "mercaderia.descripcion",
+            "valor": "Los demás -Policarbonatos POLIACETALES, LOS DEMÁS POLIETERES",
+            "estado": "parcial",
+            "nota": ""
+          }
+        ],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 10541,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": "3907.40.90.000",
+            "estado": "ok",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.valor_factura",
+            "valor": "92.85536",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.valor_fob",
+            "valor": "89.002",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.flete",
+            "valor": "2.934",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.incoterm",
+            "valor": "CFR",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.cantidad",
+            "valor": "54.400,00 KILOGRAMO",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_neto",
+            "valor": "54.400,00 kg",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_bruto",
+            "valor": "55.328,00 kg",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.bultos",
+            "valor": "2",
+            "estado": "no_verificable",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.descripcion",
+            "valor": "Los demás -Policarbonatos POLIACETALES, LOS DEMÁS POLIETERES",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Importador.nombre",
+            "valor": "DAYPLAS S A",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Importador.id",
+            "valor": "20-17379361-9",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Vendedor.nombre",
+            "valor": "SIMKO FAR EAST, LTD.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Vendedor.id",
+            "valor": "12046/25",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Agente de Transporte Aduanero.nombre",
+            "valor": "MAERSK LINE ARGENTINA S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Agente de Transporte Aduanero.id",
+            "valor": "30-68841553-1",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Despachante de Aduana.nombre",
+            "valor": "ORSI RICARDO CESAR VICENT",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Despachante de Aduana.id",
+            "valor": "33-58249873-9",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_origen",
+            "valor": "China",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_destino",
+            "valor": "Argentina",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_procedencia",
+            "valor": "China",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "CNNBO264774649",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      },
+      {
+        "carpeta": "5",
+        "archivo": "bl.pdf",
+        "tipo": "transporte",
+        "lectura_chars": 22970,
+        "ok": true,
+        "resumen": "14 ok · 1 parcial · 0 inventado",
+        "inventados": [],
+        "parciales": [
+          {
+            "campo": "partes.Shipper.nombre",
+            "valor": "WANHUA CHEMICAL (SINGAPORE) PTE. LTD.",
+            "estado": "parcial",
+            "nota": ""
+          }
+        ],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 22970,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": "3907.40",
+            "estado": "ok",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.incoterm",
+            "valor": "CY/CY",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.cantidad",
+            "valor": "55328 MT",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.peso_neto",
+            "valor": "55328 MT",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.bultos",
+            "valor": "64 BAGS",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.descripcion",
+            "valor": "POLYCARBONATE RESIN CLARNATE PC-A1077",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Shipper.nombre",
+            "valor": "WANHUA CHEMICAL (SINGAPORE) PTE. LTD.",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Consignee.nombre",
+            "valor": "DAYPLAS S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Consignee.id",
+            "valor": "CUIT: 33-58249873-9",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Notify Party.nombre",
+            "valor": "Same as cnee",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_origen",
+            "valor": "China",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_destino",
+            "valor": "Argentina",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "264774649",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "via",
+            "valor": "maritima",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      },
+      {
+        "carpeta": "5",
+        "archivo": "gastos.pdf",
+        "tipo": "factura_gastos",
+        "lectura_chars": 1154,
+        "ok": false,
+        "resumen": "6 ok · 0 parcial · 1 inventado",
+        "inventados": [
+          {
+            "campo": "comercial.moneda",
+            "valor": "USD / CNY",
+            "estado": "inventado",
+            "nota": "moneda debe aparecer en el doc"
+          }
+        ],
+        "parciales": [],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 1154,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": null,
+            "estado": "skip",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.flete",
+            "valor": "2934",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.moneda",
+            "valor": "USD / CNY",
+            "estado": "inventado",
+            "nota": "moneda debe aparecer en el doc"
+          },
+          {
+            "campo": "partes.Consignee.nombre",
+            "valor": "DAYPLAS S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Transportista.nombre",
+            "valor": "MAERSK LINE ARGENTINA S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "264774649",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "via",
+            "valor": "maritima",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      },
+      {
+        "carpeta": "5",
+        "archivo": "invoice.pdf",
+        "tipo": "factura_comercial",
+        "lectura_chars": 1960,
+        "ok": true,
+        "resumen": "15 ok · 3 parcial · 0 inventado",
+        "inventados": [],
+        "parciales": [
+          {
+            "campo": "mercaderia.bultos",
+            "valor": "64 big bags de 850 kg cada uno",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Buyer.id",
+            "valor": "CUIT 33-58249873-9",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "BL 264774649",
+            "estado": "parcial",
+            "nota": ""
+          }
+        ],
+        "campos": [
+          {
+            "campo": "lectura_pdf",
+            "valor": 1960,
+            "estado": "ok",
+            "nota": "chars en PDF"
+          },
+          {
+            "campo": "mercaderia.ncm",
+            "valor": "3907.40",
+            "estado": "ok",
+            "nota": "debe figurar en PDF"
+          },
+          {
+            "campo": "comercial.valor_factura",
+            "valor": "91.936",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.valor_fob",
+            "valor": "89.002",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.flete",
+            "valor": "2.934",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.incoterm",
+            "valor": "CFR",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "comercial.moneda",
+            "valor": "USD",
+            "estado": "ok",
+            "nota": "moneda debe aparecer en el doc"
+          },
+          {
+            "campo": "mercaderia.cantidad",
+            "valor": "54,4 MT",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.bultos",
+            "valor": "64 big bags de 850 kg cada uno",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "mercaderia.descripcion",
+            "valor": "CLARNATE PC-A1077",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Buyer.nombre",
+            "valor": "DAYPLAS S.A.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Buyer.id",
+            "valor": "CUIT 33-58249873-9",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "partes.Seller.nombre",
+            "valor": "SIMKO FAR EAST, LTD.",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_origen",
+            "valor": "China",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "origen.pais_destino",
+            "valor": "Argentina",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "transporte.doc_nro",
+            "valor": "BL 264774649",
+            "estado": "parcial",
+            "nota": ""
+          },
+          {
+            "campo": "pago.fecha_factura",
+            "valor": "2025-12-14",
+            "estado": "ok",
+            "nota": ""
+          },
+          {
+            "campo": "via",
+            "valor": "maritima",
+            "estado": "ok",
+            "nota": ""
+          }
+        ]
+      }
+    ]
+  }
+]

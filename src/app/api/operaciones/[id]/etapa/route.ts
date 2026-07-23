@@ -10,6 +10,7 @@ import {
   estadoClienteDeEtapa,
   etapaDef,
   etapaIndex,
+  normalizarEtapa,
 } from "@/lib/workflow";
 import { ncmEsPosicionEspecifica } from "@/lib/clasificador/motor";
 import { ncmPareceGeneral } from "@/lib/formato";
@@ -36,7 +37,7 @@ export async function POST(
     etapa?: string;
     nota?: string;
   } | null;
-  const etapa = String(body?.etapa ?? "").trim();
+  const etapa = normalizarEtapa(String(body?.etapa ?? "").trim());
   const nota = String(body?.nota ?? "").trim();
   if (!esEtapaValida(etapa)) {
     return NextResponse.json({ error: "Etapa inválida." }, { status: 400 });

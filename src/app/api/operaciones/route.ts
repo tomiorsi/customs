@@ -9,11 +9,13 @@ import {
   addDocument,
   addEvento,
   createOperation,
+  existeCliente,
   type DocType,
   type NewOperationInput,
   type OpCampo,
 } from "@/lib/data";
 import { docLabelDe } from "@/lib/docs";
+import { esEquipo } from "@/lib/roles";
 
 const TIPOS_VALIDOS = new Set(["Importación", "Exportación"]);
 const VIAS_VALIDAS = new Set(["maritima", "aerea", "terrestre"]);
@@ -35,23 +37,29 @@ function nombreSeguro(nombre: string): string {
 
 export async function POST(req: Request) {
   const user = await getCurrentUser();
-  if (!user || user.role !== "client") {
+  if (!user) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
-  if (user.op_status !== "approved") {
-    return NextResponse.json(
-      {
-        error:
-          "Tu cuenta todavía no está habilitada para crear operaciones. Completá el formulario de calificación y esperá la aprobación del estudio.",
-      },
-      { status: 403 },
-    );
+
+  // Control interno: solo el equipo (admin/operador) crea operaciones, siempre
+  // a nombre de un cliente. Los clientes ya no dan de alta operaciones.
+  if (!esEquipo(user.role)) {
+    return NextResponse.json({ error: "No autorizado." }, { status: 403 });
   }
 
   const form = await req.formData().catch(() => null);
   if (!form) {
     return NextResponse.json({ error: "Solicitud inválida." }, { status: 400 });
   }
+
+  const clienteId = String(form.get("cliente_id") ?? "").trim();
+  if (!clienteId || !existeCliente(clienteId)) {
+    return NextResponse.json(
+      { error: "Elegí un cliente válido para la operación." },
+      { status: 400 },
+    );
+  }
+  const ownerId = clienteId;
 
   const tipo = String(form.get("tipo") ?? "").trim();
   if (!TIPOS_VALIDOS.has(tipo)) {
@@ -78,7 +86,7 @@ export async function POST(req: Request) {
     campos.via = null;
   }
 
-  const nuevaOperacion: NewOperationInput = { userId: user.id, tipo, ...campos };
+  const nuevaOperacion: NewOperationInput = { userId: ownerId, tipo, ...campos };
 
   // Recolectamos los archivos presentes. Todos son opcionales: la operación se
   // puede abrir sin documentos y sumarlos después.
@@ -127,25 +135,27 @@ export async function POST(req: Request) {
     );
   }
 
+  const autorNombre =
+    user.contact_name ?? user.company_name ?? user.username ?? user.email ?? null;
+
   const detalleCreacion =
-    `¡Listo! Registramos tu ${tipoLabel} «${campos.titulo}» y ya está en el estudio. ` +
-    (labelsDocs.length > 0
-      ? `Recibimos: ${labelsDocs.join(", ")}. `
-      : "Todavía no sumaste documentación; podés cargarla cuando la tengas (no es obligatorio para arrancar). ") +
-    "Nuestro equipo revisa la información para empezar con el despacho y te vamos avisando en cada paso.";
+    `Operación de ${tipoLabel} «${campos.titulo}» creada por el equipo del estudio` +
+    (autorNombre ? ` (${autorNombre})` : "") +
+    "." +
+    (labelsDocs.length > 0 ? ` Documentación cargada: ${labelsDocs.join(", ")}.` : "");
 
   await addEvento({
     operationId,
-    userId: user.id,
+    userId: ownerId,
     tipo: "creacion",
-    titulo: "Recibimos tu operación",
+    titulo: "Operación creada por el equipo",
     detalle: detalleCreacion,
-    autor:
-      user.contact_name ?? user.company_name ?? user.username ?? user.email ?? null,
+    autor: autorNombre,
+    interno: true,
   });
 
   if (archivos.length > 0) {
-    const dir = archivosDir(user.id);
+    const dir = archivosDir(ownerId);
     await mkdir(dir, { recursive: true });
 
     for (const { tipo: docType, file } of archivos) {
@@ -154,7 +164,7 @@ export async function POST(req: Request) {
       await writeFile(path.join(dir, storedName), buffer);
       await addDocument({
         operationId,
-        userId: user.id,
+        userId: ownerId,
         docType,
         fileName: file.name,
         storedName,

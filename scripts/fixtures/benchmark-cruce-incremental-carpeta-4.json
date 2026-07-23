@@ -1,0 +1,232 @@
+{
+  "carpeta": "4",
+  "pasos": [
+    {
+      "paso": 1,
+      "archivo": "invoice.pdf",
+      "tipo": "factura_comercial",
+      "etapas": [
+        "apertura",
+        "documentacion",
+        "embarque"
+      ],
+      "abrirEmbarque": false,
+      "segundos": 30.4,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Datos comerciales básicos legibles: exportador, importador, descripción de mercadería (Sheet/film of polycarbonates), NCM 39206100, peso neto/bruto, incoterm DAP, valor factura USD 16673.2, país origen Brasil, país destino Argentina, referencia 8000118258. Documento apto para lectura inicial."
+        },
+        {
+          "nivel": "ok",
+          "texto": "Incoterm DAP (Delivered at Place) es válido para importación a Argentina. Incluye flete (USD 3400) en el valor total, consistente con la estructura de precio FOB + flete."
+        },
+        {
+          "nivel": "ok",
+          "texto": "Roles comerciales coherentes: exportador y vendedor coinciden (Films & Sheets South America Ltda, Brasil); comprador, consignatario y destinatario coinciden (DAYPLAS S.A., Argentina). No hay terceros operadores declarados en aislamiento de este documento."
+        }
+      ],
+      "cruce_documentacion": {
+        "resumen": "Importación de polycarbonatos (NCM 39206100) desde Brasil a Argentina. Operación DAP con factura comercial presente. Origen MERCOSUR (Brasil) requiere prueba de origen válida (Certificado de Origen o Declaración de Origen con autocertificación). Documento de transporte y prueba de origen NO figuran en carpeta. Embalaje de madera requiere certificación NIMF N° 15 (SENASA).",
+        "faltantes": [
+          {
+            "doc": "Embalajes de Madera de Importación*",
+            "motivo": "Todos los embalajes de madera de mercaderías que ingresen al territorio argentino debe estar descortezado, libre de insectos y/o signos de actividad biológica, tratado y certificado en concordancia con lo estipulado en la Norma Internacional para Medidas Fitosanitarias (NIMF N° 15) de la Convención Internacional de Protección Fitosanitaria. · Régimen: Embalajes de Madera de Importación* · Estados mercadería: Nueva · Intervención validada en VUCE.",
+            "ref": "VUCE · Intervención"
+          },
+          {
+            "doc": "Certificado de origen",
+            "motivo": "Brasil ya implementó la autocertificación de origen (Portaria SECEX 373/2024, vigente desde el 01/03/2025): se ACEPTA una Declaración de Origen hecha por el exportador o productor sobre un documento comercial, como alternativa válida al Certificado de Origen por entidad habilitada. Debe cumplir la información mínima del Apéndice V (218° Protocolo Adicional al ACE 18). Adjuntá certificado de origen por entidad habilitada o declaración de origen en documento comercial firmado (Ap. V/VI ROM).",
+            "ref": "ROM · Art. 26 (Prueba de origen)"
+          }
+        ],
+        "inconsistencias": [],
+        "alertas": [
+          {
+            "nivel": "warn",
+            "texto": "[ROM · Art. 30; Apéndice V, VI] Factura comercial presente pero sin declaración de origen integrada. Si se opta por autocertificación (válida para Brasil desde 01/03/2025), debe incluirse en la factura o documento comercial la declaración de origen con firma del exportador/productor, información mínima del Apéndice V y texto de conformidad con Art. 4 ROM. Actualmente no consta en documento leído."
+          },
+          {
+            "nivel": "ok",
+            "texto": "[ROM · Art. 18] Partes comerciales coherentes: Exporter = Seller = Films & Sheets South America Ltda (Brasil); Ultimate Consignee = Ship To = Sold To = Bill To = DAYPLAS, S.A. (Argentina). Destino aduanero Argentina confirmado. No hay intermediarios logísticos que requieran aclaración de expedición directa."
+          },
+          {
+            "nivel": "ok",
+            "texto": "NCM 39206100 (Sheet/film of polycarbonates) coincide con descripción de mercadería. Tributación VUCE: DIE extrazona 16%, DII 0%, TE 3%, IVA 21% + adicional 20%, Ganancias 6%, IIBB 2.5%."
+          }
+        ]
+      },
+      "cruce_embarque": null,
+      "operacion": {
+        "ncm": "39206100",
+        "pais_origen": "Brasil",
+        "via": null,
+        "incoterm": "DAP",
+        "valor_factura": "16673.2"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial"
+      ]
+    },
+    {
+      "paso": 2,
+      "archivo": "co.pdf",
+      "tipo": "certificado_origen",
+      "etapas": [
+        "documentacion",
+        "embarque"
+      ],
+      "abrirEmbarque": false,
+      "segundos": 26.5,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Identificación de partes y mercadería legible: se identifica claramente productor/exportador (FILMS & SHEETS SOUTH AMERICA LTDA, Brasil), importador (DAYPLAS S.A., Argentina), NCM 3920.61.00 (policarbonatos), cantidad, peso neto e incoterm DAP. Datos consistentes con operación de importación a Argentina desde Brasil (MERCOSUR)."
+        },
+        {
+          "nivel": "ok",
+          "texto": "Origen MERCOSUR válido para autocertificación: Brasil implementó autocertificación desde 01/03/2025 (Portaria SECEX 373/2024). Una declaración de origen firmada por el exportador en documento comercial es aceptable como alternativa al certificado de entidad habilitada, siempre que cumpla Apéndice V e Apéndice VI."
+        }
+      ],
+      "cruce_documentacion": {
+        "resumen": "No se detectan inconsistencias ni faltantes en los documentos presentes. Quedan alertas u observaciones para revisar.",
+        "faltantes": [
+          {
+            "doc": "Embalajes de Madera de Importación*",
+            "motivo": "Todos los embalajes de madera de mercaderías que ingresen al territorio argentino debe estar descortezado, libre de insectos y/o signos de actividad biológica, tratado y certificado en concordancia con lo estipulado en la Norma Internacional para Medidas Fitosanitarias (NIMF N° 15) de la Convención Internacional de Protección Fitosanitaria. · Régimen: Embalajes de Madera de Importación* · Estados mercadería: Nueva · Intervención validada en VUCE.",
+            "ref": "VUCE · Intervención"
+          }
+        ],
+        "inconsistencias": [],
+        "alertas": [
+          {
+            "nivel": "error",
+            "texto": "[ROM · Art. 27] Peso neto inconsistente entre Factura (4.275,180 kg) y Certificado de origen (16.673,200 kg). El Certificado declara casi 4 veces más peso que la factura. Esto afecta la validez de la prueba de origen y debe ser corregido antes del desaduanamiento. Art. 27 ROM requiere que la prueba de origen acredite los productos importados."
+          },
+          {
+            "nivel": "warn",
+            "texto": "[ROM · Art. 30, Apéndice V] Certificado de origen: no se reproduce en la extracción la declaración firmada del exportador/productor con el texto de certificación del Art. 4 ROM ni la información mínima completa del Apéndice V (firma, aclaración, fecha, declaración de cumplimiento). Verificar que el documento original contenga estos campos obligatorios."
+          },
+          {
+            "nivel": "warn",
+            "texto": "[ROM · Art. 26, Apéndice IV] Brasil implementó autocertificación de origen (Portaria SECEX 373/2024, vigente 01/03/2025). El documento presentado es un Certificado de origen (no una declaración de origen del exportador sobre factura). Confirmar que el certificado fue emitido por entidad habilitada conforme Apéndice IV ROM y que cumple todos los campos requeridos."
+          },
+          {
+            "nivel": "ok",
+            "texto": "[ROM · Art. 30, Apéndice V] Partes comerciales (Exporter/Seller, Importador/Consignatario) coinciden entre Factura y Certificado de origen: Films & Sheets South America Ltda (Brasil) → DAYPLAS S.A. (Argentina). Incoterm DAP, país origen Brasil, destino Argentina coherentes."
+          },
+          {
+            "nivel": "ok",
+            "texto": "NCM 39206100 (Sheet/film of polycarbonates) coincide entre Factura (39206100) y Certificado (3920.61.00). Descripción de mercadería compatible."
+          },
+          {
+            "nivel": "warn",
+            "texto": "[ROM · Art. 27] Referencia documental (8000118258) es idéntica en Factura y Certificado de origen. Confirmar que este número corresponde a la factura comercial y no a otro documento (CRT, BL, AWB). Art. 27 ROM exige que la prueba de origen sea emitida dentro de 180 días desde la fecha de emisión de la factura; verificar fechas de emisión de ambos documentos."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Incoterm DAP (Delivered at Place) es coherente con destino aduanero Argentina y vía terrestre. Valor FOB (13.223,18 USD) + Flete (3.400 USD) ≈ Valor total factura (16.673,2 USD). Cálculo de valoración aduanera compatible con Art. 1 y 8 Acuerdo de Valoración OMC."
+          }
+        ]
+      },
+      "cruce_embarque": null,
+      "operacion": {
+        "ncm": "39206100",
+        "pais_origen": "Brasil",
+        "via": null,
+        "incoterm": "DAP",
+        "valor_factura": "16673.2"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial",
+        "certificado_origen"
+      ]
+    },
+    {
+      "paso": 3,
+      "archivo": "crt.pdf",
+      "tipo": "transporte",
+      "etapas": [
+        "embarque"
+      ],
+      "abrirEmbarque": true,
+      "segundos": 42.6,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Datos de transporte legibles y completos: remetente (Films & Sheets South America Ltda, Brasil), consignatario (DAYPLAS S.A., Argentina), transportador identificado, vía terrestre, incoterm DAP, pesos neto/bruto, bultos, NCM 3920.61.00, valor factura USD 13.223,18 y flete USD 3.400. Documento de transporte en aislamiento sin defectos formales evidentes."
+        }
+      ],
+      "cruce_documentacion": null,
+      "cruce_embarque": {
+        "resumen": "No se detectan inconsistencias ni faltantes en los documentos presentes. Quedan alertas u observaciones para revisar.",
+        "faltantes": [],
+        "inconsistencias": [],
+        "alertas": [
+          {
+            "nivel": "error",
+            "texto": "[ROM · Art. 26, 30; Apéndice V, VI; Portaria SECEX 373/2024] Certificado de origen no cumple estructura ROM. Documento presentado carece de: (a) sello y firma de entidad certificadora habilitada (si es certificado formal) o (b) firma del exportador/productor y declaración jurada conforme Apéndice V (si es autocertificación). Brasil implementó autocertificación desde 01/03/2025, pero el documento debe incluir texto firmado: 'Certifico que los productos descriptos en este documento califican como originarios bajo el Artículo 4 del Régimen de Origen MERCOSUR...' (Apéndice V). Documento actual no contiene esta declaración."
+          },
+          {
+            "nivel": "warn",
+            "texto": "[ROM · Art. 18] Expedición directa (Art. 18 ROM): Shipper en CRT es Films & Sheets South America Ltda (Brasil); Exportador en Factura y Certificado es el mismo. Consignatario final es DAYPLAS, S.A. (Argentina). Transporte terrestre directo Brasil-Argentina. No se detecta transbordo ni terceros operadores en documentos. Cumple con expedición directa, pero verificar que no haya almacenamiento o manipulación en terceros países."
+          },
+          {
+            "nivel": "warn",
+            "texto": "[ROM · Art. 27] Plazo de validez de prueba de origen: No consta fecha de emisión del Certificado de origen en documento extraído. Art. 27 ROM exige que la prueba de origen sea emitida dentro de 180 días desde emisión de factura y tenga validez de 12 meses desde su emisión. Verificar fechas en documento original."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Partes comerciales coherentes: Exportador/Seller (Films & Sheets South America Ltda, Brasil) = Shipper en CRT. Importador/Buyer/Consignee (DAYPLAS, S.A., Argentina) coincide en todos los documentos. Destino aduanero Argentina confirmado."
+          }
+        ]
+      },
+      "operacion": {
+        "ncm": "39206100",
+        "pais_origen": "Brasil",
+        "via": "terrestre",
+        "incoterm": "DAP",
+        "valor_factura": "16673.2"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial",
+        "certificado_origen",
+        "transporte"
+      ]
+    },
+    {
+      "paso": 4,
+      "archivo": "afip.pdf",
+      "tipo": "despacho",
+      "etapas": [],
+      "abrirEmbarque": true,
+      "segundos": 9.8,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Datos de transporte y valoración presentes: Incoterm DAP, FOB USD 13.223,18, flete USD 3.400, vía terrestre Brasil→Argentina, peso neto/bruto consistentes. Documento aduanero (despacho SIM) legible con identificación de partes, mercadería y referencia documental 8000118258."
+        },
+        {
+          "nivel": "warn",
+          "texto": "[VUCE · Intervención SENASA SENA00093] Embalaje de madera: SENASA requiere Declaración Jurada de Embalajes de Madera (NIMF N° 15) para todo embalaje que ingrese. No consta en transcripción si el bulto (1 BULTOS) está en madera ni si se adjuntó certificación fitosanitaria.",
+          "ref": "VUCE · Intervención SENASA SENA00093"
+        }
+      ],
+      "cruce_documentacion": null,
+      "cruce_embarque": null,
+      "operacion": {
+        "ncm": "39206100",
+        "pais_origen": "Brasil",
+        "via": "terrestre",
+        "incoterm": "DAP",
+        "valor_factura": "16673.2"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial",
+        "certificado_origen",
+        "transporte",
+        "despacho"
+      ]
+    }
+  ]
+}

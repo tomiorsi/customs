@@ -1,0 +1,130 @@
+{
+  "seed": 20260702,
+  "n": 20,
+  "fuente": [
+    "muestras-motor-100.json"
+  ],
+  "excluidos": 60,
+  "muestras": [
+    {
+      "ncm": "0206.21.00.100V",
+      "partida": "0206",
+      "producto": "De la especie bovina, congelados:, Lenguas, Sin epitelio (Dto. 499/98; RG 159/98 AFIP)",
+      "descripcion_ncm": "Sin epitelio (Dto. 499/98; RG 159/98 AFIP)"
+    },
+    {
+      "ncm": "1003.90.10.210Q",
+      "partida": "1003",
+      "producto": "CEBADA., Cervecera, Más del 15 % de embolsado (Ley 21.453), En envases inmediatos de contenido neto inferior o igual a 2 Kg (Res N° 835/2005 SAGPyA)",
+      "descripcion_ncm": "En envases inmediatos de contenido neto inferior o igual a 2 Kg (Res N° 835/2005 SAGPyA)"
+    },
+    {
+      "ncm": "1404.20.10.000X",
+      "partida": "1404",
+      "producto": "Línteres de algodón, En bruto",
+      "descripcion_ncm": "En bruto"
+    },
+    {
+      "ncm": "2302.30.10.110K",
+      "partida": "2302",
+      "producto": "De trigo, Moyuelo, Pellets (Ley 21.453), A granel, con hasta un 10 % embolsado",
+      "descripcion_ncm": "A granel, con hasta un 10 % embolsado"
+    },
+    {
+      "ncm": "2401.10.30.000F",
+      "partida": "2401",
+      "producto": "Tabaco sin desvenar o desnervar, En hojas secas en secadero de aire caliente (<<Flue cured, ), del tipo Virginia",
+      "descripcion_ncm": "En hojas secas en secadero de aire caliente (<<Flue cured>>), del tipo Virginia"
+    },
+    {
+      "ncm": "2812.15.00.000B",
+      "partida": "2812",
+      "producto": "Cloruros y oxicloruros:, Monocloruro de azufre",
+      "descripcion_ncm": "--Monocloruro de azufre"
+    },
+    {
+      "ncm": "3004.49.90.448E",
+      "partida": "3004",
+      "producto": "Los demás, que contengan alcaloides o sus derivados:, Que contengan otros estupefacientes (R.2017/93 ex-ANA), Ecgonina y sus esteres; etilmorfina; folcodina; acetildihidrocodeína; dihidrocodeína; nicocodina; nicodicodina, Nicocodina",
+      "descripcion_ncm": "Nicocodina"
+    },
+    {
+      "ncm": "3204.13.00.170R",
+      "partida": "3204",
+      "producto": "Materias colorantes orgánicas sintéticas y preparaciones a que se refiere la Nota 3 de este Capítulo a base de dichas materias colorantes:, Colorantes básicos y preparaciones a base de estos colorantes, Colorantes básicos sin mezclar, Marrones",
+      "descripcion_ncm": "Marrones"
+    },
+    {
+      "ncm": "3604.10.00.300V",
+      "partida": "3604",
+      "producto": "Artículos para fuegos artificiales, F?sforos cohete en todas sus formas y tamaños (R.620/98 MEOSP)",
+      "descripcion_ncm": "F?sforos cohete en todas sus formas y tamaños (R.620/98 MEOSP)"
+    },
+    {
+      "ncm": "3701.10.21.000G",
+      "partida": "3701",
+      "producto": "Para rayos X, Sensibilizadas en ambas caras, Aptas para uso odontológico",
+      "descripcion_ncm": "Aptas para uso odontológico"
+    },
+    {
+      "ncm": "4820.10.00.621J",
+      "partida": "4820",
+      "producto": "Libros registro, libros de contabilidad, talonarios (de notas, pedidos o recibos), bloques memorandos, bloques de papel de cartas, agendas y artículos similares, Agendas, Con tapas de cuero regenerado o recubiertas con esta materia, Cosidas",
+      "descripcion_ncm": "Cosidas"
+    },
+    {
+      "ncm": "5003.00.10.000J",
+      "partida": "5003",
+      "producto": "ESPERDICIOS DE SEDA (INCLUIDOS LOS CAPULLOS NO APTOS PARA EL DEVANADO, DESPERDICIOS DE HILADOS E HILACHAS)., Sin cardar ni peinar",
+      "descripcion_ncm": "Sin cardar ni peinar"
+    },
+    {
+      "ncm": "5102.19.00.511R",
+      "partida": "5102",
+      "producto": "Pelo fino:, De alpaca, Sucio (R.2012/93 ex-ANA), De finura inferior o igual a 22,5 micrómetros",
+      "descripcion_ncm": "De finura inferior o igual a 22,5 micrómetros"
+    },
+    {
+      "ncm": "5512.19.00.211X",
+      "partida": "5512",
+      "producto": "Con un contenido de fibras discontinuas de poliester superior o igual al 85 % en peso:, Con hilados de distintos colores, De ligamento tafetán, De densidad inferior o igual a 30 hilos por cm2",
+      "descripcion_ncm": "De densidad inferior o igual a 30 hilos por cm2"
+    },
+    {
+      "ncm": "5806.10.00.120H",
+      "partida": "5806",
+      "producto": "Cintas de terciopelo, de felpa, de tejidos de chenilla o de tejidos con bucles del tipo toalla, De terciopelo o felpa, De fibras sinteticas",
+      "descripcion_ncm": "De fibras sinteticas"
+    },
+    {
+      "ncm": "8001.20.00.100X",
+      "partida": "8001",
+      "producto": "ESTAÑO EN BRUTO., Aleaciones de estaño, En lingotes",
+      "descripcion_ncm": "En lingotes"
+    },
+    {
+      "ncm": "8105.20.10.100M",
+      "partida": "8105",
+      "producto": "Matas de cobalto y demás productos intermedios de la metalurgia del cobalto; cobalto en bruto; polvo, En bruto, Lingotes",
+      "descripcion_ncm": "Lingotes"
+    },
+    {
+      "ncm": "9113.90.00.111Z",
+      "partida": "9113",
+      "producto": "Pulseras para relojes, Con partes de metal precioso o chapadas de metal precioso, De cuero natural de reptil",
+      "descripcion_ncm": "De cuero natural de reptil"
+    },
+    {
+      "ncm": "9401.91.00.400J",
+      "partida": "9401",
+      "producto": "Partes:, De madera, Armazones",
+      "descripcion_ncm": "Armazones"
+    },
+    {
+      "ncm": "9705.31.00.000W",
+      "partida": "9705",
+      "producto": "Colecciones y piezas de colección que tengan un interes numismático:, De más de 100 años",
+      "descripcion_ncm": "--De más de 100 años"
+    }
+  ]
+}

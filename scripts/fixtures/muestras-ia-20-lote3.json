@@ -1,0 +1,130 @@
+{
+  "seed": 20260701,
+  "n": 20,
+  "fuente": [
+    "muestras-motor-100.json"
+  ],
+  "excluidos": 40,
+  "muestras": [
+    {
+      "ncm": "0303.89.55.100N",
+      "partida": "0303",
+      "producto": "(Prochilodus spp.), tilapias (Tilapia spp., Sarotherodon spp., Danakilia spp.; sus híbridos), surubíes (Pseudoplatystoma spp.), tarariras (Hoplias malabaricus & H. cf. lacerdae), bogas (Leporinus spp.) y arapaimas (Arapaima gigas), Bogas (Leporinus spp.), En envases inmediatos de contenido neto inferior o igual a 1 kg",
+      "descripcion_ncm": "En envases inmediatos de contenido neto inferior o igual a 1 kg"
+    },
+    {
+      "ncm": "0306.33.00.110T",
+      "partida": "0306",
+      "producto": "Vivos, frescos o refrigerados:, Cangrejos (excepto macruros), Pelados, ahumados, incluso cocidos antes o durante el ahumado, Centolla (Lithodes santolla)",
+      "descripcion_ncm": "Centolla (Lithodes santolla)"
+    },
+    {
+      "ncm": "0601.20.00.200X",
+      "partida": "0601",
+      "producto": "Bulbos, cebollas, tubérculos, raíces y bulbos tuberosos, turiones y rizomas, en vegetación o en flor; plantas y raíces de achicoria, Plantas y reto«os de plátanos o bananos, excepto los de origen meristem»tico perteneciente a la especie Musa acuminata (R.2507/93 ex-ANA)",
+      "descripcion_ncm": "Plantas y reto«os de plátanos o bananos, excepto los de origen meristem»tico perteneciente a la especie Musa acuminata (R.2507/93 ex-ANA)"
+    },
+    {
+      "ncm": "1302.31.00.000V",
+      "partida": "1302",
+      "producto": "Mucílagos y espesativos derivados de los vegetales, incluso modificados:, Agar-agar",
+      "descripcion_ncm": "--Agar-agar"
+    },
+    {
+      "ncm": "1605.21.00.110P",
+      "partida": "1605",
+      "producto": "Camarones, langostinos y demás Decápodos natantia:, Presentados en envases no hermeticos, Camarones, Cocidos y pelados",
+      "descripcion_ncm": "Cocidos y pelados"
+    },
+    {
+      "ncm": "1704.90.20.111L",
+      "partida": "1704",
+      "producto": "Bombones, caramelos, confites y pastillas, Caramelos, Duros, Rellenos",
+      "descripcion_ncm": "Rellenos"
+    },
+    {
+      "ncm": "1806.32.10.220Q",
+      "partida": "1806",
+      "producto": "Sin rellenar, Chocolate, Con cereales, frutas u otros frutos, En envases inmediatos de contenido neto superior a 50 g pero inferior o igual a 100 g",
+      "descripcion_ncm": "En envases inmediatos de contenido neto superior a 50 g pero inferior o igual a 100 g"
+    },
+    {
+      "ncm": "1905.31.00.112C",
+      "partida": "1905",
+      "producto": "Galletas dulces (con adición de edulcorante), En envases inmediatos de contenido neto inferior o igual a 2 kg (R.420/99 MEYOSP), Rellenas, incluso con cacao, Total o parcialmente recubiertas o revestidas de chocolate o de otras preparaciones que contengan cacao, excepto elaboradas exclusivamente con harina de trigo",
+      "descripcion_ncm": "Total o parcialmente recubiertas o revestidas de chocolate o de otras preparaciones que contengan cacao, excepto elaboradas exclusivamente con harina de trigo"
+    },
+    {
+      "ncm": "2202.10.00.200T",
+      "partida": "2202",
+      "producto": "Agua, incluidas el agua mineral y la gaseada, con adición de azúcar u otro edulcorante o aromatizada, Agua mineral aromatizada o saborizada, incluso gaseada, en los terminos del art. 944 bis del C.A.A.(R.2289/92 ex-ANA)",
+      "descripcion_ncm": "Agua mineral aromatizada o saborizada, incluso gaseada, en los terminos del art. 944 bis del C.A.A.(R.2289/92 ex-ANA)"
+    },
+    {
+      "ncm": "2520.10.11.000Y",
+      "partida": "2520",
+      "producto": "Yeso natural; anhidrita, Yeso natural, En trozos irregulares (piedras)",
+      "descripcion_ncm": "En trozos irregulares (piedras)"
+    },
+    {
+      "ncm": "2710.12.41.000U",
+      "partida": "2710",
+      "producto": "sadas ni comprendidas en otra parte, con un contenido de aceites de petróleo o de mineral bituminoso superior o igual al 70 % en peso, en las que estos aceites constituyan el elemento base, excepto las que contengan biodiesel y desechos de aceites:, Aceites livianos (ligeros)* y preparaciones, Naftas, Para petroquómica",
+      "descripcion_ncm": "Para petroquómica"
+    },
+    {
+      "ncm": "4101.90.30.312Q",
+      "partida": "4101",
+      "producto": "Divididos sin la flor, Cueros y pieles de bovino (incluido el bufalo), Enteros, Frescos o salados verdes (húmedos)",
+      "descripcion_ncm": "Frescos o salados verdes (húmedos)"
+    },
+    {
+      "ncm": "5702.42.00.120U",
+      "partida": "5702",
+      "producto": "Los demás, aterciopelados, confeccionados:, De materia textil sintetica o artificial, Cuadrados o rectangulares, Con bucle",
+      "descripcion_ncm": "Con bucle"
+    },
+    {
+      "ncm": "6210.50.00.411J",
+      "partida": "6210",
+      "producto": "Las demás prendas de vestir para mujeres o niñas, Con productos de la partida 59.07, Productos alcanzados por la Res. 163/2005 SCT, De talle superior al 16 o sus equivalentes",
+      "descripcion_ncm": "De talle superior al 16 o sus equivalentes"
+    },
+    {
+      "ncm": "6501.00.00.311A",
+      "partida": "6501",
+      "producto": "Cilindros, De lana, Teñidos",
+      "descripcion_ncm": "Teñidos"
+    },
+    {
+      "ncm": "7004.20.00.100U",
+      "partida": "7004",
+      "producto": "Vidrio coloreado en la masa, opacificado, chapado o con capa absorbente, reflectante o antirreflectante, De espesor inferior o igual a 2 mm",
+      "descripcion_ncm": "De espesor inferior o igual a 2 mm"
+    },
+    {
+      "ncm": "8805.10.00.900C",
+      "partida": "8805",
+      "producto": "Aparatos y dispositivos para lanzamiento de aeronaves, y sus partes; aparatos y dispositivos para aterrizaje en portaaviones y aparatos y dispositivos similares, y sus partes, Partes",
+      "descripcion_ncm": "Partes"
+    },
+    {
+      "ncm": "9014.20.10.000L",
+      "partida": "9014",
+      "producto": "Instrumentos y aparatos para navegación aérea o espacial (excepto las brújulas), Altómetros",
+      "descripcion_ncm": "Altómetros"
+    },
+    {
+      "ncm": "9306.21.10.000J",
+      "partida": "9306",
+      "producto": "iles, cartuchos y demas municiones y proyectiles, y sus partes, incluidas las postas, perdigones y tacos para cartuchos., Cartuchos para armas largas con cañón de anima lisa y sus partes; balines para armas de aire comprimido:, Cartuchos, Que contengan productos quimicos u oleorresinas de Capsicum, con fines irritantes",
+      "descripcion_ncm": "Que contengan productos quimicos u oleorresinas de Capsicum, con fines irritantes"
+    },
+    {
+      "ncm": "9503.00.10.111M",
+      "partida": "9503",
+      "producto": "Triciclos, patinetes, coches de pedal y juguetes similares con ruedas; coches y sillas de ruedas para muñecas o muñecos, Triciclos, De metal común, Diseñados para ser impulsados por los pies de los niños en el piso",
+      "descripcion_ncm": "Diseñados para ser impulsados por los pies de los niños en el piso"
+    }
+  ]
+}

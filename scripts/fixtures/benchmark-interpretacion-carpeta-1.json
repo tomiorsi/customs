@@ -1,0 +1,289 @@
+{
+  "carpeta": "1",
+  "ok": 4,
+  "total": 4,
+  "vision_cloud_veces": 0,
+  "segundos": 22,
+  "items": [
+    {
+      "archivo": "1510299e26 COD.pdf",
+      "tipo_nombre": "certificado_origen",
+      "tipo_final": "certificado_origen",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 2012,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 5,
+      "resumen": "ZINCO EM FORMAS BRUTAS. Zinco não ligado: Que contenha, em peso, 99,99% ou mais",
+      "datos": {
+        "comercial": {
+          "valor_factura": "117445.04",
+          "incoterm": "CPT",
+          "moneda": "USD"
+        },
+        "via": null,
+        "logistica": null,
+        "mercaderia": {
+          "mercaderia": "ZINCO EM FORMAS BRUTAS. Zinco não ligado: Que contenha, em peso, 99,99% ou mais de zinco Eletrolítico Em lingotes. ZINC NOT ALLOYED. CONTAINING BY WEIGHT 99,99% OR MORE OF ZINC. ELECTROLYTIC. IN INGOTS.",
+          "ncm": "7901.11.11",
+          "cantidad": "27,711 Ton",
+          "unidad": "Ton",
+          "peso_neto": "27,711 Ton"
+        },
+        "partes": [
+          {
+            "etiqueta": "Produtor Final ou Exportador",
+            "nombre": "NEXA RECURSOS MINERAIS S.A.",
+            "domicilio": "BR 040 KM 284 ROD. BH/BRASÍLIA, CEP: 39205-000, TRÊS MARIA, Minas Gerais",
+            "pais": "BRASIL",
+            "identificacion": "CNPJ: 42.416.651/0001-07"
+          },
+          {
+            "etiqueta": "Importador",
+            "nombre": "ACERBRAG S.A.",
+            "domicilio": "RUTA NACIONAL 5 KM 210, B6640, BRAGADO",
+            "pais": "ARGENTINA",
+            "identificacion": "CUIT: 30-69317088-1"
+          }
+        ],
+        "origen": {
+          "pais_origen": "Brasil",
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "1510299E26",
+          "puerto_origen": "TRÊS MARIAS, MG, BRAZIL"
+        },
+        "pago": {
+          "fecha_factura": "2026-06-15"
+        },
+        "formalidades": {
+          "entidad_emisora": "Federação de Entidades Empresariais do Rio Grande do Sul – FEDERASUL",
+          "observaciones_visuales": "EN EL CAMPO 09 REFLEJA EL TOTAL CPT EN USD. Certificado de Origen MERCOSUL Nº BR015A18260201880200. Norma de Origen: A. DJO: 4143060764 de 10/12/2025. Producto: Zn4E - SL - BR CT 4MS"
+        }
+      },
+      "vacios": []
+    },
+    {
+      "archivo": "1510299e26 CRT copy.pdf",
+      "tipo_nombre": "transporte",
+      "tipo_final": "transporte",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 5984,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 7.9,
+      "resumen": "ZINC NOT ALLOYED. CONTAINING BY WEIGHT 99,99% OR MORE OF ZINC. ELECTROLYTIC. IN",
+      "datos": {
+        "comercial": {
+          "flete": "1926.53",
+          "incoterm": "CPT",
+          "moneda": "USD"
+        },
+        "via": "terrestre",
+        "logistica": null,
+        "mercaderia": {
+          "mercaderia": "ZINC NOT ALLOYED. CONTAINING BY WEIGHT 99,99% OR MORE OF ZINC. ELECTROLYTIC. IN INGOTS.",
+          "ncm": "7901.11.11",
+          "cantidad": "27.711,000 KGS",
+          "bultos": "29 volumes",
+          "peso_neto": "27.711,000 KGS",
+          "peso_bruto": "27.730,000 KGS"
+        },
+        "partes": [
+          {
+            "etiqueta": "Remitente",
+            "nombre": "NEXA RECURSOS MINERAIS S.A.",
+            "domicilio": "BR 040 - KM 284, ROD. BH/BRASILIA, TRÊS MARIAS, MG",
+            "pais": "BRASIL",
+            "identificacion": "CNPJ 42.416.651/0001-07"
+          },
+          {
+            "etiqueta": "Destinatario",
+            "nombre": "ACERBRAG S.A.",
+            "domicilio": "RUTA NACIONAL, N° 5, KM 210, B6640, BRAGADO, PROVINCIA DE BUENOS AIRES",
+            "pais": "ARGENTINA",
+            "identificacion": "CUIT 30-693.17088-1"
+          },
+          {
+            "etiqueta": "Consignatario",
+            "nombre": "ACERBRAG S.A.",
+            "domicilio": "RUTA NACIONAL, N° 5, KM 210, B6640, BRAGADO, PROVINCIA DE BUENOS AIRES",
+            "pais": "ARGENTINA",
+            "identificacion": "CUIT 30-693.17088-1"
+          },
+          {
+            "etiqueta": "Notificar a",
+            "nombre": "ACERBRAG S.A.",
+            "domicilio": "RUTA NACIONAL, N° 5, KM 210, B6640, BRAGADO, PROVINCIA DE BUENOS AIRES",
+            "pais": "ARGENTINA",
+            "identificacion": "CUIT 30-693.17088-1"
+          },
+          {
+            "etiqueta": "Transportista",
+            "nombre": "TRUCK FENIX TRANSPORTES NAC INTERNAC E OPER LOGISTICAS LTDA"
+          }
+        ],
+        "origen": {
+          "pais_origen": "Brasil",
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "BR.5443.04738",
+          "transportista": "TRUCK FENIX TRANSPORTES NAC INTERNAC E OPER LOGISTICAS LTDA",
+          "puerto_origen": "TRÊS MARIAS, MG, BRASIL",
+          "puerto_destino": "BRAGADO, PCIA DE BUENOS AIRES, ARGENTINA",
+          "medio_transporte": "Carretera"
+        },
+        "pago": null,
+        "formalidades": {
+          "entidad_emisora": "URUGUAIANA, BRASIL",
+          "observaciones_visuales": "Lacres: 1321300, 1321315, 1321317, 1321328 e 1321360. Orden de Coleta: 4884|4885. Aduanas: URUGUAIANA-RS (BRASIL), PASO DE LOS LIBRES (ARGENTINA), PUERTO SECO CHIVILCOY COD.11200 (ARGENTINA)"
+        }
+      },
+      "vacios": [
+        {
+          "campo": "comercial.valor_factura",
+          "donde": "interpretación",
+          "motivo": "sin valor comercial declarado en documento de transporte"
+        }
+      ]
+    },
+    {
+      "archivo": "1510299e26 Fatura Nexa.pdf",
+      "tipo_nombre": "factura_comercial",
+      "tipo_final": "factura_comercial",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 1862,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 4.6,
+      "resumen": "ZINC NOT ALLOYED. CONTAINING BY WEIGHT 99,99% OR MORE OF ZINC. ELECTROLYTIC. IN",
+      "datos": {
+        "comercial": {
+          "valor_factura": "117445.04",
+          "valor_fob": "112628.71",
+          "flete": "4816.33",
+          "incoterm": "CPT",
+          "moneda": "USD"
+        },
+        "via": null,
+        "logistica": null,
+        "mercaderia": {
+          "mercaderia": "ZINC NOT ALLOYED. CONTAINING BY WEIGHT 99,99% OR MORE OF ZINC. ELECTROLYTIC. IN INGOTS. Zn4E - SL - BR CT 4MS",
+          "ncm": "7901.11.11",
+          "cantidad": "27.711 MT",
+          "unidad": "MT",
+          "bultos": "29 Bundles with 1044 Ingots",
+          "peso_neto": "27.711 MT",
+          "peso_bruto": "27.730 MT"
+        },
+        "partes": [
+          {
+            "etiqueta": "Buyer",
+            "nombre": "ACERBRAG S.A.",
+            "domicilio": "Ruta Nacional 5 Km 210, B6640 Bragado, Provincia de Buenos Aires, Argentina",
+            "pais": "Argentina",
+            "identificacion": "CUIT 30-69317088-1"
+          },
+          {
+            "etiqueta": "Consignee",
+            "nombre": "ACERBRAG S.A.",
+            "domicilio": "Ruta Nacional 5 Km 210, B6640 Bragado, Provincia de Buenos Aires, Argentina",
+            "pais": "Argentina",
+            "identificacion": "CUIT 30-69317088-1"
+          },
+          {
+            "etiqueta": "Notify",
+            "nombre": "ACERBRAG S.A.",
+            "domicilio": "Ruta Nacional 5 Km 210, B6640 Bragado, Provincia de Buenos Aires, Argentina",
+            "pais": "Argentina",
+            "identificacion": "CUIT 30-69317088-1"
+          },
+          {
+            "etiqueta": "Producer",
+            "nombre": "NEXA RECURSOS MINERAIS S.A.",
+            "domicilio": "Rodovia BH Brasília, BR 040, Km 284,5 - S/N, Três Marias - MG - Brazil",
+            "pais": "Brazil",
+            "identificacion": "CNPJ 42.416.651/0001-07"
+          }
+        ],
+        "origen": {
+          "pais_origen": "Brasil",
+          "pais_procedencia": "Brasil",
+          "pais_destino": "Argentina"
+        },
+        "transporte": {
+          "transporte_doc_nro": "1510299E26",
+          "puerto_origen": "Três Marias - MG - Brazil",
+          "puerto_destino": "Buenos Aires, Argentina"
+        },
+        "pago": {
+          "fecha_factura": "2026-06-15",
+          "plazo_pago_dias": "180",
+          "forma_pago": "NET 180 días"
+        },
+        "formalidades": null
+      },
+      "vacios": []
+    },
+    {
+      "archivo": "1510299e26 Packing List & Analisys Certificate.pdf",
+      "tipo_nombre": "packing_list",
+      "tipo_final": "packing_list",
+      "problemas": [],
+      "ok": true,
+      "lectura_chars": 4449,
+      "vision_cloud": false,
+      "ocr_local": false,
+      "fuente": "embebido",
+      "segundos": 4.5,
+      "resumen": "Zn4E - SL - BR CT 4MS - ZINCO EM LINGOTES",
+      "datos": {
+        "comercial": null,
+        "via": null,
+        "logistica": null,
+        "mercaderia": {
+          "mercaderia": "Zn4E - SL - BR CT 4MS - ZINCO EM LINGOTES",
+          "cantidad": "1044 lingotes",
+          "unidad": "lingotes",
+          "bultos": "29 bundles",
+          "tipo_embalaje": "bundle",
+          "peso_neto": "27.711 TO",
+          "peso_bruto": "27.73 TO"
+        },
+        "partes": [
+          {
+            "etiqueta": "CUSTOMER",
+            "nombre": "Nexa Recursos Minerais S.A.",
+            "domicilio": "Rod. BH/Brasilia BR040 Km284,5",
+            "pais": "BRASIL"
+          }
+        ],
+        "origen": {
+          "pais_origen": "Brasil"
+        },
+        "transporte": null,
+        "pago": {
+          "fecha_factura": "2026-06-15"
+        },
+        "formalidades": {
+          "observaciones_visuales": "Method of Analysis: Optical Emission Spectrometer - SPARK -. Technical Lead: Eder Lúcio de C. Martins CRQ:23003972. Análisis químico: Zn 99,99-100,00%, Al 0,005-0,009%, Cd 0,000-0,003%, Cu 0,000-0,001%, Fe 0,000-0,002%, Pb 0,000-0,004%, Sn 0,000-0,001%"
+        }
+      },
+      "vacios": [
+        {
+          "campo": "origen.pais_destino",
+          "donde": "interpretación",
+          "motivo": "«Argentina» no figura en el documento"
+        }
+      ]
+    }
+  ]
+}

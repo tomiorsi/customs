@@ -1,0 +1,73 @@
+{
+  "carpeta": "3",
+  "operacion": {
+    "tipo": "importacion",
+    "via": "aerea",
+    "ncm": "3920.99.90.900Y",
+    "pais_origen": "Estados Unidos",
+    "incoterm": "FCA"
+  },
+  "documentos": [
+    {
+      "file": "afip.pdf",
+      "tipo": "despacho"
+    },
+    {
+      "file": "awl.pdf",
+      "tipo": "transporte"
+    },
+    {
+      "file": "invoice.pdf",
+      "tipo": "factura_comercial"
+    }
+  ],
+  "cruce_documentacion": {
+    "etapa": "documentacion",
+    "tipos_presentes": [
+      "despacho",
+      "transporte",
+      "factura_comercial"
+    ],
+    "resumen": "Importación aérea de plásticos (NCM 3920.99.90.900Y) desde EE.UU. Operación con documentación parcial: factura comercial, despacho aduanero (SIM) y documento de transporte (AWL) presentes. Se detectan inconsistencias reales en cantidad/peso entre documentos y alertas sobre completitud de documentación previa al despacho.",
+    "faltantes": [],
+    "inconsistencias": [],
+    "alertas": [
+      {
+        "nivel": "ok",
+        "texto": "Incoterm FCA MIAMI en factura vs FCA en SIM: ambos consistentes. FCA (Free Carrier) es incoterm comercial; punto de entrega en Miami es operativo (hub logístico). Valor FOB USD 22.767,20 en SIM coincide con valor factura USD 22.767,2. Valoración conforme Acuerdo OMC Art. 1."
+      }
+    ],
+    "refs_faltantes_ok": "0/0",
+    "refs_alertas_warn": 0
+  },
+  "cruce_embarque": {
+    "etapa": "embarque",
+    "tipos_presentes": [
+      "despacho",
+      "transporte",
+      "factura_comercial"
+    ],
+    "resumen": "Importación aérea de plásticos (NCM 3920.99.90.900Y) desde EE.UU. Operación con documentación básica presente (AWB, factura comercial, despacho aduanero). Se detectan inconsistencias significativas en peso neto, cantidad de bultos y descripción de mercadería entre documentos. Origen extrazona (EE.UU.) no requiere ROM. Flete y valor FOB documentados. Incoterm FCA coherente con origen.",
+    "faltantes": [],
+    "inconsistencias": [
+      "DESCRIPCIÓN DE MERCADERÍA: Despacho y AWB mencionan 'Polyurethane HP800'; Factura detalla 'POLYURETHANE HP-8000 .025\" x 60\" (2 ROLLS); POLYURETHANE HP-8000 .050\" x 60\" (6 ROLLS); SD-1700 PET/TPU 60\" x 200' (1 ROLL)'. Hay variación en especificaciones técnicas y composición (HP-8000 vs SD-1700 PET/TPU)."
+    ],
+    "alertas": [
+      {
+        "nivel": "ok",
+        "texto": "Incoterm FCA MIAMI en factura es coherente con origen EE.UU. y transporte aéreo. Flete (3539 en despacho, 3043 en AWB) corre a cargo del importador, consistente con FCA."
+      },
+      {
+        "nivel": "ok",
+        "texto": "Valor FOB 22.767,2 USD en despacho coincide con valor factura total (22.767,2 USD). Flete adicional (3539 USD) no incluido en FOB, conforme a incoterm FCA."
+      },
+      {
+        "nivel": "ok",
+        "texto": "Origen Estados Unidos (extrazona) no activa requisito de ROM/ACE 18. Certificado de origen MERCOSUR no aplica."
+      }
+    ],
+    "refs_faltantes_ok": "0/0",
+    "refs_alertas_warn": 0
+  },
+  "segundos_cruce": 63.5
+}

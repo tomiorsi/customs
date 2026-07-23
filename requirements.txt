@@ -1,0 +1,8 @@
+# Dependencias Python del servidor (lectura PDF + OCR local).
+# Se instalan en .venv/ al correr run.py o: python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+PyMuPDF>=1.26,<2
+easyocr>=1.7,<2
+pillow>=10,<12
+numpy>=1.24,<3
+torch>=2.0
+torchvision>=0.15

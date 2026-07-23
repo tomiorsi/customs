@@ -334,7 +334,6 @@ const CAMPOS_ESCALARES: DefCampoEscalar[] = [
       "proforma",
       "certificado_origen",
       "certificado_peso",
-      "transporte",
     ],
     extraer: (d) => d.origen?.pais_origen,
     normalizar: normTexto,
@@ -395,6 +394,14 @@ const CAMPOS_ESCALARES: DefCampoEscalar[] = [
     campo: "plazo_pago_dias",
     extraer: (d) => d.pago?.plazo_pago_dias,
     normalizar: (v) => v.replace(/\D/g, ""),
+    equivalentes: (a, b) => a === b,
+  },
+  {
+    id: "nro_factura",
+    label: "N° de factura",
+    campo: "nro_factura",
+    extraer: (d) => d.pago?.nro_factura,
+    normalizar: normUpper,
     equivalentes: (a, b) => a === b,
   },
   {
@@ -633,9 +640,9 @@ export async function cargarDocumentosOperacion(
   op: OperationWithClient,
 ): Promise<EntradaDocumento[]> {
   const docs = await getDocumentsByOperation(op.id, op.user_id);
-  const candidatos = documentosConValorLegal(docs).filter((d) =>
-    DOCS_RECONCILIACION.includes(d.doc_type),
-  );
+  const candidatos = documentosConValorLegal(docs, {
+    mantenerVariasFacturas: true,
+  }).filter((d) => DOCS_RECONCILIACION.includes(d.doc_type));
 
   return candidatos.map((d) => ({
     docId: d.id,
@@ -1090,6 +1097,114 @@ async function resolverConflictosConCache(
   return out;
 }
 
+/** Una factura comercial de la operación (para consolidados / varios proveedores). */
+export type FacturaResumen = {
+  nro: string;
+  proveedor: string | null;
+  total: number;
+  moneda: string | null;
+};
+
+export type AgregacionFacturas = {
+  facturas: FacturaResumen[];
+  /** Suma de totales como string (vacío si hay monedas distintas: no se suma). */
+  totalStr: string;
+  /** Números de factura unidos ("574, 576, 3071"). */
+  numeros: string;
+  /** Proveedores distintos unidos, o null si es uno solo. */
+  vendedores: string | null;
+  moneda: string | null;
+  alerta: string;
+};
+
+/**
+ * Detecta MÚLTIPLES facturas comerciales distintas en la operación (consolidado,
+ * varios proveedores) y las agrega: suma los totales para la base CIF, lista los
+ * números y proveedores. Devuelve null si hay 0 o 1 factura (comportamiento normal).
+ *
+ * General: sin límite de facturas, agrupa por número (una factura repetida en
+ * varios PDFs no se cuenta dos veces) y respeta la moneda (si se mezclan, no suma
+ * y avisa). Prioriza facturas comerciales finales sobre proformas.
+ */
+export function agregarFacturasMultiples(
+  porDoc: DocConDatos[],
+): AgregacionFacturas | null {
+  let invoices = porDoc.filter((p) => p.docType === "factura_comercial");
+  if (invoices.length === 0) {
+    invoices = porDoc.filter((p) => p.docType === "proforma");
+  }
+  if (invoices.length < 2) return null;
+
+  // Agrupamos por número de factura (dedupe: misma factura leída en varios docs).
+  const porNro = new Map<string, FacturaResumen>();
+  let sinNro = 0;
+  for (const p of invoices) {
+    const nro = p.datos.pago?.nro_factura?.trim();
+    const totalNum = Number(p.datos.comercial?.valor_factura ?? "");
+    const total = Number.isFinite(totalNum) ? totalNum : 0;
+    const proveedor = vendedorDesdeExtraccion(p.datos) ?? null;
+    const moneda = p.datos.comercial?.moneda?.trim() || null;
+    const key = nro ? nro.toUpperCase() : `__sin_nro_${sinNro++}`;
+    if (!porNro.has(key)) {
+      porNro.set(key, { nro: nro ?? "(sin nº)", proveedor, total, moneda });
+    }
+  }
+  const facturas = [...porNro.values()];
+  if (facturas.length < 2) return null;
+
+  const monedas = new Set(
+    facturas.map((f) => (f.moneda ?? "").toUpperCase()).filter(Boolean),
+  );
+  const monedaUnica = monedas.size === 1 ? [...monedas][0]! : null;
+  const mezclaMonedas = monedas.size > 1;
+  const total = facturas.reduce((s, f) => s + f.total, 0);
+  const numeros = facturas.map((f) => f.nro).join(", ");
+  const vendedoresSet = [
+    ...new Set(facturas.map((f) => f.proveedor).filter((v): v is string => !!v)),
+  ];
+  const vendedores = vendedoresSet.length ? vendedoresSet.join(" · ") : null;
+
+  const totalFmt = `${monedaUnica ? monedaUnica + " " : ""}${Math.round(total).toLocaleString("es-AR")}`;
+  const alerta = mezclaMonedas
+    ? `Se detectaron ${facturas.length} facturas comerciales (${numeros}) en monedas distintas ` +
+      `(${[...monedas].join(", ")}): no se pueden sumar automáticamente, cargá el valor total a mano.`
+    : `Se detectaron ${facturas.length} facturas comerciales (${numeros}). ` +
+      `Se sumaron los totales: ${totalFmt}. Es la base para el CIF.`;
+
+  return {
+    facturas,
+    totalStr: mezclaMonedas ? "" : String(Math.round(total)),
+    numeros,
+    vendedores,
+    moneda: monedaUnica,
+    alerta,
+  };
+}
+
+/**
+ * Campos que varían legítimamente entre facturas distintas: con varias facturas
+ * NO deben tratarse como conflicto. Los descriptivos toman el primer valor no
+ * vacío; los MONTOS parciales por factura se omiten (el total real es la suma).
+ */
+const CAMPOS_VARIAN_POR_FACTURA = new Set<OpCampo>([
+  "mercaderia", "ncm", "marca", "cantidad", "unidad", "bultos", "tipo_embalaje",
+  "peso_neto", "peso_bruto", "fecha_factura", "valor_fob", "valor_cif", "flete", "seguro",
+]);
+const CAMPOS_MONTO_POR_FACTURA = new Set<OpCampo>([
+  "fecha_factura", "valor_fob", "valor_cif", "flete", "seguro",
+]);
+
+function primerValorEscalarNoVacio(
+  def: DefCampoEscalar,
+  porDoc: DocConDatos[],
+): string | null {
+  for (const p of porDoc) {
+    const v = valorNormalizadoEscalar(def, p);
+    if (v) return v;
+  }
+  return null;
+}
+
 /**
  * Cruza documentos con valor legal usando extraccion_ia (sin releer PDFs salvo
  * caché ausente). Conflictos nuevos → IA; los ya resueltos → caché persistida.
@@ -1120,7 +1235,28 @@ export async function reconciliarDocumentosOperacion(
   const conflictosPendientes: ConflictoDocumentoBatch[] = [];
   const metaConflictos = new Map<string, MetaConflicto>();
 
+  // Consolidado / varias facturas: si hay MÁS DE UNA factura comercial distinta,
+  // los campos por-factura (nº, total, proveedor) no se reconcilian como escalar
+  // único (sería un "conflicto" falso): se AGREGAN (se suma el total para el CIF).
+  const multiFacturas = agregarFacturasMultiples(porDoc);
+  const camposMultiFactura = new Set<OpCampo>(
+    multiFacturas ? ["valor_factura", "nro_factura", "contraparte"] : [],
+  );
+
   for (const def of CAMPOS_ESCALARES) {
+    if (camposMultiFactura.has(def.campo)) continue;
+    // Con varias facturas, los campos que legítimamente varían entre facturas NO
+    // son un conflicto: los descriptivos toman el primer valor no vacío y los
+    // montos parciales por factura se omiten (el total real es la SUMA + facturas_json).
+    if (multiFacturas && CAMPOS_VARIAN_POR_FACTURA.has(def.campo)) {
+      if (CAMPOS_MONTO_POR_FACTURA.has(def.campo)) continue;
+      const primero = primerValorEscalarNoVacio(def, porDoc);
+      if (primero != null) {
+        const previo = String(op[def.campo] ?? "").trim();
+        if (previo !== primero) cambios[def.campo] = primero;
+      }
+      continue;
+    }
     const det = detectarCampoEscalar(def, porDoc, opts);
     if (det.kind === "vacio") continue;
     if (det.kind === "conflicto") {
@@ -1135,6 +1271,21 @@ export async function reconciliarDocumentosOperacion(
     }
     const previo = String(op[def.campo] ?? "").trim();
     if (previo !== det.valor) cambios[def.campo] = det.valor;
+  }
+
+  // Aplicamos la agregación de múltiples facturas (suma de totales, lista de nº
+  // y proveedores) y guardamos el detalle para mostrarlo.
+  if (multiFacturas) {
+    if (multiFacturas.totalStr) cambios.valor_factura = multiFacturas.totalStr;
+    if (multiFacturas.moneda) cambios.moneda = multiFacturas.moneda;
+    cambios.nro_factura = multiFacturas.numeros;
+    if (multiFacturas.vendedores) cambios.contraparte = multiFacturas.vendedores;
+    cambios.facturas_json = JSON.stringify(multiFacturas.facturas);
+    alertas.push(multiFacturas.alerta);
+  } else if (String(op.facturas_json ?? "").trim()) {
+    // Volvió a haber 0-1 factura (se borraron): limpiamos el detalle multi-factura
+    // para que la operación quede como una factura normal.
+    cambios.facturas_json = "";
   }
 
   // Fecha inválida preexistente (ej. basura manual) y sin lectura nueva → limpiar.
@@ -1350,6 +1501,8 @@ export async function sincronizarOperacionDesdeDocumentosRestantes(
     for (const c of camposRespaldoDocumental()) {
       if (String(op[c] ?? "").trim()) limpiar[c] = null;
     }
+    // Sin documentos: también limpiamos el detalle multi-factura.
+    if (String(op.facturas_json ?? "").trim()) limpiar.facturas_json = null;
   } else {
     for (const def of CAMPOS_ESCALARES) {
       const actual = String(op[def.campo] ?? "").trim();

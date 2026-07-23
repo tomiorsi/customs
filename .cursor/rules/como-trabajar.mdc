@@ -1,0 +1,66 @@
+---
+description: Protocolo de trabajo para agentes — cómo abordar tareas sin supervisión
+alwaysApply: true
+---
+
+# Cómo trabajar en este proyecto
+
+## Al recibir una tarea
+
+1. **Clasificar la tarea:** ¿UI? ¿API? ¿Pipeline PDF? ¿Clasificador NCM? ¿Cruce/checklist? ¿Datos?
+2. **Leer antes de escribir** — abrir los 2–4 archivos centrales del área (ver `AGENTS.md`).
+3. **Trazar el pipeline** de punta a punta para esa funcionalidad.
+4. **Buscar asimetrías** — ¿hay otra ruta que hace lo mismo (admin vs cliente, subida vs cruce)?
+5. Si falta contexto de negocio → leer `docs/*.md` relevante.
+
+## Al implementar
+
+| Hacer | No hacer |
+|-------|----------|
+| Cambio mínimo enfocado en la tarea | Refactor masivo “de paso” |
+| Reutilizar funciones y tipos existentes | Duplicar builders de contexto |
+| Fix en la capa correcta (lectura → contexto → IA → UI) | Parchear solo la UI |
+| Mantener español y estilo del archivo | Mezclar inglés en dominio aduanero |
+| Probar con caso reportado + otro distinto | Solo el PDF del usuario |
+
+## Al tocar IA
+
+- **Prompts legales NCM** → solo `principios-clasificacion.ts`
+- **Llamadas Anthropic** → `ia.ts`, `ia-documentos.ts`, `ia-extraccion.ts`
+- **Orquestación** → `index.ts`, `resolucion-documentos.ts`
+- El código **no decide validez legal** con keywords; la IA funda con marco.
+
+## Ante un bug con ejemplo concreto
+
+1. Reproducir mentalmente: ¿falló lectura, contexto, prompt o UI?
+2. Encontrar **por qué** falló el pipeline, no cómo hacer pasar ese PDF.
+3. Verificar que el fix no rompe otro tipo de documento u operación.
+4. Si hay benchmarks en `scripts/`, considerar correr el relevante.
+
+## Verificación antes de terminar
+
+```bash
+npm run lint                    # si tocaste TS/TSX
+node scripts/benchmark-ia-ncm.mjs   # si tocaste clasificador
+python3 scripts/benchmark_pdf_texto.py  # si tocaste lectura PDF
+```
+
+No hace falta correr todo siempre; sí el área tocada cuando sea razonable.
+
+## Comunicación con el usuario
+
+- Responder en **español**.
+- Explicar **qué capa** del pipeline se arregló y **por qué** aplica globalmente.
+- Si la tarea es ambigua o toca zona sensible → **preguntar antes**, no asumir.
+- No crear commits, PRs ni pushes sin pedido explícito.
+- No crear archivos de documentación extra salvo que lo pidan (las reglas en `.cursor/` son la excepción pedida por el usuario).
+
+## Señales de que estás yendo mal
+
+- Agregaste `if (ncm === '...')` o `if (docType === '...')` para validar dominio
+- Creaste constante con nombre de producto del caso de prueba en principios
+- Dos funciones arman contexto distinto para la misma etapa
+- Editaste fixture para que el benchmark pase sin arreglar el motor
+- Arreglaste solo el componente React sin tocar la API/lib que alimenta los datos
+
+En esos casos: parar, releer `motor-ia-global.mdc`, corregir el enfoque.

@@ -9,10 +9,13 @@ export function OperacionMenu({
   operationId,
   onEditar,
   volverHref = "/inicio/operaciones",
+  soloNombre = false,
 }: {
   operationId: string;
   onEditar: () => void;
   volverHref?: string;
+  /** Modo cliente: sólo "Editar nombre", sin eliminar. */
+  soloNombre?: boolean;
 }) {
   const router = useRouter();
   const [abierto, setAbierto] = useState(false);
@@ -93,20 +96,24 @@ export function OperacionMenu({
             className="flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-2 hover:text-accent"
           >
             <Pencil className="h-4 w-4" />
-            Editar
+            {soloNombre ? "Editar nombre" : "Editar"}
           </button>
-          <div className="h-px bg-border" />
-          <button
-            type="button"
-            onClick={() => {
-              setAbierto(false);
-              setConfirmar(true);
-            }}
-            className="flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/10"
-          >
-            <Trash2 className="h-4 w-4" />
-            Eliminar
-          </button>
+          {!soloNombre && (
+            <>
+              <div className="h-px bg-border" />
+              <button
+                type="button"
+                onClick={() => {
+                  setAbierto(false);
+                  setConfirmar(true);
+                }}
+                className="flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/10"
+              >
+                <Trash2 className="h-4 w-4" />
+                Eliminar
+              </button>
+            </>
+          )}
         </div>
       )}
 

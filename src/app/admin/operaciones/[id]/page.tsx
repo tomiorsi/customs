@@ -7,9 +7,7 @@ import {
   getDocumentsByOperation,
   getEventosByOperation,
   getOperationById,
-  getParticipantesByOperation,
   marcarOperacionVistaEstudio,
-  noLeidosEstudioPorOperacion,
 } from "@/lib/data";
 import { OperacionEditable } from "@/components/operacion-editable";
 
@@ -34,8 +32,6 @@ export default async function AdminOperacionDetallePage({
     getDocumentsByOperation(op.id, op.user_id),
     getEventosByOperation(op.user_id, op.id),
   ]);
-  const participantes = getParticipantesByOperation(op.id);
-  const noLeidos = noLeidosEstudioPorOperacion(op.id);
 
   return (
     <div className="space-y-6">
@@ -50,8 +46,6 @@ export default async function AdminOperacionDetallePage({
         op={op}
         docs={docs}
         eventos={eventos}
-        participantes={participantes}
-        noLeidos={noLeidos}
         completo
         showClient
         editableEstado

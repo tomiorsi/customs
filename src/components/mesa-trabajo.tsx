@@ -32,11 +32,6 @@ import {
   parseChecklist,
   progresoEtapa,
 } from "@/lib/workflow";
-import type {
-  ClasificacionResultado,
-  Respuesta,
-} from "@/lib/clasificador/tipos";
-import { consecuenciaParaOpcion } from "@/lib/clasificador/tipos";
 import {
   derivarEstadoExpediente,
   etiquetaEstado,
@@ -46,14 +41,8 @@ import {
   type DocType,
 } from "@/lib/docs";
 import { LiquidacionPanel } from "@/components/liquidacion-panel";
-import {
-  ClasificadorPreguntas,
-} from "@/components/clasificador-preguntas";
-import {
-  esPreguntaNcmMaquinaPadre,
-  normalizarNcmMaquina,
-} from "@/lib/clasificador/preguntas-sistema";
-import { ncmPareceGeneral, digitosNcm } from "@/lib/formato";
+import { FichaMalvinaPanel } from "@/components/ficha-malvina-panel";
+import { ncmPareceGeneral } from "@/lib/formato";
 
 export type MesaOp = {
   id: string;
@@ -139,7 +128,9 @@ function hallazgosDelPaso(
         e &&
         Array.isArray(e.hallazgos) &&
         e.hallazgos.length > 0 &&
-        (relevantes.has(dt as DocType) || dt === "otro"),
+        (e.etapa === etapaId ||
+          relevantes.has(dt as DocType) ||
+          dt === "otro"),
     )
     .map(([docType, entry]) => ({ docType, entry }))
     .sort((a, b) => (a.entry.at < b.entry.at ? 1 : -1));
@@ -340,6 +331,10 @@ export function MesaTrabajo({
   const [selId, setSelId] = useState<string | null>(
     solo && items[0] ? items[0].id : null,
   );
+
+  useEffect(() => {
+    setOps(items);
+  }, [items]);
   const [busqueda, setBusqueda] = useState("");
   const [listaAbierta, setListaAbierta] = useState(!solo);
 
@@ -394,6 +389,10 @@ export function MesaTrabajo({
     setOps((prev) =>
       prev.map((o) => (o.id === selId ? { ...o, validacionIA } : o)),
     );
+  const onOpSync = (opId: string, patch: Partial<MesaOp>) =>
+    setOps((prev) =>
+      prev.map((o) => (o.id === opId ? { ...o, ...patch } : o)),
+    );
 
   // Modo "solo": directo al panel de la operación, sin buscador ni lista.
   if (solo) {
@@ -412,6 +411,7 @@ export function MesaTrabajo({
         onEtapa={onEtapa}
         onCampos={onCampos}
         onValidacionIA={onValidacionIA}
+        onOpSync={onOpSync}
         volverHref={volverHref}
       />
     );
@@ -514,6 +514,7 @@ export function MesaTrabajo({
           onEtapa={onEtapa}
           onCampos={onCampos}
           onValidacionIA={onValidacionIA}
+          onOpSync={onOpSync}
         />
       )}
     </div>
@@ -528,6 +529,7 @@ function PanelOperacion({
   onEtapa,
   onCampos,
   onValidacionIA,
+  onOpSync,
   volverHref,
 }: {
   op: MesaOp;
@@ -535,9 +537,69 @@ function PanelOperacion({
   onEtapa: (etapaId: string) => void;
   onCampos: (campos: Record<string, string>) => void;
   onValidacionIA: (validacionIA: string) => void;
+  onOpSync: (opId: string, patch: Partial<MesaOp>) => void;
   volverHref?: string;
 }) {
   const router = useRouter();
+
+  const sincronizarDesdeServidor = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/operaciones/${op.id}/mesa-sync`, {
+        cache: "no-store",
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.ok) return;
+      onOpSync(op.id, {
+        checklist: json.checklist ?? op.checklist,
+        hallazgosIA: json.hallazgosIA ?? op.hallazgosIA,
+        validacionIA: json.validacionIA ?? op.validacionIA,
+        docs: typeof json.docs === "number" ? json.docs : op.docs,
+        etapa: json.etapa ?? op.etapa,
+        estado: json.estado ?? op.estado,
+        ncm: json.ncm ?? op.ncm,
+      });
+    } catch {
+      /* ignorar */
+    }
+  }, [onOpSync, op]);
+
+  useEffect(() => {
+    let detener = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let prevAnalizando: boolean | null = null;
+
+    async function tick() {
+      if (detener) return;
+      try {
+        const res = await fetch(`/api/operaciones/${op.id}/ia/estado`, {
+          cache: "no-store",
+        });
+        if (res.ok) {
+          const e = (await res.json()) as {
+            analizando: boolean;
+            ultimoFin: string | null;
+          };
+          if (
+            prevAnalizando === true &&
+            !e.analizando
+          ) {
+            await sincronizarDesdeServidor();
+            router.refresh();
+          }
+          prevAnalizando = e.analizando;
+        }
+      } catch {
+        /* ignorar */
+      }
+      timer = setTimeout(tick, prevAnalizando ? 2500 : 8000);
+    }
+
+    void tick();
+    return () => {
+      detener = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [op.id, router, sincronizarDesdeServidor]);
   const validacionPorEtapa = useMemo(() => {
     if (!op.validacionIA) return {} as Record<string, DocumentacionIA>;
     try {
@@ -611,29 +673,17 @@ function PanelOperacion({
   const [aplicando, setAplicando] = useState(false);
   const [aplicado, setAplicado] = useState(false);
 
-  // Clasificador interactivo (Paso 2): cierra la NCM exacta antes de pedir/validar documentación.
-  const [productoClasif, setProductoClasif] = useState(
-    op.ncm && op.primeraVez === "no"
-      ? op.ncm
-      : op.mercaderia || op.titulo,
-  );
-  const [clasificando, setClasificando] = useState(false);
-  const [clasif, setClasif] = useState<ClasificacionResultado | null>(null);
+  // NCM de la operación: se ingresa a mano (la clasificación se hace en el
+  // Nomenclador). Reutilizamos clasifError para el feedback al guardarla.
   const [clasifError, setClasifError] = useState<string | null>(null);
-  const [respuestasClasif, setRespuestasClasif] = useState<Record<string, string>>(
-    {},
-  );
-  const [textoLibreClasif, setTextoLibreClasif] = useState<Record<string, string>>(
-    {},
-  );
-  // Historial acumulado de respuestas (todas las rondas), para que el motor no
-  // pierda contexto entre preguntas y pueda converger.
-  const [respuestasAcum, setRespuestasAcum] = useState<Respuesta[]>([]);
   const [aplicandoNcm, setAplicandoNcm] = useState(false);
   const [ncmAplicada, setNcmAplicada] = useState(false);
   // Contador para forzar el recálculo de la cotización (y la composición del CIF)
   // cuando se aplica la IA, se cierra la NCM o se carga el flete, sin refrescar.
   const [recalc, setRecalc] = useState(0);
+  const [destinoCotizacion, setDestinoCotizacion] = useState<"reventa" | "uso_propio">(
+    "reventa",
+  );
 
   // Al cambiar la etapa actual (avance/retroceso) seguimos viéndola y
   // limpiamos el resultado de IA. Patrón de ajuste de estado en render.
@@ -646,12 +696,8 @@ function PanelOperacion({
     setIaDocStage(null);
     setIaError(null);
     setAplicado(false);
-    setClasif(null);
     setClasifError(null);
     setNcmAplicada(false);
-    setRespuestasClasif({});
-    setTextoLibreClasif({});
-    setRespuestasAcum([]);
   }
 
   const etapa = etapas[verIdx];
@@ -722,6 +768,7 @@ function PanelOperacion({
   const esDocumentacion = etapa.id === "documentacion";
   const esEmbarque = etapa.id === "embarque";
   const esLiquidacion = etapa.id === "liquidacion";
+  const esOficializacion = etapa.id === "oficializacion";
   const esRetiro = etapa.id === "retiro";
   // La validación de documentación con IA y el aviso al cliente sirven tanto en
   // la etapa documental como en la de transporte/arribo.
@@ -735,12 +782,10 @@ function PanelOperacion({
   const iaDocMostrar =
     iaDoc && iaDocStage === etapa.id ? iaDoc : validacionPersistida;
 
-  /** Pendientes de documentación visibles en cualquier paso (prioridad: etapa actual). */
-  const pendientesDoc =
-    iaDocMostrar ??
-    (esDocOEmbarque
-      ? (validacionPorEtapa[etapa.id] ?? null)
-      : (validacionPorEtapa.embarque ?? validacionPorEtapa.documentacion ?? null));
+  /** Pendientes de documentación: solo en pasos 2 y 3 (no heredar en liquidación ni posteriores). */
+  const pendientesDoc = esDocOEmbarque
+    ? (iaDocMostrar ?? validacionPorEtapa[etapa.id] ?? null)
+    : null;
 
   const mostrarClasificacion = esApertura || esDocumentacion;
   const ncmGeneralEnDoc = esDocumentacion && ncmPareceGeneral(op.ncm);
@@ -852,95 +897,6 @@ function PanelOperacion({
     } finally {
       setIaCargando(false);
     }
-  }
-
-  function contextoDesdeRespuestas(respuestas: Respuesta[]) {
-    let ncmMaquina: string | undefined;
-    let equipoReferencia: string | undefined;
-    for (const r of respuestas) {
-      if (!esPreguntaNcmMaquinaPadre(r.pregunta)) continue;
-      const ncm = normalizarNcmMaquina(r.opcion);
-      if (ncm) ncmMaquina = ncm;
-      else if (r.opcion.trim()) equipoReferencia = r.opcion.trim();
-    }
-    if (!ncmMaquina && !equipoReferencia) return undefined;
-    return { ncmMaquina, equipoReferencia };
-  }
-
-  async function pedirClasificacion(producto: string, respuestas?: Respuesta[]) {
-    setClasificando(true);
-    setClasifError(null);
-    setNcmAplicada(false);
-    try {
-      const ctx = respuestas?.length
-        ? contextoDesdeRespuestas(respuestas)
-        : undefined;
-      const res = await fetch(`/api/operaciones/${op.id}/ia/clasificar`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          producto,
-          respuestas,
-          ncmMaquina: ctx?.ncmMaquina,
-          equipoReferencia: ctx?.equipoReferencia,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.ok) {
-        setClasifError(data.error ?? "No se pudo clasificar.");
-        return;
-      }
-      const resultado = data.resultado as ClasificacionResultado;
-      setClasif(resultado);
-      // El backend pudo enriquecer la descripción con los documentos del paso 1:
-      // la reflejamos para que el operador la vea y el afinado la reutilice.
-      if (typeof data.producto === "string" && data.producto.trim()) {
-        setProductoClasif(data.producto);
-      }
-    } catch {
-      setClasifError("Error de conexión con el clasificador.");
-    } finally {
-      setClasificando(false);
-    }
-  }
-
-  function clasificarNcm() {
-    const q = productoClasif.trim();
-    if (q.length < 2 || clasificando) return;
-    setClasif(null);
-    setRespuestasClasif({});
-    setTextoLibreClasif({});
-    setRespuestasAcum([]);
-    void pedirClasificacion(q);
-  }
-
-  function afinarNcm() {
-    const q = productoClasif.trim();
-    if (!clasif?.preguntas || clasificando) return;
-    const mapa = new Map(respuestasAcum.map((r) => [r.pregunta, r.opcion]));
-    for (const pregunta of clasif.preguntas) {
-      const libre = (textoLibreClasif[pregunta.pregunta] ?? "").trim();
-      if (libre) {
-        mapa.set(pregunta.pregunta, libre);
-        continue;
-      }
-      const op = respuestasClasif[pregunta.pregunta];
-      if (op) mapa.set(pregunta.pregunta, op);
-    }
-    const merged: Respuesta[] = [];
-    for (const [pregunta, opcion] of mapa) {
-      const qDef = clasif.preguntas?.find((p) => p.pregunta === pregunta);
-      merged.push({
-        pregunta,
-        opcion,
-        consecuencia: qDef ? consecuenciaParaOpcion(qDef, opcion) : undefined,
-      });
-    }
-    if (merged.length === 0) return;
-    setRespuestasAcum(merged);
-    setRespuestasClasif({});
-    setTextoLibreClasif({});
-    void pedirClasificacion(q, merged);
   }
 
   async function aplicarNcm(ncm: string) {
@@ -1224,7 +1180,9 @@ function PanelOperacion({
 
         {/* Columna derecha: IA + datos rápidos (3/4) */}
         <div className="space-y-3 lg:col-span-3">
-          <PendientesDocumentacion data={pendientesDoc} />
+          {esDocOEmbarque && (
+            <PendientesDocumentacion data={pendientesDoc} />
+          )}
 
           {!esLiquidacion &&
             !esApertura &&
@@ -1325,42 +1283,23 @@ function PanelOperacion({
                 </div>
               </div>
 
-              {/* 2 · Nomenclatura (NCM) */}
-              <ClasificadorNcmFase2
-                producto={productoClasif}
-                onProducto={setProductoClasif}
-                resultado={clasif}
-                seleccion={respuestasClasif}
-                textoLibre={textoLibreClasif}
-                onSeleccion={(pregunta, opcion) =>
-                  setRespuestasClasif((s) => ({ ...s, [pregunta]: opcion }))
-                }
-                onTextoLibre={(pregunta, texto) =>
-                  setTextoLibreClasif((s) => ({ ...s, [pregunta]: texto }))
-                }
-                clasificando={clasificando}
-                error={clasifError}
+              {/* 2 · Nomenclatura (NCM) — se ingresa la posición final a mano. */}
+              <NcmFinalPanel
                 ncmActual={op.ncm}
                 aplicando={aplicandoNcm}
                 aplicada={ncmAplicada}
-                onClasificar={clasificarNcm}
-                onAfinar={afinarNcm}
+                error={clasifError}
                 onAplicar={aplicarNcm}
-                exigirEspecifica={false}
               />
 
-              {/* 3 · Flete (lo cotiza el forwarder del cliente) */}
-              <FleteManualPanel
-                opId={op.id}
-                recalcKey={recalc}
-                onGuardado={() => setRecalc((n) => n + 1)}
-              />
-
-              {/* 4 · Cotización */}
+              {/* 3 · Cotización — el flete y el seguro se editan acá mismo,
+                  tocando cada valor en «Costos de la operación». */}
               <LiquidacionPanel
                 opId={op.id}
                 checklistInicial={checklist}
                 recalcKey={recalc}
+                destinoExterno={destinoCotizacion}
+                onDestinoChange={setDestinoCotizacion}
               />
 
               {/* 5 · Enviar cotización al cliente */}
@@ -1368,38 +1307,37 @@ function PanelOperacion({
                 opId={op.id}
                 cliente={op.cliente}
                 recalcKey={recalc}
+                destino={destinoCotizacion}
                 onAvanzo={() => onEtapa(etapas[1].id)}
               />
             </>
           )}
 
           {!esApertura && mostrarClasificacion && (
-            <ClasificadorNcmFase2
-              producto={productoClasif}
-              onProducto={setProductoClasif}
-              resultado={clasif}
-              seleccion={respuestasClasif}
-              textoLibre={textoLibreClasif}
-              onSeleccion={(pregunta, opcion) =>
-                setRespuestasClasif((s) => ({ ...s, [pregunta]: opcion }))
-              }
-              onTextoLibre={(pregunta, texto) =>
-                setTextoLibreClasif((s) => ({ ...s, [pregunta]: texto }))
-              }
-              clasificando={clasificando}
-              error={clasifError}
+            <NcmFinalPanel
               ncmActual={op.ncm}
               aplicando={aplicandoNcm}
               aplicada={ncmAplicada}
-              onClasificar={clasificarNcm}
-              onAfinar={afinarNcm}
+              error={clasifError}
               onAplicar={aplicarNcm}
-              exigirEspecifica
             />
           )}
 
           {esLiquidacion && (
-            <LiquidacionPanel opId={op.id} checklistInicial={checklist} />
+            <LiquidacionPanel
+              opId={op.id}
+              checklistInicial={checklist}
+              vista="liquidacion"
+            />
+          )}
+
+          {esOficializacion && (
+            <FichaMalvinaPanel
+              opId={op.id}
+              checklistKey={JSON.stringify(checklist)}
+              despachoCargado={Boolean(checklist[claveSubtarea("oficializacion", "despacho")])}
+              onDocumentoSubido={() => void sincronizarDesdeServidor()}
+            />
           )}
 
           {esEmbarque && (
@@ -1424,39 +1362,41 @@ function PanelOperacion({
   );
 }
 
-/* ───────────────────── Paso 1 · Flete del forwarder + CIF ───────────────────── */
-
-const fmtUsd = (n: number) => `USD ${Math.round(n).toLocaleString("es-AR")}`;
 
 function EnviarCotizacionPanel({
   opId,
   cliente,
   recalcKey,
+  destino,
   onAvanzo,
 }: {
   opId: string;
   cliente: string;
   recalcKey: number;
+  destino: "reventa" | "uso_propio";
   /** Se llama cuando el envío cerró el Paso 1 y avanzó al Paso 2. */
   onAvanzo?: () => void;
 }) {
   const [enviando, setEnviando] = useState(false);
   const [enviadoA, setEnviadoA] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const qs = new URLSearchParams({ destino }).toString();
+  const pdfHref = `/api/operaciones/${opId}/cotizacion?${qs}`;
+  const pdfDlHref = `${pdfHref}&dl=1`;
 
   // Si cambian los números (NCM, flete, IA), limpiamos el "enviado" para que el
   // operador sepa que la cotización vigente cambió respecto de la que mandó.
   useEffect(() => {
     setEnviadoA(null);
     setError(null);
-  }, [recalcKey]);
+  }, [recalcKey, destino]);
 
   async function enviar() {
     if (enviando) return;
     setEnviando(true);
     setError(null);
     try {
-      const res = await fetch(`/api/operaciones/${opId}/cotizacion`, {
+      const res = await fetch(`/api/operaciones/${opId}/cotizacion?${qs}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: "{}",
@@ -1491,7 +1431,7 @@ function EnviarCotizacionPanel({
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <a
-          href={`/api/operaciones/${opId}/cotizacion`}
+          href={pdfHref}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-[11px] font-medium text-muted transition-colors hover:text-foreground"
@@ -1500,7 +1440,7 @@ function EnviarCotizacionPanel({
           Ver PDF
         </a>
         <a
-          href={`/api/operaciones/${opId}/cotizacion?dl=1`}
+          href={pdfDlHref}
           download
           className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-[11px] font-medium text-muted transition-colors hover:text-foreground"
         >
@@ -1537,516 +1477,81 @@ function EnviarCotizacionPanel({
   );
 }
 
-function FleteManualPanel({
-  opId,
-  recalcKey,
-  onGuardado,
-}: {
-  opId: string;
-  recalcKey: number;
-  onGuardado: () => void;
-}) {
-  const [data, setData] = useState<{
-    valor: number;
-    valorFuente: string;
-    fleteFuente: "incluido" | "manual" | "estimado";
-    flete: number;
-    seguro: number;
-    cif: number;
-  } | null>(null);
-  const [cargando, setCargando] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [fleteInput, setFleteInput] = useState("");
-  const [guardando, setGuardando] = useState(false);
+/* ───────────────────── NCM final (ingreso manual) ─────────────────────
+ * La clasificación se hace en el Nomenclador (herramienta completa). Acá el
+ * despachante sólo pega/edita la NCM final de la operación; no se llama al
+ * clasificador desde la mesa de trabajo para no dar lugar a dudas. */
 
-  const cargar = useCallback(async () => {
-    setCargando(true);
-    setError(null);
-    try {
-      const res = await fetch(
-        `/api/operaciones/${opId}/liquidacion?destino=reventa`,
-      );
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(json.error ?? "No se pudo calcular el CIF.");
-        return;
-      }
-      const r = json.resultado as {
-        valor: number;
-        valorFuente: string;
-        fleteFuente: "incluido" | "manual" | "estimado";
-        cotiz: { flete: number; seguro: number; cif: number };
-      };
-      setData({
-        valor: r.valor,
-        valorFuente: r.valorFuente,
-        fleteFuente: r.fleteFuente,
-        flete: r.cotiz.flete,
-        seguro: r.cotiz.seguro,
-        cif: r.cotiz.cif,
-      });
-    } catch {
-      setError("Error de conexión al calcular el CIF.");
-    } finally {
-      setCargando(false);
-    }
-  }, [opId]);
-
-  useEffect(() => {
-    cargar();
-  }, [cargar, recalcKey]);
-
-  // El input arranca vacío salvo que ya haya un flete real cargado a mano.
-  useEffect(() => {
-    if (!data) return;
-    setFleteInput(
-      data.fleteFuente === "manual" ? String(Math.round(data.flete)) : "",
-    );
-  }, [data]);
-
-  async function guardar() {
-    const valor = Number(fleteInput.replace(/[^\d.]/g, ""));
-    if (!Number.isFinite(valor) || valor < 0 || guardando) return;
-    setGuardando(true);
-    setError(null);
-    try {
-      await fetch(`/api/operaciones/${opId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ flete: valor > 0 ? String(valor) : "" }),
-      });
-      await cargar();
-      onGuardado();
-    } catch {
-      setError("No se pudo guardar el flete.");
-    } finally {
-      setGuardando(false);
-    }
-  }
-
-  const incluido = data?.fleteFuente === "incluido";
-
-  return (
-    <div className="rounded-xl border border-border bg-surface-2/30 p-3">
-      <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-        <Truck className="h-3.5 w-3.5 text-accent" />
-        3 · Flete y CIF
-      </p>
-      <p className="mt-1 text-[10.5px] leading-relaxed text-muted">
-        El flete, el seguro y los gastos los carga la IA al «Analizar documentos»
-        si el forwarder ya subió su cotización. También podés cargar el flete a
-        mano.
-      </p>
-
-      {cargando && !data ? (
-        <p className="mt-2 flex items-center gap-2 text-[11px] text-muted">
-          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Calculando…
-        </p>
-      ) : error ? (
-        <p className="mt-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-[11px] text-red-600 dark:text-red-400">
-          {error}
-        </p>
-      ) : data ? (
-        <div className="mt-2 space-y-2">
-          {incluido ? (
-            <p className="rounded-lg border border-border bg-surface px-3 py-2 text-[11px] leading-relaxed text-muted">
-              El Incoterm es CIF/CIP: el flete y el seguro ya vienen incluidos en
-              el valor de la factura. No hay que cargar nada.
-            </p>
-          ) : (
-            <>
-              <label className="block">
-                <span className="text-[11px] font-medium text-foreground">
-                  Flete (USD) que pasa el forwarder
-                </span>
-                <div className="mt-1 flex gap-2">
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={fleteInput}
-                    onChange={(e) => setFleteInput(e.target.value)}
-                    placeholder="Ej.: 1800"
-                    className="w-full rounded-lg border border-border bg-surface px-2.5 py-1.5 text-[12px] text-foreground outline-none transition-colors placeholder:text-muted focus:border-accent"
-                  />
-                  <button
-                    type="button"
-                    onClick={guardar}
-                    disabled={guardando}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-[11px] font-semibold text-accent-foreground transition-all hover:opacity-90 disabled:opacity-60"
-                  >
-                    {guardando ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <Check className="h-3.5 w-3.5" />
-                    )}
-                    Guardar
-                  </button>
-                </div>
-              </label>
-              {data.fleteFuente === "manual" ? (
-                <p className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400">
-                  <Check className="h-3.5 w-3.5" /> Flete real cargado. El CIF usa
-                  este valor.
-                </p>
-              ) : (
-                <p className="flex items-start gap-1.5 text-[11px] text-amber-600 dark:text-amber-400">
-                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Todavía
-                  no cargaste el flete real. Mientras tanto el CIF usa una
-                  estimación de respaldo.
-                </p>
-              )}
-            </>
-          )}
-
-          <div className="rounded-lg border border-border bg-surface px-3 py-2">
-            <CompCif
-              label={`Mercadería (${data.valorFuente})`}
-              valor={fmtUsd(data.valor)}
-            />
-            {!incluido && (
-              <>
-                <CompCif
-                  label={
-                    data.fleteFuente === "manual"
-                      ? "Flete (real)"
-                      : "Flete (estimado)"
-                  }
-                  valor={data.flete > 0 ? fmtUsd(data.flete) : "—"}
-                />
-                <CompCif
-                  label="Seguro (1% s/ merc. + flete)"
-                  valor={fmtUsd(data.seguro)}
-                />
-              </>
-            )}
-            <div className="mt-1 border-t border-border pt-1">
-              <CompCif label="= Valor CIF" valor={fmtUsd(data.cif)} fuerte />
-            </div>
-          </div>
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-function CompCif({
-  label,
-  valor,
-  fuerte = false,
-}: {
-  label: string;
-  valor: string;
-  fuerte?: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-2 py-0.5 text-[11px]">
-      <span className={fuerte ? "font-semibold text-foreground" : "text-muted"}>
-        {label}
-      </span>
-      <span
-        className={fuerte ? "font-semibold text-foreground" : "text-foreground"}
-      >
-        {valor}
-      </span>
-    </div>
-  );
-}
-
-/* ───────────────────── Clasificador NCM ───────────────────── */
-
-function ClasificadorNcmFase2({
-  producto,
-  onProducto,
-  resultado,
-  seleccion,
-  textoLibre,
-  onSeleccion,
-  onTextoLibre,
-  clasificando,
-  error,
+function NcmFinalPanel({
   ncmActual,
   aplicando,
   aplicada,
-  onClasificar,
-  onAfinar,
+  error,
   onAplicar,
-  exigirEspecifica = false,
 }: {
-  producto: string;
-  onProducto: (value: string) => void;
-  resultado: ClasificacionResultado | null;
-  seleccion: Record<string, string>;
-  textoLibre: Record<string, string>;
-  onSeleccion: (pregunta: string, opcion: string) => void;
-  onTextoLibre: (pregunta: string, texto: string) => void;
-  clasificando: boolean;
-  error: string | null;
   ncmActual: string | null;
   aplicando: boolean;
   aplicada: boolean;
-  onClasificar: () => void;
-  onAfinar: () => void;
+  error: string | null;
   onAplicar: (ncm: string) => void;
-  exigirEspecifica?: boolean;
 }) {
-  const hayPreguntas = (resultado?.preguntas?.length ?? 0) > 0;
-  const esDefinitivo = Boolean(resultado?.ncm) && !hayPreguntas;
-  const fasePartida = resultado?.fasePregunta === "partida";
-  const prov = resultado?.provisional;
-  const partidaOrientativa = prov?.partida ?? resultado?.partida;
-  const ncm = esDefinitivo ? (resultado?.ncm ?? "") : "";
-  const ncmOrientativa =
-    prov?.ncm ?? (fasePartida ? partidaOrientativa : resultado?.partida) ?? "";
-  const ncmResultadoGeneral = ncmPareceGeneral(ncm || ncmOrientativa);
-  const ncmActualGeneral = ncmPareceGeneral(ncmActual);
-  const digitosEntrada = digitosNcm(producto);
-  const entradaEsNcm =
-    digitosEntrada.length >= 8 && digitosEntrada.length / producto.trim().length > 0.5;
-  const puedeAplicarEntrada =
-    entradaEsNcm && (!exigirEspecifica || !ncmPareceGeneral(producto));
-  const puedeAplicarResultado =
-    Boolean(ncm) && (!exigirEspecifica || !ncmResultadoGeneral);
-  const alternativas = resultado?.alternativas ?? [];
-  const etiquetaExp = resultado
-    ? etiquetaEstado(derivarEstadoExpediente(resultado))
-    : null;
+  const [valor, setValor] = useState(ncmActual ?? "");
+  // Reflejamos la NCM guardada (ej. la cargada en el Paso 1) cuando cambia, sin
+  // perder la edición: el operador puede sobrescribirla y volver a guardar.
+  useEffect(() => {
+    setValor(ncmActual ?? "");
+  }, [ncmActual]);
+  const limpio = valor.trim();
+  const sinCambios = limpio === (ncmActual ?? "").trim();
+
   return (
-    <div className="rounded-xl border border-border bg-surface-2/30 p-3">
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-          <Search className="h-3.5 w-3.5 text-accent" />
-          Clasificación NCM
+    <div className="rounded-xl border border-border bg-surface p-5">
+      <div className="flex items-center justify-between gap-3">
+        <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
+          <Search className="h-4 w-4 text-accent" />
+          NCM final
         </p>
         {ncmActual && (
-          <span
-            className={`rounded-full px-2 py-0.5 font-mono text-[10px] ${
-              ncmActualGeneral && exigirEspecifica
-                ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
-                : "bg-surface text-muted"
-            }`}
-          >
+          <span className="rounded-full bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-muted">
             Actual {ncmActual}
           </span>
         )}
       </div>
-
-      <p className="mb-2 text-[11px] leading-relaxed text-muted">
-        {exigirEspecifica
-          ? "Pegá la NCM completa, editá la actual, buscá por palabras o clasificá con la IA hasta la posición exacta (8 dígitos)."
-          : "Pegá la NCM, describí la mercadería o buscá por palabras. En el Paso 2 hay que confirmar la posición exacta."}
+      <p className="mt-1 text-xs text-muted">
+        Sacá la posición con el Nomenclador y pegá acá la NCM final (8 dígitos).
       </p>
 
-      {ncmActualGeneral && exigirEspecifica && (
-        <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-700 dark:text-amber-300">
-          La NCM guardada ({ncmActual}) es demasiado general. Clasificá de nuevo
-          hasta obtener una posición de 8 dígitos.
-        </p>
-      )}
-
-      <div className="flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
         <input
-          value={producto}
-          onChange={(e) => onProducto(e.target.value)}
+          value={valor}
+          onChange={(e) => setValor(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              if (puedeAplicarEntrada) onAplicar(producto.trim());
-              else onClasificar();
-            }
+            if (e.key === "Enter" && limpio && !aplicando) onAplicar(limpio);
           }}
-          placeholder="NCM completa, descripción o palabras clave"
-          className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-2.5 py-2 text-[11px] text-foreground outline-none transition-colors placeholder:text-muted focus:border-accent"
+          placeholder="Ej. 7202.29.00"
+          inputMode="numeric"
+          className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted focus:border-accent focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
         />
         <button
           type="button"
-          onClick={onClasificar}
-          disabled={clasificando || producto.trim().length < 2}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-2.5 py-2 text-[11px] font-semibold text-accent-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
+          disabled={aplicando || limpio.length < 4 || sinCambios}
+          onClick={() => onAplicar(limpio)}
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
         >
-          {clasificando ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          {aplicando ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <Sparkles className="h-3.5 w-3.5" />
+            <Check className="h-4 w-4" />
           )}
-          Clasificar
+          Guardar NCM
         </button>
-        {puedeAplicarEntrada && (
-          <button
-            type="button"
-            onClick={() => onAplicar(producto.trim())}
-            disabled={aplicando || aplicada}
-            className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-2 text-[11px] font-semibold transition-all disabled:opacity-60 ${
-              aplicada
-                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                : "border border-accent/40 text-accent hover:bg-accent hover:text-accent-foreground"
-            }`}
-          >
-            {aplicando ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : aplicada ? (
-              <Check className="h-3.5 w-3.5" />
-            ) : (
-              <ArrowRight className="h-3.5 w-3.5" />
-            )}
-            {aplicada ? "Aplicada" : "Aplicar"}
-          </button>
-        )}
       </div>
 
-      {error && (
-        <p className="mt-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-[11px] text-red-600 dark:text-red-400">
-          {error}
+      {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+      {aplicada && !error && (
+        <p className="mt-2 text-sm text-emerald-600 dark:text-emerald-400">
+          NCM guardada.
         </p>
-      )}
-
-      {resultado && (
-        <div className="mt-2 space-y-2 rounded-lg border border-border bg-surface px-3 py-2">
-          {hayPreguntas &&
-            (prov?.ncm ||
-              prov?.partida ||
-              prov?.descripcion ||
-              prov?.justificacion ||
-              resultado.partida ||
-              resultado.descripcion ||
-              resultado.justificacion ||
-              (resultado.alternativas?.length ?? 0) > 0) && (
-            <div className="rounded-lg border border-dashed border-muted/40 bg-surface-2/30 px-2.5 py-2">
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted">
-                {fasePartida
-                  ? "Partida en evaluación (puede cambiar)"
-                  : "En curso (orientativa)"}
-              </p>
-              <p className="font-mono text-sm font-medium text-foreground/85">
-                {prov?.ncm
-                  ? prov.ncm
-                  : fasePartida && partidaOrientativa
-                    ? `Hipótesis partida ${partidaOrientativa}`
-                    : partidaOrientativa
-                      ? `Partida ${partidaOrientativa}`
-                      : "Sin código aún"}
-              </p>
-              {(prov?.descripcion || resultado.descripcion) && (
-                <p className="mt-0.5 text-[11px] leading-relaxed text-foreground/80">
-                  {prov?.descripcion ?? resultado.descripcion}
-                </p>
-              )}
-              {(prov?.justificacion || resultado.justificacion) && (
-                <p className="mt-0.5 text-[11px] leading-relaxed text-muted">
-                  {prov?.justificacion ?? resultado.justificacion}
-                </p>
-              )}
-              <div className="mt-1 flex flex-wrap gap-1">
-                {!esDefinitivo && etiquetaExp && (
-                  <span className="rounded-full bg-surface px-2 py-0.5 text-[10px] text-muted">
-                    {etiquetaExp}
-                  </span>
-                )}
-                {prov?.derecho != null && (
-                  <span className="rounded-full bg-surface px-2 py-0.5 text-[10px] text-muted">
-                    DI ~{prov.derecho}%
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-
-          {esDefinitivo && (
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
-                  Posición definitiva
-                </p>
-                <p className="font-mono text-sm font-semibold text-foreground">
-                  {resultado.ncm ?? resultado.partida ?? "Sin NCM"}
-                </p>
-                {resultado.descripcion && (
-                  <p className="mt-0.5 text-[11px] leading-relaxed text-foreground/90">
-                    {resultado.descripcion}
-                  </p>
-                )}
-                <div className="mt-1 flex flex-wrap gap-1">
-                  {resultado.derecho != null && (
-                    <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[10px] text-muted">
-                      DI {resultado.derecho}%
-                    </span>
-                  )}
-                  {resultado.iva != null && (
-                    <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[10px] text-muted">
-                      IVA {resultado.iva}%
-                    </span>
-                  )}
-                </div>
-              </div>
-              {ncm && (
-                <button
-                  type="button"
-                  onClick={() => onAplicar(ncm)}
-                  disabled={aplicando || aplicada || !puedeAplicarResultado}
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[10px] font-semibold transition-all disabled:opacity-60 ${
-                    aplicada
-                      ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                      : "bg-accent text-accent-foreground hover:opacity-90"
-                  }`}
-                >
-                  {aplicando ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : aplicada ? (
-                    <Check className="h-3.5 w-3.5" />
-                  ) : (
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  )}
-                  {aplicada ? "Aplicada" : "Aplicar NCM"}
-                </button>
-              )}
-            </div>
-          )}
-
-          {esDefinitivo && exigirEspecifica && ncmResultadoGeneral && ncm && (
-            <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-relaxed text-amber-700 dark:text-amber-300">
-              Seguí afinando con las preguntas: esta posición aún es general
-              (menos de 8 dígitos).
-            </p>
-          )}
-
-          {(esDefinitivo ? resultado.justificacion : prov?.justificacion) && (
-            <p className="text-[11px] leading-relaxed text-muted">
-              {esDefinitivo ? resultado.justificacion : prov?.justificacion}
-            </p>
-          )}
-
-          {hayPreguntas && (
-            <ClasificadorPreguntas
-              preguntas={resultado?.preguntas ?? []}
-              fasePartida={fasePartida}
-              sel={seleccion}
-              textoLibre={textoLibre}
-              onSelect={onSeleccion}
-              onTextoLibre={onTextoLibre}
-              onAfinar={onAfinar}
-              afinando={clasificando}
-              compacto
-              className="border-t border-border bg-transparent px-0 pt-2"
-            />
-          )}
-
-          {alternativas.length > 0 && (
-            <details className="border-t border-border pt-2" open={hayPreguntas}>
-              <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide text-muted">
-                Otras posiciones ({alternativas.length})
-              </summary>
-              <ul className="mt-1 space-y-1">
-                {alternativas.map((alt) => (
-                  <li
-                    key={alt.codigo}
-                    className="text-[11px] leading-relaxed text-foreground/80"
-                  >
-                    <span className="font-mono font-semibold">{alt.codigo}</span>
-                    {alt.di != null ? ` · DI ${alt.di}%` : ""} · {alt.descripcion}
-                  </li>
-                ))}
-              </ul>
-            </details>
-          )}
-        </div>
       )}
     </div>
   );
@@ -2268,7 +1773,7 @@ function AperturaResultado({
 
 /* ─────────────── Pendientes de documentación (Paso 2 / 3) ─────────────── */
 
-/** Solo faltantes e inconsistencias; el detalle por documento va en HallazgosPaso. */
+/** Solo faltantes e inconsistencias del cruce documental (pasos 2 y 3). */
 function PendientesDocumentacion({
   data,
 }: {

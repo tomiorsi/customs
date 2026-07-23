@@ -326,10 +326,13 @@ export function clasificarPorNombre(fileName: string): DocType {
     return "catalogo";
   if (tiene("pedido", "orden de compra", "purchase order") || token("po", "oc"))
     return "pedido_compra";
-  // "factura" / "invoice" / documento comercial genérico.
+  // Certificado de origen digital (p. ej. «… COD.pdf» en MERCOSUR).
+  if (token("cod")) return "certificado_origen";
+  // "factura" / "fatura" (PT) / "invoice" / documento comercial genérico.
   if (
     tiene(
       "factura",
+      "fatura",
       "invoice",
       "documento comercial",
       "commercial invoice",
@@ -427,7 +430,17 @@ function elegirDocumentoDelRol<
  */
 export function documentosConValorLegal<
   T extends { doc_type: DocType; file_name: string; created_at?: string },
->(docs: T[]): T[] {
+>(
+  docs: T[],
+  opts?: {
+    /**
+     * No colapsar a UNA sola factura por rol: mantiene TODAS las facturas
+     * comerciales/proformas definitivas (para operaciones con varias facturas /
+     * consolidados). El resto de los roles se sigue colapsando a la definitiva.
+     */
+    mantenerVariasFacturas?: boolean;
+  },
+): T[] {
   const rolesConDefinitivo = new Set<string>();
   for (const d of docs) {
     if (!esDocumentoPreliminar(d)) rolesConDefinitivo.add(rolDocumento(d.doc_type));
@@ -451,8 +464,16 @@ export function documentosConValorLegal<
     porRol.set(rol, grupo);
   }
 
+  const esFactura = (dt: DocType) =>
+    dt === "factura_comercial" || dt === "proforma";
+
   const resultado: T[] = [];
   for (const grupo of porRol.values()) {
+    // Varias facturas distintas NO son borradores una de otra: se mantienen todas.
+    if (opts?.mantenerVariasFacturas && grupo.every((d) => esFactura(d.doc_type))) {
+      resultado.push(...grupo);
+      continue;
+    }
     resultado.push(grupo.length === 1 ? grupo[0]! : elegirDocumentoDelRol(grupo));
   }
   return resultado;

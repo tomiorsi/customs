@@ -5,11 +5,14 @@ import {
   AlertTriangle,
   Calculator,
   Check,
+  Download,
+  FileText,
   Info,
   Loader2,
   RefreshCw,
   Wallet,
 } from "lucide-react";
+import { TITULO_RESUMEN_FONDOS } from "@/lib/cotizacion-labels";
 
 type Cotiz = {
   flete: number;
@@ -260,6 +263,9 @@ export function LiquidacionPanel({
   checklistInicial,
   soloEtapa,
   recalcKey = 0,
+  vista = "cotizacion",
+  destinoExterno,
+  onDestinoChange,
 }: {
   opId: string;
   checklistInicial?: Record<string, unknown>;
@@ -267,8 +273,13 @@ export function LiquidacionPanel({
   soloEtapa?: "embarque" | "retiro" | "cierre";
   /** Cambia para forzar el recálculo (NCM aplicada, IA, flete) sin refrescar. */
   recalcKey?: number;
+  vista?: "cotizacion" | "liquidacion";
+  destinoExterno?: "reventa" | "uso_propio";
+  onDestinoChange?: (destino: "reventa" | "uso_propio") => void;
 }) {
-  const [destino, setDestino] = useState<"reventa" | "uso_propio">("reventa");
+  const esVistaLiquidacion = vista === "liquidacion";
+  const [destinoInterno, setDestinoInterno] = useState<"reventa" | "uso_propio">("reventa");
+  const destino = destinoExterno ?? destinoInterno;
   const [data, setData] = useState<Liquidacion | null>(null);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -279,6 +290,11 @@ export function LiquidacionPanel({
     }
     return s;
   });
+
+  function cambiarDestino(next: "reventa" | "uso_propio") {
+    if (destinoExterno == null) setDestinoInterno(next);
+    onDestinoChange?.(next);
+  }
 
   const calcular = useCallback(
     async (d: "reventa" | "uso_propio") => {
@@ -476,7 +492,7 @@ export function LiquidacionPanel({
       <div className="flex items-center justify-between gap-2">
         <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
           <Calculator className="h-3.5 w-3.5 text-accent" />
-          Costos de la operación
+          {esVistaLiquidacion ? TITULO_RESUMEN_FONDOS : "Costos de la operación"}
         </p>
         <button
           type="button"
@@ -521,15 +537,41 @@ export function LiquidacionPanel({
         </label>
         <select
           value={destino}
-          onChange={(e) =>
-            setDestino(e.target.value as "reventa" | "uso_propio")
-          }
+          onChange={(e) => cambiarDestino(e.target.value as "reventa" | "uso_propio")}
           className="mt-1 w-full rounded-lg border border-border bg-surface px-2.5 py-1.5 text-[11px] text-foreground focus:border-accent focus:outline-none"
         >
           <option value="reventa">Reventa / comercialización</option>
           <option value="uso_propio">Uso o consumo propio</option>
         </select>
       </div>
+
+      {!soloEtapa && esVistaLiquidacion && (
+        <div className="mt-2 rounded-lg border border-border bg-surface-2/30 p-2.5">
+          <p className="text-[10.5px] leading-relaxed text-muted">
+            Generá el PDF con tributos (VEP), adelanto logístico y base CIF de
+            referencia. No incluye mercadería ni pagos al proveedor / forwarder.
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <a
+              href={`/api/operaciones/${opId}/cotizacion?destino=${destino}&vista=liquidacion`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-[11px] font-medium text-muted transition-colors hover:text-foreground"
+            >
+              <FileText className="h-3.5 w-3.5" />
+              Ver resumen
+            </a>
+            <a
+              href={`/api/operaciones/${opId}/cotizacion?destino=${destino}&vista=liquidacion&dl=1`}
+              download
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-[11px] font-medium text-muted transition-colors hover:text-foreground"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Descargar resumen
+            </a>
+          </div>
+        </div>
+      )}
 
       {cargando && !data ? (
         <p className="mt-3 flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-3 text-[11px] text-muted">
@@ -570,6 +612,19 @@ export function LiquidacionPanel({
             </div>
           )}
 
+          {esVistaLiquidacion && (
+            <div className="rounded-lg border border-accent/30 bg-accent-soft/40 px-3 py-2">
+              <p className="flex items-start gap-1.5 text-[10.5px] leading-snug text-foreground/85">
+                <Info className="mt-0.5 h-3 w-3 shrink-0 text-accent" />
+                El <span className="font-semibold">CIF</span> se usa solo como base
+                aduanera para liquidar tributos. La mercadería, el flete
+                internacional y el seguro se pagan aparte según la factura del
+                proveedor y/o del forwarder; este panel separa eso del VEP y del
+                adelanto logístico al estudio.
+              </p>
+            </div>
+          )}
+
           {/* Resumen base de la operación (legible, estilo cotizador). */}
           <div className="rounded-lg border border-border bg-surface px-3 py-2.5">
             <div className="flex flex-wrap items-center gap-1.5">
@@ -595,10 +650,21 @@ export function LiquidacionPanel({
 
           {/* Desglose agrupado: qué vale cada cosa y por qué. */}
           <dl className="space-y-3 rounded-lg border border-border bg-surface px-3 py-3">
-            {/* 1) Mercadería puesta a bordo + flete + seguro = CIF (editable) */}
-            <Grupo titulo="Mercadería (CIF)" total={usd(c.cif)}>
+            {/* 1) CIF / base aduanera */}
+            <Grupo
+              titulo={
+                esVistaLiquidacion
+                  ? "Base aduanera de referencia (CIF)"
+                  : "Mercadería (CIF)"
+              }
+              total={usd(c.cif)}
+            >
               <LineaEditable
-                label={`Valor de la mercadería (${data.valorFuente})`}
+                label={
+                  esVistaLiquidacion
+                    ? `Mercadería / valor base (${data.valorFuente})`
+                    : `Valor de la mercadería (${data.valorFuente})`
+                }
                 monto={valorMercaderia}
                 onGuardar={(n) =>
                   guardarCampos({ [campoValor(data.valorFuente)]: n > 0 ? String(n) : "" })
@@ -627,6 +693,13 @@ export function LiquidacionPanel({
                 nota="1% estimado · editable"
                 onGuardar={(n) => guardarCampos({ seguro: n > 0 ? String(n) : "" })}
               />
+              {esVistaLiquidacion && (
+                <Linea
+                  label="Uso del CIF"
+                  valor="Base para tributos"
+                  nota="no es cobro del estudio"
+                />
+              )}
             </Grupo>
 
             {/* 2) Tributos de nacionalización (los paga el cliente por VEP) */}
@@ -669,7 +742,14 @@ export function LiquidacionPanel({
             </Grupo>
 
             {/* 3) Despacho + gastos locales de nacionalización (editables acá) */}
-            <Grupo titulo="Despacho y gastos locales" total={usd(gastosLocales)}>
+            <Grupo
+              titulo={
+                esVistaLiquidacion
+                  ? "Adelanto logístico y despacho"
+                  : "Despacho y gastos locales"
+              }
+              total={usd(gastosLocales)}
+            >
               <Linea
                 label="Honorarios despachante"
                 valor="Acordados con la dirección"
@@ -689,37 +769,61 @@ export function LiquidacionPanel({
 
           {/* Totales */}
           <div className="space-y-2 rounded-lg border border-accent/30 bg-surface px-3 py-3">
-            <Linea
-              label="Logística (gastos locales)"
-              valor={gastosLocales > 0 ? usd(gastosLocales) : "A cargar"}
-            />
+            {esVistaLiquidacion ? (
+              <>
+                <Linea label="Tributos por VEP" valor={usd(totalTributos)} />
+                <Linea
+                  label="Adelanto logístico al estudio"
+                  valor={data.adelanto > 0 ? usd(data.adelanto) : "A cargar"}
+                />
+                <Linea
+                  label="Mercadería / flete / seguro"
+                  valor="Se pagan aparte"
+                  nota="proveedor / forwarder"
+                />
+              </>
+            ) : (
+              <Linea
+                label="Logística (gastos locales)"
+                valor={gastosLocales > 0 ? usd(gastosLocales) : "A cargar"}
+              />
+            )}
             <div className="border-t border-border pt-2">
-              {/* Lo que el cliente REALMENTE desembolsa: incluye IVA y percepciones
-                  (aunque después los recupere). Es el número honesto a mostrar. */}
               <TotalLinea
-                label="Total a desembolsar (con IVA y percepciones)"
-                valor={usd(c.desembolso + gastosLocales)}
+                label={
+                  esVistaLiquidacion
+                    ? "Fondos a prever para la operación"
+                    : "Total a desembolsar (con IVA y percepciones)"
+                }
+                valor={usd(esVistaLiquidacion ? totalTributos + data.adelanto : c.desembolso + gastosLocales)}
                 accent
               />
               <p className="mt-0.5 text-[10px] leading-snug text-muted">
-                Incluye tributos, IVA, percepciones y gastos locales. Honorarios
-                del despachante aparte.
+                {esVistaLiquidacion
+                  ? "Incluye el VEP de tributos y el adelanto logístico. No incluye mercadería, flete internacional, seguro ni honorarios."
+                  : "Incluye tributos, IVA, percepciones y gastos locales. Honorarios del despachante aparte."}
               </p>
             </div>
             {c.recuperable > 0 && (
               <div className="mt-1 space-y-1 border-t border-border pt-2">
                 <Linea
-                  label="Recuperás después (crédito fiscal / pago a cuenta)"
+                  label={
+                    esVistaLiquidacion
+                      ? "Del VEP recuperás después (crédito fiscal / pago a cuenta)"
+                      : "Recuperás después (crédito fiscal / pago a cuenta)"
+                  }
                   valor={`- ${usd(c.recuperable)}`}
                 />
-                <Linea
-                  label="Costo real final (neto de lo que recuperás)"
-                  valor={usd(data.costoTotal)}
-                  fuerte
-                />
+                {!esVistaLiquidacion && (
+                  <Linea
+                    label="Costo real final (neto de lo que recuperás)"
+                    valor={usd(data.costoTotal)}
+                    fuerte
+                  />
+                )}
               </div>
             )}
-            {c.porUnidad != null && data.cantidad > 1 && (
+            {!esVistaLiquidacion && c.porUnidad != null && data.cantidad > 1 && (
               <Linea
                 label={`Costo real por unidad (${data.cantidad})`}
                 valor={usd(c.porUnidad)}
@@ -744,9 +848,9 @@ export function LiquidacionPanel({
             {data.perfil === "responsable_inscripto"
               ? "Como Responsable Inscripto, el IVA y las percepciones son crédito fiscal / pago a cuenta."
               : "Para este perfil, el IVA y las percepciones son costo real."}{" "}
-            Valores REALES: el flete y los gastos locales salen de la factura /
-            cotización del forwarder o se cargan a mano (tocá cualquier valor para
-            editarlo). El seguro (1%) es la única estimación. Importes en USD.
+            {esVistaLiquidacion
+              ? "Los importes del VEP salen de la base aduanera (CIF) y los gastos locales del forwarder / terminal o de carga manual. El seguro (1%) es la única estimación. Importes en USD."
+              : "Valores REALES: el flete y los gastos locales salen de la factura / cotización del forwarder o se cargan a mano (tocá cualquier valor para editarlo). El seguro (1%) es la única estimación. Importes en USD."}
           </p>
         </div>
       ) : null}

@@ -7,9 +7,8 @@ import {
   setChecklistItem,
   type OperationWithClient,
 } from "@/lib/data";
-import { documentoValidoSegunIA } from "@/lib/validacion-documento-legal";
+import { documentoValidoSegunIA, documentoCierraFaltante } from "@/lib/validacion-documento-legal";
 import {
-  DOC_ETAPA_DE,
   documentosConValorLegal,
   esDocumentoComercialPreliminar,
   pareceBorrador,
@@ -49,7 +48,7 @@ const DOC_A_CHECKLIST: Partial<Record<DocType, DestinoChecklist[]>> = {
     { etapa: "embarque", subId: "aviso_arribo" },
     { etapa: "retiro", subId: "gastos_terminal" },
   ],
-  despacho: [{ etapa: "oficializacion", subId: "caratula" }],
+  despacho: [{ etapa: "oficializacion", subId: "despacho" }],
   remito: [{ etapa: "retiro", subId: "entregado" }],
 };
 
@@ -130,12 +129,20 @@ export async function sincronizarChecklistPorDocumentos(
     if (!documentoAptoParaChecklist(docType, fileName)) return;
 
     if (opts?.op) {
-      const validez = documentoValidoSegunIA(
-        docType,
-        docs,
-        hallazgosMap,
-        opts.op.via,
-      );
+      const validez =
+        docType === "despacho"
+          ? documentoCierraFaltante(
+              docType,
+              docs,
+              hallazgosMap,
+              opts.op.via,
+            )
+          : documentoValidoSegunIA(
+              docType,
+              docs,
+              hallazgosMap,
+              opts.op.via,
+            );
       if (!validez.valido) {
         for (const d of destinosChecklist(docType, fileName)) {
           await setChecklistItem(
@@ -187,23 +194,6 @@ export async function desmarcarChecklistPorDocumentoEliminado(
       await setChecklistItem(userId, operationId, clave, false, null);
     }
   }
-
-  if ((DOC_ETAPA_DE[docType] ?? "") === "apertura") {
-    const hayApertura = docsRestantes.some(
-      (d) =>
-        (DOC_ETAPA_DE[d.doc_type] ?? "") === "apertura" &&
-        documentoAptoParaChecklist(d.doc_type, d.file_name),
-    );
-    if (!hayApertura) {
-      await setChecklistItem(
-        userId,
-        operationId,
-        claveSubtarea("apertura", "ia_analisis"),
-        false,
-        null,
-      );
-    }
-  }
 }
 
 /** Campos de operación y validación IA que también cierran ítems del checklist. */
@@ -233,16 +223,6 @@ export async function sincronizarChecklistDerivados(
     ) {
       await marcarOp("embarque", "transbordo");
     }
-  }
-
-  // Análisis IA de apertura: hay al menos un doc del paso 1 analizado.
-  if (
-    docs.some(
-      (d) => (DOC_ETAPA_DE[d.doc_type] ?? "") === "apertura" &&
-        documentoAptoParaChecklist(d.doc_type, d.file_name),
-    )
-  ) {
-    await marcarOp("apertura", "ia_analisis");
   }
 
   return [...marcados];

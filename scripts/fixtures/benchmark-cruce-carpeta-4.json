@@ -1,0 +1,73 @@
+{
+  "carpeta": "4",
+  "operacion": {
+    "tipo": "importacion",
+    "via": "terrestre",
+    "ncm": "3920.61.00",
+    "pais_origen": "Brasil",
+    "incoterm": "DAP"
+  },
+  "documentos": [
+    {
+      "file": "afip.pdf",
+      "tipo": "despacho"
+    },
+    {
+      "file": "co.pdf",
+      "tipo": "certificado_origen"
+    },
+    {
+      "file": "crt.pdf",
+      "tipo": "transporte"
+    },
+    {
+      "file": "invoice.pdf",
+      "tipo": "factura_comercial"
+    }
+  ],
+  "cruce_documentacion": {
+    "etapa": "documentacion",
+    "tipos_presentes": [
+      "despacho",
+      "certificado_origen",
+      "transporte",
+      "factura_comercial"
+    ],
+    "resumen": "No se detectan inconsistencias ni faltantes en los documentos presentes.",
+    "faltantes": [],
+    "inconsistencias": [],
+    "alertas": [
+      {
+        "nivel": "ok",
+        "texto": "Origen Brasil (MERCOSUR): Operación amparada por Régimen de Origen MERCOSUR (Decisión CMC N° 05/23, vigente 18/07/2024). Brasil implementó autocertificación de origen (Portaria SECEX 373/2024, vigente 01/03/2025). Se acepta Declaración de Origen en factura o documento comercial como alternativa válida a Certificado de Origen por entidad habilitada, siempre que cumpla Apéndice V e Apéndice VI."
+      },
+      {
+        "nivel": "ok",
+        "texto": "Incoterm DAP: Entrega en punto de destino (Argentina) con riesgos y costos a cargo del vendedor hasta ese punto. Compatible con vía terrestre Brasil-Argentina. Flete (USD 3.400) incluido en valor CIF/DAP según factura."
+      }
+    ],
+    "refs_faltantes_ok": "0/0",
+    "refs_alertas_warn": 0
+  },
+  "cruce_embarque": {
+    "etapa": "embarque",
+    "tipos_presentes": [
+      "despacho",
+      "certificado_origen",
+      "transporte",
+      "factura_comercial"
+    ],
+    "resumen": "No se detectan inconsistencias ni faltantes en los documentos presentes. Quedan alertas u observaciones para revisar.",
+    "faltantes": [],
+    "inconsistencias": [],
+    "alertas": [
+      {
+        "nivel": "error",
+        "texto": "[ROM · Art. 30; Apéndice V; Apéndice VIII (control de prueba de origen)] Certificado de Origen: Campo 'Declaración del Productor Final o del Exportador' (punto 13 del Apéndice III) no contiene el texto obligatorio de declaración de origen ni firma del exportador/productor. El documento adjunto no reproduce la declaración requerida por Art. 30 ROM y Apéndice V. Esto impide validar que el exportador asume responsabilidad de probar origen conforme ROM."
+      }
+    ],
+    "refs_faltantes_ok": "0/0",
+    "refs_alertas_warn": 0
+  },
+  "segundos_cruce": 68.8
+}

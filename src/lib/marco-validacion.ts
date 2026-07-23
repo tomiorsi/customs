@@ -2,7 +2,16 @@ import "server-only";
 
 import { arancelPorNcm } from "@/lib/clasificador/motor";
 import { paisOrigenEfectivo } from "@/lib/cotizador";
+import {
+  autocertificacionOrigen,
+  contextoAutocertIA,
+} from "@/lib/origen-mercosur";
 import type { OperationRow } from "@/lib/data";
+import {
+  contextoDestinoImportacionIA,
+  DESTINO_IMPORTACION,
+  esOperacionExportacion,
+} from "@/lib/operacion-aduana";
 import {
   combinarSenales,
   recuperarMarcoNormativo,
@@ -32,13 +41,16 @@ type OpParquet = Pick<
 >;
 
 export function contextoOperacionIA(op: OpParquet): string {
-  const esExpo = op.tipo.toLowerCase().startsWith("exp");
+  const esExpo = esOperacionExportacion(op.tipo);
+  const destinoImpo = op.pais_destino?.trim() || DESTINO_IMPORTACION;
   return [
     `Operación ${esExpo ? "EXPORTACIÓN" : "IMPORTACIÓN"} · vía ${op.via ?? "s/d"} · NCM ${op.ncm ?? "s/d"}`,
     op.mercaderia ? `Mercadería: ${op.mercaderia}` : "",
     op.pais_origen ? `País origen: ${op.pais_origen}` : "",
     op.pais_procedencia ? `País procedencia: ${op.pais_procedencia}` : "",
-    op.pais_destino ? `País destino: ${op.pais_destino}` : "",
+    esExpo && op.pais_destino ? `País destino: ${op.pais_destino}` : "",
+    !esExpo ? `País destino aduanero: ${destinoImpo}` : "",
+    contextoDestinoImportacionIA(op.tipo, destinoImpo),
     op.incoterm ? `Incoterm: ${op.incoterm}` : "",
     op.unidad ? `Unidad: ${op.unidad}` : "",
     op.tipo_embalaje ? `Embalaje: ${op.tipo_embalaje}` : "",
@@ -171,6 +183,19 @@ async function armarContextoValidacionDocumental(
   if (senales.length) {
     partes.push(`SEÑALES ACTIVAS (recuperación normativa): ${senales.join(", ")}`);
   }
+
+  const origen = paisOrigenEfectivo(op);
+  const auto = autocertificacionOrigen(origen);
+  if (auto.esMercosur) {
+    partes.push(contextoAutocertIA(auto));
+  } else if (origen?.trim()) {
+    partes.push(
+      `ORIGEN (${origen}): el Régimen de Origen Mercosur (ROM / ACE 18) no aplica a este origen. ` +
+        "No exijas certificado de origen MERCOSUR ni autocertificación ROM salvo que los documentos " +
+        "indiquen explícitamente otro acuerdo preferencial aplicable.",
+    );
+  }
+
   if (marco) partes.push(marco);
   partes.push(datosParquet);
 

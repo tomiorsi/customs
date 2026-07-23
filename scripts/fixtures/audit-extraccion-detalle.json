@@ -1,0 +1,451 @@
+{
+  "generado": "2026-07-03T18:07:45.076Z",
+  "carpetas": [
+    {
+      "id": "1",
+      "docs": [
+        {
+          "archivo": "1510299e26 COD.pdf",
+          "tipo": "certificado_origen",
+          "issues": [],
+          "ok": [],
+          "vacios": []
+        },
+        {
+          "archivo": "1510299e26 CRT copy.pdf",
+          "tipo": "transporte",
+          "issues": [
+            {
+              "campo": "partes.Remitente",
+              "severidad": "MEDIO",
+              "detalle": "«NEXA RECURSOS MINERAIS S.A.» no hallado en PDF"
+            },
+            {
+              "campo": "partes.Destinatario",
+              "severidad": "MEDIO",
+              "detalle": "«ACERBRAG S.A.» no hallado en PDF"
+            },
+            {
+              "campo": "partes.Consignatario",
+              "severidad": "MEDIO",
+              "detalle": "«ACERBRAG S.A.» no hallado en PDF"
+            },
+            {
+              "campo": "partes.Notificar a",
+              "severidad": "MEDIO",
+              "detalle": "«ACERBRAG S.A.» no hallado en PDF"
+            },
+            {
+              "campo": "partes.Transportista",
+              "severidad": "MEDIO",
+              "detalle": "«TRUCK FENIX TRANSPORTES NAC INTERNAC E OPER LOGISTICAS LTDA» no hallado en PDF"
+            }
+          ],
+          "ok": [
+            {
+              "campo": "comercial.valor_factura",
+              "detalle": "omitido correctamente (NVD/NCV o as per invoice)"
+            },
+            {
+              "campo": "vacío:mercaderia.peso_bruto",
+              "detalle": "total cargo AWB; no es peso bruto"
+            },
+            {
+              "campo": "vacío:comercial.valor_factura",
+              "detalle": "sin valor comercial declarado en documento de transporte"
+            }
+          ],
+          "vacios": [
+            {
+              "campo": "mercaderia.peso_bruto",
+              "donde": "interpretación",
+              "motivo": "total cargo AWB; no es peso bruto"
+            },
+            {
+              "campo": "comercial.valor_factura",
+              "donde": "interpretación",
+              "motivo": "sin valor comercial declarado en documento de transporte"
+            }
+          ]
+        },
+        {
+          "archivo": "1510299e26 Fatura Nexa.pdf",
+          "tipo": "factura_comercial",
+          "issues": [
+            {
+              "campo": "comercial.valor_factura",
+              "severidad": "CRITICO",
+              "detalle": "117445.04 es cargo peso×tarifa → debe ser flete, no valor_factura"
+            },
+            {
+              "campo": "mercaderia.peso_bruto",
+              "severidad": "CRITICO",
+              "detalle": "27.730 MT es total cargo AWB, no peso bruto"
+            },
+            {
+              "campo": "pago.fecha_factura",
+              "severidad": "MEDIO",
+              "detalle": "Fecha 2026-06-15 no verificada en texto"
+            }
+          ],
+          "ok": [
+            {
+              "campo": "comercial.valor_factura",
+              "detalle": "117445.04"
+            }
+          ],
+          "vacios": []
+        },
+        {
+          "archivo": "1510299e26 Packing List & Analisys Certificate.pdf",
+          "tipo": "packing_list",
+          "issues": [
+            {
+              "campo": "pago.fecha_factura",
+              "severidad": "MEDIO",
+              "detalle": "Fecha 2026-06-15 no verificada en texto"
+            }
+          ],
+          "ok": [],
+          "vacios": [
+            {
+              "campo": "origen.pais_destino",
+              "donde": "interpretación",
+              "motivo": "«Argentina» no figura en el documento"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "docs": [
+        {
+          "archivo": "Despacho arca.pdf",
+          "tipo": "despacho",
+          "issues": [
+            {
+              "campo": "comercial.moneda",
+              "severidad": "BAJO",
+              "detalle": "Moneda DOL no literal en PDF (fundamentación suele quitarla)"
+            }
+          ],
+          "ok": [],
+          "vacios": []
+        },
+        {
+          "archivo": "comercial invoice 2.pdf",
+          "tipo": "factura_comercial",
+          "issues": [],
+          "ok": [
+            {
+              "campo": "comercial.valor_factura",
+              "detalle": "2265"
+            }
+          ],
+          "vacios": [
+            {
+              "campo": "comercial.moneda",
+              "donde": "interpretación",
+              "motivo": "«USD» no figura en el documento"
+            }
+          ]
+        },
+        {
+          "archivo": "comercial invoice 3.pdf",
+          "tipo": "factura_comercial",
+          "issues": [
+            {
+              "campo": "pago.fecha_factura",
+              "severidad": "MEDIO",
+              "detalle": "Fecha 2026-05-05 no verificada en texto"
+            }
+          ],
+          "ok": [
+            {
+              "campo": "comercial.valor_factura",
+              "detalle": "2702"
+            }
+          ],
+          "vacios": []
+        },
+        {
+          "archivo": "comercial invoice.pdf",
+          "tipo": "factura_comercial",
+          "issues": [],
+          "ok": [
+            {
+              "campo": "comercial.valor_factura",
+              "detalle": "7605"
+            }
+          ],
+          "vacios": [
+            {
+              "campo": "comercial.moneda",
+              "donde": "interpretación",
+              "motivo": "«USD» no figura en el documento"
+            }
+          ]
+        },
+        {
+          "archivo": "factura.pdf",
+          "tipo": "factura_comercial",
+          "issues": [
+            {
+              "campo": "pago.fecha_factura",
+              "severidad": "MEDIO",
+              "detalle": "Fecha 2026-05-27 no verificada en texto"
+            }
+          ],
+          "ok": [
+            {
+              "campo": "comercial.valor_factura",
+              "detalle": "90497.76"
+            }
+          ],
+          "vacios": [
+            {
+              "campo": "mercaderia.descripcion",
+              "donde": "interpretación",
+              "motivo": "descripción no anclada"
+            }
+          ]
+        },
+        {
+          "archivo": "guia aerea.pdf",
+          "tipo": "transporte",
+          "issues": [],
+          "ok": [
+            {
+              "campo": "comercial.valor_factura",
+              "detalle": "omitido correctamente (NVD/NCV o as per invoice)"
+            }
+          ],
+          "vacios": []
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "docs": [
+        {
+          "archivo": "afip.pdf",
+          "tipo": "despacho",
+          "issues": [],
+          "ok": [],
+          "vacios": [
+            {
+              "campo": "comercial.moneda",
+              "donde": "interpretación",
+              "motivo": "«USD» no figura en el documento"
+            }
+          ]
+        },
+        {
+          "archivo": "awl.pdf",
+          "tipo": "transporte",
+          "issues": [
+            {
+              "campo": "mercaderia.ncm",
+              "severidad": "ALTO",
+              "detalle": "NCM 3920.99 inválido"
+            }
+          ],
+          "ok": [
+            {
+              "campo": "comercial.valor_factura",
+              "detalle": "omitido correctamente (NVD/NCV o as per invoice)"
+            },
+            {
+              "campo": "vacío:mercaderia.peso_bruto",
+              "detalle": "total cargo AWB; no es peso bruto"
+            },
+            {
+              "campo": "vacío:comercial.flete",
+              "detalle": "columna peso×tarifa AWB; flete es el cargo total"
+            }
+          ],
+          "vacios": [
+            {
+              "campo": "mercaderia.peso_bruto",
+              "donde": "interpretación",
+              "motivo": "total cargo AWB; no es peso bruto"
+            },
+            {
+              "campo": "comercial.flete",
+              "donde": "interpretación",
+              "motivo": "columna peso×tarifa AWB; flete es el cargo total"
+            }
+          ]
+        },
+        {
+          "archivo": "invoice.pdf",
+          "tipo": "factura_comercial",
+          "issues": [
+            {
+              "campo": "partes.Ship To",
+              "severidad": "MEDIO",
+              "detalle": "«EGL c/o Dayplas» no hallado en PDF"
+            }
+          ],
+          "ok": [
+            {
+              "campo": "comercial.valor_factura",
+              "detalle": "22767.2"
+            }
+          ],
+          "vacios": []
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "docs": [
+        {
+          "archivo": "afip.pdf",
+          "tipo": "despacho",
+          "issues": [
+            {
+              "campo": "comercial.moneda",
+              "severidad": "BAJO",
+              "detalle": "Moneda DOL no literal en PDF (fundamentación suele quitarla)"
+            }
+          ],
+          "ok": [],
+          "vacios": []
+        },
+        {
+          "archivo": "co.pdf",
+          "tipo": "certificado_origen",
+          "issues": [],
+          "ok": [],
+          "vacios": [
+            {
+              "campo": "mercaderia.descripcion",
+              "donde": "interpretación",
+              "motivo": "descripción no anclada"
+            }
+          ]
+        },
+        {
+          "archivo": "crt.pdf",
+          "tipo": "transporte",
+          "issues": [],
+          "ok": [],
+          "vacios": []
+        },
+        {
+          "archivo": "invoice.pdf",
+          "tipo": "factura_comercial",
+          "issues": [
+            {
+              "campo": "comercial.valor_factura",
+              "severidad": "ALTO",
+              "detalle": "En transporte, 16673.2 puede ser cargo/flete mal etiquetado"
+            },
+            {
+              "campo": "pago.fecha_factura",
+              "severidad": "MEDIO",
+              "detalle": "Fecha 2026-05-12 no verificada en texto"
+            }
+          ],
+          "ok": [
+            {
+              "campo": "comercial.valor_factura",
+              "detalle": "16673.2"
+            }
+          ],
+          "vacios": []
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "docs": [
+        {
+          "archivo": "afip.pdf",
+          "tipo": "despacho",
+          "issues": [],
+          "ok": [],
+          "vacios": [
+            {
+              "campo": "comercial.moneda",
+              "donde": "interpretación",
+              "motivo": "«USD» no figura en el documento"
+            }
+          ]
+        },
+        {
+          "archivo": "bl.pdf",
+          "tipo": "transporte",
+          "issues": [
+            {
+              "campo": "mercaderia.ncm",
+              "severidad": "ALTO",
+              "detalle": "NCM 3907.40 inválido"
+            }
+          ],
+          "ok": [
+            {
+              "campo": "vacío:mercaderia.peso_bruto",
+              "detalle": "total bruto en KGS; no es MT"
+            }
+          ],
+          "vacios": [
+            {
+              "campo": "comercial.moneda",
+              "donde": "interpretación",
+              "motivo": "«NO DECLARADA» no figura en el documento"
+            },
+            {
+              "campo": "mercaderia.peso_bruto",
+              "donde": "interpretación",
+              "motivo": "total bruto en KGS; no es MT"
+            }
+          ]
+        },
+        {
+          "archivo": "gastos.pdf",
+          "tipo": "factura_gastos",
+          "issues": [],
+          "ok": [],
+          "vacios": [
+            {
+              "campo": "pago.fecha_factura",
+              "donde": "interpretación",
+              "motivo": "fecha no hallada en transcripción"
+            }
+          ]
+        },
+        {
+          "archivo": "invoice.pdf",
+          "tipo": "factura_comercial",
+          "issues": [
+            {
+              "campo": "comercial.valor_factura",
+              "severidad": "ALTO",
+              "detalle": "En transporte, 91936 puede ser cargo/flete mal etiquetado"
+            },
+            {
+              "campo": "mercaderia.ncm",
+              "severidad": "ALTO",
+              "detalle": "NCM 3907.40 inválido"
+            },
+            {
+              "campo": "pago.fecha_factura",
+              "severidad": "MEDIO",
+              "detalle": "Fecha 2025-12-14 no verificada en texto"
+            }
+          ],
+          "ok": [
+            {
+              "campo": "comercial.valor_factura",
+              "detalle": "91936"
+            }
+          ],
+          "vacios": []
+        }
+      ]
+    }
+  ]
+}

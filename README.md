@@ -32,6 +32,18 @@ npm install
 npm run dev
 ```
 
+### Servidor en internet (VPS / hosting propio)
+
+La app necesita **Node.js** y **Python 3** en el mismo servidor (no alcanza con
+Vercel/serverless sin contenedor). Al correr `python3 run.py --prod`:
+
+1. `npm install` — dependencias Node
+2. `.venv/` + `pip install -r requirements.txt` — PyMuPDF y EasyOCR (OCR local, sin cloud)
+3. `data/easyocr-models/` — modelos OCR descargados una vez en el servidor
+
+Todo queda dentro del proyecto en el servidor; no depende de lo instalado en tu Mac.
+La primera instalación Python puede tardar varios minutos (PyTorch + modelos OCR).
+
 ## Cuentas y acceso (autenticación real)
 
 Hay **dos tipos de cuenta**, cada una con su propio portal y datos privados:

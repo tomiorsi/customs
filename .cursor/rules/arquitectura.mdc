@@ -1,0 +1,74 @@
+---
+description: Mapa de arquitectura — carpetas, datos, APIs y dependencias
+alwaysApply: true
+---
+
+# Arquitectura del repositorio
+
+## Capas
+
+| Capa | Ubicación | Rol |
+|------|-----------|-----|
+| UI | `src/app/`, `src/components/` | Portales admin/cliente, formularios, mesa |
+| API | `src/app/api/` | Auth, operaciones, docs, IA, checklist |
+| Dominio | `src/lib/` | Lógica de negocio aduanero |
+| Clasificador | `src/lib/clasificador/` | NCM en 3 fases (ver regla clasificador-ncm) |
+| Lectura PDF | `src/lib/pdf-preparar.ts`, `capa-texto-pdf.ts`, `ia-extraccion.ts` | Node + Python |
+| Python | `scripts/*.py`, `.venv/` | OCR, render páginas, build nomenclatura |
+| Datos | `data/` (gitignored) | SQLite, parquet clientes, NCM, OCR models |
+
+## Persistencia
+
+- **`data/app.db`** — usuarios, sesiones, participantes externos (SQLite).
+- **`data/clientes/<userId>/`** — por cliente:
+  - `operaciones.parquet`, `documentos.parquet`
+  - `archivos/` — PDFs subidos
+- Parquet **reescribe el archivo entero** en cada alta/baja (`parquet-store.ts`). No asumir transacciones concurrentes.
+
+## Lectura de PDFs
+
+```
+Buffer PDF
+  → capa texto embebida (Node/pdf-lib o capa-texto-pdf)
+  → si escaneo: scripts/pdf_imagenes.py + EasyOCR (pdf_texto.py)
+  → ejecutarPythonScript() — COLA GLOBAL, un PDF a la vez
+  → IA interpreta → caché en extraccion_ia del documento
+```
+
+No paralelizar OCR en el mismo proceso Node.
+
+## Rutas API importantes
+
+- `api/auth/*` — login, registro, sesión
+- `api/operaciones/*` — CRUD, etapas, documentos, checklist, cotización
+- `api/operaciones/[id]/ia/*` — clasificar NCM, confirmar
+- `api/clasificar` — clasificador standalone
+
+Antes de crear rutas nuevas, buscar si ya existe endpoint equivalente.
+
+## Workflow operativo
+
+`src/lib/workflow.ts` define las **9 etapas** de importación (apertura → documentación → embarque → liquidación y VEP → …). Los componentes de seguimiento y checklist deben alinearse con esas etapas, no inventar flujos paralelos.
+
+## Dependencias críticas
+
+- **Node:** Next, better-sqlite3, parquetjs, pdf-lib
+- **Python:** PyMuPDF, EasyOCR (requirements.txt)
+- **IA:** variables de entorno Anthropic (`.env` — nunca commitear)
+
+## Arranque
+
+```bash
+python3 run.py          # dev
+python3 run.py --prod   # build + start (VPS)
+```
+
+`run.py` instala npm, crea `.venv` y pip install la primera vez.
+
+## Convenciones de código
+
+- `import "server-only"` en módulos que tocan DB, archivos o secretos
+- Tipos de documento en `src/lib/docs.ts`
+- Filas de operación/documento en `src/lib/data.ts`
+- Español en UI, comentarios de dominio y mensajes al usuario
+- TypeScript estricto; preferir funciones existentes antes de abstraer nuevas

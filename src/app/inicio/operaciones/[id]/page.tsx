@@ -6,7 +6,6 @@ import {
   getDocumentsByOperation,
   getEventosByOperation,
   getOperationById,
-  getParticipantesByOperation,
 } from "@/lib/data";
 import { OperacionEditable } from "@/components/operacion-editable";
 
@@ -21,8 +20,10 @@ export default async function OperacionDetallePage({
   if (!user) redirect("/login");
 
   const { id } = await params;
-  const op = await getOperationById(id);
-  if (!op || op.user_id !== user.id) notFound();
+  const opBase = await getOperationById(id);
+  if (!opBase || opBase.user_id !== user.id) notFound();
+  // El cliente ve su propio alias del nombre si lo cambió; si no, el oficial.
+  const op = { ...opBase, titulo: opBase.titulo_cliente || opBase.titulo };
 
   const [docs, eventosTodos] = await Promise.all([
     getDocumentsByOperation(op.id, op.user_id),
@@ -30,7 +31,6 @@ export default async function OperacionDetallePage({
   ]);
   // El cliente no ve las notas internas del equipo.
   const eventos = eventosTodos.filter((e) => !e.interno);
-  const participantes = getParticipantesByOperation(op.id);
 
   return (
     <div className="space-y-6">
@@ -41,12 +41,7 @@ export default async function OperacionDetallePage({
         <ArrowLeft className="h-4 w-4" /> Volver a mis operaciones
       </Link>
 
-      <OperacionEditable
-        op={op}
-        docs={docs}
-        eventos={eventos}
-        participantes={participantes}
-      />
+      <OperacionEditable op={op} docs={docs} eventos={eventos} soloNombre />
     </div>
   );
 }

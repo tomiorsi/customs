@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  LayoutDashboard,
   LogOut,
   Menu,
   Receipt,
@@ -17,27 +16,25 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Brand } from "@/components/brand";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { logoutRequest } from "@/lib/auth-client";
 import type { PublicUser } from "@/lib/types";
 
 type NavItem = { href: string; label: string; icon: LucideIcon };
 
 const NAV_ADMIN: NavItem[] = [
-  { href: "/admin", label: "Panel", icon: LayoutDashboard },
   { href: "/admin/clientes", label: "Clientes", icon: Users },
   { href: "/admin/operaciones", label: "Operaciones", icon: Ship },
   { href: "/admin/nomenclador", label: "Nomenclador", icon: ScanSearch },
-  { href: "/admin/equipo", label: "Equipo y solicitudes", icon: UserCog },
+  { href: "/admin/equipo", label: "Accesos", icon: UserCog },
 ];
 
 const NAV_OPERADOR: NavItem[] = [
+  { href: "/admin/clientes", label: "Clientes", icon: Users },
   { href: "/admin/operaciones", label: "Operaciones", icon: Ship },
   { href: "/admin/nomenclador", label: "Nomenclador", icon: ScanSearch },
 ];
 
 const NAV_CLIENT: NavItem[] = [
-  { href: "/inicio", label: "Inicio", icon: LayoutDashboard },
   { href: "/inicio/operaciones", label: "Mis operaciones", icon: Ship },
   { href: "/inicio/cotizaciones", label: "Cotizar", icon: Receipt },
 ];
@@ -99,7 +96,7 @@ export function Topbar({ user }: { user: PublicUser }) {
   const isOperador = user.role === "operador";
   const esEquipo = isAdmin || isOperador;
   const nav = isAdmin ? NAV_ADMIN : isOperador ? NAV_OPERADOR : NAV_CLIENT;
-  const home = isAdmin ? "/admin" : isOperador ? "/admin/operaciones" : "/inicio";
+  const home = esEquipo ? "/admin/operaciones" : "/inicio/operaciones";
 
   const nombre = isOperador
     ? user.contact_name ?? "Operador"
@@ -227,7 +224,6 @@ export function Topbar({ user }: { user: PublicUser }) {
                     Configuración
                   </Link>
                 )}
-                <ThemeToggle variant="menu" />
                 <div className="border-t border-border" />
                 <button
                   type="button"
@@ -279,7 +275,6 @@ export function Topbar({ user }: { user: PublicUser }) {
                 Configuración
               </Link>
             )}
-            <ThemeToggle variant="menu" />
             <button
               type="button"
               onClick={salir}

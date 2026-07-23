@@ -1,0 +1,607 @@
+{
+  "seed": 20260630,
+  "n": 100,
+  "excluidos": 0,
+  "muestras": [
+    {
+      "ncm": "0105.15.00.000Y",
+      "partida": "0105",
+      "producto": "De peso inferior o igual a 185 g:, Pintadas",
+      "descripcion_ncm": "--Pintadas"
+    },
+    {
+      "ncm": "0210.12.00.000X",
+      "partida": "0210",
+      "producto": "Carne de la especie porcina:, Tocino entreverado de panza (panceta) y sus trozos",
+      "descripcion_ncm": "--Tocino entreverado de panza (panceta) y sus trozos"
+    },
+    {
+      "ncm": "0303.89.55.100N",
+      "partida": "0303",
+      "producto": "(Prochilodus spp.), tilapias (Tilapia spp., Sarotherodon spp., Danakilia spp.; sus híbridos), surubíes (Pseudoplatystoma spp.), tarariras (Hoplias malabaricus & H. cf. lacerdae), bogas (Leporinus spp.) y arapaimas (Arapaima gigas), Bogas (Leporinus spp.), En envases inmediatos de contenido neto inferior o igual a 1 kg",
+      "descripcion_ncm": "En envases inmediatos de contenido neto inferior o igual a 1 kg"
+    },
+    {
+      "ncm": "0406.10.10.111X",
+      "partida": "0406",
+      "producto": "Mozzarella, En envases inmediatos de contenido neto inferior o igual a 5 kg (R.420/99 MEYOSP), En hormas o en envases inmediatos de contenido neto inferior o igual a 1 Kg (Res.386/07), Elaborada con leche de cabra, oveja o búfala",
+      "descripcion_ncm": "Elaborada con leche de cabra, oveja o búfala"
+    },
+    {
+      "ncm": "0504.00.11.510E",
+      "partida": "0504",
+      "producto": "Tripas, De bovino, Chinchulines, Frescos, refrigerados o congelados (Dto. 499/98; RG 159/98 AFIP)",
+      "descripcion_ncm": "Frescos, refrigerados o congelados (Dto. 499/98; RG 159/98 AFIP)"
+    },
+    {
+      "ncm": "0601.20.00.200X",
+      "partida": "0601",
+      "producto": "Bulbos, cebollas, tubérculos, raíces y bulbos tuberosos, turiones y rizomas, en vegetación o en flor; plantas y raíces de achicoria, Plantas y reto«os de plátanos o bananos, excepto los de origen meristem»tico perteneciente a la especie Musa acuminata (R.2507/93 ex-ANA)",
+      "descripcion_ncm": "Plantas y reto«os de plátanos o bananos, excepto los de origen meristem»tico perteneciente a la especie Musa acuminata (R.2507/93 ex-ANA)"
+    },
+    {
+      "ncm": "0703.10.11.000H",
+      "partida": "0703",
+      "producto": "Cebollas y chalotes, Cebollas, Para siembra",
+      "descripcion_ncm": "Para siembra"
+    },
+    {
+      "ncm": "0808.30.00.100Y",
+      "partida": "0808",
+      "producto": "Peras, A granel (RG.2146 AFIP)",
+      "descripcion_ncm": "A granel (RG.2146 AFIP)"
+    },
+    {
+      "ncm": "0908.32.00.000Y",
+      "partida": "0908",
+      "producto": "Amomos y cardamomos:, Triturados o pulverizados",
+      "descripcion_ncm": "--Triturados o pulverizados"
+    },
+    {
+      "ncm": "1003.90.10.210Q",
+      "partida": "1003",
+      "producto": "CEBADA., Cervecera, Más del 15 % de embolsado (Ley 21.453), En envases inmediatos de contenido neto inferior o igual a 2 Kg (Res N° 835/2005 SAGPyA)",
+      "descripcion_ncm": "En envases inmediatos de contenido neto inferior o igual a 2 Kg (Res N° 835/2005 SAGPyA)"
+    },
+    {
+      "ncm": "1108.12.00.000B",
+      "partida": "1108",
+      "producto": "Almidón y fécula:, Almidon de maiz",
+      "descripcion_ncm": "--Almidon de maiz"
+    },
+    {
+      "ncm": "1210.20.20.000Q",
+      "partida": "1210",
+      "producto": "Conos de lúpulo triturados, molidos o en «pellets»; lupulino, Lupulino",
+      "descripcion_ncm": "Lupulino"
+    },
+    {
+      "ncm": "1302.31.00.000V",
+      "partida": "1302",
+      "producto": "Mucílagos y espesativos derivados de los vegetales, incluso modificados:, Agar-agar",
+      "descripcion_ncm": "--Agar-agar"
+    },
+    {
+      "ncm": "1404.20.10.000X",
+      "partida": "1404",
+      "producto": "Línteres de algodón, En bruto",
+      "descripcion_ncm": "En bruto"
+    },
+    {
+      "ncm": "1513.21.11.000A",
+      "partida": "1513",
+      "producto": "Aceites de almendra de palma (palmiste)* o de babasu, y sus fracciones:, Aceites en bruto, De almendra de palma (palmiste)*, De coco mbocaya (Acrocomia total)",
+      "descripcion_ncm": "De coco mbocaya (Acrocomia total)"
+    },
+    {
+      "ncm": "1605.21.00.110P",
+      "partida": "1605",
+      "producto": "Camarones, langostinos y demás Decápodos natantia:, Presentados en envases no hermeticos, Camarones, Cocidos y pelados",
+      "descripcion_ncm": "Cocidos y pelados"
+    },
+    {
+      "ncm": "1704.90.20.111L",
+      "partida": "1704",
+      "producto": "Bombones, caramelos, confites y pastillas, Caramelos, Duros, Rellenos",
+      "descripcion_ncm": "Rellenos"
+    },
+    {
+      "ncm": "1806.32.10.220Q",
+      "partida": "1806",
+      "producto": "Sin rellenar, Chocolate, Con cereales, frutas u otros frutos, En envases inmediatos de contenido neto superior a 50 g pero inferior o igual a 100 g",
+      "descripcion_ncm": "En envases inmediatos de contenido neto superior a 50 g pero inferior o igual a 100 g"
+    },
+    {
+      "ncm": "1905.31.00.112C",
+      "partida": "1905",
+      "producto": "Galletas dulces (con adición de edulcorante), En envases inmediatos de contenido neto inferior o igual a 2 kg (R.420/99 MEYOSP), Rellenas, incluso con cacao, Total o parcialmente recubiertas o revestidas de chocolate o de otras preparaciones que contengan cacao, excepto elaboradas exclusivamente con harina de trigo",
+      "descripcion_ncm": "Total o parcialmente recubiertas o revestidas de chocolate o de otras preparaciones que contengan cacao, excepto elaboradas exclusivamente con harina de trigo"
+    },
+    {
+      "ncm": "2008.11.00.210F",
+      "partida": "2008",
+      "producto": "Frutos de cáscara, maníes (cacahuates, cacahuetes)* y demás semillas, incluso mezclados entre sí:, Maníes (cacahuates, cacahuetes)*, Manteca, En envases inmediatos de contenido neto inferior o igual a 1 kg (R.420/99 MEYOSP)",
+      "descripcion_ncm": "En envases inmediatos de contenido neto inferior o igual a 1 kg (R.420/99 MEYOSP)"
+    },
+    {
+      "ncm": "2103.30.10.000G",
+      "partida": "2103",
+      "producto": "Harina de mostaza y mostaza preparada, Harina de mostaza",
+      "descripcion_ncm": "Harina de mostaza"
+    },
+    {
+      "ncm": "2202.10.00.200T",
+      "partida": "2202",
+      "producto": "Agua, incluidas el agua mineral y la gaseada, con adición de azúcar u otro edulcorante o aromatizada, Agua mineral aromatizada o saborizada, incluso gaseada, en los terminos del art. 944 bis del C.A.A.(R.2289/92 ex-ANA)",
+      "descripcion_ncm": "Agua mineral aromatizada o saborizada, incluso gaseada, en los terminos del art. 944 bis del C.A.A.(R.2289/92 ex-ANA)"
+    },
+    {
+      "ncm": "2302.30.10.110K",
+      "partida": "2302",
+      "producto": "De trigo, Moyuelo, Pellets (Ley 21.453), A granel, con hasta un 10 % embolsado",
+      "descripcion_ncm": "A granel, con hasta un 10 % embolsado"
+    },
+    {
+      "ncm": "2401.10.30.000F",
+      "partida": "2401",
+      "producto": "Tabaco sin desvenar o desnervar, En hojas secas en secadero de aire caliente (<<Flue cured, ), del tipo Virginia",
+      "descripcion_ncm": "En hojas secas en secadero de aire caliente (<<Flue cured>>), del tipo Virginia"
+    },
+    {
+      "ncm": "2520.10.11.000Y",
+      "partida": "2520",
+      "producto": "Yeso natural; anhidrita, Yeso natural, En trozos irregulares (piedras)",
+      "descripcion_ncm": "En trozos irregulares (piedras)"
+    },
+    {
+      "ncm": "2601.11.00.140V",
+      "partida": "2601",
+      "producto": "Minerales de hierro y sus concentrados, excepto las piritas de hierro tostadas (cenizas de piritas):, Sin aglomerar, Minerales, Siderita",
+      "descripcion_ncm": "Siderita"
+    },
+    {
+      "ncm": "2710.12.41.000U",
+      "partida": "2710",
+      "producto": "sadas ni comprendidas en otra parte, con un contenido de aceites de petróleo o de mineral bituminoso superior o igual al 70 % en peso, en las que estos aceites constituyan el elemento base, excepto las que contengan biodiesel y desechos de aceites:, Aceites livianos (ligeros)* y preparaciones, Naftas, Para petroquómica",
+      "descripcion_ncm": "Para petroquómica"
+    },
+    {
+      "ncm": "2812.15.00.000B",
+      "partida": "2812",
+      "producto": "Cloruros y oxicloruros:, Monocloruro de azufre",
+      "descripcion_ncm": "--Monocloruro de azufre"
+    },
+    {
+      "ncm": "2932.20.00.430K",
+      "partida": "2932",
+      "producto": "Lactonas:, Principios activos de plaguicidas agroquímicos (R. 2013/93 ANA), Giberelina",
+      "descripcion_ncm": "Giberelina"
+    },
+    {
+      "ncm": "3004.49.90.448E",
+      "partida": "3004",
+      "producto": "Que contengan otros estupefacientes (R.2017/93 ex-ANA), Ecgonina y sus esteres; etilmorfina; folcodina; acetildihidrocodeína; dihidrocodeína; nicocodina; nicodicodina, Nicocodina",
+      "descripcion_ncm": "Nicocodina"
+    },
+    {
+      "ncm": "3105.10.00.110Y",
+      "partida": "3105",
+      "producto": "Productos de este Capítulo en tabletas o formas similares o en envases de un peso bruto inferior o igual a 10 kg, De abonos nitrogenados, Que contengan nitrato de amonio",
+      "descripcion_ncm": "Que contengan nitrato de amonio"
+    },
+    {
+      "ncm": "3204.13.00.170R",
+      "partida": "3204",
+      "producto": "Materias colorantes orgánicas sintéticas y preparaciones a que se refiere la Nota 3 de este Capítulo a base de dichas materias colorantes:, Colorantes básicos y preparaciones a base de estos colorantes, Colorantes básicos sin mezclar, Marrones",
+      "descripcion_ncm": "Marrones"
+    },
+    {
+      "ncm": "3301.29.22.100Q",
+      "partida": "3301",
+      "producto": "Aceites esenciales, excepto los de agrios (cítricos):, De lavanda (espliego) o lavadín; espicanardo (\"vetiver\"), De espicanardo (\"vetiver\"), Productos domisanitarios definidos en la Resolución 709/98 ex MSyAS",
+      "descripcion_ncm": "Productos domisanitarios definidos en la Resolución 709/98 ex MSyAS"
+    },
+    {
+      "ncm": "3404.20.20.000Z",
+      "partida": "3404",
+      "producto": "De poli(oxietileno) (polietilenglicol), Ceras preparadas",
+      "descripcion_ncm": "Ceras preparadas"
+    },
+    {
+      "ncm": "3501.10.00.100X",
+      "partida": "3501",
+      "producto": "Caseína, Elaborada con leche bovina",
+      "descripcion_ncm": "Elaborada con leche bovina"
+    },
+    {
+      "ncm": "3604.10.00.300V",
+      "partida": "3604",
+      "producto": "Artículos para fuegos artificiales, F?sforos cohete en todas sus formas y tamaños (R.620/98 MEOSP)",
+      "descripcion_ncm": "F?sforos cohete en todas sus formas y tamaños (R.620/98 MEOSP)"
+    },
+    {
+      "ncm": "3701.10.21.000G",
+      "partida": "3701",
+      "producto": "Para rayos X, Sensibilizadas en ambas caras, Aptas para uso odontológico",
+      "descripcion_ncm": "Aptas para uso odontológico"
+    },
+    {
+      "ncm": "3823.70.40.000N",
+      "partida": "3823",
+      "producto": "Alcoholes grasos industriales, Cetilico",
+      "descripcion_ncm": "Cetilico"
+    },
+    {
+      "ncm": "3920.61.00.121M",
+      "partida": "3920",
+      "producto": "De policarbonatos, Compactas planas, Exclusivamente de policarbonato, estratificadas, De espesor superior o igual a 20mm pero inferior o igual a 27mm",
+      "descripcion_ncm": "De espesor superior o igual a 20mm pero inferior o igual a 27mm"
+    },
+    {
+      "ncm": "4011.10.00.133K",
+      "partida": "4011",
+      "producto": "los tipos utilizados en automóviles de turismo (incluidos los del tipo familiar(\"break\" o \"station wagon\")y los de carreras), Diagonales, con diámetro de llanta inferior o igual a 406,4 mm(16\") y ancho seccional inferior o igual a 215 mm, Con ancho seccional igual a 195 mm, Con diámetro de llanta igual a 355,6 mm (14\")",
+      "descripcion_ncm": "Con diámetro de llanta igual a 355,6 mm (14\")"
+    },
+    {
+      "ncm": "4101.90.30.312Q",
+      "partida": "4101",
+      "producto": "Divididos sin la flor, Cueros y pieles de bovino (incluido el bufalo), Enteros, Frescos o salados verdes (húmedos)",
+      "descripcion_ncm": "Frescos o salados verdes (húmedos)"
+    },
+    {
+      "ncm": "4202.31.00.230K",
+      "partida": "4202",
+      "producto": "Artículos de bolsillo o de bolso de mano (cartera):, Con la superficie exterior de cuero natural o cuero regenerado, De cuero regenerado, Pitilleras",
+      "descripcion_ncm": "Pitilleras"
+    },
+    {
+      "ncm": "4302.11.00.000T",
+      "partida": "4302",
+      "producto": "Pieles enteras, incluso sin la cabeza, cola o patas, sin ensamblar:, De visón",
+      "descripcion_ncm": "--De visón"
+    },
+    {
+      "ncm": "4412.33.00.213T",
+      "partida": "4412",
+      "producto": "Fenólicos, sin recubrimiento de plástico, De espesor superior o igual a 3 mm pero inferior a 7 mm, De espesor inferior a 4 mm, de tercera calidad e inferiores (calidad C e inferiores, según Norma IRAM 9506)",
+      "descripcion_ncm": "De espesor inferior a 4 mm, de tercera calidad e inferiores (calidad C e inferiores, según Norma IRAM 9506)"
+    },
+    {
+      "ncm": "4504.10.00.100L",
+      "partida": "4504",
+      "producto": "Bloques, placas, hojas y tiras; baldosas y revestimientos similares de pared, de cualquier forma; cilindros macizos, incluidos los discos, Con aglomerante",
+      "descripcion_ncm": "Con aglomerante"
+    },
+    {
+      "ncm": "4602.11.00.000M",
+      "partida": "4602",
+      "producto": "De materia vegetal:, De bambú",
+      "descripcion_ncm": "--De bambú"
+    },
+    {
+      "ncm": "4703.21.10.200X",
+      "partida": "4703",
+      "producto": "Semiblanqueada o blanqueada:, De coníferas, En bobinas (rollos), De abeto",
+      "descripcion_ncm": "De abeto"
+    },
+    {
+      "ncm": "4820.10.00.621J",
+      "partida": "4820",
+      "producto": "Libros registro, libros de contabilidad, talonarios (de notas, pedidos o recibos), bloques memorandos, bloques de papel de cartas, agendas y artículos similares, Agendas, Con tapas de cuero regenerado o recubiertas con esta materia, Cosidas",
+      "descripcion_ncm": "Cosidas"
+    },
+    {
+      "ncm": "4907.00.20.100Y",
+      "partida": "4907",
+      "producto": "Cheques de viajero, En pliegos",
+      "descripcion_ncm": "En pliegos"
+    },
+    {
+      "ncm": "5003.00.10.000J",
+      "partida": "5003",
+      "producto": "Sin cardar ni peinar",
+      "descripcion_ncm": "Sin cardar ni peinar"
+    },
+    {
+      "ncm": "5102.19.00.511R",
+      "partida": "5102",
+      "producto": "Pelo fino:, De alpaca, Sucio (R.2012/93 ex-ANA), De finura inferior o igual a 22,5 micrómetros",
+      "descripcion_ncm": "De finura inferior o igual a 22,5 micrómetros"
+    },
+    {
+      "ncm": "5212.25.00.220V",
+      "partida": "5212",
+      "producto": "De peso superior a 200 g/m2:, Estampados, De ligamento sarga, incluido el cruzado, de curso inferior o igual a 4, De densidad superior o igual a 20 hilos por cm2 pero inferior a 27 hilos por cm2",
+      "descripcion_ncm": "De densidad superior o igual a 20 hilos por cm2 pero inferior a 27 hilos por cm2"
+    },
+    {
+      "ncm": "5311.00.00.340G",
+      "partida": "5311",
+      "producto": "De hilados de papel, De peso superior o igual a 400 g/m2 pero inferior a 500 g/m2",
+      "descripcion_ncm": "De peso superior o igual a 400 g/m2 pero inferior a 500 g/m2"
+    },
+    {
+      "ncm": "5407.52.10.110M",
+      "partida": "5407",
+      "producto": "Teñidos, Sin hilos de caucho, De ligamento tafetán, De densidad inferior o igual a 30 hilos por cm2",
+      "descripcion_ncm": "De densidad inferior o igual a 30 hilos por cm2"
+    },
+    {
+      "ncm": "5512.19.00.211X",
+      "partida": "5512",
+      "producto": "Con un contenido de fibras discontinuas de poliester superior o igual al 85 % en peso:, Con hilados de distintos colores, De ligamento tafetán, De densidad inferior o igual a 30 hilos por cm2",
+      "descripcion_ncm": "De densidad inferior o igual a 30 hilos por cm2"
+    },
+    {
+      "ncm": "5603.12.40.100W",
+      "partida": "5603",
+      "producto": "De filamentos sinteticos o artificiales:, De peso superior a 25 g/m2 pero inferior o igual a 70 g/m2, De polipropileno, En rollos, de anchura superior o igual a 90 cm",
+      "descripcion_ncm": "En rollos, de anchura superior o igual a 90 cm"
+    },
+    {
+      "ncm": "5702.42.00.120U",
+      "partida": "5702",
+      "producto": "De materia textil sintetica o artificial, Cuadrados o rectangulares, Con bucle",
+      "descripcion_ncm": "Con bucle"
+    },
+    {
+      "ncm": "5806.10.00.120H",
+      "partida": "5806",
+      "producto": "Cintas de terciopelo, de felpa, de tejidos de chenilla o de tejidos con bucles del tipo toalla, De terciopelo o felpa, De fibras sinteticas",
+      "descripcion_ncm": "De fibras sinteticas"
+    },
+    {
+      "ncm": "5911.20.10.000E",
+      "partida": "5911",
+      "producto": "Productos y articulos textiles para usos tecnicos mencionados en la Nota 8 de este Capitulo., Gasas y telas para cerner, incluso confeccionadas, De materia textil sintética o artificial, en pieza",
+      "descripcion_ncm": "De materia textil sintética o artificial, en pieza"
+    },
+    {
+      "ncm": "6004.10.11.000H",
+      "partida": "6004",
+      "producto": "Con un contenido de hilados de elastómeros superior o igual al 5 % en peso, sin hilos de caucho, De algodón, Crudos o blanqueados",
+      "descripcion_ncm": "Crudos o blanqueados"
+    },
+    {
+      "ncm": "6113.00.00.210Z",
+      "partida": "6113",
+      "producto": "Prendas de vestir confeccionadas con tejidos de punto de las partidas 59.03, 59.06 o 59.07., Confeccionadas con tejidos de la partida 59.06, Definidas en la Res. N° 421/2018 SC",
+      "descripcion_ncm": "Definidas en la Res. N° 421/2018 SC"
+    },
+    {
+      "ncm": "6210.50.00.411J",
+      "partida": "6210",
+      "producto": "Con productos de la partida 59.07, Productos alcanzados por la Res. 163/2005 SCT, De talle superior al 16 o sus equivalentes",
+      "descripcion_ncm": "De talle superior al 16 o sus equivalentes"
+    },
+    {
+      "ncm": "6302.31.00.220F",
+      "partida": "6302",
+      "producto": "De algodón, Fundas de almohadas, De 1 1/2 plaza",
+      "descripcion_ncm": "De 1 1/2 plaza"
+    },
+    {
+      "ncm": "6403.99.90.124C",
+      "partida": "6403",
+      "producto": "Pantuflas, chinelas y sandalias tipo ojotas, Con parte superior de cuero de reptil, Superior al número 40 e inferior o igual al número 45, o sus equivalentes",
+      "descripcion_ncm": "Superior al número 40 e inferior o igual al número 45, o sus equivalentes"
+    },
+    {
+      "ncm": "6501.00.00.311A",
+      "partida": "6501",
+      "producto": "Cilindros, De lana, Teñidos",
+      "descripcion_ncm": "Teñidos"
+    },
+    {
+      "ncm": "6601.91.10.100P",
+      "partida": "6601",
+      "producto": "Con astil o mango telescópico, Con cubierta de tejidos de seda o de materia textil sintetica o artificial, Paraguas y sombrillas (R. 2506/93 ex-ANA)",
+      "descripcion_ncm": "Paraguas y sombrillas (R. 2506/93 ex-ANA)"
+    },
+    {
+      "ncm": "6702.90.00.110W",
+      "partida": "6702",
+      "producto": "De las demás materias, Artículos confeccionados principalmente con follajes, árboles o arbustos",
+      "descripcion_ncm": "árboles o arbustos"
+    },
+    {
+      "ncm": "6805.10.00.111X",
+      "partida": "6805",
+      "producto": "Con soporte constituido solamente por tejido de materia textil, Tela esmeril (R.386/99 SICYM), En hojas de 225x275 mm, De grano 36 a 320",
+      "descripcion_ncm": "De grano 36 a 320"
+    },
+    {
+      "ncm": "6909.11.00.000D",
+      "partida": "6909",
+      "producto": "Aparatos y artículos para usos químicos o demás usos técnicos:, De porcelana",
+      "descripcion_ncm": "--De porcelana"
+    },
+    {
+      "ncm": "7004.20.00.100U",
+      "partida": "7004",
+      "producto": "Vidrio coloreado en la masa, opacificado, chapado o con capa absorbente, reflectante o antirreflectante, De espesor inferior o igual a 2 mm",
+      "descripcion_ncm": "De espesor inferior o igual a 2 mm"
+    },
+    {
+      "ncm": "7116.20.20.000X",
+      "partida": "7116",
+      "producto": "De piedras preciosas o semipreciosas (naturales, sinteticas o reconstituidas), Guías de agujas, de rubí, para cabezales de impresión",
+      "descripcion_ncm": "Guías de agujas, de rubí, para cabezales de impresión"
+    },
+    {
+      "ncm": "7216.33.00.100P",
+      "partida": "7216",
+      "producto": "Perfiles en U, en I o en H, simplemente laminados o extrudidos en caliente, de altura superior o igual a 80 mm:, Perfiles en H, De altura inferior o igual a 100 mm",
+      "descripcion_ncm": "De altura inferior o igual a 100 mm"
+    },
+    {
+      "ncm": "7307.19.10.144U",
+      "partida": "7307",
+      "producto": "De fundición maleable, de diámetro interior superior a 50,8 mm, Con revestimiento epoxi, de diámetro interior inferior a 600 mm, Cuplas, De diámetro interior igual a 113 mm (designación 100) según norma IRAM 2548 y equivalentes de otras normas",
+      "descripcion_ncm": "De diámetro interior igual a 113 mm (designación 100) según norma IRAM 2548 y equivalentes de otras normas"
+    },
+    {
+      "ncm": "7411.21.10.100G",
+      "partida": "7411",
+      "producto": "De aleaciones de cobre:, A base de cobre-cinc (latón), Sin aletas ni ranuras, Cortados o conformados en las dimensiones finales para utilizacion en vehiculos o autopartes",
+      "descripcion_ncm": "Cortados o conformados en las dimensiones finales para utilizacion en vehiculos o autopartes"
+    },
+    {
+      "ncm": "7505.11.10.000X",
+      "partida": "7505",
+      "producto": "Barras y perfiles:, De níquel sin alear, Barras",
+      "descripcion_ncm": "Barras"
+    },
+    {
+      "ncm": "7603.10.00.100A",
+      "partida": "7603",
+      "producto": "Polvo de estructura no laminar, De grano esferico que presente una distribución de partículas inferior o igual a 60 micrómetros, con un contenido de aluminio superior o igual al 99% en peso (Dto. 437/00).",
+      "descripcion_ncm": "De grano esferico que presente una distribución de partículas inferior o igual a 60 micrómetros, con un contenido de aluminio superior o igual al 99% en peso (Dto. 437/00)."
+    },
+    {
+      "ncm": "7801.10.11.000N",
+      "partida": "7801",
+      "producto": "PLOMO EN BRUTO., Plomo refinado, Electrolítico, En lingotes",
+      "descripcion_ncm": "En lingotes"
+    },
+    {
+      "ncm": "7901.12.10.000L",
+      "partida": "7901",
+      "producto": "CINC EN BRUTO., Cinc sin alear:, Con un contenido de cinc inferior al 99,99 % en peso, En lingotes",
+      "descripcion_ncm": "En lingotes"
+    },
+    {
+      "ncm": "8001.20.00.100X",
+      "partida": "8001",
+      "producto": "ESTAÑO EN BRUTO., Aleaciones de estaño, En lingotes",
+      "descripcion_ncm": "En lingotes"
+    },
+    {
+      "ncm": "8105.20.10.100M",
+      "partida": "8105",
+      "producto": "Matas de cobalto y demás productos intermedios de la metalurgia del cobalto; cobalto en bruto; polvo, En bruto, Lingotes",
+      "descripcion_ncm": "Lingotes"
+    },
+    {
+      "ncm": "8204.11.00.125F",
+      "partida": "8204",
+      "producto": "No ajustables, Dinamométrica (torquímetro), De nonio, Con rango de medición 250-700 Nm (25-70 kgm)",
+      "descripcion_ncm": "Con rango de medición 250-700 Nm (25-70 kgm)"
+    },
+    {
+      "ncm": "8302.41.00.240U",
+      "partida": "8302",
+      "producto": "Para edificios, De latón, Picaportes, manijas, pomos y artículos similares",
+      "descripcion_ncm": "Picaportes, manijas, pomos y artículos similares"
+    },
+    {
+      "ncm": "8423.90.10.000E",
+      "partida": "8423",
+      "producto": "Pesas para toda clase de básculas o balanzas; partes de aparatos o instrumentos de pesar, Pesas",
+      "descripcion_ncm": "Pesas"
+    },
+    {
+      "ncm": "8532.21.20.000L",
+      "partida": "8532",
+      "producto": "De tantalio, Aptos para montaje por insercion (PTH - <Pin Through Hole, )",
+      "descripcion_ncm": "Aptos para montaje por insercion (PTH - <Pin Through Hole>)"
+    },
+    {
+      "ncm": "8607.11.20.000J",
+      "partida": "8607",
+      "producto": "Bojes, \"bissels\", ejes y ruedas, y sus partes:, Bojes y \"bissels\", de tracción, \"Bissels\"",
+      "descripcion_ncm": "\"Bissels\""
+    },
+    {
+      "ncm": "8708.94.11.000F",
+      "partida": "8708",
+      "producto": "PARTES Y ACCESORIOS PARA VEHÍCULOS AUTOMÓVILES DE LAS PARTIDAS 87.01 A 87.05., Volantes, columnas y cajas de dirección; sus partes, Volantes, columnas y cajas de dirección, de los vehículos de las subpartidas 8701.10, 8701.30, 8701.91 a 8701.95 u 8704.10, Volantes",
+      "descripcion_ncm": "Volantes"
+    },
+    {
+      "ncm": "8805.10.00.900C",
+      "partida": "8805",
+      "producto": "Aparatos y dispositivos para lanzamiento de aeronaves, y sus partes; aparatos y dispositivos para aterrizaje en portaaviones y aparatos y dispositivos similares, y sus partes, Partes",
+      "descripcion_ncm": "Partes"
+    },
+    {
+      "ncm": "8903.23.00.100D",
+      "partida": "8903",
+      "producto": "rcos de vela, distintos de los inflables, incluso con motor auxiliar:, De longitud superior a 24 m, Embarcaciones destinadas a la practica deportiva olimpica, paraolimpica, panamericana y parapanamericana, con certificacion de la SECRETARIA DE DEPORTES dependiente de la SECRETARIA GENERAL DE LA PRESIDENCIA DE LA NACION",
+      "descripcion_ncm": "Embarcaciones destinadas a la practica deportiva olimpica, paraolimpica, panamericana y parapanamericana, con certificacion de la SECRETARIA DE DEPORTES dependiente de la SECRETARIA GENERAL DE LA PRESIDENCIA DE LA NACION"
+    },
+    {
+      "ncm": "9014.20.10.000L",
+      "partida": "9014",
+      "producto": "Instrumentos y aparatos para navegación aérea o espacial (excepto las brújulas), Altómetros",
+      "descripcion_ncm": "Altómetros"
+    },
+    {
+      "ncm": "9113.90.00.111Z",
+      "partida": "9113",
+      "producto": "Pulseras para relojes, Con partes de metal precioso o chapadas de metal precioso, De cuero natural de reptil",
+      "descripcion_ncm": "De cuero natural de reptil"
+    },
+    {
+      "ncm": "9205.10.00.500A",
+      "partida": "9205",
+      "producto": "Instrumentos llamados <<metales, Trombones",
+      "descripcion_ncm": "Trombones"
+    },
+    {
+      "ncm": "9306.21.10.000J",
+      "partida": "9306",
+      "producto": "iles, cartuchos y demas municiones y proyectiles, y sus partes, incluidas las postas, perdigones y tacos para cartuchos., Cartuchos para armas largas con cañón de anima lisa y sus partes; balines para armas de aire comprimido:, Cartuchos, Que contengan productos quimicos u oleorresinas de Capsicum, con fines irritantes",
+      "descripcion_ncm": "Que contengan productos quimicos u oleorresinas de Capsicum, con fines irritantes"
+    },
+    {
+      "ncm": "9401.91.00.400J",
+      "partida": "9401",
+      "producto": "Partes:, De madera, Armazones",
+      "descripcion_ncm": "Armazones"
+    },
+    {
+      "ncm": "9503.00.10.111M",
+      "partida": "9503",
+      "producto": "Triciclos, patinetes, coches de pedal y juguetes similares con ruedas; coches y sillas de ruedas para muñecas o muñecos, Triciclos, De metal común, Diseñados para ser impulsados por los pies de los niños en el piso",
+      "descripcion_ncm": "Diseñados para ser impulsados por los pies de los niños en el piso"
+    },
+    {
+      "ncm": "9607.19.00.121H",
+      "partida": "9607",
+      "producto": "Cierres de cremallera (cierres relámpago):, De monofilamento de nailón o poliester, Separables, Con corredera automática",
+      "descripcion_ncm": "Con corredera automática"
+    },
+    {
+      "ncm": "9705.31.00.000W",
+      "partida": "9705",
+      "producto": "Colecciones y piezas de colección que tengan un interes numismático:, De más de 100 años",
+      "descripcion_ncm": "--De más de 100 años"
+    },
+    {
+      "ncm": "0106.41.00.110V",
+      "partida": "0106",
+      "producto": "Insectos:, Abejas, Reinas, Raza caucasica",
+      "descripcion_ncm": "Raza caucasica"
+    },
+    {
+      "ncm": "0206.21.00.100V",
+      "partida": "0206",
+      "producto": "De la especie bovina, congelados:, Lenguas, Sin epitelio (Dto. 499/98; RG 159/98 AFIP)",
+      "descripcion_ncm": "Sin epitelio (Dto. 499/98; RG 159/98 AFIP)"
+    },
+    {
+      "ncm": "0306.33.00.110T",
+      "partida": "0306",
+      "producto": "Vivos, frescos o refrigerados:, Cangrejos (excepto macruros), Pelados, ahumados, incluso cocidos antes o durante el ahumado, Centolla (Lithodes santolla)",
+      "descripcion_ncm": "Centolla (Lithodes santolla)"
+    },
+    {
+      "ncm": "0402.21.30.111U",
+      "partida": "0402",
+      "producto": "Nata (crema), En envases inmediatos de contenido neto inferior o igual a 2 kg (R.420/99 MEYOSP), Enlatadas, Elaborada con leche de cabra, búfala u A ovina",
+      "descripcion_ncm": "Elaborada con leche de cabra, búfala u A ovina"
+    }
+  ]
+}

@@ -1,0 +1,209 @@
+{
+  "carpeta": "5",
+  "pasos": [
+    {
+      "paso": 1,
+      "archivo": "invoice.pdf",
+      "tipo": "factura_comercial",
+      "etapas": [
+        "apertura",
+        "documentacion",
+        "embarque"
+      ],
+      "abrirEmbarque": false,
+      "segundos": 22.1,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Factura comercial legible. Partes identificadas (DAYPLAS S.A. importador Argentina; SIMKO FAR EAST exportador Hong Kong), mercadería descrita (CLARNATE PC-A1077), NCM 3907.40 consistente, cantidad y peso neto declarados (54,4 MT), embalaje especificado (64 big bags × 850 kg), incoterm CFR válido, valor factura USD 91.936 con desglose FOB/flete coherente, referencia SF-3549, vía marítima, condición de pago NET 90 TT. En aislamiento, documento sin defecto legal evidente."
+        },
+        {
+          "nivel": "ok",
+          "texto": "Valoración aduanera: valor de transacción (USD 91.936) incluye FOB (89.002) + flete (2.934), consistente con incoterm CFR. Estructura conforme a Acuerdo de Valoración OMC Art. 1 y Art. 8 (flete a cargo del comprador, incluido en valor)."
+        }
+      ],
+      "cruce_documentacion": {
+        "resumen": "No se detectan inconsistencias ni faltantes en los documentos presentes.",
+        "faltantes": [],
+        "inconsistencias": [],
+        "alertas": [
+          {
+            "nivel": "ok",
+            "texto": "Factura comercial completa: partes identificadas (Buyer DAYPLAS S.A., Seller SIMKO FAR EAST LTD.), mercadería descrita (CLARNATE PC-A1077), NCM 3907.40 válido, cantidad 54,4 MT, embalaje especificado (64 big bags × 850 kg), incoterm CFR, valor FOB USD 89.002, flete USD 2.934, total USD 91.936, país origen China, destino Argentina."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Origen China: Régimen de Origen Mercosur (ROM/ACE 18) no aplica. No se exige autocertificación ROM ni certificado de origen MERCOSUR. Verificar si existe acuerdo bilateral China-Argentina o preferencia arancelaria aplicable."
+          },
+          {
+            "nivel": "ok",
+            "texto": "NCM 3907.40 (Policarbonatos): tributación VUCE sin intervenciones especiales. DIE extrazona 0%, DII 0%, TE 3%, IVA 21%, DE exportación 4,5%. Aplicable a importación desde China."
+          }
+        ]
+      },
+      "cruce_embarque": null,
+      "operacion": {
+        "ncm": "3907.40",
+        "pais_origen": "China",
+        "via": null,
+        "incoterm": "CFR",
+        "valor_factura": "91936"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial"
+      ]
+    },
+    {
+      "paso": 2,
+      "archivo": "bl.pdf",
+      "tipo": "transporte",
+      "etapas": [
+        "embarque"
+      ],
+      "abrirEmbarque": true,
+      "segundos": 27.6,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Documento de transporte (BL) legible y completo en aislamiento: shipper, consignee, notify party, descripción de mercadería, NCM, cantidades, pesos neto/bruto, bultos, país origen (China), país destino (Argentina), vía marítima y referencia documental identificables. No se detectan defectos formales en el documento per se."
+        },
+        {
+          "nivel": "ok",
+          "texto": "Consignee (DAYPLAS S.A., Buenos Aires, Argentina, CUIT 33-58249873-9) es el importador aduanero declarado en destino aduanero Argentina. Rol comercial coherente con operación de importación para consumo."
+        },
+        {
+          "nivel": "ok",
+          "texto": "Peso neto (54.4 MT) y peso bruto (55.328 MT) declarados y coherentes. Diferencia de ~928 kg corresponde a embalaje (32 pallets + bolsas), razonable para 64 bolsas de resina."
+        }
+      ],
+      "cruce_documentacion": null,
+      "cruce_embarque": {
+        "resumen": "No se detectan inconsistencias ni faltantes en los documentos presentes.",
+        "faltantes": [],
+        "inconsistencias": [],
+        "alertas": [
+          {
+            "nivel": "ok",
+            "texto": "Peso neto coincide entre factura (54,4 MT) y BL (54.4 MT). Peso bruto en BL (55.328 MT) es coherente con embalaje: 64 big bags × 850 kg/bag = 54.400 kg neto + aprox. 928 kg de embalaje = 55.328 kg bruto. Cálculo verificado."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Valor factura USD 91.936 (CFR) incluye FOB USD 89.002 + flete USD 2.934. Coherente con incoterm CFR (costo y flete incluidos). Factura comercial cumple requisitos de Acuerdo de Valoración OMC Art. 1 (precio realmente pagado)."
+          },
+          {
+            "nivel": "ok",
+            "texto": "País de origen (China) no requiere Certificado de Origen MERCOSUR (ROM/ACE 18). China es origen extrazona. Operación sujeta a tributación estándar (DIE 0%, DII 0%, TE 3%, IVA 21%)."
+          }
+        ]
+      },
+      "operacion": {
+        "ncm": "3907.40",
+        "pais_origen": "China",
+        "via": "maritima",
+        "incoterm": "CFR",
+        "valor_factura": "91936"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial",
+        "transporte"
+      ]
+    },
+    {
+      "paso": 3,
+      "archivo": "gastos.pdf",
+      "tipo": "factura_gastos",
+      "etapas": [
+        "embarque"
+      ],
+      "abrirEmbarque": true,
+      "segundos": 37.5,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Consignee (DAYPLAS S.A., Argentina) y país de destino aduanero (Argentina) coinciden. Incoterm CFR es compatible con factura de gastos de transporte marítimo. Referencia documental (264774649) presente para trazabilidad."
+        }
+      ],
+      "cruce_documentacion": null,
+      "cruce_embarque": {
+        "resumen": "No se detectan inconsistencias ni faltantes en los documentos presentes.",
+        "faltantes": [],
+        "inconsistencias": [],
+        "alertas": [
+          {
+            "nivel": "ok",
+            "texto": "Peso neto: 54,4 MT en factura = 54,4 MT en BL. Coherente."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Peso bruto BL (55.328 kg = 55,328 MT) vs. peso neto (54,4 MT): diferencia de 928 kg corresponde a embalaje (64 big bags × 850 kg/bag = 54.400 kg neto + embalaje). Coherente con declaración de embalaje en big bags."
+          },
+          {
+            "nivel": "ok",
+            "texto": "Consignatario aduanero: DAYPLAS S.A. (Buenos Aires, Argentina) en factura y BL. Destino aduanero Argentina coherente. Importador identificado correctamente."
+          },
+          {
+            "nivel": "ok",
+            "texto": "NCM 3907.40 (Policarbonatos) coherente en factura y BL. Tributación VUCE: DIE 0%, DII 0%, TE 3%, IVA 21%, DE 4,5%. Sin intervenciones VUCE registradas para esta NCM."
+          }
+        ]
+      },
+      "operacion": {
+        "ncm": "3907.40",
+        "pais_origen": "China",
+        "via": "maritima",
+        "incoterm": "CFR",
+        "valor_factura": "91936"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial",
+        "transporte",
+        "factura_gastos"
+      ]
+    },
+    {
+      "paso": 4,
+      "archivo": "afip.pdf",
+      "tipo": "despacho",
+      "etapas": [],
+      "abrirEmbarque": true,
+      "segundos": 5.8,
+      "hallazgos": [
+        {
+          "nivel": "ok",
+          "texto": "Documento de despacho aduanero (SIM) legible. Partes identificadas: importador DAYPLAS S.A. (CUIT 20-17379361-9), despachante ORSI RICARDO CESAR VICENT (CUIT 33-58249873-9), vendedor SIMKO FAR EAST LTD., agente de transporte MAERSK LINE ARGENTINA S.A. Roles comerciales coherentes con operación de importación vía marítima."
+        },
+        {
+          "nivel": "ok",
+          "texto": "Datos de mercadería consistentes: NCM 3907.40.90.000J (policarbonatos y poliésteres en formas primarias), cantidad 54.400 kg, peso neto 54.400 kg, peso bruto 55.328 kg, 2 bultos en contenedor. Descripción alineada con clasificación arancelaria."
+        },
+        {
+          "nivel": "ok",
+          "texto": "Incoterm CFR declarado con FOB USD 89.002 y flete USD 2.934. Estructura de valoración coherente: en CFR el precio incluye flete pero no seguro. Valores numéricos presentes y diferenciados."
+        },
+        {
+          "nivel": "ok",
+          "texto": "Origen y destino aduanero correctamente identificados: país de origen China, país de procedencia China, país de destino Argentina. Vía marítima declarada. Referencia documental SF-3549 presente."
+        },
+        {
+          "nivel": "ok",
+          "texto": "Origen China: no aplica Régimen de Origen Mercosur (ROM/ACE 18). No se exige certificado de origen preferencial. Documento en aislamiento sin defecto legal evidente respecto a requisitos de origen."
+        }
+      ],
+      "cruce_documentacion": null,
+      "cruce_embarque": null,
+      "operacion": {
+        "ncm": "3907.40",
+        "pais_origen": "China",
+        "via": "maritima",
+        "incoterm": "CFR",
+        "valor_factura": "91936"
+      },
+      "tipos_en_carpeta": [
+        "factura_comercial",
+        "transporte",
+        "factura_gastos",
+        "despacho"
+      ]
+    }
+  ]
+}

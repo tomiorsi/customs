@@ -2,8 +2,13 @@ import "server-only";
 import { OP_CAMPOS, updateOperationCampos } from "@/lib/data";
 import type { DocumentacionIA } from "@/lib/ia-documentos";
 
-/** Únicos campos que sobreviven al salir del Paso 1 (cotización provisional). */
-export const CAMPOS_CONSERVADOS_PASO1 = ["ncm", "primera_vez"] as const;
+/** Campos que sobreviven al salir del Paso 1 (cotización provisional). */
+export const CAMPOS_CONSERVADOS_PASO1 = [
+  "ncm",
+  "primera_vez",
+  /** Nombre elegido por el cliente al abrir la carpeta; no es dato provisional. */
+  "titulo",
+] as const;
 
 /**
  * Todo lo demás que el Paso 1 pudo haber cargado (proforma, cotización forwarder,

@@ -105,6 +105,22 @@ export async function PUT(
     return NextResponse.json({ error: "Solicitud inválida." }, { status: 400 });
   }
 
+  // El CLIENTE dueño sólo puede ponerle su propio alias al nombre (sólo lo ve
+  // él). El título "oficial" y el resto de los datos los maneja el equipo.
+  if (!esEquipo(user.role)) {
+    const alias =
+      "titulo" in body
+        ? body.titulo == null
+          ? null
+          : String(body.titulo).trim() || null
+        : undefined;
+    if (alias === undefined) {
+      return NextResponse.json({ ok: true });
+    }
+    await updateOperationCampos(op.user_id, id, { titulo_cliente: alias });
+    return NextResponse.json({ ok: true });
+  }
+
   const campos: Partial<Record<OpCampo, string | null>> = {};
   for (const c of OP_CAMPOS) {
     if (c in body) {

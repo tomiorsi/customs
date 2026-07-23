@@ -17,19 +17,6 @@
   --ring: rgba(249, 115, 22, 0.35);
 }
 
-.dark {
-  /* Paleta oscura */
-  --background: #0a0b0d;
-  --surface: #121317;
-  --surface-2: #1a1c21;
-  --foreground: #ededee;
-  --muted: #9aa1ad;
-  --border: #25272e;
-  --accent: #f97316;
-  --accent-foreground: #0a0b0d;
-  --accent-soft: #2a1a0e;
-  --ring: rgba(249, 115, 22, 0.4);
-}
 
 @theme inline {
   --color-background: var(--background);
@@ -47,6 +34,32 @@
 
 * {
   border-color: var(--border);
+}
+
+/*
+ * Selects modernos en toda la app: ocultamos la flecha nativa (que en Safari/iOS
+ * se ve fea) y dibujamos un chevron propio por CSS. El color sigue al tema.
+ */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 1.05em;
+  padding-right: 2.25rem !important;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 1.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
@@ -185,16 +198,93 @@ body::before {
   }
 }
 
-/* Transición suave al cambiar de tema */
-html.theme-transition,
-html.theme-transition * {
-  transition:
-    background-color 0.25s ease,
-    border-color 0.25s ease,
-    color 0.25s ease;
-}
-
 ::selection {
   background: var(--accent);
   color: var(--accent-foreground);
+}
+
+/* ───────────────────────── Landing page ─────────────────────────
+ * Color de los puntos del mapamundi (r, g, b). El naranja queda reservado
+ * para las rutas comerciales animadas.
+ */
+:root {
+  --map-dot: 120, 113, 108;
+}
+
+/* Reveal on scroll */
+.landing-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.landing-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Ciclo avión → barco → camión: 3 capas, 12 s, cada una visible un tercio */
+.landing-transport {
+  opacity: 0;
+  animation: landing-transport 12s ease-in-out infinite;
+  will-change: opacity, transform, filter;
+}
+@keyframes landing-transport {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.92);
+    filter: blur(6px);
+  }
+  6%,
+  27% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+  33%,
+  100% {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.92);
+    filter: blur(6px);
+  }
+}
+
+/* Ruta orbital punteada que fluye */
+.landing-orbit-dash {
+  animation: landing-dash 26s linear infinite;
+}
+@keyframes landing-dash {
+  to {
+    stroke-dashoffset: -200;
+  }
+}
+
+/* Chips satélite que flotan */
+.landing-float {
+  animation: landing-float 6s ease-in-out infinite;
+}
+@keyframes landing-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-transport {
+    animation-duration: 30s;
+  }
+  .landing-orbit-dash,
+  .landing-float {
+    animation: none;
+  }
+  .landing-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
