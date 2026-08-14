@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { WorldRoutes } from "@/components/landing/world-routes";
+import { InstagramPosts } from "@/components/landing/instagram-posts";
 
 /* ───────────────────────── Reveal on scroll ───────────────────────── */
 
@@ -575,6 +576,7 @@ export function Landing({
         </div>
       </section>
 
+      <InstagramPosts />
     </div>
   );
 }

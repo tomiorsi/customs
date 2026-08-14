@@ -6,9 +6,9 @@ process.env.TZ = process.env.TZ || "America/Argentina/Buenos_Aires";
 const esDev = process.env.NODE_ENV !== "production";
 
 /**
- * Política de contenido. La app se sirve entera desde su propio dominio: no
- * carga scripts, fuentes ni imágenes de terceros, así que todo puede quedar en
- * 'self'.
+ * Política de contenido. La app se sirve entera desde su propio dominio, con
+ * una sola excepción: los posts de Instagram embebidos en la landing, que
+ * necesitan su script y renderizan en un iframe de instagram.com.
  *
  * `unsafe-inline` en scripts es lo que hoy necesita Next para su bootstrap
  * inline; se puede endurecer más adelante con nonces por request.
@@ -21,12 +21,12 @@ const CSP = [
   // Nadie puede meter la app en un iframe: evita clickjacking sobre el portal.
   "frame-ancestors 'none'",
   "form-action 'self'",
-  "img-src 'self' data: blob:",
+  "img-src 'self' data: blob: https://*.cdninstagram.com",
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
-  `script-src 'self' 'unsafe-inline'${esDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://www.instagram.com${esDev ? " 'unsafe-eval'" : ""}`,
   "connect-src 'self'",
-  "frame-src 'self' blob:",
+  "frame-src 'self' blob: https://www.instagram.com",
   ...(esDev ? [] : ["upgrade-insecure-requests"]),
 ].join("; ");
 
