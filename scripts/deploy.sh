@@ -21,7 +21,14 @@ git fetch origin main
 git reset --hard origin/main
 
 echo "▸ Instalando dependencias de Node"
-npm ci
+# npm ci borra node_modules antes de instalar y a veces falla con ENOTEMPTY si
+# quedó un directorio a medias de una corrida anterior. Reintentamos una vez
+# con el árbol limpio en lugar de dejar el deploy trabado.
+if ! npm ci; then
+  echo "  npm ci falló; limpiando node_modules y reintentando"
+  rm -rf node_modules
+  npm ci
+fi
 
 echo "▸ Compilando"
 npm run build
