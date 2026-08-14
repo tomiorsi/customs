@@ -8,6 +8,7 @@ import {
   Circle,
   ClipboardCheck,
   Container,
+  ChevronDown,
   FileCheck2,
   FileText,
   LogIn,
@@ -269,25 +270,45 @@ export function Landing({
       <header className="relative z-10">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
           <Brand size="sm" />
-          <Link
-            href={destinoPanel ?? "/login"}
-            className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:border-accent hover:text-accent"
-          >
-            <LogIn className="h-4 w-4" />
-            {destinoPanel ? "Ir a mi panel" : "Ingresar"}
-          </Link>
+          {destinoPanel ? (
+            <Link
+              href={destinoPanel}
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:border-accent hover:text-accent"
+            >
+              <LogIn className="h-4 w-4" />
+              Ir a mi panel
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link
+                href="/registro"
+                className="inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold text-muted transition-colors hover:text-accent"
+              >
+                Registrarme
+              </Link>
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground shadow-[0_10px_28px_-14px_var(--ring)] transition-opacity hover:opacity-90"
+              >
+                <LogIn className="h-4 w-4" />
+                Ingresar
+              </Link>
+            </div>
+          )}
         </div>
       </header>
 
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden">
+      {/* El hero ocupa exactamente una pantalla: así la flecha del pie queda
+          visible sin scrollear, que es lo único que le pide al visitante. */}
+      <section className="relative flex min-h-[calc(100dvh-4rem)] flex-col overflow-hidden">
         <WorldRoutes className="absolute inset-0 h-full w-full" />
         <div
           aria-hidden
           className="absolute left-1/2 top-0 -z-10 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-accent/10 blur-[140px]"
         />
 
-        <div className="relative mx-auto grid min-h-[calc(100dvh-4rem)] max-w-6xl content-center items-center gap-14 px-5 py-14 sm:px-8 md:min-h-[calc(100vh-4rem)] md:py-10 md:grid-cols-[1.05fr_0.95fr]">
+        <div className="relative mx-auto grid w-full max-w-6xl flex-1 content-center items-center gap-14 px-5 py-10 sm:px-8 md:grid-cols-[1.05fr_0.95fr]">
           <div className="text-center md:text-left">
             <h1
               data-reveal
@@ -320,21 +341,25 @@ export function Landing({
               </div>
             </div>
 
-            <div data-reveal className="landing-reveal mt-10 flex flex-wrap items-center justify-center gap-3 md:justify-start">
-              <a
-                href="#portal"
-                className="inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-semibold text-accent-foreground shadow-[0_12px_32px_-12px_var(--ring)] transition-all hover:opacity-90"
-              >
-                Conocé cómo trabajamos
-                <ArrowRight className="h-4 w-4" />
-              </a>
-            </div>
-
           </div>
 
           <div data-reveal className="landing-reveal hidden md:block">
             <TransportOrb />
           </div>
+        </div>
+
+        {/* Invitación a seguir bajando: es lo único que pedimos en esta pantalla. */}
+        <div data-reveal className="landing-reveal relative flex shrink-0 justify-center pb-8">
+          <a
+            href="#portal"
+            aria-label="Ver cómo trabajamos"
+            className="group flex flex-col items-center gap-2 text-muted transition-colors hover:text-accent"
+          >
+            <span className="text-xs font-medium uppercase tracking-[0.2em]">
+              Cómo trabajamos
+            </span>
+            <ChevronDown className="landing-flecha h-10 w-10" strokeWidth={1.5} />
+          </a>
         </div>
       </section>
 

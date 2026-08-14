@@ -288,3 +288,26 @@ body::before {
     transition: none;
   }
 }
+
+/* Flecha del hero: invita a bajar con un rebote suave y continuo. */
+@keyframes landing-bajar {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.75;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 1;
+  }
+}
+
+.landing-flecha {
+  animation: landing-bajar 1.9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-flecha {
+    animation: none;
+  }
+}

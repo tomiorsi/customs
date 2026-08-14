@@ -49,7 +49,9 @@ export default function RegistroPage() {
     <main className="min-h-screen px-6 py-10">
       <div className="mx-auto w-full max-w-2xl">
         <div className="mb-8 flex items-center">
-          <Brand size="md" />
+          <Link href="/" aria-label="Ir al inicio">
+            <Brand size="md" />
+          </Link>
         </div>
 
         <Link

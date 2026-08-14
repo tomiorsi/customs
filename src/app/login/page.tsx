@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Lock, User } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, ArrowRight, Lock, User } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { loginRequest } from "@/lib/auth-client";
 import { landingPath } from "@/lib/roles";
@@ -29,9 +30,20 @@ export default function LoginPage() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center px-6 py-12">
+      {/* Salida visible: entrar al portal no puede ser un callejón sin retorno. */}
+      <Link
+        href="/"
+        className="absolute left-5 top-5 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-muted transition-colors hover:text-accent sm:left-8 sm:top-8"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Volver
+      </Link>
+
       <div className="w-full max-w-sm">
         <div className="mb-8 flex justify-center">
-          <Brand size="md" />
+          <Link href="/" aria-label="Ir al inicio">
+            <Brand size="md" />
+          </Link>
         </div>
 
         <h2 className="text-center text-2xl font-semibold tracking-tight text-foreground">
@@ -101,6 +113,16 @@ export default function LoginPage() {
             )}
           </button>
         </form>
+
+        <p className="mt-6 text-center text-sm text-muted">
+          ¿Todavía no tenés cuenta?{" "}
+          <Link
+            href="/registro"
+            className="font-semibold text-accent hover:underline"
+          >
+            Registrate
+          </Link>
+        </p>
       </div>
     </main>
   );
