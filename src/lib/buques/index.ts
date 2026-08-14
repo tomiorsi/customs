@@ -3,6 +3,7 @@ import "server-only";
 import { consultarNtl } from "@/lib/buques/fuente-ntl";
 import { consultarZarate } from "@/lib/buques/fuente-zarate";
 import { consultarBahiaBlanca } from "@/lib/buques/fuente-bahia-blanca";
+import { escribirSnapshot, leerSnapshot } from "@/lib/snapshot";
 import type { Arribo, ListadoBuques, ResultadoFuente } from "@/lib/buques/tipos";
 
 /**
@@ -18,10 +19,9 @@ type Fuente = () => Promise<ResultadoFuente>;
 
 const FUENTES: Fuente[] = [consultarNtl, consultarZarate, consultarBahiaBlanca];
 
-/** Los lineups se actualizan varias veces por día; no tiene sentido pegarles por request. */
-const TTL_MS = 15 * 60 * 1000;
+/** Nombre del archivo en data/cache/. */
+export const SNAPSHOT = "buques";
 
-let cache: { dato: ListadoBuques; expira: number } | null = null;
 /** Evita que varias requests simultáneas disparen la misma consulta externa. */
 let enVuelo: Promise<ListadoBuques> | null = null;
 
@@ -67,23 +67,29 @@ async function consultarFuentes(): Promise<ListadoBuques> {
   };
 }
 
+/** Consulta las fuentes y reescribe el archivo. Lo llama la tarea programada. */
+export async function refrescarBuques(): Promise<ListadoBuques> {
+  const dato = await consultarFuentes();
+  // Si ninguna fuente respondió, dejamos la foto anterior: un lineup viejo y
+  // fechado es más útil que una tabla vacía.
+  if (dato.arribos.length) await escribirSnapshot(SNAPSHOT, dato);
+  return dato;
+}
+
 /**
- * Lineup consolidado. Con `forzar` se saltea el caché (botón "Actualizar").
+ * Lineup consolidado para las páginas: sale del archivo en disco.
+ * Con `forzar` se consultan las fuentes en vivo (botón "Actualizar").
  */
 export async function listarBuques(forzar = false): Promise<ListadoBuques> {
-  const ahora = Date.now();
-  if (!forzar && cache && cache.expira > ahora) return cache.dato;
-  if (!forzar && enVuelo) return enVuelo;
+  if (forzar) return refrescarBuques();
 
-  const trabajo = consultarFuentes()
-    .then((dato) => {
-      cache = { dato, expira: Date.now() + TTL_MS };
-      return dato;
-    })
-    .finally(() => {
-      enVuelo = null;
-    });
+  const snap = await leerSnapshot<ListadoBuques>(SNAPSHOT);
+  if (snap) return snap.dato;
 
+  if (enVuelo) return enVuelo;
+  const trabajo = refrescarBuques().finally(() => {
+    enVuelo = null;
+  });
   enVuelo = trabajo;
   return trabajo;
 }

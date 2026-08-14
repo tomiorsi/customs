@@ -36,12 +36,13 @@ export async function ejecutarPythonScript(
   script: string,
   args: string[] = [],
   maxBuffer = 20 * 1024 * 1024,
+  envExtra: Record<string, string> = {},
 ): Promise<string> {
   const run = async () => {
     const { stdout } = await execFileAsync(pythonBin(), [script, ...args], {
       encoding: "utf8",
       maxBuffer,
-      env: envPythonScripts(),
+      env: { ...envPythonScripts(), ...envExtra },
     });
     return stdout;
   };

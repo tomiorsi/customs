@@ -64,11 +64,28 @@ function limpiarTemp(dir: string): void {
   }
 }
 
+export type OpcionesCapaTexto = {
+  /**
+   * Saltea el OCR de páginas solo-imagen. Para PDFs que se sabe que son
+   * nativos (boletines, reportes oficiales) evita cargar PyTorch y EasyOCR
+   * por una página decorativa: son ~17 segundos contra ~0,2.
+   */
+  sinOcr?: boolean;
+};
+
 /** Texto embebido + OCR local en páginas solo-imagen (cola global, $0). */
-export async function extraerCapaTextoPdf(buf: Buffer): Promise<CapaTextoPdf> {
+export async function extraerCapaTextoPdf(
+  buf: Buffer,
+  opciones: OpcionesCapaTexto = {},
+): Promise<CapaTextoPdf> {
   const { dir, path } = pdfEnTemp(buf);
   try {
-    const out = await ejecutarPythonScript(SCRIPT_TEXTO, [path]);
+    const out = await ejecutarPythonScript(
+      SCRIPT_TEXTO,
+      [path],
+      undefined,
+      opciones.sinOcr ? { PDF_TEXTO_SIN_OCR: "1" } : {},
+    );
     const raw = JSON.parse(out.trim()) as {
       texto?: string;
       paginas?: number;

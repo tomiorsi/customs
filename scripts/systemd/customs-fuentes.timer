@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresco diario de las fuentes externas
+
+[Timer]
+# 08:15 hora de Argentina: el Boletín ya publicó la edición del día.
+OnCalendar=*-*-* 08:15:00
+Persistent=true
+Unit=customs-fuentes.service
+
+[Install]
+WantedBy=timers.target

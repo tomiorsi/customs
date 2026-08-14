@@ -1,6 +1,7 @@
 import "server-only";
 
 import { hoyIsoArgentina, TZ_AR } from "@/lib/fechas";
+import { escribirSnapshot, leerSnapshot } from "@/lib/snapshot";
 import { MEDIOS, type ListadoNoticias, type Medio, type Noticia } from "@/lib/noticias/tipos";
 
 /**
@@ -12,12 +13,11 @@ import { MEDIOS, type ListadoNoticias, type Medio, type Noticia } from "@/lib/no
  */
 
 const TIMEOUT_MS = 12_000;
-/** Los portales publican varias veces por día; media hora es suficiente. */
-const TTL_MS = 30 * 60 * 1000;
 /** Cuántas notas mostramos en total, ya mezcladas por fecha. */
 const TOPE = 14;
+/** Nombre del archivo en data/cache/. */
+export const SNAPSHOT = "noticias";
 
-let cache: { dato: ListadoNoticias; expira: number } | null = null;
 let enVuelo: Promise<ListadoNoticias> | null = null;
 
 const ENTIDADES: Record<string, string> = {
@@ -234,22 +234,24 @@ async function consultarMedios(): Promise<ListadoNoticias> {
   };
 }
 
-/** Últimas notas de los medios del rubro, cacheadas. */
-export async function ultimasNoticias(forzar = false): Promise<ListadoNoticias> {
-  const ahora = Date.now();
-  if (!forzar && cache && cache.expira > ahora) return cache.dato;
-  if (!forzar && enVuelo) return enVuelo;
+/** Consulta los feeds y reescribe el archivo. Lo llama la tarea programada. */
+export async function refrescarNoticias(): Promise<ListadoNoticias> {
+  const dato = await consultarMedios();
+  // Si no llegó ninguna nota preferimos dejar la foto anterior antes que
+  // pisarla con una lista vacía.
+  if (dato.noticias.length) await escribirSnapshot(SNAPSHOT, dato);
+  return dato;
+}
 
-  const trabajo = consultarMedios()
-    .then((dato) => {
-      // Si no llegó ni una nota no vale la pena cachear media hora el vacío.
-      if (dato.noticias.length) cache = { dato, expira: Date.now() + TTL_MS };
-      return dato;
-    })
-    .finally(() => {
-      enVuelo = null;
-    });
+/** Últimas notas para las páginas: se leen del archivo, sin salir a internet. */
+export async function ultimasNoticias(): Promise<ListadoNoticias> {
+  const snap = await leerSnapshot<ListadoNoticias>(SNAPSHOT);
+  if (snap) return snap.dato;
 
+  if (enVuelo) return enVuelo;
+  const trabajo = refrescarNoticias().finally(() => {
+    enVuelo = null;
+  });
   enVuelo = trabajo;
   return trabajo;
 }

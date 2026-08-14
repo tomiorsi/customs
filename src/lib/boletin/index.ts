@@ -1,6 +1,7 @@
 import "server-only";
 
 import { extraerCapaTextoPdf } from "@/lib/capa-texto-pdf";
+import { escribirSnapshot, leerSnapshot } from "@/lib/snapshot";
 import {
   evaluarRelevancia,
   familiaDeOrganismo,
@@ -79,10 +80,9 @@ const ENCABEZADOS = new Set(
   ].map((s) => s.toLowerCase()),
 );
 
-/** Las 4 horas cubren la edición del día sin castigar al sitio del BO. */
-const TTL_MS = 4 * 60 * 60 * 1000;
+/** Nombre del archivo en data/cache/. */
+export const SNAPSHOT = "boletin";
 
-let cache: { dato: BoletinDelDia; expira: number } | null = null;
 let enVuelo: Promise<BoletinDelDia> | null = null;
 
 function lineasSumario(texto: string): string[] {
@@ -167,7 +167,12 @@ async function leerBoletin(): Promise<BoletinDelDia> {
     });
     if (!res.ok) throw new Error(`el PDF respondió ${res.status}`);
 
-    const capa = await extraerCapaTextoPdf(Buffer.from(await res.arrayBuffer()));
+    // El Boletín es un PDF nativo: nunca hace falta OCR. Sin este flag, una
+    // página decorativa del final dispara EasyOCR y la lectura pasa de 0,2 a 17
+    // segundos, además de trabar la cola de Python que usan los documentos.
+    const capa = await extraerCapaTextoPdf(Buffer.from(await res.arrayBuffer()), {
+      sinOcr: true,
+    });
     if (!capa.tieneTexto) throw new Error("el PDF no trajo capa de texto");
 
     const { iso, textoFecha } = fechaEdicion(capa.texto);
@@ -198,22 +203,36 @@ async function leerBoletin(): Promise<BoletinDelDia> {
   }
 }
 
-/** Edición del día, cacheada. Con `forzar` se saltea el caché. */
-export async function boletinDelDia(forzar = false): Promise<BoletinDelDia> {
-  const ahora = Date.now();
-  if (!forzar && cache && cache.expira > ahora) return cache.dato;
-  if (!forzar && enVuelo) return enVuelo;
+/**
+ * Descarga la edición y reescribe el archivo del día. Lo llama la tarea
+ * programada; no lo llamés desde una página.
+ */
+export async function refrescarBoletin(): Promise<BoletinDelDia> {
+  const dato = await leerBoletin();
+  // Un fallo no pisa la última foto buena: es preferible mostrar la edición de
+  // ayer, fechada, que dejar la pantalla vacía porque el sitio del BO se cayó.
+  if (!dato.error) await escribirSnapshot(SNAPSHOT, dato);
+  return dato;
+}
 
-  const trabajo = leerBoletin()
-    .then((dato) => {
-      // Un fallo no se cachea por 4 horas: se reintenta en la próxima visita.
-      if (!dato.error) cache = { dato, expira: Date.now() + TTL_MS };
-      return dato;
-    })
-    .finally(() => {
-      enVuelo = null;
-    });
+/**
+ * Edición del día para las páginas. Lee el archivo en disco: no sale a
+ * internet ni ejecuta Python.
+ *
+ * Si el archivo todavía no existe (servidor recién instalado, antes de la
+ * primera corrida de la tarea) lo genera una vez, para que la pantalla no
+ * arranque vacía.
+ */
+export async function boletinDelDia(): Promise<BoletinDelDia> {
+  const snap = await leerSnapshot<BoletinDelDia>(SNAPSHOT);
+  if (snap) return snap.dato;
 
+  // Sin foto previa: generamos una, evitando que varias visitas simultáneas
+  // disparen la misma descarga.
+  if (enVuelo) return enVuelo;
+  const trabajo = refrescarBoletin().finally(() => {
+    enVuelo = null;
+  });
   enVuelo = trabajo;
   return trabajo;
 }

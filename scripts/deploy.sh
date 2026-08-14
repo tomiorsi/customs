@@ -33,6 +33,14 @@ fi
 echo "▸ Compilando"
 npm run build
 
+echo "▸ Actualizando la tarea de refresco de fuentes"
+# Las unidades viven en el repo: así un cambio de horario viaja con el código.
+if [ -d scripts/systemd ]; then
+  cp scripts/systemd/customs-fuentes.* /etc/systemd/system/
+  systemctl daemon-reload
+  systemctl enable --now customs-fuentes.timer
+fi
+
 echo "▸ Reiniciando el servicio"
 systemctl restart "$SERVICIO"
 

@@ -169,7 +169,8 @@ export async function consultarBahiaBlanca(): Promise<ResultadoFuente> {
     if (!res.ok) throw new Error(`el PDF respondió ${res.status}`);
 
     const buf = Buffer.from(await res.arrayBuffer());
-    const capa = await extraerCapaTextoPdf(buf);
+    // El parte del Consorcio es un PDF nativo: sin OCR se lee en milisegundos.
+    const capa = await extraerCapaTextoPdf(buf, { sinOcr: true });
     if (!capa.tieneTexto) throw new Error("el PDF no trajo capa de texto");
 
     const arribos = bloquesPorFecha(lineasAnuncios(capa.texto))
