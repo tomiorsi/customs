@@ -18,7 +18,8 @@ export function PortalDeshabilitado() {
 
   async function salir() {
     await logoutRequest();
-    router.replace("/login");
+    router.replace("/");
+    router.refresh();
   }
 
   return (

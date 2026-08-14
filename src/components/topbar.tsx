@@ -125,7 +125,10 @@ export function Topbar({ user }: { user: PublicUser }) {
 
   async function salir() {
     await logoutRequest();
-    router.replace("/login");
+    // Al salir se vuelve a la web pública, no al formulario de acceso: quien
+    // cierra sesión terminó de trabajar, no está intentando entrar de nuevo.
+    router.replace("/");
+    router.refresh();
   }
 
   function esActivo(href: string) {
