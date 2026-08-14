@@ -60,6 +60,8 @@ export function PanelDocumentos({
   );
   // Hasta cuándo sondear "rápido" (post-subida), aunque todavía no figure activo.
   const apurarHastaRef = useRef(0);
+  /** Consultas seguidas sin novedad: alarga el intervalo mientras no pasa nada. */
+  const inactivasRef = useRef(0);
 
   useEffect(() => {
     montadoRef.current = true;
@@ -81,6 +83,15 @@ export function PanelDocumentos({
 
     async function tick() {
       if (detener || !montadoRef.current) return;
+
+      // Con la pestaña en segundo plano no hay nadie mirando: reprogramamos sin
+      // pegarle al servidor. Una operación abierta y olvidada en una pestaña
+      // consultaba cada 9 segundos para siempre.
+      if (typeof document !== "undefined" && document.hidden) {
+        timer = setTimeout(tick, 30000);
+        return;
+      }
+
       const e = await consultar();
       if (detener || !montadoRef.current) return;
       if (e) {
@@ -100,7 +111,20 @@ export function PanelDocumentos({
         }
       }
       const apurar = (e?.analizando ?? false) || Date.now() < apurarHastaRef.current;
-      timer = setTimeout(tick, apurar ? 2500 : 9000);
+      if (apurar) {
+        inactivasRef.current = 0;
+      } else {
+        inactivasRef.current += 1;
+      }
+
+      // Mientras hay análisis en curso consultamos seguido. Cuando no pasa
+      // nada, el intervalo se va estirando hasta un minuto: la operación puede
+      // quedar abierta todo el día sin castigar al servidor. Cualquier acción
+      // del operador vuelve a apurar el ciclo.
+      const espera = apurar
+        ? 2500
+        : Math.min(9000 * 2 ** Math.min(inactivasRef.current - 1, 3), 60000);
+      timer = setTimeout(tick, espera);
     }
 
     timer = setTimeout(tick, 400);

@@ -48,12 +48,23 @@ export async function GET(
     );
   }
 
+  // Solo PDF e imágenes se muestran dentro del navegador. Cualquier otra cosa
+  // se descarga: servir un HTML o un SVG "inline" desde nuestro dominio le
+  // daría a ese archivo el contexto del portal, con la sesión del usuario.
+  const tipo = doc.mime_type || "application/octet-stream";
+  const seVeEnElNavegador =
+    tipo === "application/pdf" ||
+    /^image\/(jpeg|png|webp|gif)$/i.test(tipo);
+
   const headers = new Headers();
-  headers.set("Content-Type", doc.mime_type || "application/octet-stream");
+  headers.set("Content-Type", seVeEnElNavegador ? tipo : "application/octet-stream");
   headers.set(
     "Content-Disposition",
-    `inline; filename="${encodeURIComponent(doc.file_name)}"`,
+    `${seVeEnElNavegador ? "inline" : "attachment"}; filename="${encodeURIComponent(doc.file_name)}"`,
   );
+  // Que el navegador no adivine el tipo por el contenido.
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("Cache-Control", "private, no-store");
   return new NextResponse(new Uint8Array(data), { headers });
 }
 

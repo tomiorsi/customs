@@ -122,9 +122,16 @@ export function FichaMalvinaPanel({
     let detener = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let prevAnalizando: boolean | null = null;
+    let inactivas = 0;
 
     async function tick() {
       if (detener) return;
+
+      // Pestaña en segundo plano: nadie está mirando, no consultamos.
+      if (typeof document !== "undefined" && document.hidden) {
+        timer = setTimeout(tick, 30000);
+        return;
+      }
       try {
         const res = await fetch(`/api/operaciones/${opId}/ia/estado`, {
           cache: "no-store",
@@ -142,7 +149,14 @@ export function FichaMalvinaPanel({
       }
       const apurar =
         (prevAnalizando ?? false) || Date.now() < apurarHastaRef.current;
-      timer = setTimeout(tick, apurar ? 2500 : 12000);
+      inactivas = apurar ? 0 : inactivas + 1;
+
+      // Igual que en el panel de documentos: si no pasa nada, el intervalo se
+      // estira hasta un minuto en vez de consultar para siempre cada 12 s.
+      const espera = apurar
+        ? 2500
+        : Math.min(12000 * 2 ** Math.min(inactivas - 1, 2), 60000);
+      timer = setTimeout(tick, espera);
     }
 
     void tick();

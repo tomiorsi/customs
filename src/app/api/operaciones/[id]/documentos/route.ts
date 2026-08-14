@@ -19,6 +19,16 @@ import {
 import { encolarAnalisisDocumentoSubido } from "@/lib/subida-documento";
 
 const MAX_FILE_BYTES = 15 * 1024 * 1024; // 15 MB por archivo
+
+/**
+ * Formatos que se aceptan en una carpeta: facturas, BL, certificados, planillas.
+ *
+ * La lista blanca importa porque los documentos después se sirven de vuelta
+ * desde nuestro propio dominio. Sin ella, alguien podría subir un HTML con
+ * scripts y hacer que se ejecute en el contexto del portal.
+ */
+const TIPO_ARCHIVO_PERMITIDO =
+  /^(application\/pdf|image\/(jpeg|png|webp|heic|heif|tiff)|application\/msword|application\/vnd\.openxmlformats-officedocument\.(wordprocessingml\.document|spreadsheetml\.sheet)|application\/vnd\.ms-excel|text\/plain|text\/csv)$/i;
 const TIPOS_VALIDOS = new Set<DocType>(
   Object.keys(DOC_LABELS) as DocType[],
 );
@@ -65,6 +75,15 @@ export async function POST(
   if (file.size > MAX_FILE_BYTES) {
     return NextResponse.json(
       { error: `El archivo supera el máximo de 15 MB.` },
+      { status: 400 },
+    );
+  }
+  if (!TIPO_ARCHIVO_PERMITIDO.test(file.type || "")) {
+    return NextResponse.json(
+      {
+        error:
+          "Formato no admitido. Subí PDF, imagen, Word, Excel o texto plano.",
+      },
       { status: 400 },
     );
   }
