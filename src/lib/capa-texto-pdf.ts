@@ -73,6 +73,25 @@ export type OpcionesCapaTexto = {
   sinOcr?: boolean;
 };
 
+/**
+ * Se queda con el objeto JSON de la salida del script.
+ *
+ * MuPDF escribe sus avisos ("warning: ...") directo a la salida estándar, en
+ * la misma que el JSON, así que ante un PDF con cualquier irregularidad la
+ * respuesta viene con basura adelante y `JSON.parse` explota. Recortamos entre
+ * la primera llave y la última.
+ */
+function soloJson(salida: string): string {
+  const desde = salida.indexOf("{");
+  const hasta = salida.lastIndexOf("}");
+  if (desde < 0 || hasta <= desde) {
+    throw new Error(
+      `el script no devolvió JSON: ${salida.trim().slice(0, 120) || "(vacío)"}`,
+    );
+  }
+  return salida.slice(desde, hasta + 1);
+}
+
 /** Texto embebido + OCR local en páginas solo-imagen (cola global, $0). */
 export async function extraerCapaTextoPdf(
   buf: Buffer,
@@ -86,7 +105,7 @@ export async function extraerCapaTextoPdf(
       undefined,
       opciones.sinOcr ? { PDF_TEXTO_SIN_OCR: "1" } : {},
     );
-    const raw = JSON.parse(out.trim()) as {
+    const raw = JSON.parse(soloJson(out)) as {
       texto?: string;
       paginas?: number;
       tiene_texto?: boolean;

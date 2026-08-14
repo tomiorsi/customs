@@ -161,10 +161,22 @@ export function Topbar({ user }: { user: PublicUser }) {
             </span>
           </button>
 
-          <Link href={home}>
-            <Brand size="sm" />
-          </Link>
         </div>
+
+        {/* El logo vive en el centro y le cede el lugar al menú: cuando se
+            despliega la navegación, se desvanece; al cerrarla, vuelve. */}
+        <Link
+          href={home}
+          aria-hidden={open}
+          tabIndex={open ? -1 : 0}
+          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-out ${
+            open
+              ? "pointer-events-none scale-95 opacity-0"
+              : "scale-100 opacity-100"
+          }`}
+        >
+          <Brand size="sm" />
+        </Link>
 
         <nav
           ref={navRef}
