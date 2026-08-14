@@ -236,17 +236,15 @@ export function Topbar({ user }: { user: PublicUser }) {
                   </p>
                   <p className="truncate text-[11px] text-muted">{subtitulo}</p>
                 </div>
-                {!esEquipo && (
-                  <Link
-                    href="/inicio/settings"
-                    role="menuitem"
-                    onClick={() => setUserMenu(false)}
-                    className="flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-muted transition-colors hover:bg-surface-2 hover:text-accent"
-                  >
-                    <Settings className="h-4 w-4" />
-                    Configuración
-                  </Link>
-                )}
+                <Link
+                  href={esEquipo ? "/admin/cuenta" : "/inicio/settings"}
+                  role="menuitem"
+                  onClick={() => setUserMenu(false)}
+                  className="flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-muted transition-colors hover:bg-surface-2 hover:text-accent"
+                >
+                  <Settings className="h-4 w-4" />
+                  {esEquipo ? "Mi cuenta" : "Configuración"}
+                </Link>
                 <div className="border-t border-border" />
                 <button
                   type="button"
@@ -284,20 +282,23 @@ export function Topbar({ user }: { user: PublicUser }) {
               </Link>
             ))}
             <div className="my-1 h-px bg-border" />
-            {!esEquipo && (
-              <Link
-                href="/inicio/settings"
-                onClick={() => setOpen(false)}
-                className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                  esActivo("/inicio/settings")
-                    ? "bg-accent-soft text-accent"
-                    : "text-muted hover:bg-surface-2 hover:text-foreground"
-                }`}
-              >
-                <Settings className="h-4 w-4" />
-                Configuración
-              </Link>
-            )}
+            {(() => {
+              const destino = esEquipo ? "/admin/cuenta" : "/inicio/settings";
+              return (
+                <Link
+                  href={destino}
+                  onClick={() => setOpen(false)}
+                  className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                    esActivo(destino)
+                      ? "bg-accent-soft text-accent"
+                      : "text-muted hover:bg-surface-2 hover:text-foreground"
+                  }`}
+                >
+                  <Settings className="h-4 w-4" />
+                  {esEquipo ? "Mi cuenta" : "Configuración"}
+                </Link>
+              );
+            })()}
             <button
               type="button"
               onClick={salir}
