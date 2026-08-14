@@ -15,6 +15,7 @@ import {
   leerFilas,
   type Fila,
 } from "./parquet-store";
+import { conArchivo } from "./lock-archivo";
 import path from "node:path";
 import { ESTADOS } from "./estados";
 
@@ -720,6 +721,7 @@ export async function nextOperationRef(tipo: string): Promise<string> {
 }
 
 export async function createOperation(input: NewOperationInput): Promise<string> {
+  return conArchivo(opsFile(input.userId), async () => {
   const id = cryptoId();
   const ref = await nextOperationRef(input.tipo);
 
@@ -740,6 +742,7 @@ export async function createOperation(input: NewOperationInput): Promise<string>
 
   await escribirFilas(opsFile(input.userId), OPERACION_COLS, filas);
   return id;
+  });
 }
 
 export async function addDocument(input: {
@@ -751,6 +754,7 @@ export async function addDocument(input: {
   mimeType: string | null;
   size: number | null;
 }): Promise<string> {
+  return conArchivo(docsFile(input.userId), async () => {
   const filas = await leerFilas(docsFile(input.userId), DOCUMENTO_COLS);
   const id = cryptoId();
   filas.push({
@@ -767,6 +771,7 @@ export async function addDocument(input: {
   });
   await escribirFilas(docsFile(input.userId), DOCUMENTO_COLS, filas);
   return id;
+  });
 }
 
 function aEventoRow(f: Fila): EventoRow {
@@ -793,6 +798,7 @@ export async function addEvento(input: {
   autor?: string | null;
   interno?: boolean;
 }): Promise<EventoRow> {
+  return conArchivo(eventosFile(input.userId), async () => {
   const filas = await leerFilas(eventosFile(input.userId), EVENTO_COLS);
   const fila: Fila = {
     id: cryptoId(),
@@ -808,6 +814,7 @@ export async function addEvento(input: {
   filas.push(fila);
   await escribirFilas(eventosFile(input.userId), EVENTO_COLS, filas);
   return aEventoRow(fila);
+  });
 }
 
 /** Eventos de una operación, del más nuevo al más viejo. */
@@ -828,6 +835,7 @@ export async function updateOperationCampos(
   operationId: string,
   campos: Partial<Record<OpCampo, string | null>>,
 ): Promise<boolean> {
+  return conArchivo(opsFile(userId), async () => {
   const filas = await leerFilas(opsFile(userId), OPERACION_COLS);
   const fila = filas.find((o) => o.id === operationId);
   if (!fila) return false;
@@ -836,6 +844,7 @@ export async function updateOperationCampos(
   }
   await escribirFilas(opsFile(userId), OPERACION_COLS, filas);
   return true;
+  });
 }
 
 /* ───────────── Hallazgos automáticos de la IA por documento ───────────── */
@@ -893,6 +902,7 @@ export async function setHallazgosDocumento(
   docType: string,
   entry: HallazgoDocEntry,
 ): Promise<boolean> {
+  return conArchivo(opsFile(ownerId), async () => {
   const filas = await leerFilas(opsFile(ownerId), OPERACION_COLS);
   const fila = filas.find((o) => o.id === operationId);
   if (!fila) return false;
@@ -901,6 +911,7 @@ export async function setHallazgosDocumento(
   fila.hallazgos_ia = JSON.stringify(mapa);
   await escribirFilas(opsFile(ownerId), OPERACION_COLS, filas);
   return true;
+  });
 }
 
 /** Borra los hallazgos automáticos de un tipo de documento (p. ej. al eliminar el único archivo de ese tipo). */
@@ -909,6 +920,7 @@ export async function removeHallazgosDocumento(
   operationId: string,
   docType: string,
 ): Promise<boolean> {
+  return conArchivo(opsFile(ownerId), async () => {
   const filas = await leerFilas(opsFile(ownerId), OPERACION_COLS);
   const fila = filas.find((o) => o.id === operationId);
   if (!fila) return false;
@@ -918,6 +930,7 @@ export async function removeHallazgosDocumento(
   fila.hallazgos_ia = JSON.stringify(mapa);
   await escribirFilas(opsFile(ownerId), OPERACION_COLS, filas);
   return true;
+  });
 }
 
 /** Parsea el JSON de extraccion_ia de un documento; null si está vacío o roto. */
@@ -963,6 +976,7 @@ export async function setDocumentExtraccion(
   size: number | null,
   payload: PayloadExtraccionDocumento,
 ): Promise<boolean> {
+  return conArchivo(docsFile(userId), async () => {
   const filas = await leerFilas(docsFile(userId), DOCUMENTO_COLS);
   const fila = filas.find((d) => d.id === documentId);
   if (!fila) return false;
@@ -998,6 +1012,7 @@ export async function setDocumentExtraccion(
   fila.extraccion_ia = JSON.stringify(entry);
   await escribirFilas(docsFile(userId), DOCUMENTO_COLS, filas);
   return true;
+  });
 }
 
 /** Entrada de validación persistida por etapa. `resultado` es un DocumentacionIA
@@ -1028,6 +1043,7 @@ export async function setValidacionEtapa(
   etapa: string,
   resultado: unknown,
 ): Promise<boolean> {
+  return conArchivo(opsFile(ownerId), async () => {
   const filas = await leerFilas(opsFile(ownerId), OPERACION_COLS);
   const fila = filas.find((o) => o.id === operationId);
   if (!fila) return false;
@@ -1036,6 +1052,7 @@ export async function setValidacionEtapa(
   fila.validacion_ia = JSON.stringify(mapa);
   await escribirFilas(opsFile(ownerId), OPERACION_COLS, filas);
   return true;
+  });
 }
 
 /** Quita la validación persistida de una etapa (p. ej. tras borrar un documento relevante). */
@@ -1044,6 +1061,7 @@ export async function clearValidacionEtapa(
   operationId: string,
   etapa: string,
 ): Promise<boolean> {
+  return conArchivo(opsFile(ownerId), async () => {
   const filas = await leerFilas(opsFile(ownerId), OPERACION_COLS);
   const fila = filas.find((o) => o.id === operationId);
   if (!fila) return false;
@@ -1053,6 +1071,7 @@ export async function clearValidacionEtapa(
   fila.validacion_ia = JSON.stringify(mapa);
   await escribirFilas(opsFile(ownerId), OPERACION_COLS, filas);
   return true;
+  });
 }
 
 export type ResolucionConflictoPersistida = {
@@ -1090,6 +1109,7 @@ export async function mergeResolucionesConflictos(
   operationId: string,
   nuevas: Record<string, ResolucionConflictoPersistida>,
 ): Promise<boolean> {
+  return conArchivo(opsFile(ownerId), async () => {
   if (Object.keys(nuevas).length === 0) return false;
   const filas = await leerFilas(opsFile(ownerId), OPERACION_COLS);
   const fila = filas.find((o) => o.id === operationId);
@@ -1098,18 +1118,21 @@ export async function mergeResolucionesConflictos(
   fila.resoluciones_conflictos = JSON.stringify({ ...prev, ...nuevas });
   await escribirFilas(opsFile(ownerId), OPERACION_COLS, filas);
   return true;
+  });
 }
 
 export async function clearResolucionesConflictos(
   ownerId: string,
   operationId: string,
 ): Promise<boolean> {
+  return conArchivo(opsFile(ownerId), async () => {
   const filas = await leerFilas(opsFile(ownerId), OPERACION_COLS);
   const fila = filas.find((o) => o.id === operationId);
   if (!fila || !fila.resoluciones_conflictos) return false;
   fila.resoluciones_conflictos = null;
   await escribirFilas(opsFile(ownerId), OPERACION_COLS, filas);
   return true;
+  });
 }
 
 export type ReconciliacionMeta = { fingerprint: string; at: string };
@@ -1132,6 +1155,7 @@ export async function setReconciliacionMeta(
   operationId: string,
   fingerprint: string,
 ): Promise<boolean> {
+  return conArchivo(opsFile(ownerId), async () => {
   const filas = await leerFilas(opsFile(ownerId), OPERACION_COLS);
   const fila = filas.find((o) => o.id === operationId);
   if (!fila) return false;
@@ -1141,18 +1165,21 @@ export async function setReconciliacionMeta(
   });
   await escribirFilas(opsFile(ownerId), OPERACION_COLS, filas);
   return true;
+  });
 }
 
 export async function clearReconciliacionMeta(
   ownerId: string,
   operationId: string,
 ): Promise<boolean> {
+  return conArchivo(opsFile(ownerId), async () => {
   const filas = await leerFilas(opsFile(ownerId), OPERACION_COLS);
   const fila = filas.find((o) => o.id === operationId);
   if (!fila || !fila.reconciliacion_meta) return false;
   fila.reconciliacion_meta = null;
   await escribirFilas(opsFile(ownerId), OPERACION_COLS, filas);
   return true;
+  });
 }
 
 /**
@@ -1172,6 +1199,7 @@ export async function resolverHallazgosIA(
     esValido?: (docType: string) => boolean;
   },
 ): Promise<boolean> {
+  return conArchivo(opsFile(ownerId), async () => {
   const filas = await leerFilas(opsFile(ownerId), OPERACION_COLS);
   const fila = filas.find((o) => o.id === operationId);
   if (!fila) return false;
@@ -1202,6 +1230,7 @@ export async function resolverHallazgosIA(
     await escribirFilas(opsFile(ownerId), OPERACION_COLS, filas);
   }
   return cambio;
+  });
 }
 
 /** Mueve la operación a una etapa interna. Devuelve la fila actualizada o null. */
@@ -1210,6 +1239,7 @@ export async function updateOperationEtapa(
   operationId: string,
   etapa: string,
 ): Promise<OperationRow | null> {
+  return conArchivo(opsFile(ownerId), async () => {
   const filas = await leerFilas(opsFile(ownerId), OPERACION_COLS);
   const fila = filas.find((o) => o.id === operationId);
   if (!fila) return null;
@@ -1218,6 +1248,7 @@ export async function updateOperationEtapa(
   fila.estado = estadoClienteDeEtapa(etapa);
   await escribirFilas(opsFile(ownerId), OPERACION_COLS, filas);
   return aOperationRow(fila, 0);
+  });
 }
 
 /** Reemplaza el mapa completo de validacion_ia (o null si vacío). */
@@ -1226,6 +1257,7 @@ export async function setValidacionIA(
   operationId: string,
   mapa: ValidacionIA,
 ): Promise<boolean> {
+  return conArchivo(opsFile(ownerId), async () => {
   const filas = await leerFilas(opsFile(ownerId), OPERACION_COLS);
   const fila = filas.find((o) => o.id === operationId);
   if (!fila) return false;
@@ -1233,6 +1265,7 @@ export async function setValidacionIA(
   fila.validacion_ia = keys.length > 0 ? JSON.stringify(mapa) : null;
   await escribirFilas(opsFile(ownerId), OPERACION_COLS, filas);
   return true;
+  });
 }
 
 /** Marca o desmarca una sub-tarea del checklist. La clave es "<etapa>.<sub>". */
@@ -1243,6 +1276,7 @@ export async function setChecklistItem(
   done: boolean,
   autor: string | null,
 ): Promise<boolean> {
+  return conArchivo(opsFile(ownerId), async () => {
   const filas = await leerFilas(opsFile(ownerId), OPERACION_COLS);
   const fila = filas.find((o) => o.id === operationId);
   if (!fila) return false;
@@ -1252,6 +1286,7 @@ export async function setChecklistItem(
   fila.checklist = JSON.stringify(checklist);
   await escribirFilas(opsFile(ownerId), OPERACION_COLS, filas);
   return true;
+  });
 }
 
 /** Cambia el estado de una operación. Devuelve true si la encontró. */
@@ -1260,12 +1295,14 @@ export async function updateOperationEstado(
   operationId: string,
   estado: string,
 ): Promise<boolean> {
+  return conArchivo(opsFile(userId), async () => {
   const filas = await leerFilas(opsFile(userId), OPERACION_COLS);
   const fila = filas.find((o) => o.id === operationId);
   if (!fila) return false;
   fila.estado = estado;
   await escribirFilas(opsFile(userId), OPERACION_COLS, filas);
   return true;
+  });
 }
 
 /** Cambia el tipo (categoría) de un documento ya cargado. */
@@ -1274,12 +1311,14 @@ export async function updateDocumentTipo(
   documentId: string,
   docType: DocType,
 ): Promise<DocumentRow | null> {
+  return conArchivo(docsFile(userId), async () => {
   const filas = await leerFilas(docsFile(userId), DOCUMENTO_COLS);
   const fila = filas.find((d) => d.id === documentId);
   if (!fila) return null;
   fila.doc_type = docType;
   await escribirFilas(docsFile(userId), DOCUMENTO_COLS, filas);
   return aDocumentRow(fila);
+  });
 }
 
 /** Elimina un documento (metadata + extraccion_ia en parquet) y devuelve la fila eliminada. */
@@ -1287,12 +1326,14 @@ export async function removeDocument(
   userId: string,
   documentId: string,
 ): Promise<DocumentRow | null> {
+  return conArchivo(docsFile(userId), async () => {
   const filas = await leerFilas(docsFile(userId), DOCUMENTO_COLS);
   const fila = filas.find((d) => d.id === documentId);
   if (!fila) return null;
   const restantes = filas.filter((d) => d.id !== documentId);
   await escribirFilas(docsFile(userId), DOCUMENTO_COLS, restantes);
   return aDocumentRow(fila);
+  });
 }
 
 /**
@@ -1303,6 +1344,7 @@ export async function removeOperation(
   userId: string,
   operationId: string,
 ): Promise<DocumentRow[]> {
+  return conArchivo(opsFile(userId), async () => {
   const [ops, docs, eventos] = await Promise.all([
     leerFilas(opsFile(userId), OPERACION_COLS),
     leerFilas(docsFile(userId), DOCUMENTO_COLS),
@@ -1318,6 +1360,7 @@ export async function removeOperation(
     escribirFilas(eventosFile(userId), EVENTO_COLS, eventosRestantes),
   ]);
   return docsDeOp.map(aDocumentRow);
+  });
 }
 
 export async function getOperationsByUser(

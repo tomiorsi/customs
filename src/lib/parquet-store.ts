@@ -1,6 +1,7 @@
 import "server-only";
 import { existsSync } from "node:fs";
 import { mkdir, rename, unlink } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
 import path from "node:path";
 import {
   ParquetReader,
@@ -99,7 +100,10 @@ export async function escribirFilas(
   // Escribimos a un temporal y luego reemplazamos el parquet con rename atómico.
   // Si se lee el archivo mientras se está guardando, el lector sigue viendo el
   // parquet anterior completo, nunca uno truncado o a medio cerrar.
-  const tmp = `${file}.${process.pid}.${Date.now()}.tmp`;
+  // El sufijo aleatorio es necesario: pid + milisegundo se repiten cuando dos
+  // escrituras arrancan a la vez, y entonces las dos usan el mismo temporal —
+  // la primera lo renombra y la segunda falla con ENOENT.
+  const tmp = `${file}.${process.pid}.${Date.now()}.${randomUUID().slice(0, 8)}.tmp`;
   const writer = await ParquetWriter.openFile(esquema(cols), tmp);
   try {
     for (const fila of filas) {
