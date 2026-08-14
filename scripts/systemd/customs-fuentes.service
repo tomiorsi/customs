@@ -1,5 +1,5 @@
 [Unit]
-Description=Refresca las fotos de Boletín Oficial, prensa y buques
+Description=Refresca la foto del Boletín Oficial del día
 After=network-online.target
 Wants=network-online.target
 
@@ -7,5 +7,5 @@ Wants=network-online.target
 Type=oneshot
 WorkingDirectory=/var/www/customs
 EnvironmentFile=/var/www/customs/.env
-ExecStart=/var/www/customs/node_modules/.bin/tsx --require ./scripts/register-server-only-stub.cjs scripts/refrescar-fuentes.mjs
+ExecStart=/var/www/customs/node_modules/.bin/tsx --require ./scripts/register-server-only-stub.cjs scripts/refrescar-fuentes.mjs boletin
 User=root

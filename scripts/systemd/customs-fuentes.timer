@@ -1,8 +1,8 @@
 [Unit]
-Description=Refresco diario de las fuentes externas
+Description=Refresco diario del Boletín Oficial
 
 [Timer]
-# 08:15 hora de Argentina: el Boletín ya publicó la edición del día.
+# El Boletín publica una edición por día: a las 08:15 ya está disponible.
 OnCalendar=*-*-* 08:15:00
 Persistent=true
 Unit=customs-fuentes.service

@@ -1,0 +1,14 @@
+[Unit]
+Description=Refresco horario de buques y prensa
+
+[Timer]
+# Las terminales republican su cronograma cada una o dos horas (NTL renueva por
+# hora; Zárate y Bahía Blanca, de forma continua). Un ETA que se corrió y que
+# nosotros mostramos viejo hace que alguien planifique un retiro para el día
+# equivocado, así que seguimos ese ritmo.
+OnCalendar=*-*-* 06..22:05:00
+Persistent=true
+Unit=customs-buques.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresca lineups portuarios y prensa del rubro
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/var/www/customs
+EnvironmentFile=/var/www/customs/.env
+ExecStart=/var/www/customs/node_modules/.bin/tsx --require ./scripts/register-server-only-stub.cjs scripts/refrescar-fuentes.mjs buques noticias
+User=root
