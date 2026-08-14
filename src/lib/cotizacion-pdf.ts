@@ -1,5 +1,7 @@
 import "server-only";
 
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { PDFDocument, StandardFonts, rgb, type PDFFont } from "pdf-lib";
 import type { OperationWithClient } from "@/lib/data";
 import type { LiquidacionResult } from "@/lib/liquidacion";
@@ -19,25 +21,31 @@ import {
  * Devuelve los bytes del PDF.
  */
 
-const ESTUDIO = process.env.NEXT_PUBLIC_ESTUDIO_NOMBRE || "RCV Orsi";
+const ESTUDIO = process.env.NEXT_PUBLIC_ESTUDIO_NOMBRE || "J&C Comex";
 
 const ACCENT = rgb(0.976, 0.451, 0.086); // #f97316
 const TEXT = rgb(0.07, 0.09, 0.15); // #111827
 const MUTED = rgb(0.42, 0.45, 0.5); // #6b7280
 const LINE = rgb(0.886, 0.91, 0.941); // #e2e8f0
 const BRAND = rgb(0.431, 0.455, 0.502); // #6e7480 (gris del logotipo de la página)
-const WHITE = rgb(1, 1, 1);
 const ACCENT_SOFT = rgb(1, 0.953, 0.906); // #fff3e7 (banda suave naranja)
 const ACCENT_DARK = rgb(0.722, 0.275, 0.063); // #b84610 (texto sobre la banda)
 
-/** Trazos del ícono de contenedor del logo (lucide "Box", igual que en la web). */
-const ICONO_BOX_PATHS = [
-  "M22 7.7c0-.6-.4-1.2-.8-1.5l-6.3-3.9a1.72 1.72 0 0 0-1.7 0l-10.3 6c-.5.2-.9.8-.9 1.4v6.6c0 .5.4 1.2.8 1.5l6.3 3.9a1.72 1.72 0 0 0 1.7 0l10.3-6c.5-.3.9-1 .9-1.5Z",
-  "M10 21.9V14L2.1 9.1",
-  "m10 14 11.9-6.9",
-  "M14 19.8v-8.1",
-  "M18 17.5V9.4",
-];
+/** Logo de la marca, para el encabezado del PDF. */
+const LOGO_PATH = path.join(process.cwd(), "public", "jc-logo.png");
+
+/**
+ * Embebe el logo en el documento. Si el archivo no está, devolvemos null y el
+ * encabezado cae al nombre en texto: un PDF de cotización no puede fallar por
+ * una imagen.
+ */
+async function logoEmbebido(doc: PDFDocument) {
+  try {
+    return await doc.embedPng(await readFile(LOGO_PATH));
+  } catch {
+    return null;
+  }
+}
 
 export function formatUsd(n: number): string {
   const neg = n < 0;
@@ -191,12 +199,12 @@ export async function generarCotizacionPDF(
     if (y - need < M) nuevaPagina();
   };
 
-  /* ── encabezado: título + línea naranja en la misma línea que RCV Orsi + logo ── */
+  /* ── encabezado: título + línea naranja en la misma línea que el estudio + logo ── */
   const S = 40; // lado del cuadro del logo
   const headerTop = y;
   const logoY = headerTop - 22;
   const studioY = logoY - S / 2;
-  const titleY = studioY + 2; // misma altura que "RCV Orsi"
+  const titleY = studioY + 2; // misma altura que el nombre del estudio
 
   // Línea naranja + título a la izquierda
   page.drawSvgPath(roundedRect(3.5, 18, 1.5), {
@@ -210,22 +218,18 @@ export async function generarCotizacionPDF(
     color: ACCENT_DARK,
   });
 
-  // Logo a la derecha
+  // Logo a la derecha. Es un wordmark: ya dice el nombre, así que al lado solo
+  // va el descriptor del estudio.
   const logoX = X1 - S - 2;
-  page.drawSvgPath(roundedRect(S, S, 8), { x: logoX, y: logoY, color: ACCENT });
-  const k = S / 32;
-  for (const p of ICONO_BOX_PATHS) {
-    page.drawSvgPath(p, {
-      x: logoX + 4 * k,
-      y: logoY - 4 * k,
-      scale: k,
-      borderColor: WHITE,
-      borderWidth: 2.2 * k,
-    });
+  const logo = await logoEmbebido(doc);
+  if (logo) {
+    page.drawImage(logo, { x: logoX, y: logoY - S, width: S, height: S });
+  } else {
+    // Sin archivo de logo el PDF igual sale: cae al nombre en texto.
+    text(ESTUDIO, logoX - 10, studioY + 2, { size: 14, font: bold, color: BRAND });
   }
-  // Nombre del estudio centrado con el logo
+
   const studioX = logoX - 95;
-  text(ESTUDIO, studioX, studioY + 2, { size: 14, font: bold, color: BRAND });
   textTracked("ESTUDIO ADUANERO", studioX + 0.5, studioY - 8, 1.3, {
     size: 6,
     font: bold,

@@ -492,10 +492,10 @@ export function Landing() {
               <div className="mt-5 rounded-xl border border-border bg-surface-2/40 p-3.5">
                 <div className="flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-accent-foreground">
-                    RO
+                    JC
                   </span>
                   <p className="text-[11px] font-semibold text-foreground">
-                    Estudio RCV Orsi
+                    J&amp;C Comex
                   </p>
                   <span className="ml-auto text-[10px] text-muted">hoy 10:24</span>
                 </div>
@@ -545,14 +545,6 @@ export function Landing() {
         </div>
       </section>
 
-      {/* ── Footer ── */}
-      <footer>
-        <div className="mx-auto flex max-w-6xl items-center justify-center px-5 py-10 sm:px-8">
-          <p className="text-xs text-muted">
-            © {new Date().getFullYear()} RCV Orsi · Estudio aduanero
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

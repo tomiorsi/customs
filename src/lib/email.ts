@@ -5,7 +5,7 @@ import "server-only";
  *
  * Configuración (en .env.local, NO se commitea):
  *   RESEND_API_KEY=re_xxxxxxxx        // clave de API de Resend
- *   RESEND_FROM="RCV Orsi <no-responder@tudominio.com>"  // remitente verificado
+ *   RESEND_FROM="J&C Comex <no-responder@tudominio.com>"  // remitente verificado
  *   RESEND_REPLY_TO=estudio@tudominio.com   // opcional: a dónde responde el cliente
  *
  * El dominio del remitente debe estar verificado en Resend para que los mails
@@ -86,7 +86,7 @@ function escapeHtml(s: string): string {
 }
 
 /** Marca del estudio para los emails (configurable). */
-const ESTUDIO = process.env.NEXT_PUBLIC_ESTUDIO_NOMBRE || "RCV Orsi";
+const ESTUDIO = process.env.NEXT_PUBLIC_ESTUDIO_NOMBRE || "J&C Comex";
 
 /**
  * Avisa al CLIENTE que el estudio le dejó un mensaje en el seguimiento de su
