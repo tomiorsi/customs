@@ -61,6 +61,31 @@ function clientesBasicos(): ClienteBasico[] {
     .all() as ClienteBasico[];
 }
 
+export type ClienteFiscal = {
+  id: string;
+  nombre: string;
+  cuit: string | null;
+  ivaCondition: string | null;
+  certExencion: string | null;
+};
+
+/**
+ * Clientes con su perfil fiscal, para que el equipo cotice a nombre de uno.
+ * La condición de IVA y el certificado de exención cambian las percepciones,
+ * así que el cotizador necesita el perfil real y no un default.
+ */
+export function clientesParaCotizar(): ClienteFiscal[] {
+  return clientesBasicos()
+    .map((c) => ({
+      id: c.id,
+      nombre: c.company_name?.trim() || c.email?.trim() || "Sin razón social",
+      cuit: c.cuit,
+      ivaCondition: c.iva_condition,
+      certExencion: c.cert_exencion,
+    }))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+}
+
 /** ¿Existe un cliente con ese id? (para que el equipo cree operaciones a su nombre). */
 export function existeCliente(id: string): boolean {
   if (!id?.trim()) return false;

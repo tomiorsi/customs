@@ -1,6 +1,6 @@
 /** A dónde mandar a cada rol después de loguearse. */
 export function landingPath(role: string | null | undefined): string {
-  if (esEquipo(role)) return "/admin/operaciones";
+  if (esEquipo(role)) return "/admin/inicio";
   return "/inicio/operaciones";
 }
 

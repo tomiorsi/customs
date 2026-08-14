@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  Anchor,
   LogOut,
   Menu,
+  Newspaper,
   Receipt,
   ScanSearch,
   Settings,
@@ -22,15 +24,21 @@ import type { PublicUser } from "@/lib/types";
 type NavItem = { href: string; label: string; icon: LucideIcon };
 
 const NAV_ADMIN: NavItem[] = [
+  { href: "/admin/inicio", label: "Inicio", icon: Newspaper },
   { href: "/admin/clientes", label: "Clientes", icon: Users },
   { href: "/admin/operaciones", label: "Operaciones", icon: Ship },
+  { href: "/admin/buques", label: "Buques", icon: Anchor },
+  { href: "/admin/cotizador", label: "Calculadora", icon: Receipt },
   { href: "/admin/nomenclador", label: "Nomenclador", icon: ScanSearch },
   { href: "/admin/equipo", label: "Accesos", icon: UserCog },
 ];
 
 const NAV_OPERADOR: NavItem[] = [
+  { href: "/admin/inicio", label: "Inicio", icon: Newspaper },
   { href: "/admin/clientes", label: "Clientes", icon: Users },
   { href: "/admin/operaciones", label: "Operaciones", icon: Ship },
+  { href: "/admin/buques", label: "Buques", icon: Anchor },
+  { href: "/admin/cotizador", label: "Calculadora", icon: Receipt },
   { href: "/admin/nomenclador", label: "Nomenclador", icon: ScanSearch },
 ];
 
@@ -96,7 +104,7 @@ export function Topbar({ user }: { user: PublicUser }) {
   const isOperador = user.role === "operador";
   const esEquipo = isAdmin || isOperador;
   const nav = isAdmin ? NAV_ADMIN : isOperador ? NAV_OPERADOR : NAV_CLIENT;
-  const home = esEquipo ? "/admin/operaciones" : "/inicio/operaciones";
+  const home = esEquipo ? "/admin/inicio" : "/inicio/operaciones";
 
   const nombre = isOperador
     ? user.contact_name ?? "Operador"

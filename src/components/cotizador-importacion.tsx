@@ -33,6 +33,7 @@ import {
   type TipoContenedor,
 } from "@/lib/costos-logistica";
 import { UNIDADES } from "@/lib/unidades";
+import { IntervencionesNcm } from "@/components/intervenciones-ncm";
 import { ClasificadorPreguntas } from "@/components/clasificador-preguntas";
 import {
   esPreguntaNcmMaquinaPadre,
@@ -1155,6 +1156,8 @@ export function CotizadorImportacion({
               </div>
             </div>
           )}
+
+          <IntervencionesNcm ncm={clasif?.ncm} esExport={esExport} />
 
           {esExport && (
             <ExportPanel
