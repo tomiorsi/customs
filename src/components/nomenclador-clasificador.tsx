@@ -14,6 +14,8 @@ import type {
   ClasificacionResultado,
   PosicionEnMira,
   Respuesta,
+  PartidaEvaluada,
+  SubpartidaNcm,
 } from "@/lib/clasificador/tipos";
 import { consecuenciaParaOpcion } from "@/lib/clasificador/tipos";
 import {
@@ -1030,6 +1032,85 @@ function ResultadoClasif({
           </ul>
         </div>
       )}
+
+      {(r.subpartidas?.length ?? 0) > 0 && (
+        <BloqueSubpartidas
+          partida={r.partida ?? prov?.partida ?? ""}
+          items={r.subpartidas!}
+          ncmElegida={r.ncm ?? prov?.ncm}
+        />
+      )}
+
+      {(r.partidasEvaluadas?.length ?? 0) > 1 && (
+        <BloquePartidasEvaluadas items={r.partidasEvaluadas!} />
+      )}
+    </div>
+  );
+}
+
+/** Dentro de qué rama de la partida cayó la posición, y cuáles son las hermanas. */
+function BloqueSubpartidas({
+  partida,
+  items,
+  ncmElegida,
+}: {
+  partida: string;
+  items: SubpartidaNcm[];
+  ncmElegida?: string;
+}) {
+  const digitos = (s: string) => (s ?? "").replace(/\D/g, "");
+  const elegida = digitos(ncmElegida ?? "").slice(0, 6);
+  return (
+    <div className="space-y-1.5 border-t border-border pt-3">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+        Subpartidas de la partida {partida}
+      </p>
+      <ul className="space-y-0.5">
+        {items.map((s) => {
+          const activa = digitos(s.codigo) === elegida;
+          return (
+            <li
+              key={s.codigo}
+              className={`flex gap-2 rounded-md px-2 py-1 text-xs leading-snug ${
+                activa
+                  ? "bg-accent-soft font-medium text-accent"
+                  : "text-muted"
+              }`}
+            >
+              <span className="shrink-0 font-mono">{s.codigo}</span>
+              <span className="min-w-0">{s.descripcion}</span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+/** Las partidas que el motor evaluó: si la elegida no encaja, la buena suele estar acá. */
+function BloquePartidasEvaluadas({ items }: { items: PartidaEvaluada[] }) {
+  return (
+    <div className="space-y-1.5 border-t border-border pt-3">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+        Partidas evaluadas
+      </p>
+      <ul className="space-y-0.5">
+        {items.map((p) => (
+          <li
+            key={p.partida}
+            className={`flex gap-2 rounded-md px-2 py-1 text-xs leading-snug ${
+              p.elegida ? "bg-accent-soft font-medium text-accent" : "text-muted"
+            }`}
+          >
+            <span className="shrink-0 font-mono">{p.partida}</span>
+            <span className="min-w-0">{p.descripcion}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="px-2 text-[10px] leading-snug text-muted">
+        Si la posición elegida no encaja con tu mercadería, revisá estas: son las
+        que el nomenclador puso a consideración.
+      </p>
     </div>
   );
 }

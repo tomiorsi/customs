@@ -13,6 +13,7 @@ import {
   ncmPreferidaPorCalificadorFinal,
   ncmPreferidaPorCadenaSegmentosHechos,
   ncmPreferidaSobreResidualHermana,
+  subpartidasDePartida,
   resolverNcmEnPaquete,
   hayCompetenciaMaterialEntreBloques,
   materiaDeclaradaEnHechos,
@@ -47,6 +48,7 @@ import type {
   ClasificacionResultado,
   ContextoClasificacion,
   NcmProvisional,
+  PartidaEvaluada,
   PosicionEnMira,
   Pregunta,
   Respuesta,
@@ -109,7 +111,7 @@ async function finalizarDesdeCruce(
     ? cruce.justificacion
     : justificacionLineaFinal(hip.ncm, textoLegalResumido(hip.exacto));
   const enMira = await armarPosicionesEnMira(propuestasAll, ncm, cruce.descartadas);
-  return armarFinal(producto, hip, justificacion, propuestasAll, enMira);
+  return armarFinal(producto, hip, justificacion, propuestasAll, enMira, bloques);
 }
 
 /** Fundamentación del cierre cuando el motor eligió la línea específica (RGI 3 a)/6). */
@@ -150,6 +152,7 @@ function preguntar(
   producto: string,
   pregunta: Pregunta,
   provisional?: NcmProvisional,
+  extra?: Partial<ClasificacionResultado>,
 ): ClasificacionResultado {
   return {
     producto,
@@ -158,7 +161,25 @@ function preguntar(
     preguntas: [normalizarPregunta(pregunta)],
     fasePregunta: "partida",
     provisional,
+    ...extra,
   };
+}
+
+/**
+ * Las partidas que el motor puso a consideración, marcando la elegida. Cuando
+ * la elección falla, la correcta casi siempre es una de estas: mostrarlas evita
+ * que el importador se quede sin nada por un solo número errado.
+ */
+function partidasEvaluadas(
+  bloques: BloqueCandidatos[],
+  elegida?: string,
+): PartidaEvaluada[] {
+  const p4 = soloDigitos(elegida ?? "").slice(0, 4);
+  return bloques.map((b) => ({
+    partida: b.partida,
+    descripcion: b.partidaDesc,
+    elegida: b.partida === p4 || undefined,
+  }));
 }
 
 /**
@@ -270,8 +291,10 @@ async function armarFinal(
   justificacion: string | undefined,
   propuestas: PropuestaCruce[],
   posicionesEnMira?: PosicionEnMira[],
+  bloques?: BloqueCandidatos[],
 ): Promise<ClasificacionResultado> {
   const arancelNcm = await arancelPorNcm(hip.ncm);
+  const subpartidas = await subpartidasDePartida(hip.partida4);
   const base: ClasificacionResultado = {
     producto,
     via: "ia",
@@ -286,6 +309,10 @@ async function armarFinal(
     justificacion,
     preguntas: [],
     posicionesEnMira: posicionesEnMira?.length ? posicionesEnMira : undefined,
+    subpartidas: subpartidas.length ? subpartidas : undefined,
+    partidasEvaluadas: bloques?.length
+      ? partidasEvaluadas(bloques, hip.partida4)
+      : undefined,
   };
   return resultadoConDisputa(base, propuestas);
 }
@@ -394,9 +421,18 @@ async function clasificarProductoInterno(
   const preguntaInvalida = cruce.faltaDato ? preguntaPideClasificacion(cruce.faltaDato) : false;
   const opcionesInvalidas = opcionesParecenPreguntas(cruce.opciones ?? []);
 
-  // Desde acá no hay cierre: toda salida lleva la hipótesis en curso para que el
-  // importador vea una posición de referencia y no solo una pregunta suelta.
+  // Desde acá no hay cierre: toda salida lleva la hipótesis en curso y las
+  // partidas evaluadas, para que el importador vea posiciones de referencia y
+  // no solo una pregunta suelta.
   const provisional = await hipotesisProvisional(hechos, bloques, cruceFinal);
+  const evaluadas = partidasEvaluadas(bloques, provisional?.partida);
+  const subpartidas = provisional?.partida
+    ? await subpartidasDePartida(provisional.partida)
+    : [];
+  const contextoPartidas: Partial<ClasificacionResultado> = {
+    partidasEvaluadas: evaluadas,
+    subpartidas: subpartidas.length ? subpartidas : undefined,
+  };
 
   // Material sin declarar: solo si el cruce no cerró ya con NCM válida.
   if (
@@ -414,6 +450,7 @@ async function clasificarProductoInterno(
         maxOpcionesBotones: MAX_OPCIONES,
       },
       provisional,
+      contextoPartidas,
     );
   }
 
@@ -431,7 +468,7 @@ async function clasificarProductoInterno(
       permiteTextoLibre: true,
       maxOpcionesBotones: Math.min(Math.max(opciones.length, 1), MAX_OPCIONES),
     };
-    return preguntar(producto, preguntaObj, provisional);
+    return preguntar(producto, preguntaObj, provisional, contextoPartidas);
   }
 
   // Cierre forzado solo si no compiten materias distintas sin declarar en HECHOS.
@@ -449,6 +486,7 @@ async function clasificarProductoInterno(
 
   return sinResultado(producto, {
     provisional,
+    ...contextoPartidas,
     justificacion:
       cruce.justificacion?.trim() ||
       cruce.faltaDato?.trim() ||

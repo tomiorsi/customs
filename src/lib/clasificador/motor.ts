@@ -246,6 +246,35 @@ export async function subpartidasPrimerNivel(
 
 export type SubpartidaResumen = { codigo: string; descripcion: string };
 
+/**
+ * Subpartidas (6 dígitos) de una partida, para mostrar dentro de qué rama cayó
+ * la posición y qué otras ramas hermanas existen.
+ *
+ * El parquet no siempre trae la fila de nivel subpartida (8205 y 5501 no la
+ * tienen, 0302 sí), así que cuando falta se derivan de los códigos de las
+ * propias líneas, que siempre están.
+ */
+export async function subpartidasDePartida(p4: string): Promise<SubpartidaResumen[]> {
+  const directas = await subpartidasPrimerNivel(p4);
+  if (directas.length) return directas;
+
+  const sims = await candidatosDePartida(p4);
+  const porNumero = new Map<string, string>();
+  for (const s of sims) {
+    const num = (s.codigo ?? "").replace(/\D/g, "").slice(0, 6);
+    if (num.length < 6 || porNumero.has(num)) continue;
+    const segmentos = segmentosRamaLegal(s);
+    porNumero.set(num, (segmentos[0] ?? s.descripcion ?? "").trim());
+  }
+  return [...porNumero.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(0, 12)
+    .map(([num, descripcion]) => ({
+      codigo: `${num.slice(0, 4)}.${num.slice(4, 6)}`,
+      descripcion,
+    }));
+}
+
 export type PartidaCandidata = {
   partida: string;
   descripcion: string;

@@ -74,6 +74,17 @@ export type ContextoClasificacion = {
   partidasEnJuego?: string[];
 };
 
+/** Partida que el motor puso a consideración, elegida o no. */
+export type PartidaEvaluada = {
+  partida: string;
+  descripcion: string;
+  /** True en la que quedó seleccionada. */
+  elegida?: boolean;
+};
+
+/** Subdivisión de 6 dígitos dentro de una partida. */
+export type SubpartidaNcm = { codigo: string; descripcion: string };
+
 /** Hipótesis mientras hay preguntas pendientes (no es la posición final). */
 export type NcmProvisional = {
   ncm?: string;
@@ -119,6 +130,13 @@ export type ClasificacionResultado = {
   alternativas?: CandidatoNcm[];
   /** Otras NCM evaluadas en el cruce legal y descartadas (2+ propuestas en Fase B). */
   posicionesEnMira?: PosicionEnMira[];
+  /**
+   * Todas las partidas que el motor puso a consideración, con su encabezado.
+   * Si la elegida no es la correcta, la buena suele estar acá.
+   */
+  partidasEvaluadas?: PartidaEvaluada[];
+  /** Subdivisiones de 6 dígitos de la partida resuelta (o de la hipótesis). */
+  subpartidas?: SubpartidaNcm[];
   /** Partidas probadas sin encaje; el cliente debe reenviarlas en la siguiente consulta. */
   partidasDescartadas?: string[];
   /** Partida en prueba en el árbol; reenviar tras responder. */
