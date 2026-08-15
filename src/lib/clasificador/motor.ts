@@ -29,6 +29,7 @@ const COLS = [
   "ar3",
   "ar4",
   "ar5",
+  "unidad",
 ] as const;
 
 type Hoja = {
@@ -48,6 +49,8 @@ type Hoja = {
   ar4: number;
   /** Derecho adicional (sectores sensibles). */
   ar5: number;
+  /** Unidad estadística del Arancel, como código ("07"). */
+  unidad: string | null;
 };
 
 function aNumero(v: unknown): number {
@@ -141,6 +144,7 @@ function construirIndice(filas: Awaited<ReturnType<typeof leerFilas>>): Indice {
       ar2: aNumero(f["ar2"]),
       ar4: aNumero(f["ar4"]),
       ar5: aNumero(f["ar5"]),
+      unidad: (f["unidad"] ?? "").trim() || null,
     };
     const arr = porPartida.get(p4);
     if (arr) arr.push(hoja);
@@ -2718,6 +2722,8 @@ export async function arancelPorNcm(
   /** Percepciones de AFIP e IIBB, cuando VUCE las publica. */
   ganancias: number | null;
   iibb: number | null;
+  /** Unidad estadística (código del Arancel). */
+  unidad: string | null;
   bk: boolean;
   dieRegimen: string | null;
   dieDesdeVuce: boolean;
@@ -2775,6 +2781,7 @@ export async function arancelPorNcm(
     ivaAdicional: imp.ivaAdicional,
     ganancias: imp.ganancias,
     iibb: imp.iibb,
+    unidad: mejor.unidad,
     ivaEstimado: imp.iva == null,
   };
 }

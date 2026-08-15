@@ -16,6 +16,8 @@ import type {
   Respuesta,
   PartidaEvaluada,
   SubpartidaNcm,
+  SufijoNcm,
+  NotaNcm,
 } from "@/lib/clasificador/tipos";
 import { consecuenciaParaOpcion } from "@/lib/clasificador/tipos";
 import {
@@ -1073,6 +1075,14 @@ function ResultadoClasif({
         </div>
 
         <div className="min-w-0 space-y-4">
+          {esDefinitivo && (r.unidad || (r.sufijos?.length ?? 0) > 0) && (
+            <BloqueDeclaracion unidad={r.unidad} sufijos={r.sufijos ?? []} />
+          )}
+
+          {esDefinitivo && (r.notas?.length ?? 0) > 0 && (
+            <BloqueNotas notas={r.notas!} />
+          )}
+
           {esDefinitivo && r.ncm && !esExport && (
             <FichaVuce ficha={ficha} cargando={fichaCargando} />
           )}
@@ -1087,6 +1097,90 @@ function ResultadoClasif({
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Cómo se declara la cantidad y qué detalle exige el Arancel además del código. */
+function BloqueDeclaracion({
+  unidad,
+  sufijos,
+}: {
+  unidad?: string | null;
+  sufijos: SufijoNcm[];
+}) {
+  return (
+    <div className="rounded-lg border border-border bg-surface/60 px-4 py-3">
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted">
+        Cómo se declara
+      </p>
+      {unidad && (
+        <p className="mt-1.5 text-sm text-foreground">
+          Unidad estadística:{" "}
+          <span className="font-medium">{unidad}</span>
+        </p>
+      )}
+      {sufijos.length > 0 && (
+        <>
+          <p className="mt-3 text-[11px] text-muted">
+            Sufijos de valor: además del código hay que declarar cuál de estas
+            variantes es la mercadería.
+          </p>
+          <ul className="mt-1.5 space-y-1">
+            {sufijos.map((s) => (
+              <li key={s.sufijo} className="flex gap-2 text-xs leading-snug">
+                <span className="shrink-0 rounded bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] text-accent">
+                  {s.sufijo}
+                </span>
+                <span className="min-w-0 text-muted">
+                  {s.descripcion.replace(/\.$/, "")}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </div>
+  );
+}
+
+/** Notas de sección y capítulo: son las que excluyen mercadería de la partida. */
+function BloqueNotas({ notas }: { notas: NotaNcm[] }) {
+  const [abierta, setAbierta] = useState<string | null>(null);
+  return (
+    <div className="rounded-lg border border-border bg-surface/60 px-4 py-3">
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted">
+        Notas legales
+      </p>
+      <p className="mt-1 text-[11px] leading-snug text-muted">
+        Deciden qué entra y qué queda excluido de esta partida. Mandan sobre el
+        texto de la posición.
+      </p>
+      <ul className="mt-2 space-y-1">
+        {notas.map((n) => {
+          const activa = abierta === n.referencia;
+          return (
+            <li key={n.referencia}>
+              <button
+                type="button"
+                onClick={() => setAbierta(activa ? null : n.referencia)}
+                aria-expanded={activa}
+                className="w-full text-left"
+              >
+                <p className="text-xs font-medium text-foreground hover:text-accent">
+                  {n.referencia}
+                </p>
+                <p className="text-[11px] leading-snug text-muted">{n.titulo}</p>
+              </button>
+              {activa && (
+                <p className="mt-1.5 max-h-72 overflow-y-auto whitespace-pre-line border-l border-border pl-3 text-[11px] leading-relaxed text-muted">
+                  {n.texto}
+                </p>
+              )}
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

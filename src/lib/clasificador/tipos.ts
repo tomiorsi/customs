@@ -85,6 +85,17 @@ export type PartidaEvaluada = {
 /** Subdivisión de 6 dígitos dentro de una partida. */
 export type SubpartidaNcm = { codigo: string; descripcion: string };
 
+/** Sufijo de valor: detalle que la aduana pide declarar además del código. */
+export type SufijoNcm = { sufijo: string; tipo: string; descripcion: string };
+
+/** Nota legal de sección o capítulo: decide inclusiones y exclusiones. */
+export type NotaNcm = {
+  tipo: string;
+  referencia: string;
+  titulo: string;
+  texto: string;
+};
+
 /** Hipótesis mientras hay preguntas pendientes (no es la posición final). */
 export type NcmProvisional = {
   ncm?: string;
@@ -137,6 +148,12 @@ export type ClasificacionResultado = {
   partidasEvaluadas?: PartidaEvaluada[];
   /** Subdivisiones de 6 dígitos de la partida resuelta (o de la hipótesis). */
   subpartidas?: SubpartidaNcm[];
+  /** Unidad estadística en la que se declara la cantidad. */
+  unidad?: string | null;
+  /** Sufijos de valor de la posición, si el Arancel los pide. */
+  sufijos?: SufijoNcm[];
+  /** Notas de sección y capítulo que gobiernan la posición. */
+  notas?: NotaNcm[];
   /** Partidas probadas sin encaje; el cliente debe reenviarlas en la siguiente consulta. */
   partidasDescartadas?: string[];
   /** Partida en prueba en el árbol; reenviar tras responder. */

@@ -37,6 +37,7 @@ import {
 } from "./estado-clasificacion";
 import { opcionesParecenPreguntas, preguntaPideClasificacion } from "./preguntas-sistema";
 import { marcoLegalClasificacion } from "./marco-legal";
+import { etiquetaUnidad, notasDeNcm, sufijosDeNcm } from "./referencias";
 import { INSTRUCCION_CIERRE_FORZADO } from "./principios-clasificacion";
 import {
   CostoClasificacionExcedidoError,
@@ -293,8 +294,12 @@ async function armarFinal(
   posicionesEnMira?: PosicionEnMira[],
   bloques?: BloqueCandidatos[],
 ): Promise<ClasificacionResultado> {
-  const arancelNcm = await arancelPorNcm(hip.ncm);
-  const subpartidas = await subpartidasDePartida(hip.partida4);
+  const [arancelNcm, subpartidas, sufijos, notas] = await Promise.all([
+    arancelPorNcm(hip.ncm),
+    subpartidasDePartida(hip.partida4),
+    sufijosDeNcm(hip.ncm),
+    notasDeNcm(hip.ncm),
+  ]);
   const base: ClasificacionResultado = {
     producto,
     via: "ia",
@@ -310,6 +315,9 @@ async function armarFinal(
     preguntas: [],
     posicionesEnMira: posicionesEnMira?.length ? posicionesEnMira : undefined,
     subpartidas: subpartidas.length ? subpartidas : undefined,
+    unidad: etiquetaUnidad(arancelNcm?.unidad),
+    sufijos: sufijos.length ? sufijos : undefined,
+    notas: notas.length ? notas : undefined,
     partidasEvaluadas: bloques?.length
       ? partidasEvaluadas(bloques, hip.partida4)
       : undefined,

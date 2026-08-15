@@ -9,16 +9,18 @@ import {
   textoLegalResumido,
 } from "@/lib/clasificador/motor";
 import { textoParaSimsParquet } from "@/lib/clasificador/estado-clasificacion";
+import { etiquetaUnidad, notasDeNcm, sufijosDeNcm } from "@/lib/clasificador/referencias";
 
 const MAX_PARTIDAS = 20;
 const MAX_POSICIONES = 60;
 
 /** Contenido de una partida: su encabezado, sus subpartidas y sus posiciones. */
 async function respuestaPartida(partida: string) {
-  const [descripcion, subpartidas, lineas] = await Promise.all([
+  const [descripcion, subpartidas, lineas, notas] = await Promise.all([
     descripcionPartida(partida),
     subpartidasDePartida(partida),
     candidatosDePartida(partida),
+    notasDeNcm(partida),
   ]);
   if (!lineas.length && !descripcion) {
     return NextResponse.json(
@@ -31,6 +33,7 @@ async function respuestaPartida(partida: string) {
     partida,
     descripcion: descripcion || "",
     subpartidas,
+    notas,
     posiciones: lineas.slice(0, MAX_POSICIONES).map((l) => ({
       codigo: l.codigo,
       descripcion: textoLegalResumido(l),
@@ -63,8 +66,19 @@ export async function GET(req: NextRequest) {
 
   try {
     if (ncm) {
-      const arancel = await arancelPorNcm(ncm);
-      return NextResponse.json({ ok: true, ncm, arancel });
+      const [arancel, sufijos, notas] = await Promise.all([
+        arancelPorNcm(ncm),
+        sufijosDeNcm(ncm),
+        notasDeNcm(ncm),
+      ]);
+      return NextResponse.json({
+        ok: true,
+        ncm,
+        arancel,
+        unidad: etiquetaUnidad(arancel?.unidad),
+        sufijos,
+        notas,
+      });
     }
 
     if (partida) return respuestaPartida(partida);
