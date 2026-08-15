@@ -7,12 +7,10 @@ import {
   HONORARIOS_MIN_DEFAULT,
   HONORARIOS_PCT_DEFAULT,
   PAISES,
-  PERFILES_FISCALES,
   VIAS,
   acuerdoLabel,
   cotizar,
   cotizarExportacion,
-  gastosExportacionOrigen,
   incotermsPermitidos,
   notaPais,
   perfilDesdeCondicionIva,
@@ -26,13 +24,6 @@ import type {
   Respuesta,
 } from "@/lib/clasificador/tipos";
 import { consecuenciaParaOpcion } from "@/lib/clasificador/tipos";
-import {
-  TIPOS_CONTENEDOR,
-  calcularLogistica,
-  modalidadDe,
-  type TipoContenedor,
-} from "@/lib/costos-logistica";
-import { UNIDADES } from "@/lib/unidades";
 import { IntervencionesNcm } from "@/components/intervenciones-ncm";
 import { ClasificadorPreguntas } from "@/components/clasificador-preguntas";
 import {
@@ -174,8 +165,6 @@ export function CotizadorImportacion({
   // de acá automáticamente): condición fiscal y certificado de exención.
   const perfil = perfilDesdeCondicionIva(ivaCondition);
   const certExencionActiva = (certExencion ?? "").toLowerCase() === "si";
-  const perfilActual = PERFILES_FISCALES.find((p) => p.value === perfil);
-  const sinPerfil = !ivaCondition;
 
   // Importación o exportación: define qué campos y qué tributos aplican.
   const [modo, setModo] = useState<"importacion" | "exportacion">(
@@ -196,14 +185,8 @@ export function CotizadorImportacion({
   // hace conversión de divisas: fijamos USD en todo el cálculo.
   const moneda = "USD";
   const [valor, setValor] = useState("");
-  const [peso, setPeso] = useState("");
-  const [cantidad, setCantidad] = useState("");
-  const [unidad, setUnidad] = useState("Unidades");
   // Tipo de carga: define el flete (FCL por contenedor) y los gastos locales.
-  const [tipoCarga, setTipoCarga] = useState<TipoContenedor>("20STD");
-  const [cantContenedores, setCantContenedores] = useState("1");
   // Volumen en m³ (CBM): para LCL el flete y la terminal se cobran por W/M.
-  const [cbm, setCbm] = useState("");
 
   // Clasificador con IA (única fuente del derecho/IVA)
   const [producto, setProducto] = useState("");
@@ -429,16 +412,8 @@ export function CotizadorImportacion({
 
   function cambiarVia(value: string) {
     setViaValue(value);
-    // Ajustamos el tipo de carga por defecto según la vía.
-    if (value === "aerea") setTipoCarga("AEREO");
-    else if (tipoCarga === "AEREO") setTipoCarga("20STD");
   }
 
-  // Tipo de carga efectivo (aéreo siempre AEREO; marítimo/terrestre, el elegido).
-  const tipoCargaEf: TipoContenedor =
-    viaValue === "aerea" ? "AEREO" : tipoCarga === "AEREO" ? "20STD" : tipoCarga;
-  const modalidadCarga = modalidadDe(tipoCargaEf);
-  const cantCont = Math.max(1, Math.floor(num(cantContenedores) || 1));
   const valorNum = num(valor);
   const tieneValorMercaderia = valorNum > 0;
   // Flete/seguro: en importación se muestran cuando el Incoterm NO los incluye
@@ -451,39 +426,13 @@ export function CotizadorImportacion({
     ? incoterm.incluyeSeguro
     : !incoterm.incluyeSeguro;
 
-  // Opciones de tipo de carga según la vía.
-  const opcionesCarga = useMemo(() => {
-    if (viaValue === "aerea") {
-      return TIPOS_CONTENEDOR.filter((t) => t.modalidad === "AEREO");
-    }
-    // Marítima y terrestre: contenedores (FCL) o carga suelta (LCL).
-    return TIPOS_CONTENEDOR.filter((t) => t.modalidad !== "AEREO");
-  }, [viaValue]);
-
-  // Gastos locales de nacionalización estimados (naviera/terminal/despacho).
-  const logistica = useMemo(
-    () =>
-      calcularLogistica({
-        tipo: tipoCargaEf,
-        cantidad: cantCont,
-        via: viaValue,
-        pesoKg: num(peso),
-        cbm: num(cbm),
-      }),
-    [tipoCargaEf, cantCont, viaValue, peso, cbm],
-  );
-  const gastosLocalesEst = tieneValorMercaderia ? logistica.costoLogistica : 0;
-  // Exportación: gastos de origen estimados según la carga.
-  const gastosOrigenEst = tieneValorMercaderia
-    ? gastosExportacionOrigen(tipoCargaEf, cantCont)
-    : 0;
 
   const r = useMemo(
     () =>
       cotizar({
         valor: valorNum,
-        peso: num(peso),
-        cantidad: num(cantidad),
+        peso: 0,
+        cantidad: 0,
         categoria,
         pais,
         incoterm,
@@ -498,21 +447,18 @@ export function CotizadorImportacion({
         recPercGan: regimen.recPercGan,
         recIibb: regimen.recIibb,
         recHonorariosIva: regimen.recHonorariosIva,
-        fleteOverride: fleteOverride ? num(fleteOverride) : null,
-        seguroOverride: seguroOverride ? num(seguroOverride) : null,
-        tipoContenedor: tipoCargaEf,
-        cantContenedores: cantCont,
-        cbm: num(cbm),
+        // Siempre como número: vacío es cero, nunca una estimación.
+        fleteOverride: num(fleteOverride),
+        seguroOverride: num(seguroOverride),
+        estimarFlete: false,
         honorariosPct: num(honorariosPct),
         honorariosMin: num(honorariosMin),
-        gastosTerminal: gastosTerminal ? num(gastosTerminal) : gastosLocalesEst,
+        gastosTerminal: num(gastosTerminal),
         tipoCambio: null,
         otrosArs: 0,
       }),
     [
       valorNum,
-      peso,
-      cantidad,
       categoria,
       pais,
       incoterm,
@@ -520,13 +466,9 @@ export function CotizadorImportacion({
       regimen,
       fleteOverride,
       seguroOverride,
-      tipoCargaEf,
-      cantCont,
-      cbm,
       honorariosPct,
       honorariosMin,
       gastosTerminal,
-      gastosLocalesEst,
     ],
   );
 
@@ -535,25 +477,20 @@ export function CotizadorImportacion({
     () =>
       cotizarExportacion({
         valor: valorNum,
-        pesoKg: num(peso),
-        cantidad: num(cantidad),
+        pesoKg: 0,
+        cantidad: 0,
         dePct: arancel?.de ?? 0,
         reintegroPct: arancel?.reintegro ?? 0,
         incoterm,
         via,
-        fleteOverride: fleteOverride ? num(fleteOverride) : null,
-        seguroOverride: seguroOverride ? num(seguroOverride) : null,
+        fleteOverride: num(fleteOverride),
+        seguroOverride: num(seguroOverride),
         honorariosPct: num(honorariosPct),
         honorariosMin: num(honorariosMin),
-        gastosOrigen: gastosOrigen ? num(gastosOrigen) : gastosOrigenEst,
-        tipoContenedor: tipoCargaEf,
-        cantContenedores: cantCont,
-        cbm: num(cbm),
+        gastosOrigen: num(gastosOrigen),
       }),
     [
       valorNum,
-      peso,
-      cantidad,
       arancel,
       incoterm,
       via,
@@ -562,10 +499,6 @@ export function CotizadorImportacion({
       honorariosPct,
       honorariosMin,
       gastosOrigen,
-      gastosOrigenEst,
-      tipoCargaEf,
-      cantCont,
-      cbm,
     ],
   );
 
@@ -577,8 +510,8 @@ export function CotizadorImportacion({
   const banda = useMemo(() => {
     const base = {
       valor: valorNum,
-      peso: num(peso),
-      cantidad: num(cantidad),
+      peso: 0,
+      cantidad: 0,
       categoria,
       pais,
       incoterm,
@@ -592,14 +525,12 @@ export function CotizadorImportacion({
       recPercGan: regimen.recPercGan,
       recIibb: regimen.recIibb,
       recHonorariosIva: regimen.recHonorariosIva,
-      fleteOverride: fleteOverride ? num(fleteOverride) : null,
-      seguroOverride: seguroOverride ? num(seguroOverride) : null,
-      tipoContenedor: tipoCargaEf,
-      cantContenedores: cantCont,
-      cbm: num(cbm),
+      fleteOverride: num(fleteOverride),
+      seguroOverride: num(seguroOverride),
+      estimarFlete: false,
       honorariosPct: num(honorariosPct),
       honorariosMin: num(honorariosMin),
-      gastosTerminal: gastosTerminal ? num(gastosTerminal) : gastosLocalesEst,
+      gastosTerminal: num(gastosTerminal),
       tipoCambio: null,
       otrosArs: 0,
     };
@@ -609,8 +540,6 @@ export function CotizadorImportacion({
     };
   }, [
     valorNum,
-    peso,
-    cantidad,
     categoria,
     pais,
     incoterm,
@@ -618,13 +547,9 @@ export function CotizadorImportacion({
     regimen,
     fleteOverride,
     seguroOverride,
-    tipoCargaEf,
-    cantCont,
-    cbm,
     honorariosPct,
     honorariosMin,
     gastosTerminal,
-    gastosLocalesEst,
     posDiMin,
     posDiMax,
   ]);
@@ -639,9 +564,7 @@ export function CotizadorImportacion({
   // Costo final según el perfil fiscal: el modelo ya descuenta del costo real lo
   // recuperable (RI) y deja como costo el IVA/percepciones no recuperables
   // (monotributo, exento, consumidor final).
-  const cant = num(cantidad);
   const costoFinal = r.costoReal;
-  const porUnidadFinal = cant > 0 ? costoFinal / cant : null;
   const derechoNcmPct = categoria.di;
   const derechoPreferencial = clasif != null && derechoNcmPct !== r.diPct;
   const medidasAntidumping = dedupMedidas(antidumping?.medidas ?? []);
@@ -786,7 +709,7 @@ export function CotizadorImportacion({
           </div>
         </Bloque>
 
-        <Bloque titulo="Valor y volumen">
+        <Bloque titulo="Valor de la operación">
           <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
             <Campo label="Valor de la mercadería" full>
               <div className="flex gap-2">
@@ -807,164 +730,50 @@ export function CotizadorImportacion({
                 ? `Tu precio de venta en la condición ${incoterm.value}. La retención y el reintegro se calculan sobre el FOB.`
                 : `Valor en la condición ${incoterm.value}. Lo llevamos al CIF para liquidar los tributos.`}
             </p>
-            <Campo label="Peso total (kg)" full>
-              <input
-                className={inputCls}
-                inputMode="decimal"
-                placeholder="0"
-                value={peso}
-                onChange={(e) => setPeso(e.target.value)}
-              />
-            </Campo>
-            <Campo label="Unidad">
-              <select
-                className={inputCls}
-                value={unidad}
-                onChange={(e) => setUnidad(e.target.value)}
-              >
-                {UNIDADES.map((u) => (
-                  <option key={u} value={u}>
-                    {u}
-                  </option>
-                ))}
-              </select>
-            </Campo>
-            <Campo label="Cantidad">
-              <input
-                className={inputCls}
-                inputMode="decimal"
-                placeholder="0"
-                value={cantidad}
-                onChange={(e) => setCantidad(e.target.value)}
-              />
-            </Campo>
-            <Campo
-              label="Tipo de carga"
-              hint="Define el flete (en contenedor se cobra por contenedor) y los gastos de terminal."
-            >
-              <select
-                className={inputCls}
-                value={tipoCargaEf}
-                onChange={(e) => setTipoCarga(e.target.value as TipoContenedor)}
-                disabled={viaValue === "aerea"}
-              >
-                {opcionesCarga.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-            </Campo>
-            {modalidadCarga === "FCL" && (
-              <Campo label="Cantidad de contenedores">
-                <input
-                  className={inputCls}
-                  inputMode="numeric"
-                  placeholder="1"
-                  value={cantContenedores}
-                  onChange={(e) => setCantContenedores(e.target.value)}
-                />
-              </Campo>
-            )}
-            {modalidadCarga === "LCL" && (
+
+            {mostrarFlete && (
               <Campo
-                label="Volumen total (m³)"
-                hint="En carga suelta el flete se cobra por W/M: la mayor entre el peso (en toneladas) y el volumen (m³)."
+                label={`Flete internacional (${moneda})`}
+                hint={
+                  esExport
+                    ? `Tu precio ${incoterm.value} lo incluye: se resta para llegar al FOB, que es la base de la retención.`
+                    : `Tu precio ${incoterm.value} no lo incluye y hace falta para armar el CIF.`
+                }
               >
                 <input
                   className={inputCls}
                   inputMode="decimal"
                   placeholder="0"
-                  value={cbm}
-                  onChange={(e) => setCbm(e.target.value)}
+                  value={fleteOverride}
+                  onChange={(e) => setFleteOverride(e.target.value)}
+                />
+              </Campo>
+            )}
+
+            {mostrarSeguro && (
+              <Campo
+                label={`Seguro internacional (${moneda})`}
+                hint={
+                  esExport
+                    ? `Incluido en ${incoterm.value}: se resta para llegar al FOB.`
+                    : `No incluido en ${incoterm.value}. Se suma al CIF.`
+                }
+              >
+                <input
+                  className={inputCls}
+                  inputMode="decimal"
+                  placeholder="0"
+                  value={seguroOverride}
+                  onChange={(e) => setSeguroOverride(e.target.value)}
                 />
               </Campo>
             )}
           </div>
-          {(mostrarFlete || mostrarSeguro) && (
-            <div className="mt-4 grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
-              {mostrarFlete && (
-                <Campo
-                  label={`Flete internacional (${moneda})`}
-                  hint={
-                    !tieneValorMercaderia
-                      ? esExport
-                        ? `Tu precio ${incoterm.value} incluye flete. Lo estimamos cuando cargues el valor.`
-                        : `Tu precio ${incoterm.value} no incluye flete. Lo estimamos cuando cargues el valor.`
-                      : esExport
-                        ? `Tu precio ${incoterm.value} incluye el flete: lo restamos para llegar al FOB (base de la retención). Si no lo sabés: ${fmt(rx.fleteIntl, moneda)}.`
-                        : `Tu precio ${incoterm.value} no incluye flete y lo necesitamos para armar el CIF. Si no lo sabés, lo estimamos: ${fmt(r.flete, moneda)}.`
-                  }
-                >
-                  <input
-                    className={inputCls}
-                    inputMode="decimal"
-                    placeholder={
-                      tieneValorMercaderia
-                        ? `auto · ${fmt(esExport ? rx.fleteIntl : r.flete, moneda)}`
-                        : "auto al completar"
-                    }
-                    value={fleteOverride}
-                    onChange={(e) => setFleteOverride(e.target.value)}
-                  />
-                </Campo>
-              )}
-              {mostrarSeguro && (
-                <Campo
-                  label={`Seguro internacional (${moneda})`}
-                  hint={
-                    !tieneValorMercaderia
-                      ? esExport
-                        ? `Incluido en ${incoterm.value}. Lo estimamos cuando cargues el valor.`
-                        : `No incluido en ${incoterm.value}. Lo estimamos cuando cargues el valor.`
-                      : esExport
-                        ? `Incluido en ${incoterm.value}: lo restamos para llegar al FOB. Si no lo sabés: ${fmt(rx.seguroIntl, moneda)}.`
-                        : `No incluido en ${incoterm.value}. Si no lo sabés, estimamos ${seguroPctLabel}: ${fmt(r.seguro, moneda)}.`
-                  }
-                >
-                  <input
-                    className={inputCls}
-                    inputMode="decimal"
-                    placeholder={
-                      tieneValorMercaderia
-                        ? `auto · ${fmt(esExport ? rx.seguroIntl : r.seguro, moneda)}`
-                        : "auto al completar"
-                    }
-                    value={seguroOverride}
-                    onChange={(e) => setSeguroOverride(e.target.value)}
-                  />
-                </Campo>
-              )}
-            </div>
-          )}
-          {esExport && (mostrarFlete || mostrarSeguro) && (
-            <p className="mt-3 rounded-lg border border-accent/30 bg-accent-soft/40 px-3 py-2 text-[11px] leading-snug text-foreground">
-              La retención y el reintegro se calculan sobre el{" "}
-              <span className="font-semibold">FOB</span>. Como tu Incoterm (
-              {incoterm.value}) incluye{" "}
-              {mostrarFlete && mostrarSeguro
-                ? "flete y seguro"
-                : mostrarFlete
-                  ? "el flete"
-                  : "el seguro"}
-              , los restamos del valor de venta para reconstruir el FOB (o con un
-              estimado si los dejás vacíos).
-            </p>
-          )}
-          {!esExport && (!incoterm.incluyeFlete || !incoterm.incluyeSeguro) && (
-            <p className="mt-3 rounded-lg border border-accent/30 bg-accent-soft/40 px-3 py-2 text-[11px] leading-snug text-foreground">
-              Para nacionalizar siempre se calcula sobre el{" "}
-              <span className="font-semibold">CIF</span> (valor + flete + seguro).
-              Como tu Incoterm ({incoterm.value}) no incluye{" "}
-              {!incoterm.incluyeFlete && !incoterm.incluyeSeguro
-                ? "flete ni seguro"
-                : !incoterm.incluyeFlete
-                  ? "el flete"
-                  : "el seguro"}
-              , lo reconstruimos con esos valores (o con un estimado si los dejás
-              vacíos).
-            </p>
-          )}
+
+          <p className="mt-3 rounded-lg border border-border bg-surface-2/40 px-3 py-2 text-[11px] leading-snug text-muted">
+            Los importes se cargan a mano y se usan tal cual: la calculadora no
+            estima flete ni seguro. Lo que dejes vacío vale cero.
+          </p>
         </Bloque>
 
         {!esExport && (
@@ -1025,11 +834,7 @@ export function CotizadorImportacion({
                 <input
                   className={inputCls}
                   inputMode="decimal"
-                  placeholder={
-                    tieneValorMercaderia
-                      ? `auto · ${fmt(gastosOrigenEst, moneda)}`
-                      : "auto al completar"
-                  }
+                  placeholder="0"
                   value={gastosOrigen}
                   onChange={(e) => setGastosOrigen(e.target.value)}
                 />
@@ -1042,11 +847,7 @@ export function CotizadorImportacion({
                 <input
                   className={inputCls}
                   inputMode="decimal"
-                  placeholder={
-                    tieneValorMercaderia
-                      ? `auto · ${fmt(gastosLocalesEst, moneda)}`
-                      : "auto al completar"
-                  }
+                  placeholder="0"
                   value={gastosTerminal}
                   onChange={(e) => setGastosTerminal(e.target.value)}
                 />
@@ -1120,7 +921,7 @@ export function CotizadorImportacion({
                     {medidasAntidumping.map((m, i) => {
                       const impacto = impactoFobMinimo(m, {
                         fobTotal: num(valor),
-                        peso: num(peso),
+                        peso: 0,
                         moneda,
                       });
                       return (
@@ -1163,8 +964,6 @@ export function CotizadorImportacion({
             <ExportPanel
               rx={rx}
               moneda={moneda}
-              unidad={unidad}
-              cantidad={cant}
               tieneArancel={arancel != null}
               tieneClasif={clasif != null}
               tieneValor={tieneValorMercaderia}
@@ -1189,15 +988,6 @@ export function CotizadorImportacion({
                   label="Flete"
                   valor={fmt(r.flete, moneda)}
                   sub
-                  nota={
-                    fleteOverride
-                      ? undefined
-                      : viaValue === "maritima" && modalidadCarga === "FCL"
-                        ? "(est. x contenedor)"
-                        : viaValue === "maritima" && modalidadCarga === "LCL"
-                          ? "(est. x volumen W/M)"
-                          : "(estimado)"
-                  }
                 />
               )}
               {r.seguro > 0 && (
@@ -1331,16 +1121,6 @@ export function CotizadorImportacion({
                 {fmt(costoFinal, moneda)}
               </span>
             </div>
-            {porUnidadFinal != null && (
-              <div className="mt-2 flex items-baseline justify-between gap-3 border-t border-border/60 pt-2">
-                <span className="text-xs font-medium text-muted">
-                  Costo por {unidad.toLowerCase()}
-                </span>
-                <span className="text-sm font-semibold text-accent">
-                  {fmt(porUnidadFinal, moneda)}
-                </span>
-              </div>
-            )}
           </div>
           </>
           )}
@@ -1490,8 +1270,6 @@ function Total({
 function ExportPanel({
   rx,
   moneda,
-  unidad,
-  cantidad,
   tieneArancel,
   tieneClasif,
   tieneValor,
@@ -1501,8 +1279,6 @@ function ExportPanel({
 }: {
   rx: ExportarResult;
   moneda: string;
-  unidad: string;
-  cantidad: number;
   tieneArancel: boolean;
   tieneClasif: boolean;
   tieneValor: boolean;
@@ -1596,18 +1372,6 @@ function ExportPanel({
         )}
       </div>
 
-      {cantidad > 0 && rx.porUnidad != null && (
-        <div className="mt-4 rounded-xl border border-border bg-surface-2/40 px-4 py-3">
-          <div className="flex items-baseline justify-between gap-3">
-            <span className="text-xs font-medium text-muted">
-              Costo por {unidad.toLowerCase()}
-            </span>
-            <span className="text-sm font-semibold text-accent">
-              {fmt(rx.porUnidad, moneda)}
-            </span>
-          </div>
-        </div>
-      )}
 
       {rx.reintegro > 0 && (
         <p className="mt-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-[11px] leading-snug text-foreground">
