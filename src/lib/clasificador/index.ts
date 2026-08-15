@@ -133,6 +133,40 @@ function normalizarPregunta(p: Pregunta): Pregunta {
   };
 }
 
+/**
+ * ¿El texto es una posición y no una descripción? Solo cuando es el contenido
+ * entero —dígitos, puntos y la letra verificadora—, para no confundirlo con
+ * una descripción que mencione medidas o normas.
+ */
+function posicionEscritaDirecta(texto: string): string | null {
+  const t = (texto ?? "").trim();
+  // Solo dígitos, separadores y a lo sumo la letra verificadora del final.
+  if (!/^[\d.\s-]+[A-Za-z]?$/.test(t)) return null;
+  const digitos = t.replace(/\D/g, "");
+  // Menos de seis dígitos es una partida o un número suelto, no una posición.
+  return digitos.length >= 6 ? digitos : null;
+}
+
+/**
+ * El usuario ya sabe la posición y la escribió: no hay nada que clasificar,
+ * se devuelve esa línea con su arancel y su contexto.
+ */
+async function resolverPosicionEscrita(
+  producto: string,
+  digitos: string,
+): Promise<ClasificacionResultado | null> {
+  const linea = await lineaNcmEnParquet(digitos);
+  if (!linea) return null;
+  const hip = await reconstruirHipotesis(linea.codigo, digitos.slice(0, 4));
+  if (!hip) return null;
+  return armarFinal(
+    producto,
+    hip,
+    `Posición escrita por el usuario: ${hip.ncm}. No pasó por el clasificador.`,
+    [],
+  );
+}
+
 function sinResultado(
   producto: string,
   extra?: Partial<ClasificacionResultado>,
@@ -343,6 +377,15 @@ async function clasificarProductoInterno(
   contexto?: ContextoClasificacion,
 ): Promise<ClasificacionResultado> {
   reiniciarCostoClasificacion();
+
+  // Si escribieron la posición en vez de describir el producto, se resuelve
+  // directo: no gasta IA ni tiene sentido preguntar nada.
+  const escrita = posicionEscritaDirecta(producto);
+  if (escrita) {
+    const directo = await resolverPosicionEscrita(producto, escrita);
+    if (directo) return directo;
+  }
+
   const listaRespuestas = respuestas ?? [];
   const ctx = await enriquecerContextoClasificacion(producto, contexto, listaRespuestas);
 
@@ -507,6 +550,12 @@ export async function clasificarProducto(
   respuestas?: Respuesta[],
   contexto?: ContextoClasificacion,
 ): Promise<ClasificacionResultado> {
+  // Una posición escrita se resuelve contra el nomenclador, sin modelo.
+  const escrita = posicionEscritaDirecta(producto);
+  if (escrita) {
+    const directo = await resolverPosicionEscrita(producto, escrita);
+    if (directo) return directo;
+  }
   if (!iaDisponible()) return sinResultado(producto);
   try {
     return await Promise.race([

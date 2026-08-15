@@ -120,9 +120,8 @@ export function Topbar({ user }: { user: PublicUser }) {
 
   return (
     <header className="sticky top-0 z-40">
-      {/* Sin borde: el fondo se desvanece hacia abajo y deja pasar el contenido. */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-surface via-surface/90 to-transparent backdrop-blur-sm" />
-
+      {/* La barra es opaca: nada se transparenta detrás del logo ni del menú. */}
+      <div className="bg-surface">
       <div className="mx-auto grid h-14 max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:px-6">
         <div ref={navMenuRef} className="relative justify-self-start">
           <button
@@ -227,6 +226,14 @@ export function Topbar({ user }: { user: PublicUser }) {
           </div>
         </div>
       </div>
+      </div>
+
+      {/* En vez de una línea, el blanco se apaga hacia abajo: el contenido que
+          sube al hacer scroll se desvanece en lugar de cortarse. */}
+      <div
+        aria-hidden
+        className="pointer-events-none h-6 bg-gradient-to-b from-surface to-transparent"
+      />
     </header>
   );
 }
