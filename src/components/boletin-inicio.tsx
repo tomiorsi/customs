@@ -220,28 +220,6 @@ function Firma({ n }: { n: Noticia }) {
   );
 }
 
-/**
- * Agrupa por el día que ya viene redactado del servidor ("hoy 12:51"), sin
- * volver a calcular fechas en el cliente.
- */
-function agruparPorDia(notas: Noticia[]): { dia: string; notas: Noticia[] }[] {
-  const orden: string[] = [];
-  const porDia = new Map<string, Noticia[]>();
-  for (const n of notas) {
-    const dia = n.cuando.startsWith("hoy")
-      ? "Hoy"
-      : n.cuando.startsWith("ayer")
-        ? "Ayer"
-        : (n.cuando.split(" ")[0] ?? "Antes");
-    if (!porDia.has(dia)) {
-      porDia.set(dia, []);
-      orden.push(dia);
-    }
-    porDia.get(dia)!.push(n);
-  }
-  return orden.map((dia) => ({ dia, notas: porDia.get(dia)! }));
-}
-
 /** Las demás notas del día, en columnas. */
 function NotaBreve({ n }: { n: Noticia }) {
   const e = estiloMedio(n.medioId);
@@ -396,21 +374,15 @@ export function BoletinInicio({
           </div>
 
           {/* Todas del mismo tamaño: no medimos importancia, solo cuándo salió
-              cada una. Lo único que las ordena es el día. */}
-          {agruparPorDia(prensa.noticias).map((grupo) => (
-            <div key={grupo.dia} className="mt-6">
-              <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
-                {grupo.dia}
-              </p>
-              <ul className="grid gap-x-8 gap-y-6 sm:grid-cols-2 xl:grid-cols-3">
-                {grupo.notas.map((n) => (
-                  <li key={n.id}>
-                    <NotaBreve n={n} />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+              cada una, y eso ya lo dice la firma. Una sola grilla continua:
+              cortarla por día dejaba huecos cuando un día traía impares. */}
+          <ul className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2 xl:grid-cols-3">
+            {prensa.noticias.map((n) => (
+              <li key={n.id}>
+                <NotaBreve n={n} />
+              </li>
+            ))}
+          </ul>
 
           {prensa.fallaron.length > 0 && (
             <p className="mt-4 text-[11px] text-muted">

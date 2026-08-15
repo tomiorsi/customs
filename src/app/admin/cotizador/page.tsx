@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth-server";
 import { esEquipo } from "@/lib/roles";
-import { clientesParaCotizar } from "@/lib/data";
-import { CotizadorAdmin } from "@/components/cotizador-admin";
+import { CotizadorImportacion } from "@/components/cotizador-importacion";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +10,7 @@ export default async function AdminCotizadorPage() {
   if (!user) redirect("/login");
   if (!esEquipo(user.role)) redirect("/inicio");
 
-  const clientes = clientesParaCotizar();
-
-  return <CotizadorAdmin clientes={clientes} />;
+  // Sin selector de cliente: se cotiza como responsable inscripto sin
+  // certificado de exención, que es el caso más común y el más conservador.
+  return <CotizadorImportacion ivaCondition="responsable_inscripto" />;
 }
