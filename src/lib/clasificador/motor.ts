@@ -259,20 +259,40 @@ export async function subpartidasDePartida(p4: string): Promise<SubpartidaResume
   if (directas.length) return directas;
 
   const sims = await candidatosDePartida(p4);
-  const porNumero = new Map<string, string>();
+  const porNumero = new Map<string, string[][]>();
   for (const s of sims) {
     const num = (s.codigo ?? "").replace(/\D/g, "").slice(0, 6);
-    if (num.length < 6 || porNumero.has(num)) continue;
-    const segmentos = segmentosRamaLegal(s);
-    porNumero.set(num, (segmentos[0] ?? s.descripcion ?? "").trim());
+    if (num.length < 6) continue;
+    const grupo = porNumero.get(num) ?? [];
+    grupo.push(segmentosRamaLegal(s));
+    porNumero.set(num, grupo);
   }
+
+  // Lo que comparte toda la partida no distingue nada: el texto propio de la
+  // subpartida es lo primero que aparece después de ese tronco común.
+  const comunPartida = prefijoComunSegmentos(
+    [...porNumero.values()].flat(),
+  ).length;
+
   return [...porNumero.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
     .slice(0, 12)
-    .map(([num, descripcion]) => ({
-      codigo: `${num.slice(0, 4)}.${num.slice(4, 6)}`,
-      descripcion,
-    }));
+    .map(([num, listas]) => {
+      const propios = prefijoComunSegmentos(listas).slice(comunPartida);
+      const descripcion =
+        [...propios].reverse().find((s) => s.trim()) ??
+        listas[0]?.[listas[0].length - 1] ??
+        "";
+      return {
+        codigo: `${num.slice(0, 4)}.${num.slice(4, 6)}`,
+        // El parquet marca el nivel con guiones al principio («--Anchoas») y
+        // cierra con dos puntos: sobra en una lista que ya muestra el código.
+        descripcion: descripcion
+          .replace(/^[-\s]+/, "")
+          .replace(/[.:]$/, "")
+          .trim(),
+      };
+    });
 }
 
 export type PartidaCandidata = {
@@ -2695,6 +2715,9 @@ export async function arancelPorNcm(
   aec: number | null;
   dii: number | null;
   te: number | null;
+  /** Percepciones de AFIP e IIBB, cuando VUCE las publica. */
+  ganancias: number | null;
+  iibb: number | null;
   bk: boolean;
   dieRegimen: string | null;
   dieDesdeVuce: boolean;
@@ -2750,6 +2773,8 @@ export async function arancelPorNcm(
     adicional: mejor.ar5,
     iva: imp.iva ?? ivaEstimado(mejor.codigoNum),
     ivaAdicional: imp.ivaAdicional,
+    ganancias: imp.ganancias,
+    iibb: imp.iibb,
     ivaEstimado: imp.iva == null,
   };
 }

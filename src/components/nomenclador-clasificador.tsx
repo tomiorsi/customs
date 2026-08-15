@@ -75,6 +75,8 @@ type ArancelNcm = {
   adicional: number;
   iva: number;
   ivaAdicional?: number | null;
+  ganancias?: number | null;
+  iibb?: number | null;
   ivaEstimado?: boolean;
 };
 
@@ -364,7 +366,7 @@ export function NomencladorClasificador() {
   }, [ncmArancel]);
 
   return (
-    <div className="mx-auto w-full max-w-3xl">
+    <div className="w-full">
       <div className="rounded-2xl border border-border bg-surface/80 p-6 backdrop-blur-sm sm:p-8">
         <div className="mb-4 flex items-center gap-2">
           <ScanSearch className="h-5 w-5 text-accent" />
@@ -957,6 +959,21 @@ function ResultadoClasif({
                       valor={arancel.iva}
                       sufijo={arancel.ivaEstimado ? " est." : ""}
                     />
+                    {arancel.ivaAdicional != null && (
+                      <ArancelDato
+                        label="IVA adicional (percepción)"
+                        valor={arancel.ivaAdicional}
+                      />
+                    )}
+                    {arancel.ganancias != null && (
+                      <ArancelDato
+                        label="Ganancias (percepción)"
+                        valor={arancel.ganancias}
+                      />
+                    )}
+                    {arancel.iibb != null && (
+                      <ArancelDato label="Ingresos Brutos" valor={arancel.iibb} />
+                    )}
                     {arancel.adicional > 0 && (
                       <ArancelDato
                         label="Derecho adicional"
@@ -966,6 +983,14 @@ function ResultadoClasif({
                   </>
                 )}
               </div>
+              {!esExport && arancel.te === 0 && (
+                <p className="mt-2 text-[10px] leading-snug text-muted">
+                  La tasa estadística general es 3%. VUCE publica esta posición
+                  en 0%: es una exención por régimen (bienes de capital,
+                  informática y telecomunicaciones), no depende del país de
+                  origen. Confirmala antes de liquidar.
+                </p>
+              )}
               {!esExport && arancel.dieRegimen && (
                 <p className="mt-2 text-[10px] leading-snug text-muted">
                   Régimen: {arancel.dieRegimen}
@@ -1014,47 +1039,54 @@ function ResultadoClasif({
         </>
       )}
 
-      {esDefinitivo && (r.posicionesEnMira?.length ?? 0) > 0 && (
-        <BloquePosicionesEnMira items={r.posicionesEnMira!} />
-      )}
+      {/* Dónde cayó la posición a la izquierda; qué exige el Estado, a la derecha. */}
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <div className="min-w-0 space-y-4">
+          {(r.subpartidas?.length ?? 0) > 0 && (
+            <BloqueSubpartidas
+              partida={r.partida ?? prov?.partida ?? ""}
+              items={r.subpartidas!}
+              ncmElegida={r.ncm ?? prov?.ncm}
+            />
+          )}
 
-      {esDefinitivo && r.ncm && !esExport && (
-        <FichaVuce ficha={ficha} cargando={fichaCargando} />
-      )}
+          {(r.partidasEvaluadas?.length ?? 0) > 1 && (
+            <BloquePartidasEvaluadas items={r.partidasEvaluadas!} />
+          )}
 
-      {esDefinitivo && r.ncm && esExport && (
-        <p className="rounded-lg border border-border bg-surface/60 px-3 py-2 text-[11px] leading-snug text-muted">
-          El antidumping y las intervenciones de VUCE son del lado importador (no
-          aplican a la exportación argentina). Para exportar regís por la
-          retención y el reintegro de arriba; las intervenciones de exportación
-          (SENASA, INV, INAL, etc.) dependen del producto.
-        </p>
-      )}
+          {esDefinitivo && (r.posicionesEnMira?.length ?? 0) > 0 && (
+            <BloquePosicionesEnMira items={r.posicionesEnMira!} />
+          )}
 
-      {alternativas.length > 0 && esDefinitivo && (
-        <div className="space-y-1.5 border-t border-border pt-3">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
-            Otras posiciones posibles
-          </p>
-          <ul className="space-y-1">
-            {alternativas.map((a) => (
-              <FilaAlternativa key={a.codigo} a={a} />
-            ))}
-          </ul>
+          {alternativas.length > 0 && esDefinitivo && (
+            <div className="space-y-1.5 border-t border-border pt-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+                Otras posiciones posibles
+              </p>
+              <ul className="space-y-1">
+                {alternativas.map((a) => (
+                  <FilaAlternativa key={a.codigo} a={a} />
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
-      )}
 
-      {(r.subpartidas?.length ?? 0) > 0 && (
-        <BloqueSubpartidas
-          partida={r.partida ?? prov?.partida ?? ""}
-          items={r.subpartidas!}
-          ncmElegida={r.ncm ?? prov?.ncm}
-        />
-      )}
+        <div className="min-w-0 space-y-4">
+          {esDefinitivo && r.ncm && !esExport && (
+            <FichaVuce ficha={ficha} cargando={fichaCargando} />
+          )}
 
-      {(r.partidasEvaluadas?.length ?? 0) > 1 && (
-        <BloquePartidasEvaluadas items={r.partidasEvaluadas!} />
-      )}
+          {esDefinitivo && r.ncm && esExport && (
+            <p className="rounded-lg border border-border bg-surface/60 px-3 py-2 text-[11px] leading-snug text-muted">
+              El antidumping y las intervenciones de VUCE son del lado importador
+              (no aplican a la exportación argentina). Para exportar regís por la
+              retención y el reintegro de arriba; las intervenciones de
+              exportación (SENASA, INV, INAL, etc.) dependen del producto.
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

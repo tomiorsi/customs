@@ -219,6 +219,10 @@ export type ArancelEnriquecido = {
   te: number | null;
   iva: number | null;
   ivaAdicional: number | null;
+  /** Percepción de Ganancias (RG AFIP), % sobre la base. */
+  ganancias: number | null;
+  /** Percepción de Ingresos Brutos, % sobre la base. */
+  iibb: number | null;
   bk: boolean;
   dieRegimen: string | null;
   /** true si el DIE aplicable viene de tributacion VUCE. */
@@ -241,6 +245,8 @@ export async function enriquecerArancelImportacion(
     te: trib?.te ?? null,
     iva: trib?.iva ?? ivaFallback,
     ivaAdicional: trib?.ivaAdicional ?? null,
+    ganancias: trib?.ganancias ?? null,
+    iibb: trib?.iibb ?? null,
     bk: trib?.bk ?? false,
     dieRegimen: trib ? etiquetaRegimenDie(trib) : null,
     dieDesdeVuce: trib?.die != null,
