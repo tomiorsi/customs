@@ -16,6 +16,8 @@ import {
   resolverNcmEnPaquete,
   hayCompetenciaMaterialEntreBloques,
   materiaDeclaradaEnHechos,
+  partidaPreferidaPorCadenaHechos,
+  partidaPreferidaPorRankingClaro,
   type BloqueCandidatos,
 } from "./motor";
 import {
@@ -44,6 +46,7 @@ import type {
   CandidatoNcm,
   ClasificacionResultado,
   ContextoClasificacion,
+  NcmProvisional,
   PosicionEnMira,
   Pregunta,
   Respuesta,
@@ -143,13 +146,58 @@ type Hipotesis = {
   candidatos: CandidatoNcm[];
 };
 
-function preguntar(producto: string, pregunta: Pregunta): ClasificacionResultado {
+function preguntar(
+  producto: string,
+  pregunta: Pregunta,
+  provisional?: NcmProvisional,
+): ClasificacionResultado {
   return {
     producto,
     via: "ia",
     decision: "NEEDS_AI",
     preguntas: [normalizarPregunta(pregunta)],
     fasePregunta: "partida",
+    provisional,
+  };
+}
+
+/**
+ * Hipótesis en curso para acompañar una pregunta o un cierre sin posición: la
+ * partida más probable del paquete y, si el modelo la tanteó, la NCM.
+ *
+ * Una descripción de una sola palabra casi nunca alcanza para cerrar, así que
+ * el camino habitual es preguntar. Sin esta hipótesis el importador recibía la
+ * pregunta sola, sin ninguna posición de referencia. No consulta a la IA.
+ */
+async function hipotesisProvisional(
+  hechos: string,
+  bloques: BloqueCandidatos[],
+  cruce: Awaited<ReturnType<typeof cruzarCandidatos>>,
+): Promise<NcmProvisional | undefined> {
+  const p4 =
+    soloDigitos(cruce.partida ?? "").slice(0, 4) ||
+    partidaPreferidaPorCadenaHechos(bloques, hechos) ||
+    partidaPreferidaPorRankingClaro(bloques, hechos) ||
+    bloques[0]?.partida ||
+    "";
+  if (!p4) return undefined;
+
+  const bloque = bloques.find((b) => b.partida === p4);
+  const partidaDesc = bloque?.partidaDesc || (await descripcionPartida(p4)) || "";
+
+  // NCM que el modelo tanteó sin confirmar: sirve como referencia, no como cierre.
+  const ncm = cruce.ncm?.trim()
+    ? (resolverNcmEnPaquete(cruce.ncm.trim(), bloques) ?? undefined)
+    : undefined;
+  const linea = ncm ? await lineaNcmEnParquet(ncm) : null;
+  const arancel = ncm ? await arancelPorNcm(ncm) : null;
+
+  return {
+    ncm,
+    partida: p4,
+    partidaDesc,
+    descripcion: linea ? textoLegalResumido(linea) : undefined,
+    derecho: arancel?.di,
   };
 }
 
@@ -338,12 +386,17 @@ async function clasificarProductoInterno(
     const final = await finalizarDesdeCruce(producto, cruceFinal, bloques);
     if (final) return final;
     return sinResultado(producto, {
+      provisional: await hipotesisProvisional(hechos, bloques, cruceFinal),
       justificacion: "La posición sugerida no está en el listado del nomenclador. Intentá de nuevo.",
     });
   }
 
   const preguntaInvalida = cruce.faltaDato ? preguntaPideClasificacion(cruce.faltaDato) : false;
   const opcionesInvalidas = opcionesParecenPreguntas(cruce.opciones ?? []);
+
+  // Desde acá no hay cierre: toda salida lleva la hipótesis en curso para que el
+  // importador vea una posición de referencia y no solo una pregunta suelta.
+  const provisional = await hipotesisProvisional(hechos, bloques, cruceFinal);
 
   // Material sin declarar: solo si el cruce no cerró ya con NCM válida.
   if (
@@ -352,12 +405,16 @@ async function clasificarProductoInterno(
     hayCompetenciaMaterialEntreBloques(bloques) &&
     !materiaDeclaradaEnHechos(hechos)
   ) {
-    return preguntar(producto, {
-      pregunta: "¿De qué material está hecho el artículo?",
-      opciones: ["Caucho", "Plástico", "Metal", "Textil", "Otro / no sé"].slice(0, MAX_OPCIONES),
-      permiteTextoLibre: true,
-      maxOpcionesBotones: MAX_OPCIONES,
-    });
+    return preguntar(
+      producto,
+      {
+        pregunta: "¿De qué material está hecho el artículo?",
+        opciones: ["Caucho", "Plástico", "Metal", "Textil", "Otro / no sé"].slice(0, MAX_OPCIONES),
+        permiteTextoLibre: true,
+        maxOpcionesBotones: MAX_OPCIONES,
+      },
+      provisional,
+    );
   }
 
   // Preguntar antes de forzar cierre: descripción corta o dato que falta.
@@ -374,7 +431,7 @@ async function clasificarProductoInterno(
       permiteTextoLibre: true,
       maxOpcionesBotones: Math.min(Math.max(opciones.length, 1), MAX_OPCIONES),
     };
-    return preguntar(producto, preguntaObj);
+    return preguntar(producto, preguntaObj, provisional);
   }
 
   // Cierre forzado solo si no compiten materias distintas sin declarar en HECHOS.
@@ -391,6 +448,7 @@ async function clasificarProductoInterno(
   }
 
   return sinResultado(producto, {
+    provisional,
     justificacion:
       cruce.justificacion?.trim() ||
       cruce.faltaDato?.trim() ||

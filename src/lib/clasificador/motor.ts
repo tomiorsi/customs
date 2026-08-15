@@ -64,6 +64,8 @@ type Indice = {
   corpusPorPartida: Map<string, string>;
   /** Corpus normalizado solo del encabezado de 4 dígitos (sin SIMs). */
   headingCorpusPorPartida: Map<string, string>;
+  /** Encabezado sin los complementos de destino («… para X»). */
+  nucleoHeadingPorPartida: Map<string, string>;
   numPartidas: number;
 };
 
@@ -74,6 +76,24 @@ type ArbolPartida = {
 };
 
 let indicePromesa: Promise<Indice> | null = null;
+
+/**
+ * Encabezado sin sus complementos de destino: en «carretes para cables» el
+ * artículo clasificado son los carretes. Cada cláusula se corta en su primer
+ * «para», antes de normalizar (el `;` separa cláusulas y la normalización lo
+ * borra).
+ *
+ * Solo alimenta un bonus de ranking, nunca un filtro: el nomenclador usa
+ * «para X» para definir el artículo con frecuencia («máquinas para lavar
+ * ropa»), así que quitar esas coincidencias perdería partidas legítimas.
+ */
+function nucleoEncabezado(texto: string): string {
+  return (texto ?? "")
+    .split(";")
+    .map((clausula) => clausula.split(/\s+para\s+/i)[0] ?? "")
+    .filter((s) => s.trim())
+    .join(" ; ");
+}
 
 function construirIndice(filas: Awaited<ReturnType<typeof leerFilas>>): Indice {
   const porPartida = new Map<string, Hoja[]>();
@@ -141,6 +161,7 @@ function construirIndice(filas: Awaited<ReturnType<typeof leerFilas>>): Indice {
 
   const corpusPorPartida = new Map<string, string>();
   const headingCorpusPorPartida = new Map<string, string>();
+  const nucleoHeadingPorPartida = new Map<string, string>();
   const partidasIndexadas = new Set<string>([
     ...partDesc.keys(),
     ...porPartida.keys(),
@@ -160,6 +181,7 @@ function construirIndice(filas: Awaited<ReturnType<typeof leerFilas>>): Indice {
     if (!desc && !hojas.length) continue;
     const headingCorpus = corpusNormalizado(desc);
     headingCorpusPorPartida.set(p4, headingCorpus);
+    nucleoHeadingPorPartida.set(p4, corpusNormalizado(nucleoEncabezado(desc)));
     corpusPorPartida.set(
       p4,
       corpusNormalizado(
@@ -174,6 +196,7 @@ function construirIndice(filas: Awaited<ReturnType<typeof leerFilas>>): Indice {
     arbolPorPartida,
     corpusPorPartida,
     headingCorpusPorPartida,
+    nucleoHeadingPorPartida,
     numPartidas: corpusPorPartida.size,
   };
 }
@@ -770,6 +793,7 @@ export async function partidasCandidatas(
     if (excl.has(partida)) continue;
     if (repuesto && !contextoVehiculo && partida.startsWith("87")) continue;
     const headingCorpus = idx.headingCorpusPorPartida.get(partida) ?? "";
+    const nucleoHeading = idx.nucleoHeadingPorPartida.get(partida) ?? headingCorpus;
     let score = 0;
     let headingScore = 0;
     for (const k of claves) {
@@ -777,6 +801,9 @@ export async function partidasCandidatas(
       if (w <= 0) continue;
       if (claveEnCorpus(k, corpus)) score += w;
       if (claveEnCorpus(k, headingCorpus)) headingScore += w * 2;
+      // Nombrar al artículo pesa más que ser su destino: «cables de filamentos»
+      // gana sobre «carretes para cables» cuando se busca un cable.
+      if (claveEnCorpus(k, nucleoHeading)) headingScore += w;
     }
     for (const frase of frases) {
       if (fraseEnCorpus(frase, corpus)) {
