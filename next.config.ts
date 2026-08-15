@@ -7,9 +7,9 @@ const esDev = process.env.NODE_ENV !== "production";
 
 /**
  * Política de contenido. La app se sirve entera desde su propio dominio, salvo
- * dos excepciones: los posts de Instagram embebidos en la landing, que
- * necesitan su script y renderizan en un iframe de instagram.com, y los íconos
- * de los cuatro medios que se citan en Inicio.
+ * dos excepciones: los reels de la landing, que renderizan en un iframe de
+ * instagram.com, y los íconos de los cuatro medios que se citan en Noticias.
+ * Ya no hace falta permitir el script de Meta: el embed va por iframe directo.
  *
  * `unsafe-inline` en scripts es lo que hoy necesita Next para su bootstrap
  * inline; se puede endurecer más adelante con nonces por request.
@@ -25,7 +25,7 @@ const CSP = [
   "img-src 'self' data: blob: https://*.cdninstagram.com https://aduananews.com https://*.tradenews.com.ar https://argenports.com https://*.globalports.com.ar",
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
-  `script-src 'self' 'unsafe-inline' https://www.instagram.com${esDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline'${esDev ? " 'unsafe-eval'" : ""}`,
   "connect-src 'self'",
   "frame-src 'self' blob: https://www.instagram.com",
   ...(esDev ? [] : ["upgrade-insecure-requests"]),
