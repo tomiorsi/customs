@@ -648,39 +648,6 @@ function Chip({ texto }: { texto: string }) {
 }
 
 
-function AvisoPartidasEnJuego({
-  partidas,
-  partidaEnPrueba,
-}: {
-  partidas: string[];
-  partidaEnPrueba?: string;
-}) {
-  if (partidas.length < 2) return null;
-  const lista = partidas.join(" y ");
-  return (
-    <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3">
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
-        Varias partidas en evaluación
-      </p>
-      <p className="mt-1 text-sm leading-snug text-foreground/90">
-        Evaluando partidas{" "}
-        <span className="font-mono font-medium">{lista}</span> en paralelo.
-        {partidaEnPrueba && partidas.includes(partidaEnPrueba) && (
-          <>
-            {" "}
-            Ahora afinando posiciones dentro de la partida{" "}
-            <span className="font-mono font-medium">{partidaEnPrueba}</span>.
-          </>
-        )}
-      </p>
-      <p className="mt-1.5 text-xs leading-snug text-muted">
-        Al cerrar, la ley (RGI 3 y notas aplicables) elige una sola NCM — no se
-        clasifica en ambas partidas.
-      </p>
-    </div>
-  );
-}
-
 function ResultadoClasif({
   r,
   sel,
@@ -771,7 +738,6 @@ function ResultadoClasif({
       (r.alternativas?.length ?? 0) > 0,
   );
   const alternativas = r.alternativas ?? [];
-  const partidasParalelas = (r.partidasEnJuego ?? []).filter((p) => /^\d{4}$/.test(p));
   const codigoOrientativo =
     fasePartida && (prov?.partida || r.partida)
       ? `Hipótesis partida ${prov?.partida ?? r.partida} (no confirmada)`
@@ -799,12 +765,6 @@ function ResultadoClasif({
 
   return (
     <div className="mt-5 space-y-4 rounded-xl border border-accent/30 bg-surface-2/40 p-5">
-      {partidasParalelas.length >= 2 && (
-        <AvisoPartidasEnJuego
-          partidas={partidasParalelas}
-          partidaEnPrueba={r.partidaEnPrueba}
-        />
-      )}
 
       {bloquePreguntas}
 
