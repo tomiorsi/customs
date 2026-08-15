@@ -570,7 +570,8 @@ function clavesPrioritarias(texto: string): Set<string> {
 function fraseEnCorpus(frase: string, corpus: string): boolean {
   const f = corpusNormalizado(frase);
   if (f.replace(/\s/g, "").length < 8) return false;
-  return corpusNormalizado(corpus).includes(f);
+  // Igual que en claveEnCorpus: el corpus ya viene normalizado del índice.
+  return corpus.includes(f);
 }
 
 /** Partidas donde frases consecutivas del texto aparecen en el corpus. */
@@ -675,17 +676,28 @@ export function corpusNormalizado(texto: string): string {
 }
 
 /**
- * Verifica si `token` aparece como palabra completa en el corpus.
- * Acepta plural simple (+s), plural con vocal (+es) y raíz morfológica acotada.
+ * Formas de número de una palabra en castellano, en los dos sentidos: el
+ * importador puede escribir en singular y el nomenclador nombrar el artículo
+ * en plural, o al revés. Incluye el plural en -ces («barniz» → «barnices»,
+ * «lápiz» → «lápices»), que no se forma agregando -s ni -es.
+ */
+function variantesDeNumero(token: string): string[] {
+  const out = [token, `${token}s`, `${token}es`];
+  if (token.endsWith("z")) out.push(`${token.slice(0, -1)}ces`);
+  if (token.endsWith("ces") && token.length >= 5) out.push(`${token.slice(0, -3)}z`);
+  if (token.endsWith("es") && token.length >= 5) out.push(token.slice(0, -2));
+  if (token.endsWith("s") && token.length >= 4) out.push(token.slice(0, -1));
+  return out;
+}
+
+/**
+ * Verifica si `token` aparece como palabra completa en el corpus, en cualquiera
+ * de sus formas de número, más una raíz morfológica acotada.
  * Siempre con límite de palabra; no matchea subcadenas internas.
  */
 export function tokenEnCorpus(token: string, corpus: string): boolean {
   const p = ` ${corpus} `;
-  if (
-    p.includes(` ${token} `) ||
-    p.includes(` ${token}s `) ||
-    p.includes(` ${token}es `)
-  ) return true;
+  if (variantesDeNumero(token).some((v) => p.includes(` ${v} `))) return true;
   const lastChar = token[token.length - 1];
   if (token.length >= 6 && "aeiou".includes(lastChar)) {
     const raiz = token.slice(0, -1);
@@ -695,7 +707,9 @@ export function tokenEnCorpus(token: string, corpus: string): boolean {
 }
 
 function claveEnCorpus(clave: string, corpus: string): boolean {
-  if (clave.includes(" ")) return corpusNormalizado(corpus).includes(clave);
+  // El corpus del índice ya se guarda normalizado: volver a normalizarlo acá
+  // costaba mucho más que la propia búsqueda, sobre textos de hasta 273k.
+  if (clave.includes(" ")) return corpus.includes(clave);
   return tokenEnCorpus(clave, corpus);
 }
 
@@ -789,21 +803,26 @@ export async function partidasCandidatas(
     pesoClave.set(k, w);
   }
 
+  const alcances = new Map<string, AlcanceClave>();
+  for (const k of claves) {
+    if ((pesoClave.get(k) ?? 0) > 0) alcances.set(k, await alcanceDeClave(k));
+  }
+
   for (const [partida, corpus] of idx.corpusPorPartida) {
     if (excl.has(partida)) continue;
     if (repuesto && !contextoVehiculo && partida.startsWith("87")) continue;
     const headingCorpus = idx.headingCorpusPorPartida.get(partida) ?? "";
-    const nucleoHeading = idx.nucleoHeadingPorPartida.get(partida) ?? headingCorpus;
     let score = 0;
     let headingScore = 0;
     for (const k of claves) {
       const w = pesoClave.get(k) ?? 0;
       if (w <= 0) continue;
-      if (claveEnCorpus(k, corpus)) score += w;
-      if (claveEnCorpus(k, headingCorpus)) headingScore += w * 2;
+      const alcance = alcances.get(k)!;
+      if (alcance.corpus.has(partida)) score += w;
+      if (alcance.heading.has(partida)) headingScore += w * 2;
       // Nombrar al artículo pesa más que ser su destino: «cables de filamentos»
       // gana sobre «carretes para cables» cuando se busca un cable.
-      if (claveEnCorpus(k, nucleoHeading)) headingScore += w;
+      if (alcance.nucleo.has(partida)) headingScore += w;
     }
     for (const frase of frases) {
       if (fraseEnCorpus(frase, corpus)) {
@@ -957,13 +976,56 @@ async function partidasPorEncabezadoEnTexto(texto: string): Promise<string[]> {
   return scored.map((s) => s.partida).slice(0, 4);
 }
 
+const partidasPorClave = new Map<string, string[]>();
+
 async function partidasQueContienenClave(clave: string): Promise<string[]> {
+  const memo = partidasPorClave.get(clave);
+  if (memo) return memo;
   const idx = await getIndice();
   const out: string[] = [];
   for (const [partida, corpus] of idx.corpusPorPartida) {
     if (tokenEnCorpus(clave, corpus)) out.push(partida);
   }
+  partidasPorClave.set(clave, out);
   return out;
+}
+
+/** Partidas que contienen una clave, separadas por dónde aparece. */
+type AlcanceClave = {
+  corpus: Set<string>;
+  heading: Set<string>;
+  nucleo: Set<string>;
+};
+
+/**
+ * Dónde aparece cada clave, calculado una sola vez.
+ *
+ * Recorrer las ~1200 partidas contra corpus de hasta 273k caracteres es lo más
+ * caro del retrieval, y hoy se repite unas nueve veces por clasificación: el
+ * paquete evalúa varias veces la misma clave y después la Fase 0 rehace todo
+ * sobre el texto expandido. El índice se construye una sola vez, así que el
+ * resultado por clave es siempre el mismo.
+ */
+const alcancePorClave = new Map<string, AlcanceClave>();
+
+async function alcanceDeClave(clave: string): Promise<AlcanceClave> {
+  const memo = alcancePorClave.get(clave);
+  if (memo) return memo;
+  const idx = await getIndice();
+  const alcance: AlcanceClave = {
+    corpus: new Set<string>(),
+    heading: new Set<string>(),
+    nucleo: new Set<string>(),
+  };
+  for (const [partida, corpus] of idx.corpusPorPartida) {
+    if (claveEnCorpus(clave, corpus)) alcance.corpus.add(partida);
+    const heading = idx.headingCorpusPorPartida.get(partida) ?? "";
+    if (claveEnCorpus(clave, heading)) alcance.heading.add(partida);
+    const nucleo = idx.nucleoHeadingPorPartida.get(partida) ?? heading;
+    if (claveEnCorpus(clave, nucleo)) alcance.nucleo.add(partida);
+  }
+  alcancePorClave.set(clave, alcance);
+  return alcance;
 }
 
 /** Texto unificado para detectar tipo (viñetas suelen ser continuación, no otro artículo). */
