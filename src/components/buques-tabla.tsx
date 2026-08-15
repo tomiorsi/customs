@@ -194,9 +194,6 @@ export function BuquesTabla({ inicial }: { inicial: ListadoBuques }) {
         </select>
 
         <div className="flex items-center gap-3 sm:ml-auto">
-          <span className="text-xs text-muted">
-            {filtrados.length} {filtrados.length === 1 ? "escala" : "escalas"}
-          </span>
           {terminados > 0 && (
             <button
               type="button"
@@ -208,7 +205,7 @@ export function BuquesTabla({ inicial }: { inicial: ListadoBuques }) {
               }`}
             >
               <History className="h-4 w-4" />
-              {verTerminados ? "Ocultar" : "Ver"} anteriores ({terminados})
+              {verTerminados ? "Ocultar" : "Ver"} anteriores
             </button>
           )}
         </div>
