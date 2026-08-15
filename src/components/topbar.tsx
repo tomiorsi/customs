@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   Anchor,
   LogOut,
+  Menu as MenuIcon,
   Newspaper,
   Receipt,
   ScanSearch,
@@ -13,6 +14,7 @@ import {
   Ship,
   UserCog,
   Users,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import { Brand } from "@/components/brand";
@@ -46,7 +48,9 @@ export function Topbar({ user }: { user: PublicUser }) {
   const router = useRouter();
 
   const [userMenu, setUserMenu] = useState(false);
+  const [navMenu, setNavMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const navMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!userMenu) return;
@@ -63,6 +67,22 @@ export function Topbar({ user }: { user: PublicUser }) {
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [userMenu]);
+
+  useEffect(() => {
+    if (!navMenu) return;
+    function onPointerDown(e: PointerEvent) {
+      if (!navMenuRef.current?.contains(e.target as Node)) setNavMenu(false);
+    }
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setNavMenu(false);
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [navMenu]);
 
   const isAdmin = user.role === "admin";
   const isOperador = user.role === "operador";
@@ -98,37 +118,63 @@ export function Topbar({ user }: { user: PublicUser }) {
     return href === home ? pathname === home : pathname.startsWith(href);
   }
 
-  /** Misma pastilla en la barra de escritorio y en la fila de mobile. */
-  function enlace({ href, label, icon: Icon }: NavItem) {
-    return (
-      <Link
-        key={href}
-        href={href}
-        className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors ${
-          esActivo(href)
-            ? "bg-accent-soft text-accent"
-            : "text-muted hover:bg-surface-2 hover:text-foreground"
-        }`}
-      >
-        <Icon className="h-4 w-4 shrink-0" />
-        {label}
-      </Link>
-    );
-  }
-
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-surface/80 backdrop-blur">
-      <div className="mx-auto flex h-12 max-w-7xl items-center gap-3 px-4 sm:px-6">
-        <Link href={home} className="shrink-0">
+    <header className="sticky top-0 z-40">
+      {/* Sin borde: el fondo se desvanece hacia abajo y deja pasar el contenido. */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-surface via-surface/90 to-transparent backdrop-blur-sm" />
+
+      <div className="mx-auto grid h-14 max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:px-6">
+        <div ref={navMenuRef} className="relative justify-self-start">
+          <button
+            type="button"
+            onClick={() => setNavMenu((v) => !v)}
+            aria-label="Menú"
+            aria-haspopup="menu"
+            aria-expanded={navMenu}
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-muted transition-colors hover:bg-surface-2 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          >
+            {navMenu ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <MenuIcon className="h-5 w-5" />
+            )}
+          </button>
+
+          {navMenu && (
+            <div
+              role="menu"
+              className="absolute left-0 top-12 z-50 w-[min(88vw,26rem)] rounded-2xl border border-border bg-surface p-2 shadow-xl"
+            >
+              <div className="grid grid-cols-2 gap-1">
+                {nav.map(({ href, label, icon: Icon }) => {
+                  const activo = esActivo(href);
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      role="menuitem"
+                      onClick={() => setNavMenu(false)}
+                      className={`flex aspect-square flex-col items-center justify-center gap-2 rounded-xl px-2 text-center text-xs font-medium transition-colors ${
+                        activo
+                          ? "bg-accent-soft text-accent"
+                          : "text-muted hover:bg-surface-2 hover:text-foreground"
+                      }`}
+                    >
+                      <Icon className="h-6 w-6" />
+                      {label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <Link href={home} className="justify-self-center">
           <Brand size="sm" />
         </Link>
 
-        {/* Navegación siempre a la vista: no hay nada que desplegar. */}
-        <nav className="hidden items-center gap-0.5 lg:flex">
-          {nav.map(enlace)}
-        </nav>
-
-        <div className="ml-auto flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2 justify-self-end">
           {esEquipo && (
             <span className="hidden rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-accent sm:inline">
               {isAdmin ? "Admin" : "Equipo"}
@@ -181,13 +227,6 @@ export function Topbar({ user }: { user: PublicUser }) {
           </div>
         </div>
       </div>
-
-      {/* En pantallas angostas las secciones no entran en la misma línea que el
-          logo: van abajo, en una fila que se arrastra en horizontal. Sigue
-          estando todo a la vista, sin nada que desplegar. */}
-      <nav className="flex items-center gap-0.5 overflow-x-auto border-t border-border px-3 pb-2 pt-1.5 lg:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {nav.map(enlace)}
-      </nav>
     </header>
   );
 }
