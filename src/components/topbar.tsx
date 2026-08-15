@@ -143,7 +143,7 @@ export function Topbar({ user }: { user: PublicUser }) {
           {navMenu && (
             <div
               role="menu"
-              className="absolute left-0 top-12 z-50 w-[min(88vw,26rem)] rounded-2xl border border-border bg-surface p-2 shadow-xl"
+              className="absolute left-0 top-12 z-50 max-h-[calc(100vh-5rem)] w-[min(88vw,22rem)] overflow-y-auto rounded-2xl border border-border bg-surface p-2 shadow-xl"
             >
               <div className="grid grid-cols-2 gap-1">
                 {nav.map(({ href, label, icon: Icon }) => {
@@ -154,13 +154,13 @@ export function Topbar({ user }: { user: PublicUser }) {
                       href={href}
                       role="menuitem"
                       onClick={() => setNavMenu(false)}
-                      className={`flex aspect-square flex-col items-center justify-center gap-2 rounded-xl px-2 text-center text-xs font-medium transition-colors ${
+                      className={`flex flex-col items-center justify-center gap-1.5 rounded-xl px-2 py-4 text-center text-xs font-medium transition-colors ${
                         activo
                           ? "bg-accent-soft text-accent"
                           : "text-muted hover:bg-surface-2 hover:text-foreground"
                       }`}
                     >
-                      <Icon className="h-6 w-6" />
+                      <Icon className="h-5 w-5" />
                       {label}
                     </Link>
                   );
