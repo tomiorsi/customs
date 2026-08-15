@@ -9,6 +9,7 @@ import {
   type FamiliaControl,
   type NormaBoletin,
 } from "@/lib/boletin/tipos";
+import { faviconDeMedio } from "@/lib/noticias/tipos";
 import type { ListadoNoticias, Noticia } from "@/lib/noticias/tipos";
 
 /**
@@ -189,15 +190,29 @@ function estiloMedio(id: string) {
   return MEDIO_ESTILO[id] ?? { texto: "text-muted", barra: "bg-muted" };
 }
 
-/** Sello del medio: portal, cuándo salió y de qué trata. */
-function Firma({ n, grande = false }: { n: Noticia; grande?: boolean }) {
+/** Sello del medio: ícono del portal, nombre, cuándo salió y de qué trata. */
+function Firma({ n }: { n: Noticia }) {
   const e = estiloMedio(n.medioId);
+  const icono = faviconDeMedio(n.medioId);
   return (
-    <p
-      className={`flex flex-wrap items-center gap-x-2 gap-y-1 font-mono uppercase tracking-[0.14em] ${
-        grande ? "text-[11px]" : "text-[10px]"
-      }`}
-    >
+    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-[0.14em]">
+      {icono && (
+        // Ícono del propio medio: si el portal lo mueve de lugar, se oculta.
+        // Va con <img> y no con next/image: son 14px de un dominio ajeno, y
+        // optimizarlos costaría más que servirlos tal cual.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={icono}
+          alt=""
+          width={14}
+          height={14}
+          loading="lazy"
+          className="h-3.5 w-3.5 shrink-0 rounded-[3px] object-contain"
+          onError={(ev) => {
+            ev.currentTarget.style.display = "none";
+          }}
+        />
+      )}
       <span className={`font-semibold ${e.texto}`}>{n.medioNombre}</span>
       {n.cuando && <span className="text-muted">· {n.cuando}</span>}
       {n.categoria && <span className="text-muted">· {n.categoria}</span>}
@@ -205,34 +220,26 @@ function Firma({ n, grande = false }: { n: Noticia; grande?: boolean }) {
   );
 }
 
-/** La nota más reciente, en grande: es la que justifica entrar a la pantalla. */
-function Portada({ n }: { n: Noticia }) {
-  const e = estiloMedio(n.medioId);
-  return (
-    <a
-      href={n.url}
-      target="_blank"
-      rel="noreferrer noopener"
-      className="group mt-5 flex gap-5"
-    >
-      <span aria-hidden className={`w-1 shrink-0 rounded-full ${e.barra}`} />
-      <div className="min-w-0">
-        <Firma n={n} grande />
-        <h3 className="mt-2 text-2xl font-semibold leading-[1.2] tracking-tight text-foreground transition-colors group-hover:text-accent sm:text-3xl">
-          {n.titulo}
-        </h3>
-        {n.resumen && (
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-            {n.resumen}
-          </p>
-        )}
-        <p className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-accent">
-          Leer en {n.medioNombre}
-          <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </p>
-      </div>
-    </a>
-  );
+/**
+ * Agrupa por el día que ya viene redactado del servidor ("hoy 12:51"), sin
+ * volver a calcular fechas en el cliente.
+ */
+function agruparPorDia(notas: Noticia[]): { dia: string; notas: Noticia[] }[] {
+  const orden: string[] = [];
+  const porDia = new Map<string, Noticia[]>();
+  for (const n of notas) {
+    const dia = n.cuando.startsWith("hoy")
+      ? "Hoy"
+      : n.cuando.startsWith("ayer")
+        ? "Ayer"
+        : (n.cuando.split(" ")[0] ?? "Antes");
+    if (!porDia.has(dia)) {
+      porDia.set(dia, []);
+      orden.push(dia);
+    }
+    porDia.get(dia)!.push(n);
+  }
+  return orden.map((dia) => ({ dia, notas: porDia.get(dia)! }));
 }
 
 /** Las demás notas del día, en columnas. */
@@ -388,16 +395,22 @@ export function BoletinInicio({
             </p>
           </div>
 
-          {/* La última nota se lee como la tapa: es la que llegó recién. */}
-          <Portada n={prensa.noticias[0]} />
-
-          <ul className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2 xl:grid-cols-3">
-            {prensa.noticias.slice(1).map((n) => (
-              <li key={n.id}>
-                <NotaBreve n={n} />
-              </li>
-            ))}
-          </ul>
+          {/* Todas del mismo tamaño: no medimos importancia, solo cuándo salió
+              cada una. Lo único que las ordena es el día. */}
+          {agruparPorDia(prensa.noticias).map((grupo) => (
+            <div key={grupo.dia} className="mt-6">
+              <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
+                {grupo.dia}
+              </p>
+              <ul className="grid gap-x-8 gap-y-6 sm:grid-cols-2 xl:grid-cols-3">
+                {grupo.notas.map((n) => (
+                  <li key={n.id}>
+                    <NotaBreve n={n} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
 
           {prensa.fallaron.length > 0 && (
             <p className="mt-4 text-[11px] text-muted">

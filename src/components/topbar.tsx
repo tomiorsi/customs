@@ -25,7 +25,7 @@ import type { PublicUser } from "@/lib/types";
 type NavItem = { href: string; label: string; icon: LucideIcon };
 
 const NAV_ADMIN: NavItem[] = [
-  { href: "/admin/inicio", label: "Inicio", icon: Newspaper },
+  { href: "/admin/inicio", label: "Noticias", icon: Newspaper },
   { href: "/admin/clientes", label: "Clientes", icon: Users },
   { href: "/admin/operaciones", label: "Operaciones", icon: Ship },
   { href: "/admin/buques", label: "Buques", icon: Anchor },
