@@ -1,7 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { AlertTriangle, Calculator, Info, Loader2, Sparkles } from "lucide-react";
+import {
+  AlertTriangle,
+  Calculator,
+  Info,
+  Loader2,
+  Plane,
+  Ship,
+  Sparkles,
+  Truck,
+  type LucideIcon,
+} from "lucide-react";
 import {
   DESTINOS,
   HONORARIOS_MIN_DEFAULT,
@@ -30,6 +40,13 @@ import {
   esPreguntaNcmMaquinaPadre,
   normalizarNcmMaquina,
 } from "@/lib/clasificador/preguntas-sistema";
+
+/** Cada vía con su ícono: se elige tocando, sin desplegar una lista de tres. */
+const ICONO_VIA: Record<string, LucideIcon> = {
+  maritima: Ship,
+  aerea: Plane,
+  terrestre: Truck,
+};
 
 const inputCls =
   "h-11 w-full rounded-lg border border-border bg-surface px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted focus:border-accent focus-visible:ring-2 focus-visible:ring-[var(--ring)]";
@@ -215,6 +232,7 @@ export function CotizadorImportacion({
   const [gastosTerminal, setGastosTerminal] = useState("");
   // Exportación: gastos en origen (terminal, consolidación, certificados, flete interno).
   const [gastosOrigen, setGastosOrigen] = useState("");
+  const [gastosOrigenImp, setGastosOrigenImp] = useState("");
 
   // Aranceles oficiales por NCM: di (importación), de (exportación) y reintegro.
   const [arancel, setArancel] = useState<{
@@ -425,6 +443,13 @@ export function CotizadorImportacion({
   const mostrarSeguro = esExport
     ? incoterm.incluyeSeguro
     : !incoterm.incluyeSeguro;
+  /**
+   * Incoterms donde el tramo de origen queda del lado del comprador: EXW parte
+   * de la fábrica, FCA entrega al transportista y FAS al costado del buque. De
+   * FOB en adelante el vendedor ya cubrió origen y carga.
+   */
+  const origenACargoDelComprador =
+    !esExport && ["EXW", "FCA", "FAS"].includes(incoterm.value);
 
 
   const r = useMemo(
@@ -447,9 +472,11 @@ export function CotizadorImportacion({
         recPercGan: regimen.recPercGan,
         recIibb: regimen.recIibb,
         recHonorariosIva: regimen.recHonorariosIva,
-        // Siempre como número: vacío es cero, nunca una estimación.
+        // El flete se carga a mano (vacío es cero). El seguro, si no se
+        // declara, es el presunto del 1% sobre CFR que toma la aduana.
         fleteOverride: num(fleteOverride),
-        seguroOverride: num(seguroOverride),
+        seguroOverride: seguroOverride ? num(seguroOverride) : null,
+        gastosOrigenImport: num(gastosOrigenImp),
         estimarFlete: false,
         honorariosPct: num(honorariosPct),
         honorariosMin: num(honorariosMin),
@@ -466,6 +493,7 @@ export function CotizadorImportacion({
       regimen,
       fleteOverride,
       seguroOverride,
+      gastosOrigenImp,
       honorariosPct,
       honorariosMin,
       gastosTerminal,
@@ -484,7 +512,7 @@ export function CotizadorImportacion({
         incoterm,
         via,
         fleteOverride: num(fleteOverride),
-        seguroOverride: num(seguroOverride),
+        seguroOverride: seguroOverride ? num(seguroOverride) : null,
         honorariosPct: num(honorariosPct),
         honorariosMin: num(honorariosMin),
         gastosOrigen: num(gastosOrigen),
@@ -526,7 +554,8 @@ export function CotizadorImportacion({
       recIibb: regimen.recIibb,
       recHonorariosIva: regimen.recHonorariosIva,
       fleteOverride: num(fleteOverride),
-      seguroOverride: num(seguroOverride),
+      seguroOverride: seguroOverride ? num(seguroOverride) : null,
+      gastosOrigenImport: num(gastosOrigenImp),
       estimarFlete: false,
       honorariosPct: num(honorariosPct),
       honorariosMin: num(honorariosMin),
@@ -547,6 +576,7 @@ export function CotizadorImportacion({
     regimen,
     fleteOverride,
     seguroOverride,
+    gastosOrigenImp,
     honorariosPct,
     honorariosMin,
     gastosTerminal,
@@ -657,9 +687,11 @@ export function CotizadorImportacion({
         </Bloque>
 
         <Bloque titulo="Origen y transporte">
-          <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+          {/* Los tres datos definen una sola cosa —de dónde viene y en qué
+              condición— así que van juntos en un renglón. */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
             {!esExport && (
-              <Campo label="País de origen">
+              <Campo label="País de origen" className="min-w-0 flex-1">
                 <select
                   className={inputCls}
                   value={paisNombre}
@@ -673,27 +705,34 @@ export function CotizadorImportacion({
                 </select>
               </Campo>
             )}
-            <Campo label="Vía de transporte">
-              <select
-                className={inputCls}
-                value={viaValue}
-                onChange={(e) => cambiarVia(e.target.value)}
-              >
-                {VIAS.map((v) => (
-                  <option key={v.value} value={v.value}>
-                    {v.label}
-                  </option>
-                ))}
-              </select>
+
+            <Campo label="Vía" className="shrink-0">
+              <div className="flex h-11 items-center gap-1 rounded-lg border border-border bg-surface p-1">
+                {VIAS.map((v) => {
+                  const Icono = ICONO_VIA[v.value] ?? Ship;
+                  const activa = viaValue === v.value;
+                  return (
+                    <button
+                      key={v.value}
+                      type="button"
+                      onClick={() => cambiarVia(v.value)}
+                      title={v.label}
+                      aria-label={v.label}
+                      aria-pressed={activa}
+                      className={`flex h-9 w-11 items-center justify-center rounded-md transition-colors ${
+                        activa
+                          ? "bg-accent text-[var(--accent-foreground)]"
+                          : "text-muted hover:bg-surface-2 hover:text-foreground"
+                      }`}
+                    >
+                      <Icono className="h-[18px] w-[18px]" />
+                    </button>
+                  );
+                })}
+              </div>
             </Campo>
-            <Campo
-              label="Incoterm (condición de compra)"
-              hint={
-                viaValue === "maritima"
-                  ? undefined
-                  : "Por aérea/terrestre solo aplican Incoterms multimodales (no FOB/CFR/CIF/FAS)."
-              }
-            >
+
+            <Campo label="Incoterm" className="min-w-0 flex-1">
               <select
                 className={inputCls}
                 value={incoterm?.value ?? ""}
@@ -707,6 +746,13 @@ export function CotizadorImportacion({
               </select>
             </Campo>
           </div>
+
+          {viaValue !== "maritima" && (
+            <p className={`${hintCls} mt-2`}>
+              Por aérea y terrestre solo aplican Incoterms multimodales: quedan
+              afuera FOB, CFR, CIF y FAS.
+            </p>
+          )}
         </Bloque>
 
         <Bloque titulo="Valor de la operación">
@@ -750,19 +796,34 @@ export function CotizadorImportacion({
               </Campo>
             )}
 
+            {origenACargoDelComprador && (
+              <Campo
+                label={`Gastos en origen (${moneda})`}
+                hint={`Con ${incoterm.value} los paga el comprador: transporte hasta el puerto, despacho de exportación y terminal de origen. Integran el valor en aduana.`}
+              >
+                <input
+                  className={inputCls}
+                  inputMode="decimal"
+                  placeholder="0"
+                  value={gastosOrigenImp}
+                  onChange={(e) => setGastosOrigenImp(e.target.value)}
+                />
+              </Campo>
+            )}
+
             {mostrarSeguro && (
               <Campo
                 label={`Seguro internacional (${moneda})`}
                 hint={
                   esExport
                     ? `Incluido en ${incoterm.value}: se resta para llegar al FOB.`
-                    : `No incluido en ${incoterm.value}. Se suma al CIF.`
+                    : "Si no lo declarás se toma el 1% sobre valor + flete, que es el seguro presunto de la aduana."
                 }
               >
                 <input
                   className={inputCls}
                   inputMode="decimal"
-                  placeholder="0"
+                  placeholder={`1% · ${fmt(esExport ? rx.seguroIntl : r.seguro, moneda)}`}
                   value={seguroOverride}
                   onChange={(e) => setSeguroOverride(e.target.value)}
                 />
@@ -771,8 +832,8 @@ export function CotizadorImportacion({
           </div>
 
           <p className="mt-3 rounded-lg border border-border bg-surface-2/40 px-3 py-2 text-[11px] leading-snug text-muted">
-            Los importes se cargan a mano y se usan tal cual: la calculadora no
-            estima flete ni seguro. Lo que dejes vacío vale cero.
+            El flete se carga a mano y se usa tal cual: vacío vale cero. El
+            seguro, si no lo completás, se toma al 1% sobre valor más flete.
           </p>
         </Bloque>
 
@@ -1168,15 +1229,19 @@ function Campo({
   label,
   hint,
   full,
+  className = "",
   children,
 }: {
   label: string;
   hint?: string;
   full?: boolean;
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className={`space-y-1.5 ${full ? "col-span-2 sm:col-span-2" : ""}`}>
+    <div
+      className={`space-y-1.5 ${full ? "col-span-2 sm:col-span-2" : ""} ${className}`}
+    >
       <label className={labelCls}>{label}</label>
       {children}
       {hint && <p className={hintCls}>{hint}</p>}

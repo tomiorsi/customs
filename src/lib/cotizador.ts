@@ -1085,6 +1085,12 @@ export type CotizarInput = {
   recHonorariosIva: boolean;
   fleteOverride?: number | null;
   seguroOverride?: number | null;
+  /**
+   * Gastos en origen a cargo del comprador: transporte hasta el puerto,
+   * despacho de exportación y terminal. Con EXW, FCA o FAS los paga el
+   * importador y forman parte del valor en aduana. Default 0.
+   */
+  gastosOrigenImport?: number | null;
   /** Tasa de estadística (% s/CIF). Si viene de VUCE, reemplaza el 3% default. */
   tePctOverride?: number | null;
   /**
@@ -1198,7 +1204,10 @@ export function cotizar(i: CotizarInput): CotizarResult {
         ? 0
       : (i.valor + flete) * (i.via.tasaSeguro ?? TASA_SEGURO);
 
-  const cif = i.valor + flete + seguro;
+  // Con EXW/FCA/FAS el comprador paga el tramo de origen (transporte hasta el
+  // puerto, despacho de exportación, terminal) y eso integra el valor en aduana.
+  const gastosOrigen = Math.max(0, i.gastosOrigenImport ?? 0);
+  const cif = i.valor + gastosOrigen + flete + seguro;
 
   // Derecho de importación: desgravado por acuerdo, o el de la categoría.
   const diBase =
