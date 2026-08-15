@@ -28,6 +28,7 @@ import {
   etiquetaEstado,
 } from "@/lib/clasificador/estado";
 import { ClasificadorPreguntas } from "@/components/clasificador-preguntas";
+import { NomencladorManual } from "@/components/nomenclador-manual";
 
 type TramiteVuce = { nombre: string | null; link: string | null };
 
@@ -144,10 +145,11 @@ function medidaVencida(vencimiento: string | null): boolean {
  */
 export function NomencladorClasificador() {
   // Importación o exportación: define qué datos se muestran de la posición.
-  const [modo, setModo] = useState<"importacion" | "exportacion">(
+  const [modo, setModo] = useState<"importacion" | "exportacion" | "manual">(
     "importacion",
   );
   const esExport = modo === "exportacion";
+  const esManual = modo === "manual";
   const [consulta, setConsulta] = useState("");
   const [catalogoNombre, setCatalogoNombre] = useState<string | null>(null);
   const [catalogoResumen, setCatalogoResumen] = useState<string | null>(null);
@@ -371,11 +373,12 @@ export function NomencladorClasificador() {
           </p>
         </div>
 
-        <div className="mb-4 grid grid-cols-2 gap-1 rounded-xl border border-border bg-surface-2/40 p-1">
+        <div className="mb-4 grid grid-cols-3 gap-1 rounded-xl border border-border bg-surface-2/40 p-1">
           {(
             [
               ["importacion", "Importación"],
               ["exportacion", "Exportación"],
+              ["manual", "Manual"],
             ] as const
           ).map(([value, label]) => {
             const activo = modo === value;
@@ -396,6 +399,9 @@ export function NomencladorClasificador() {
           })}
         </div>
 
+        {esManual && <NomencladorManual esExport={esExport} />}
+
+        {!esManual && (
         <p className="text-sm leading-snug text-muted">
           Describí el producto con el mayor detalle posible (material, uso,
           características técnicas). Cuanto más preciso, mejor engancha la
@@ -404,7 +410,10 @@ export function NomencladorClasificador() {
             ? "sus derechos de exportación (retención) y reintegros."
             : "su derecho de importación."}
         </p>
+        )}
 
+        {!esManual && (
+        <>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
           <input
             className={inputCls}
@@ -534,6 +543,8 @@ export function NomencladorClasificador() {
             esExport={esExport}
           />
           </div>
+        )}
+        </>
         )}
 
       </div>
