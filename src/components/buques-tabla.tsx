@@ -5,9 +5,8 @@ import {
   AlertTriangle,
   Anchor,
   ChevronDown,
-  Loader2,
+  History,
   MapPin,
-  RefreshCw,
   Search,
   Ship,
 } from "lucide-react";
@@ -115,12 +114,28 @@ function Detalle({ a }: { a: Arribo }) {
   );
 }
 
+const ESTADOS_TERMINADOS = new Set<EstadoBuque>(["finalizado", "cancelado"]);
+const ESTADOS_EN_PUERTO = new Set<EstadoBuque>(["arribado", "operando"]);
+
+/**
+ * Una escala sigue importando mientras haya algo por hacer: el buque está en
+ * puerto ahora, o todavía no llegó. Las terminadas ya operaron, y las que
+ * quedaron con ETA vencida sin cerrarse son datos que la fuente nunca
+ * actualizó — en ninguno de los dos casos hay carga que despachar.
+ */
+function sigueVigente(a: Arribo, hoy: string): boolean {
+  if (ESTADOS_TERMINADOS.has(a.estado)) return false;
+  if (ESTADOS_EN_PUERTO.has(a.estado)) return true;
+  return !a.eta || a.eta >= hoy;
+}
+
 export function BuquesTabla({ inicial }: { inicial: ListadoBuques }) {
-  const [datos, setDatos] = useState(inicial);
+  const datos = inicial;
   const [q, setQ] = useState("");
   const [puerto, setPuerto] = useState("todos");
   const [abierto, setAbierto] = useState<string | null>(null);
-  const [refrescando, setRefrescando] = useState(false);
+  // Las escalas terminadas ya no requieren acción: se ocultan salvo pedido.
+  const [verTerminados, setVerTerminados] = useState(false);
 
   const puertos = useMemo(
     () => [...new Set(datos.arribos.map((a) => a.puerto))].sort(),
@@ -133,23 +148,22 @@ export function BuquesTabla({ inicial }: { inicial: ListadoBuques }) {
     [datos.arribos],
   );
 
+  // La fecha viene del servidor: evita que cliente y servidor filtren distinto.
+  const hoy = datos.consultado.slice(0, 10);
+
+  const terminados = useMemo(
+    () => datos.arribos.filter((a) => !sigueVigente(a, hoy)).length,
+    [datos.arribos, hoy],
+  );
+
   const filtrados = useMemo(() => {
     const tokens = normalizarBusqueda(q).split(" ").filter(Boolean);
     return indexados
+      .filter(({ a }) => verTerminados || sigueVigente(a, hoy))
       .filter(({ a }) => puerto === "todos" || a.puerto === puerto)
       .filter(({ clave }) => tokens.every((t) => clave.includes(t)))
       .map(({ a }) => a);
-  }, [indexados, q, puerto]);
-
-  async function actualizar() {
-    setRefrescando(true);
-    try {
-      const res = await fetch("/api/buques?refresh=1");
-      if (res.ok) setDatos((await res.json()) as ListadoBuques);
-    } finally {
-      setRefrescando(false);
-    }
-  }
+  }, [indexados, q, puerto, verTerminados, hoy]);
 
   const conError = datos.fuentes.filter((f) => f.error);
 
@@ -181,21 +195,22 @@ export function BuquesTabla({ inicial }: { inicial: ListadoBuques }) {
 
         <div className="flex items-center gap-3 sm:ml-auto">
           <span className="text-xs text-muted">
-            {filtrados.length} de {datos.arribos.length}
+            {filtrados.length} {filtrados.length === 1 ? "escala" : "escalas"}
           </span>
-          <button
-            type="button"
-            onClick={actualizar}
-            disabled={refrescando}
-            className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted transition-colors hover:bg-surface-2 hover:text-foreground disabled:opacity-60"
-          >
-            {refrescando ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="h-4 w-4" />
-            )}
-            Actualizar
-          </button>
+          {terminados > 0 && (
+            <button
+              type="button"
+              onClick={() => setVerTerminados((v) => !v)}
+              className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                verTerminados
+                  ? "border-accent bg-accent-soft text-accent"
+                  : "border-border text-muted hover:bg-surface-2 hover:text-foreground"
+              }`}
+            >
+              <History className="h-4 w-4" />
+              {verTerminados ? "Ocultar" : "Ver"} anteriores ({terminados})
+            </button>
+          )}
         </div>
       </div>
 

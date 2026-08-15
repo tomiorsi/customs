@@ -13,20 +13,5 @@ export default async function AdminBuquesPage() {
 
   const listado = await listarBuques();
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Buques
-        </h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted">
-          Arribos anunciados a puertos argentinos, consolidados desde los cronogramas
-          públicos de terminales y autoridades portuarias. Las fechas son estimadas y
-          las modifican las líneas marítimas.
-        </p>
-      </div>
-
-      <BuquesTabla inicial={listado} />
-    </div>
-  );
+  return <BuquesTabla inicial={listado} />;
 }
