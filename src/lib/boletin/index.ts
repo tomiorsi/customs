@@ -1,7 +1,7 @@
 import "server-only";
 
 import { extraerCapaTextoPdf } from "@/lib/capa-texto-pdf";
-import { escribirSnapshot, leerSnapshot } from "@/lib/snapshot";
+import { edadSnapshot, escribirSnapshot, leerSnapshot } from "@/lib/snapshot";
 import {
   evaluarRelevancia,
   familiaDeOrganismo,
@@ -207,6 +207,9 @@ async function leerBoletin(): Promise<BoletinDelDia> {
  * Descarga la edición y reescribe el archivo del día. Lo llama la tarea
  * programada; no lo llamés desde una página.
  */
+/** Margen antes de volver a buscar la edición: media jornada. */
+const MAX_EDAD_MS = 12 * 60 * 60 * 1000;
+
 export async function refrescarBoletin(): Promise<BoletinDelDia> {
   const dato = await leerBoletin();
   // Un fallo no pisa la última foto buena: es preferible mostrar la edición de
@@ -225,7 +228,9 @@ export async function refrescarBoletin(): Promise<BoletinDelDia> {
  */
 export async function boletinDelDia(): Promise<BoletinDelDia> {
   const snap = await leerSnapshot<BoletinDelDia>(SNAPSHOT);
-  if (snap) return snap.dato;
+  // La edición sale una vez por día hábil, pero si la foto quedó de anteayer
+  // conviene reintentar: puede que el timer no haya corrido.
+  if (snap && edadSnapshot(snap.generado) < MAX_EDAD_MS) return snap.dato;
 
   // Sin foto previa: generamos una, evitando que varias visitas simultáneas
   // disparen la misma descarga.

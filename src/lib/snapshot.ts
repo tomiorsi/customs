@@ -53,6 +53,12 @@ export async function escribirSnapshot<T>(nombre: string, dato: T): Promise<void
   await rename(temporal, destino);
 }
 
+/** Antigüedad de una foto, en milisegundos. Infinito si la fecha está rota. */
+export function edadSnapshot(generado: string): number {
+  const t = Date.parse(generado);
+  return Number.isFinite(t) ? Date.now() - t : Number.POSITIVE_INFINITY;
+}
+
 /** ¿La foto es de hoy? (comparando en la zona horaria de Argentina). */
 export function esDeHoy(generado: string, hoyIso: string): boolean {
   try {

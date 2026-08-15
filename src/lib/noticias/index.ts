@@ -1,7 +1,7 @@
 import "server-only";
 
 import { hoyIsoArgentina, TZ_AR } from "@/lib/fechas";
-import { escribirSnapshot, leerSnapshot } from "@/lib/snapshot";
+import { edadSnapshot, escribirSnapshot, leerSnapshot } from "@/lib/snapshot";
 import { MEDIOS, type ListadoNoticias, type Medio, type Noticia } from "@/lib/noticias/tipos";
 
 /**
@@ -243,17 +243,26 @@ export async function refrescarNoticias(): Promise<ListadoNoticias> {
   return dato;
 }
 
-/** Últimas notas para las páginas: se leen del archivo, sin salir a internet. */
+/**
+ * Cuánto vale una foto de prensa antes de ir a buscar de nuevo. El timer la
+ * reescribe cada hora; con este margen la pantalla se repara sola si el timer
+ * no corrió, en lugar de mostrar notas viejas sin avisar.
+ */
+const MAX_EDAD_MS = 90 * 60 * 1000;
+
+/** Últimas notas para las páginas: del archivo, salvo que haya quedado viejo. */
 export async function ultimasNoticias(): Promise<ListadoNoticias> {
   const snap = await leerSnapshot<ListadoNoticias>(SNAPSHOT);
-  if (snap) return snap.dato;
+  if (snap && edadSnapshot(snap.generado) < MAX_EDAD_MS) return snap.dato;
 
-  if (enVuelo) return enVuelo;
-  const trabajo = refrescarNoticias().finally(() => {
-    enVuelo = null;
-  });
-  enVuelo = trabajo;
-  return trabajo;
+  if (!enVuelo) {
+    enVuelo = refrescarNoticias().finally(() => {
+      enVuelo = null;
+    });
+  }
+  const dato = await enVuelo;
+  // Si el refresco no trajo nada, la foto vieja es mejor que una lista vacía.
+  return dato.noticias.length ? dato : (snap?.dato ?? dato);
 }
 
 export type { ListadoNoticias, Noticia };

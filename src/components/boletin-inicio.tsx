@@ -1,16 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowUpRight, BookOpen, Check, Minus } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import {
   FAMILIAS,
-  SECCIONES_BO,
   decodificarGde,
   type BoletinDelDia,
   type FamiliaControl,
   type NormaBoletin,
 } from "@/lib/boletin/tipos";
-import type { ListadoNoticias } from "@/lib/noticias/tipos";
+import type { ListadoNoticias, Noticia } from "@/lib/noticias/tipos";
 
 /**
  * Inicio del equipo: la normativa del día, leída como se lee el Boletín.
@@ -174,6 +173,91 @@ function Sello({ boletin }: { boletin: BoletinDelDia }) {
   );
 }
 
+/**
+ * Cada portal con su color. Los feeds no traen imagen —dos de los cuatro ni
+ * siquiera publican og:image—, así que el color y la tipografía son lo que
+ * distingue una nota de otra y le da ritmo a la portada.
+ */
+const MEDIO_ESTILO: Record<string, { texto: string; barra: string }> = {
+  "aduana-news": { texto: "text-accent", barra: "bg-accent" },
+  "trade-news": { texto: "text-indigo-500", barra: "bg-indigo-500" },
+  argenports: { texto: "text-sky-500", barra: "bg-sky-500" },
+  globalports: { texto: "text-emerald-500", barra: "bg-emerald-500" },
+};
+
+function estiloMedio(id: string) {
+  return MEDIO_ESTILO[id] ?? { texto: "text-muted", barra: "bg-muted" };
+}
+
+/** Sello del medio: portal, cuándo salió y de qué trata. */
+function Firma({ n, grande = false }: { n: Noticia; grande?: boolean }) {
+  const e = estiloMedio(n.medioId);
+  return (
+    <p
+      className={`flex flex-wrap items-center gap-x-2 gap-y-1 font-mono uppercase tracking-[0.14em] ${
+        grande ? "text-[11px]" : "text-[10px]"
+      }`}
+    >
+      <span className={`font-semibold ${e.texto}`}>{n.medioNombre}</span>
+      {n.cuando && <span className="text-muted">· {n.cuando}</span>}
+      {n.categoria && <span className="text-muted">· {n.categoria}</span>}
+    </p>
+  );
+}
+
+/** La nota más reciente, en grande: es la que justifica entrar a la pantalla. */
+function Portada({ n }: { n: Noticia }) {
+  const e = estiloMedio(n.medioId);
+  return (
+    <a
+      href={n.url}
+      target="_blank"
+      rel="noreferrer noopener"
+      className="group mt-5 flex gap-5"
+    >
+      <span aria-hidden className={`w-1 shrink-0 rounded-full ${e.barra}`} />
+      <div className="min-w-0">
+        <Firma n={n} grande />
+        <h3 className="mt-2 text-2xl font-semibold leading-[1.2] tracking-tight text-foreground transition-colors group-hover:text-accent sm:text-3xl">
+          {n.titulo}
+        </h3>
+        {n.resumen && (
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
+            {n.resumen}
+          </p>
+        )}
+        <p className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-accent">
+          Leer en {n.medioNombre}
+          <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        </p>
+      </div>
+    </a>
+  );
+}
+
+/** Las demás notas del día, en columnas. */
+function NotaBreve({ n }: { n: Noticia }) {
+  const e = estiloMedio(n.medioId);
+  return (
+    <a href={n.url} target="_blank" rel="noreferrer noopener" className="group block">
+      <span
+        aria-hidden
+        className={`mb-2 block h-0.5 w-8 rounded-full transition-all group-hover:w-14 ${e.barra}`}
+      />
+      <Firma n={n} />
+      <h3 className="mt-1.5 text-sm font-medium leading-snug text-foreground transition-colors group-hover:text-accent">
+        {n.titulo}
+      </h3>
+      {n.resumen && (
+        <p className="mt-1 line-clamp-3 text-xs leading-relaxed text-muted">
+          {n.resumen}
+        </p>
+      )}
+      {n.autor && <p className="mt-1.5 text-[11px] text-muted">Por {n.autor}</p>}
+    </a>
+  );
+}
+
 export function BoletinInicio({
   boletin,
   prensa,
@@ -295,43 +379,28 @@ export function BoletinInicio({
       {/* Qué está pasando en el rubro, según los medios que lo cubren. */}
       {prensa.noticias.length > 0 && (
         <section>
-          <h2 className="text-sm font-semibold text-foreground">En el rubro</h2>
-          <p className="mt-1 text-xs text-muted">
-            Últimas notas de los portales de comercio exterior y puertos.
-          </p>
+          <div className="flex items-baseline justify-between gap-4 border-b-2 border-foreground pb-2">
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">
+              En el rubro
+            </h2>
+            <p className="hidden text-[11px] uppercase tracking-[0.14em] text-muted sm:block">
+              {prensa.noticias.length} notas · 4 portales
+            </p>
+          </div>
 
-          <ul className="mt-3 divide-y divide-border border-y border-border">
-            {prensa.noticias.map((n) => (
+          {/* La última nota se lee como la tapa: es la que llegó recién. */}
+          <Portada n={prensa.noticias[0]} />
+
+          <ul className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2 xl:grid-cols-3">
+            {prensa.noticias.slice(1).map((n) => (
               <li key={n.id}>
-                <a
-                  href={n.url}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="group block px-2 py-3 transition-colors hover:bg-surface-2/60"
-                >
-                  <p className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
-                    <span className="text-accent">{n.medioNombre}</span>
-                    {n.cuando && <span>· {n.cuando}</span>}
-                    {n.categoria && <span>· {n.categoria}</span>}
-                  </p>
-                  <p className="mt-1 text-sm font-medium leading-snug text-foreground transition-colors group-hover:text-accent">
-                    {n.titulo}
-                  </p>
-                  {n.resumen && (
-                    <p className="mt-1 line-clamp-2 max-w-prose text-xs leading-relaxed text-muted">
-                      {n.resumen}
-                    </p>
-                  )}
-                  {n.autor && (
-                    <p className="mt-1 text-[11px] text-muted">Por {n.autor}</p>
-                  )}
-                </a>
+                <NotaBreve n={n} />
               </li>
             ))}
           </ul>
 
           {prensa.fallaron.length > 0 && (
-            <p className="mt-2 text-[11px] text-muted">
+            <p className="mt-4 text-[11px] text-muted">
               Sin respuesta:{" "}
               {prensa.fallaron.map((f) => `${f.nombre} (${f.error})`).join(" · ")}
             </p>
@@ -339,46 +408,6 @@ export function BoletinInicio({
         </section>
       )}
 
-      {/* Material de referencia: por qué leemos solo una de las cuatro secciones. */}
-      <section className="rounded-xl border border-border bg-surface p-5">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-          <BookOpen className="h-4 w-4 text-accent" />
-          El Boletín tiene cuatro secciones
-        </h2>
-        <p className="mt-1 max-w-prose text-xs leading-relaxed text-muted">
-          Sale todos los días hábiles. Solo una publica normativa, y es la que se
-          lee en esta pantalla.
-        </p>
-
-        <ul className="mt-4 grid gap-x-8 gap-y-4 sm:grid-cols-2">
-          {SECCIONES_BO.map((s) => (
-            <li key={s.n} className="flex gap-3">
-              <span
-                className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md font-mono text-xs ${
-                  s.leemos
-                    ? "bg-accent text-accent-foreground"
-                    : "bg-surface-2 text-muted"
-                }`}
-              >
-                {s.n}
-              </span>
-              <div>
-                <p className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-                  {s.nombre}
-                  {s.leemos ? (
-                    <Check className="h-3 w-3 text-accent" />
-                  ) : (
-                    <Minus className="h-3 w-3 text-muted" />
-                  )}
-                </p>
-                <p className="mt-0.5 text-xs leading-relaxed text-muted">
-                  {s.detalle}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
     </div>
   );
 }

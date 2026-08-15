@@ -29,6 +29,34 @@ const ESTADO_CLASE: Record<EstadoBuque, string> = {
   desconocido: "bg-surface-2 text-muted",
 };
 
+const HORA_AR = new Intl.DateTimeFormat("es-AR", {
+  timeZone: "America/Argentina/Buenos_Aires",
+  day: "2-digit",
+  month: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
+/** Cuándo salimos nosotros a buscar los cronogramas. */
+function horaConsulta(iso: string): string {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "—" : HORA_AR.format(d).replace(", ", " ");
+}
+
+/**
+ * Fecha que declara la propia terminal, en un formato único: cada fuente la
+ * publica distinto ("15/8/2026 14:01", "14/08/2026", con o sin segundos).
+ */
+function fechaPublicacion(raw: string | null): string | null {
+  if (!raw) return null;
+  const m = raw.match(/(\d{1,2})[/-](\d{1,2})[/-](\d{4})(?:\D+(\d{1,2}):(\d{2}))?/);
+  if (!m) return raw;
+  const [, d, mes, , h, min] = m;
+  const dia = `${d.padStart(2, "0")}/${mes.padStart(2, "0")}`;
+  return h ? `${dia} a las ${h.padStart(2, "0")}:${min}` : dia;
+}
+
 function fecha(iso: string | null): string {
   return iso ? formatearFechaAr(iso) : "—";
 }
@@ -328,33 +356,53 @@ export function BuquesTabla({ inicial }: { inicial: ListadoBuques }) {
       </div>
 
       <div className="rounded-xl border border-border bg-surface px-5 py-4">
-        <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted">
-          <Anchor className="h-3.5 w-3.5" />
-          Fuentes
-        </p>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted">
+            <Anchor className="h-3.5 w-3.5" />
+            Fuentes
+          </p>
+          <p className="text-xs text-muted">
+            Las consultamos cada hora · última {horaConsulta(datos.consultado)}
+          </p>
+        </div>
+
         <ul className="mt-3 space-y-2.5">
-          {datos.fuentes.map((f) => (
-            <li key={f.id} className="text-sm">
-              <a
-                href={f.url}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="font-medium text-foreground hover:text-accent"
-              >
-                {f.nombre}
-              </a>
-              <span className="text-muted">
-                {" · "}
-                {f.error
-                  ? "sin respuesta"
-                  : `${f.arribos.length} buques${
-                      f.actualizado ? ` · actualizado ${f.actualizado}` : ""
-                    }`}
-              </span>
-              <p className="text-xs text-muted">{f.alcance}</p>
-            </li>
-          ))}
+          {datos.fuentes.map((f) => {
+            const publicado = fechaPublicacion(f.actualizado);
+            return (
+              <li key={f.id} className="text-sm">
+                <a
+                  href={f.url}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="font-medium text-foreground hover:text-accent"
+                >
+                  {f.nombre}
+                </a>
+                <span className="text-muted">
+                  {" · "}
+                  {f.error ? "sin respuesta" : `${f.arribos.length} buques`}
+                </span>
+                <p className="text-xs text-muted">
+                  {f.alcance}
+                  {publicado && (
+                    <>
+                      {" "}
+                      <span className="whitespace-nowrap">
+                        La terminal publicó este lineup el {publicado}.
+                      </span>
+                    </>
+                  )}
+                </p>
+              </li>
+            );
+          })}
         </ul>
+        <p className="mt-3 text-[11px] leading-snug text-muted">
+          Cada terminal publica su cronograma cuando quiere: algunas lo rehacen
+          varias veces por día y otras una sola vez. Por eso las fechas de
+          publicación no coinciden entre sí.
+        </p>
       </div>
     </div>
   );
