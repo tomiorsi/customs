@@ -126,6 +126,38 @@ const SECCION_DE_MARCA: Record<string, string> = {
 };
 
 /**
+ * Las columnas que la tabla `DDT` reconoce en la cabecera.
+ *
+ * `GEN` y `DDT` son dos tablas del mismo Kit y no coinciden del todo: `GEN`
+ * exige `CDDTPRFTIT` y en `DDT` ese campo se llama `CDDTPFXTIT`. Es la única
+ * discrepancia de las 39 columnas, y no aparece en ninguna declaración real.
+ *
+ * Sin este control, el validador pedía un campo que **no se puede cargar con
+ * ese nombre**: un aviso permanente en 60 de los 257 subregímenes (23%) que
+ * ningún despachante puede resolver. Ese tipo de aviso es peor que no avisar,
+ * porque enseña a ignorarlos.
+ *
+ * La regla es general y no un parche a este caso: si `GEN` nombra un campo que
+ * `DDT` no tiene, no hay forma de saber con qué clave va en el archivo, así que
+ * no se opina. Si mañana el Kit corrige el nombre, esto deja de aplicar solo.
+ */
+let columnasDdt: Set<string> | null = null;
+
+function claveCargableEnCabecera(k: string): boolean {
+  if (!columnasDdt) {
+    columnasDdt = new Set<string>();
+    try {
+      const primera = tabla("DDT").filas[0];
+      if (primera) for (const c of Object.keys(primera.campos)) columnasDdt.add(c);
+    } catch {
+      // Sin la tabla no se puede descartar nada: se valida todo como antes.
+    }
+  }
+  // Con la tabla vacía no hay nada que contrastar, y callar todo sería peor.
+  return columnasDdt.size === 0 || columnasDdt.has(k);
+}
+
+/**
  * Valida una declaración contra la parametría del SIM y sus tablas.
  *
  * `fecha` es la de la declaración, no la de hoy: un código que venció en 2020
@@ -169,6 +201,10 @@ export function validarDeclaracion(
       if (!esClaveDeCabecera(clave)) continue;
       const regla = exigencia(marca);
       const esta = presentes.has(clave);
+      // Un obligatorio que la tabla DDT no reconoce no se puede pedir: ver
+      // `claveCargableEnCabecera`. El prohibido sí se sigue controlando, porque
+      // si el campo apareciera igual habría que marcarlo.
+      if (regla === "obligatorio" && !esta && !claveCargableEnCabecera(clave)) continue;
       if (regla === "obligatorio" && !esta) {
         hallazgos.push({
           nivel: "aviso",

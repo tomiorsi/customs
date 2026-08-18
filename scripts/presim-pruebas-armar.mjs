@@ -95,6 +95,8 @@ function operacionDesde(d) {
     nombreExterior: v("LDDTNOMFOD"),
     aduanaSalida: v("CDDTBURDST"),
     paisDestino: v("CDDTPAIDST"),
+    deposito: v("CDDTDEP"),
+    arriboTransporte: v("DDDTARVTRN"),
     motivo: v("CDDTMOT"),
     convenio: v("NDDTNUMCVT"),
     plazoDias: numero(v("QDDTREGSUS")),

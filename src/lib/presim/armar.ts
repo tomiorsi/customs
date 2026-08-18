@@ -148,6 +148,21 @@ export type OperacionSim = {
   nombreExterior?: string;
   /** Aduana de salida, en exportación. */
   aduanaSalida?: string;
+  /**
+   * Depósito fiscal donde está la mercadería.
+   *
+   * Obligatorio en 51 subregímenes: los que se registran sobre mercadería ya
+   * almacenada, donde la aduana necesita saber dónde está para verificarla.
+   */
+  deposito?: string;
+  /**
+   * Fecha de arribo del medio de transporte, en `DD/MM/AAAA`.
+   *
+   * Obligatoria en 48 subregímenes. Es la que abre el plazo de los quince días
+   * del art. 217 para solicitar la destinación, así que no es un dato de color:
+   * de ella depende si la solicitud llega en término.
+   */
+  arriboTransporte?: string;
   /** País de destino, en exportación. */
   paisDestino?: string;
   /** Motivo de la suspensiva (`MOT`), en temporarias. */
@@ -278,6 +293,7 @@ function cabecera(op: OperacionSim): Bloque {
 
   poner(p, "CDDTPAIDST", op.paisDestino);
   poner(p, "CDDTBURDST", op.aduanaSalida);
+  poner(p, "CDDTDEP", op.deposito);
 
   // Suspensivas: el motivo y el plazo son lo que las distingue.
   poner(p, "CDDTMOT", op.motivo);
@@ -295,6 +311,7 @@ function cabecera(op: OperacionSim): Bloque {
     poner(p, "CDDTPAYTRN", t.pais);
     poner(p, "DDDTVENEMB", t.vencimientoEmbarque);
   }
+  poner(p, "DDDTARVTRN", op.arriboTransporte);
 
   poner(p, "CDDTINCOTE", op.incoterm);
   // `N` = la declaración no es un producto manufacturado bajo régimen especial.
