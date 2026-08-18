@@ -1,9 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { readFile } from "node:fs/promises";
 import { getCurrentUser } from "@/lib/auth-server";
-import { esEquipo } from "@/lib/roles";
+import { esEquipo, alcanceDe } from "@/lib/roles";
 import { getDocumentsByOperation, getOperationById } from "@/lib/data";
-import { dentroDeClientes, rutaArchivo } from "@/lib/parquet-store";
+import { leerDocumento } from "@/lib/archivos-cliente";
 import {
   analizarApertura,
   iaDocsDisponible,
@@ -46,7 +46,7 @@ export async function POST(
   }
 
   const { id } = await ctx.params;
-  const op = await getOperationById(id);
+  const op = await getOperationById(id, alcanceDe(user));
   if (!op) {
     return NextResponse.json(
       { error: "Operación no encontrada." },
@@ -77,9 +77,7 @@ export async function POST(
   const archivos: ArchivoIA[] = [];
   for (const d of ordenados) {
     if (archivos.length >= MAX_ARCHIVOS) break;
-    const fullPath = rutaArchivo(d.user_id, d.stored_name);
-    if (!dentroDeClientes(fullPath)) continue;
-    const bytes = await readFile(fullPath).catch(() => null);
+    const bytes = await leerDocumento(d.user_id, d.stored_name);
     if (!bytes) continue;
     archivos.push({
       rol: DOC_LABELS[d.doc_type] ?? "Documento",

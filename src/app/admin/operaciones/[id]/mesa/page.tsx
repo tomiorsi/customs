@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { getAllOperations } from "@/lib/data";
 import { getCurrentUser } from "@/lib/auth-server";
-import { esEquipo } from "@/lib/roles";
+import { esEquipo, estudioDe } from "@/lib/roles";
 import { nombreOperacion } from "@/lib/operacion-display";
 import { MesaTrabajo, type MesaOp } from "@/components/mesa-trabajo";
 
@@ -21,7 +21,7 @@ export default async function MesaOperacionPage({
   if (!user || !esEquipo(user.role)) redirect("/login");
 
   const { id } = await params;
-  const ops = await getAllOperations();
+  const ops = await getAllOperations(estudioDe(user));
   const op = ops.find((o) => o.id === id);
   if (!op) notFound();
 
@@ -30,6 +30,7 @@ export default async function MesaOperacionPage({
     ref: op.ref,
     titulo: nombreOperacion(op),
     tipo: op.tipo,
+    destinacion: op.destinacion,
     via: op.via,
     incoterm: op.incoterm,
     liberacion: op.liberacion_doc,

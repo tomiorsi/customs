@@ -379,6 +379,8 @@ export async function calcularLiquidacion(
     valor,
     peso,
     cantidad,
+    // La destinación decide si los tributos se pagan o se garantizan.
+    destinacion: op.destinacion,
     categoria: { id: "op", label: "NCM operación", di: diPct, iva: ivaPct },
     pais,
     incoterm,

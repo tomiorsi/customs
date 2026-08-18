@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth-server";
-import { esEquipo } from "@/lib/roles";
+import { esEquipo, estudioDe } from "@/lib/roles";
 import {
   createCliente,
   darAccesoCliente,
@@ -11,7 +11,7 @@ import {
 export async function POST(req: Request) {
   const user = await getCurrentUser();
   // Crear el registro del cliente: admin y operador (subadmin) por igual.
-  if (!esEquipo(user?.role)) {
+  if (!user || !esEquipo(user.role)) {
     return NextResponse.json({ error: "No autorizado." }, { status: 403 });
   }
 
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     contactName: String(body.contactName ?? "").trim() || null,
     phone: String(body.phone ?? "").trim() || null,
     personType: String(body.personType ?? "").trim() || null,
-  });
+  }, estudioDe(user));
 
   if (res.error) {
     return NextResponse.json({ error: res.error }, { status: 400 });
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
 /** Edita los datos de un cliente existente: admin y operador (subadmin). */
 export async function PUT(req: Request) {
   const user = await getCurrentUser();
-  if (!esEquipo(user?.role)) {
+  if (!user || !esEquipo(user.role)) {
     return NextResponse.json({ error: "No autorizado." }, { status: 403 });
   }
   const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
@@ -56,17 +56,21 @@ export async function PUT(req: Request) {
   if ("phone" in body) input.phone = String(body.phone ?? "").trim() || null;
   if ("personType" in body)
     input.personType = String(body.personType ?? "").trim() || null;
-  const res = updateCliente(id, input);
+  const res = updateCliente(id, input, estudioDe(user));
   if (res.error) {
     return NextResponse.json({ error: res.error }, { status: 400 });
   }
   return NextResponse.json({ ok: true });
 }
 
-/** Genera/actualiza el acceso (login) de un cliente existente. Solo admin. */
+/**
+ * Genera o actualiza el acceso (login) de un cliente de la propia cartera.
+ * Lo hace cualquier cuenta del equipo: el aislamiento lo da `estudioDe`, que
+ * impide tocar un cliente de otro estudio.
+ */
 export async function PATCH(req: Request) {
   const user = await getCurrentUser();
-  if (user?.role !== "admin") {
+  if (!user || !esEquipo(user.role)) {
     return NextResponse.json({ error: "No autorizado." }, { status: 403 });
   }
   const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
@@ -74,6 +78,7 @@ export async function PATCH(req: Request) {
     String(body.clienteId ?? "").trim(),
     String(body.email ?? ""),
     String(body.password ?? ""),
+    estudioDe(user),
   );
   if (res.error) {
     return NextResponse.json({ error: res.error }, { status: 400 });
@@ -81,10 +86,10 @@ export async function PATCH(req: Request) {
   return NextResponse.json({ ok: true });
 }
 
-/** Revoca el acceso (portal) de un cliente, sin borrar su registro. Solo admin. */
+/** Revoca el acceso al portal de un cliente de la cartera, sin borrar su registro. */
 export async function DELETE(req: Request) {
   const user = await getCurrentUser();
-  if (user?.role !== "admin") {
+  if (!user || !esEquipo(user.role)) {
     return NextResponse.json({ error: "No autorizado." }, { status: 403 });
   }
   const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
@@ -92,6 +97,6 @@ export async function DELETE(req: Request) {
   if (!id) {
     return NextResponse.json({ error: "Falta el cliente." }, { status: 400 });
   }
-  setPortalHabilitadoCliente(id, false);
+  setPortalHabilitadoCliente(id, false, estudioDe(user));
   return NextResponse.json({ ok: true });
 }

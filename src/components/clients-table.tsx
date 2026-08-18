@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Building2, Check, Loader2, Pencil, Search, Shield, ShieldAlert, ShieldCheck, X } from "lucide-react";
+import { Building2, Check, KeyRound, Loader2, Pencil, Search, Shield, ShieldAlert, ShieldCheck, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { ClientRow } from "@/lib/data";
 import { estadoCartaGarantia, formatVence } from "@/lib/carta-garantia";
+import { AccesoCliente } from "@/components/acceso-cliente";
 
 /** Input compacto para la edición inline de una celda. */
 const CELL_INPUT =
@@ -66,6 +67,10 @@ export function ClientsTable({
     null,
   );
   const [guardandoCarta, setGuardandoCarta] = useState<string | null>(null);
+
+  // Fila cuyo panel de acceso está abierto. El acceso se administra acá, en la
+  // misma pantalla donde vive el cliente.
+  const [accesoAbierto, setAccesoAbierto] = useState<string | null>(null);
 
   // Edición inline de una fila (razón social, CUIT, email, teléfono).
   const [editandoId, setEditandoId] = useState<string | null>(null);
@@ -209,7 +214,8 @@ export function ClientsTable({
                 {filtrados.map((c) => {
                   const editando = editandoId === c.id;
                   return (
-                  <tr key={c.id} className="transition-colors hover:bg-surface-2">
+                  <Fragment key={c.id}>
+                  <tr className="transition-colors hover:bg-surface-2">
                     <td className="px-5 py-3.5 align-top">
                       {editando ? (
                         <input
@@ -337,17 +343,52 @@ export function ClientsTable({
                           </button>
                         </div>
                       ) : (
-                        <button
-                          type="button"
-                          title="Editar datos"
-                          onClick={() => abrirEdit(c)}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface-2 hover:text-accent"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
+                        <div className="inline-flex items-center gap-1">
+                          <button
+                            type="button"
+                            title={
+                              c.portal_habilitado === "1"
+                                ? "Cambiar acceso al portal"
+                                : "Dar acceso al portal"
+                            }
+                            aria-expanded={accesoAbierto === c.id}
+                            onClick={() =>
+                              setAccesoAbierto((a) => (a === c.id ? null : c.id))
+                            }
+                            className={`inline-flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-surface-2 ${
+                              c.portal_habilitado === "1"
+                                ? "text-accent"
+                                : "text-muted hover:text-accent"
+                            }`}
+                          >
+                            <KeyRound className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            title="Editar datos"
+                            onClick={() => abrirEdit(c)}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface-2 hover:text-accent"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>
+                  {accesoAbierto === c.id && (
+                    <tr>
+                      <td colSpan={99} className="bg-surface-2/30 px-5 py-4">
+                        <AccesoCliente
+                          clienteId={c.id}
+                          nombre={c.company_name ?? "este cliente"}
+                          emailActual={c.email}
+                          tieneAcceso={c.portal_habilitado === "1"}
+                          onCerrar={() => setAccesoAbierto(null)}
+                        />
+                      </td>
+                    </tr>
+                  )}
+                  </Fragment>
                   );
                 })}
               </tbody>

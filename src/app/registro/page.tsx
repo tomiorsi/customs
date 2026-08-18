@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, ArrowLeft } from "lucide-react";
+import { ArrowRight, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { signupRequest } from "@/lib/auth-client";
 
@@ -14,17 +14,13 @@ export default function RegistroPage() {
   const router = useRouter();
   const [form, setForm] = useState({
     companyName: "",
-    personType: "juridica",
     cuit: "",
-    ivaCondition: "",
-    certExencion: "no",
-    contactName: "",
-    phone: "",
-    address: "",
     email: "",
     password: "",
+    passwordConfirm: "",
   });
-  const esFisica = form.personType === "fisica";
+  const [verPassword, setVerPassword] = useState(false);
+  const [verPasswordConfirm, setVerPasswordConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -35,6 +31,10 @@ export default function RegistroPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (form.password !== form.passwordConfirm) {
+      setError("Las contraseñas no coinciden.");
+      return;
+    }
     setLoading(true);
     const res = await signupRequest(form);
     if (!res.ok) {
@@ -42,18 +42,12 @@ export default function RegistroPage() {
       setLoading(false);
       return;
     }
-    router.replace("/inicio");
+    router.replace("/admin/inicio");
   }
 
   return (
     <main className="min-h-screen px-6 py-10">
       <div className="mx-auto w-full max-w-2xl">
-        <div className="mb-8 flex items-center">
-          <Link href="/" aria-label="Ir al inicio">
-            <Brand size="md" />
-          </Link>
-        </div>
-
         <Link
           href="/login"
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-accent"
@@ -61,72 +55,30 @@ export default function RegistroPage() {
           <ArrowLeft className="h-4 w-4" /> Volver al ingreso
         </Link>
 
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Creá tu cuenta
-        </h1>
-        <p className="mt-1.5 text-sm text-muted">
-          Registrate como importador o exportador, seas empresa o monotributista.
-          Vas a poder ver tus operaciones, subir documentación y seguir el estado
-          de cada despacho.
-        </p>
-
+        <div className="mb-8 flex flex-col items-center text-center">
+          <Link href="/" aria-label="Ir al inicio">
+            <Brand size="md" />
+          </Link>
+          <h1 className="mt-6 text-2xl font-semibold tracking-tight text-foreground">
+            Creá tu cuenta
+          </h1>
+        </div>
         <form onSubmit={onSubmit} className="mt-8 space-y-5">
           <div className="rounded-xl border border-border bg-surface p-5">
             <h2 className="mb-4 text-sm font-semibold text-foreground">
-              Datos fiscales
+Tus datos
             </h2>
 
-            <div className="mb-4 space-y-1.5">
-              <label className="text-sm font-medium text-foreground">
-                Tipo de persona <span className="text-accent">*</span>
-              </label>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {[
-                  {
-                    value: "juridica",
-                    titulo: "Persona jurídica",
-                    sub: "Empresa (S.A., S.R.L., etc.)",
-                  },
-                  {
-                    value: "fisica",
-                    titulo: "Persona física",
-                    sub: "Monotributista / responsable inscripto",
-                  },
-                ].map((opt) => {
-                  const activo = form.personType === opt.value;
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => set("personType", opt.value)}
-                      className={`rounded-lg border px-3 py-2.5 text-left transition-colors ${
-                        activo
-                          ? "border-accent bg-accent-soft"
-                          : "border-border bg-surface hover:border-accent/50"
-                      }`}
-                    >
-                      <span className="block text-sm font-medium text-foreground">
-                        {opt.titulo}
-                      </span>
-                      <span className="block text-xs text-muted">{opt.sub}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5 sm:col-span-2">
+              <div className="space-y-1.5">
                 <label className="text-sm font-medium text-foreground">
-                  {esFisica ? "Nombre y apellido" : "Razón social"}{" "}
+                  Nombre o estudio{" "}
                   <span className="text-accent">*</span>
                 </label>
                 <input
                   required
                   className={inputCls}
-                  placeholder={
-                    esFisica ? "Juan Pérez" : "Importadora XYZ S.A."
-                  }
+                  placeholder="Estudio Pérez & Asoc."
                   value={form.companyName}
                   onChange={(e) => set("companyName", e.target.value)}
                 />
@@ -134,93 +86,16 @@ export default function RegistroPage() {
 
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-foreground">
-                  CUIT{esFisica ? " / CUIL" : ""}
+                  CUIT
                 </label>
                 <input
                   className={inputCls}
-                  placeholder={esFisica ? "20-12345678-9" : "30-12345678-9"}
+                  placeholder="30-12345678-9"
                   value={form.cuit}
                   onChange={(e) => set("cuit", e.target.value)}
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">
-                  Condición IVA
-                </label>
-                <select
-                  className={inputCls}
-                  value={form.ivaCondition}
-                  onChange={(e) => set("ivaCondition", e.target.value)}
-                >
-                  <option value="">Seleccionar…</option>
-                  <option>Responsable Inscripto</option>
-                  <option>Monotributo</option>
-                  <option>Exento</option>
-                  <option>No Responsable</option>
-                </select>
-              </div>
-
-              <div className="space-y-1.5 sm:col-span-2">
-                <label className="text-sm font-medium text-foreground">
-                  ¿Tenés Certificado MiPyME o de exclusión vigente?
-                </label>
-                <select
-                  className={inputCls}
-                  value={form.certExencion}
-                  onChange={(e) => set("certExencion", e.target.value)}
-                >
-                  <option value="no">No</option>
-                  <option value="si">Sí, vigente</option>
-                </select>
-                <p className="text-xs text-muted">
-                  El Certificado MiPyME (RG 5501/5807) o el de exclusión (RG
-                  5655/2025) eximen las percepciones de IVA y Ganancias al
-                  nacionalizar. Lo usamos para estimar tus costos con más
-                  precisión.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-border bg-surface p-5">
-            <h2 className="mb-4 text-sm font-semibold text-foreground">
-              Contacto
-            </h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">
-                  Nombre de contacto
-                </label>
-                <input
-                  className={inputCls}
-                  placeholder="Juan Pérez"
-                  value={form.contactName}
-                  onChange={(e) => set("contactName", e.target.value)}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">
-                  Teléfono
-                </label>
-                <input
-                  className={inputCls}
-                  placeholder="+54 11 5555-5555"
-                  value={form.phone}
-                  onChange={(e) => set("phone", e.target.value)}
-                />
-              </div>
-              <div className="space-y-1.5 sm:col-span-2">
-                <label className="text-sm font-medium text-foreground">
-                  Domicilio
-                </label>
-                <input
-                  className={inputCls}
-                  placeholder="Av. Siempre Viva 123, CABA"
-                  value={form.address}
-                  onChange={(e) => set("address", e.target.value)}
-                />
-              </div>
             </div>
           </div>
 
@@ -244,18 +119,83 @@ export default function RegistroPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">
+                <label
+                  htmlFor="password"
+                  className="text-sm font-medium text-foreground"
+                >
                   Contraseña <span className="text-accent">*</span>
                 </label>
-                <input
-                  required
-                  type="password"
-                  autoComplete="new-password"
-                  className={inputCls}
-                  placeholder="Mínimo 6 caracteres"
-                  value={form.password}
-                  onChange={(e) => set("password", e.target.value)}
-                />
+                <div className="relative">
+                  <input
+                    id="password"
+                    required
+                    type={verPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    className={`${inputCls} pr-11`}
+                    placeholder="Mínimo 6 caracteres"
+                    value={form.password}
+                    onChange={(e) => set("password", e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setVerPassword((v) => !v)}
+                    aria-label={
+                      verPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                    }
+                    aria-pressed={verPassword}
+                    className="absolute inset-y-0 right-0 flex items-center px-3 text-muted transition-colors hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                  >
+                    {verPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-1.5 sm:col-span-2">
+                <label
+                  htmlFor="passwordConfirm"
+                  className="text-sm font-medium text-foreground"
+                >
+                  Repetí la contraseña <span className="text-accent">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    id="passwordConfirm"
+                    required
+                    type={verPasswordConfirm ? "text" : "password"}
+                    autoComplete="new-password"
+                    className={`${inputCls} pr-11`}
+                    placeholder="La misma de arriba"
+                    value={form.passwordConfirm}
+                    onChange={(e) => set("passwordConfirm", e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setVerPasswordConfirm((v) => !v)}
+                    aria-label={
+                      verPasswordConfirm
+                        ? "Ocultar contraseña"
+                        : "Mostrar contraseña"
+                    }
+                    aria-pressed={verPasswordConfirm}
+                    className="absolute inset-y-0 right-0 flex items-center px-3 text-muted transition-colors hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                  >
+                    {verPasswordConfirm ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                {form.passwordConfirm.length > 0 &&
+                  form.password !== form.passwordConfirm && (
+                    <p className="text-xs font-medium text-accent">
+                      Las contraseñas no coinciden.
+                    </p>
+                  )}
               </div>
             </div>
           </div>

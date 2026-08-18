@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { Check, Loader2, X } from "lucide-react";
 import type { OperationRow } from "@/lib/data";
 import { UNIDADES } from "@/lib/unidades";
+import { destinacionesDe } from "@/lib/destinaciones";
 
-type CampoTipo = "text" | "date" | "via" | "moneda" | "unidad";
+type CampoTipo = "text" | "date" | "via" | "moneda" | "unidad" | "destinacion";
 
 type Campo = {
   campo: string;
@@ -21,6 +22,20 @@ const SECCIONES: { titulo: string; campos: Campo[] }[] = [
     titulo: "General",
     campos: [
       { campo: "titulo", label: "Título", basico: true },
+      {
+        campo: "destinacion",
+        label: "Destinación aduanera",
+        type: "destinacion",
+        basico: true,
+        hint: "Define el paso a paso y si los tributos se pagan o se garantizan.",
+      },
+      {
+        campo: "destinacion_vence",
+        label: "Vence el régimen",
+        type: "date",
+        basico: true,
+        hint: "Solo en regímenes suspensivos. Es la fecha que dispara el aviso antes de que se ejecute la garantía.",
+      },
       { campo: "via", label: "Vía", type: "via", basico: true },
       { campo: "contraparte", label: "Proveedor / comprador", basico: true },
       { campo: "aduana", label: "Aduana" },
@@ -217,7 +232,24 @@ export function EditarOperacionForm({
                       <span className="text-accent"> *</span>
                     )}
                   </label>
-                  {type === "via" ? (
+                  {type === "destinacion" ? (
+                    <select
+                      className={inputCls}
+                      value={form[campo]}
+                      onChange={(e) => set(campo, e.target.value)}
+                    >
+                      <option value="">— A consumo (por defecto) —</option>
+                      {destinacionesDe(
+                        op.tipo?.toLowerCase().startsWith("exp")
+                          ? "exportacion"
+                          : "importacion",
+                      ).map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {d.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : type === "via" ? (
                     <select
                       className={inputCls}
                       value={form[campo]}

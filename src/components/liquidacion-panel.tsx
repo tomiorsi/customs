@@ -22,6 +22,9 @@ type Cotiz = {
   di: number;
   tasa: number;
   tasaExenta: boolean;
+  /** Total a garantizar en un régimen suspensivo (null si es definitiva). */
+  garantia: number | null;
+  suspensiva: boolean;
   iva: number;
   percIva: number;
   percGan: number;
@@ -486,6 +489,10 @@ export function LiquidacionPanel({
     ? c.di + (c.tasaExenta ? 0 : c.tasa) + c.iva + c.percIva + c.percGan + c.iibb
     : 0;
   const gastosLocales = data?.logistica.costoLogistica ?? 0;
+  // Régimen suspensivo: los tributos no se pagan por VEP, se garantizan. El
+  // rótulo importa tanto como el número: si dice VEP, el cliente va a ir a
+  // pagarlo.
+  const suspensiva = c?.suspensiva === true;
 
   return (
     <div className="rounded-xl border border-accent/30 bg-accent-soft/40 p-3">
@@ -703,7 +710,14 @@ export function LiquidacionPanel({
             </Grupo>
 
             {/* 2) Tributos de nacionalización (los paga el cliente por VEP) */}
-            <Grupo titulo="Impuestos y tributos (VEP)" total={usd(totalTributos)}>
+            <Grupo
+              titulo={
+                suspensiva
+                  ? "Tributos suspendidos (se garantizan)"
+                  : "Impuestos y tributos (VEP)"
+              }
+              total={usd(totalTributos)}
+            >
               <Linea
                 label={`Derecho de importación (${c.diPct}%)`}
                 valor={usd(c.di)}
@@ -771,7 +785,14 @@ export function LiquidacionPanel({
           <div className="space-y-2 rounded-lg border border-accent/30 bg-surface px-3 py-3">
             {esVistaLiquidacion ? (
               <>
-                <Linea label="Tributos por VEP" valor={usd(totalTributos)} />
+                <Linea
+                  label={
+                    suspensiva
+                      ? "Garantía a constituir (no se paga)"
+                      : "Tributos por VEP"
+                  }
+                  valor={usd(totalTributos)}
+                />
                 <Linea
                   label="Adelanto logístico al estudio"
                   valor={data.adelanto > 0 ? usd(data.adelanto) : "A cargar"}
@@ -795,12 +816,18 @@ export function LiquidacionPanel({
                     ? "Fondos a prever para la operación"
                     : "Total a desembolsar (con IVA y percepciones)"
                 }
-                valor={usd(esVistaLiquidacion ? totalTributos + data.adelanto : c.desembolso + gastosLocales)}
+                valor={usd(
+                  esVistaLiquidacion
+                    ? (suspensiva ? 0 : totalTributos) + data.adelanto
+                    : c.desembolso + gastosLocales,
+                )}
                 accent
               />
               <p className="mt-0.5 text-[10px] leading-snug text-muted">
                 {esVistaLiquidacion
-                  ? "Incluye el VEP de tributos y el adelanto logístico. No incluye mercadería, flete internacional, seguro ni honorarios."
+                  ? suspensiva
+                    ? "Régimen suspensivo: los tributos se garantizan, no se desembolsan, así que no entran en estos fondos. Si el régimen vence sin cancelarse, la garantía se ejecuta y ahí sí se pagan."
+                    : "Incluye el VEP de tributos y el adelanto logístico. No incluye mercadería, flete internacional, seguro ni honorarios."
                   : "Incluye tributos, IVA, percepciones y gastos locales. Honorarios del despachante aparte."}
               </p>
             </div>

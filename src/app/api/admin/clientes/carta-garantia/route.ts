@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth-server";
-import { esEquipo } from "@/lib/roles";
+import { esEquipo, estudioDe } from "@/lib/roles";
 import { setCartaGarantia } from "@/lib/data";
 import { vencimientoAnual } from "@/lib/carta-garantia";
 
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   // La anual queda válida hasta el 31/12 del año actual; se renueva volviendo a
   // marcarla anual el año siguiente.
   const vence = tipo === "anual" ? vencimientoAnual() : null;
-  setCartaGarantia(userId, tipo, vence);
+  setCartaGarantia(userId, tipo, vence, estudioDe(user));
 
   return NextResponse.json({ ok: true, tipo, vence });
 }

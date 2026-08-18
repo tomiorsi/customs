@@ -150,6 +150,68 @@ function categoriaUtil(raw: string): string | null {
   return /\p{L}/u.test(c) ? c : null;
 }
 
+/** Imagen declarada en el propio item del feed, si el medio la publica. */
+function imagenDelItem(item: string): string | null {
+  const m =
+    item.match(/<enclosure[^>]+url="([^"]+)"[^>]*type="image\//i) ??
+    item.match(/<media:(?:content|thumbnail)[^>]+url="([^"]+)"/i);
+  return m?.[1] ?? null;
+}
+
+/**
+ * Portada de la nota, leída de la propia página (og:image).
+ *
+ * Es una request por nota, así que solo se hace para las que todavía no tienen
+ * imagen conocida y con un timeout corto: si el medio tarda, la tarjeta sale
+ * sin foto y listo. Nunca puede frenar el refresco de noticias.
+ */
+async function imagenDePagina(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(8000),
+      cache: "no-store",
+      headers: { accept: "text/html" },
+    });
+    if (!res.ok) return null;
+    // Con los primeros 60 KB alcanza: og:image va en el <head>.
+    const html = (await res.text()).slice(0, 60_000);
+    const m =
+      html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ??
+      html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i) ??
+      html.match(/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i);
+    const src = m?.[1]?.trim();
+    // Solo https: una imagen por http rompe la página en un sitio seguro.
+    return src && src.startsWith("https://") ? src : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Resuelve las portadas que falten, de a `LOTE` para no golpear al medio. */
+async function completarImagenes(
+  noticias: Noticia[],
+  conocidas: Map<string, string>,
+): Promise<void> {
+  const LOTE = 6;
+  const pendientes = noticias.filter((n) => {
+    const previa = conocidas.get(n.url);
+    if (previa) {
+      n.imagen = previa;
+      return false;
+    }
+    return !n.imagen;
+  });
+
+  for (let i = 0; i < pendientes.length; i += LOTE) {
+    const tanda = pendientes.slice(i, i + LOTE);
+    await Promise.all(
+      tanda.map(async (n) => {
+        n.imagen = await imagenDePagina(n.url);
+      }),
+    );
+  }
+}
+
 async function leerMedio(medio: Medio, hoy: string): Promise<Noticia[]> {
   const res = await fetch(medio.feed, {
     signal: AbortSignal.timeout(TIMEOUT_MS),
@@ -195,6 +257,7 @@ async function leerMedio(medio: Medio, hoy: string): Promise<Noticia[]> {
       cuando: cuandoSalio(valida, hoy),
       medioId: medio.id,
       medioNombre: medio.nombre,
+      imagen: imagenDelItem(item),
     });
   }
 
@@ -236,7 +299,18 @@ async function consultarMedios(): Promise<ListadoNoticias> {
 
 /** Consulta los feeds y reescribe el archivo. Lo llama la tarea programada. */
 export async function refrescarNoticias(): Promise<ListadoNoticias> {
+  // Las portadas ya resueltas se arrastran del refresco anterior: una nota que
+  // ya tiene imagen no se vuelve a pedir nunca. Así, en régimen, cada refresco
+  // solo entra a las notas nuevas —dos o tres— en vez de a las cuarenta.
+  const previo = await leerSnapshot<ListadoNoticias>(SNAPSHOT);
+  const conocidas = new Map<string, string>();
+  for (const n of previo?.dato.noticias ?? []) {
+    if (n.imagen) conocidas.set(n.url, n.imagen);
+  }
+
   const dato = await consultarMedios();
+  await completarImagenes(dato.noticias, conocidas);
+
   // Si no llegó ninguna nota preferimos dejar la foto anterior antes que
   // pisarla con una lista vacía.
   if (dato.noticias.length) await escribirSnapshot(SNAPSHOT, dato);

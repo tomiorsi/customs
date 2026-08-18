@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   AlertTriangle,
   Calculator,
+  Download,
   Info,
   Loader2,
   Plane,
@@ -17,6 +18,7 @@ import {
   HONORARIOS_MIN_DEFAULT,
   HONORARIOS_PCT_DEFAULT,
   PAISES,
+  PERFILES,
   VIAS,
   acuerdoLabel,
   cotizar,
@@ -27,8 +29,15 @@ import {
   regimenPercepciones,
   type Categoria,
   type Destino,
+  type PerfilFiscal,
   type ExportarResult,
 } from "@/lib/cotizador";
+import type { EstimacionPdfInput } from "@/lib/estimacion-pdf";
+import {
+  DESTINACION_POR_DEFECTO,
+  destinacionPorId,
+  destinacionesDe,
+} from "@/lib/destinaciones";
 import type {
   ClasificacionResultado,
   Respuesta,
@@ -49,7 +58,7 @@ const ICONO_VIA: Record<string, LucideIcon> = {
 };
 
 const inputCls =
-  "h-11 w-full rounded-lg border border-border bg-surface px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted focus:border-accent focus-visible:ring-2 focus-visible:ring-[var(--ring)]";
+  "h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted focus:border-accent focus-visible:ring-2 focus-visible:ring-[var(--ring)]";
 const labelCls = "text-xs font-medium text-foreground";
 const hintCls = "text-[11px] leading-snug text-muted";
 
@@ -171,6 +180,67 @@ function impactoFobMinimo(
   return `tu FOB ≈ USD ${n2(fobKg)}/kg < mínimo: ≈ +USD ${n2(extra)} de antidumping (≈ +${n2(pctFob)}% sobre el FOB, asumiendo USD/kg)`;
 }
 
+/**
+ * Descarga la estimación como PDF de una página.
+ *
+ * Manda los números que están en pantalla, así el PDF dice exactamente lo mismo
+ * que el usuario está viendo — incluidos los ajustes finos que haya hecho a
+ * mano (flete, seguro, gastos). Un respaldo que no coincide con la pantalla es
+ * peor que no tener respaldo.
+ */
+function BotonDescargarEstimacion({ payload }: { payload: EstimacionPdfInput }) {
+  const [bajando, setBajando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function bajar() {
+    setBajando(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/cotizador/pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        setError("No se pudo generar el PDF.");
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Estimacion-${new Date().toISOString().slice(0, 10)}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setError("Error de conexión.");
+    } finally {
+      setBajando(false);
+    }
+  }
+
+  return (
+    <div className="mt-3">
+      <button
+        type="button"
+        onClick={bajar}
+        disabled={bajando}
+        className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-accent/40 bg-accent-soft px-4 py-2.5 text-sm font-semibold text-accent transition-colors hover:bg-accent hover:text-[var(--accent-foreground)] disabled:opacity-60"
+      >
+        {bajando ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Download className="h-4 w-4" />
+        )}
+        Descargar estimación (PDF)
+      </button>
+      {error && (
+        <p className="mt-1.5 text-center text-xs font-medium text-red-500">{error}</p>
+      )}
+    </div>
+  );
+}
+
 export function CotizadorImportacion({
   ivaCondition,
   certExencion,
@@ -178,10 +248,24 @@ export function CotizadorImportacion({
   ivaCondition?: string | null;
   certExencion?: string | null;
 }) {
-  // Datos GENERALES del perfil del cliente (se cargan en el registro y se toman
-  // de acá automáticamente): condición fiscal y certificado de exención.
-  const perfil = perfilDesdeCondicionIva(ivaCondition);
-  const certExencionActiva = (certExencion ?? "").toLowerCase() === "si";
+  // Condición del IMPORTADOR de esta operación, no de quien está usando la
+  // calculadora. Un despachante cotiza para clientes con perfiles distintos, y
+  // el perfil cambia el total: un responsable inscripto recupera el IVA y las
+  // percepciones (son pago a cuenta), y un monotributista, un exento o un
+  // consumidor final NO presentan DDJJ de IVA, así que todo eso es costo puro.
+  // Dejarlo fijo en «responsable inscripto» mostraba SIEMPRE el número más
+  // bajo, que es el error caro: cotizar de menos.
+  const [perfil, setPerfil] = useState<PerfilFiscal>(
+    perfilDesdeCondicionIva(ivaCondition),
+  );
+
+  // El certificado es del IMPORTADOR de esta operación, no de quien está usando
+  // la calculadora: rara vez se importa a nombre propio. Por eso es un dato de
+  // la operación y se puede cambiar acá; el perfil solo fija el valor inicial.
+  const [certExencionOp, setCertExencionOp] = useState(
+    (certExencion ?? "").toLowerCase() === "si" ? "si" : "no",
+  );
+  const certExencionActiva = certExencionOp === "si";
 
   // Importación o exportación: define qué campos y qué tributos aplican.
   const [modo, setModo] = useState<"importacion" | "exportacion">(
@@ -198,6 +282,15 @@ export function CotizadorImportacion({
   const [paisNombre, setPaisNombre] = useState(PAISES[0].nombre);
   const [incotermValue, setIncotermValue] = useState("FOB");
   const [viaValue, setViaValue] = useState("maritima");
+  // Destinación: en un régimen suspensivo los tributos se garantizan en vez de
+  // pagarse, así que cambia el total. Arranca en «a consumo», que es el caso
+  // normal, y se resetea al cambiar de importación a exportación.
+  // Los supuestos arrancan cerrados: el usuario viene a ver el total.
+  const [verSupuestos, setVerSupuestos] = useState(false);
+  const [destinacion, setDestinacion] = useState<string>(
+    DESTINACION_POR_DEFECTO.importacion,
+  );
+  const regimenElegido = destinacionPorId(destinacion);
   // En comercio exterior el valor de referencia es el dólar y el cotizador no
   // hace conversión de divisas: fijamos USD en todo el cálculo.
   const moneda = "USD";
@@ -458,6 +551,7 @@ export function CotizadorImportacion({
         valor: valorNum,
         peso: 0,
         cantidad: 0,
+        destinacion,
         categoria,
         pais,
         incoterm,
@@ -487,6 +581,7 @@ export function CotizadorImportacion({
     [
       valorNum,
       categoria,
+      destinacion,
       pais,
       incoterm,
       via,
@@ -504,6 +599,7 @@ export function CotizadorImportacion({
   const rx = useMemo(
     () =>
       cotizarExportacion({
+        destinacion,
         valor: valorNum,
         pesoKg: 0,
         cantidad: 0,
@@ -520,6 +616,7 @@ export function CotizadorImportacion({
     [
       valorNum,
       arancel,
+      destinacion,
       incoterm,
       via,
       fleteOverride,
@@ -589,6 +686,9 @@ export function CotizadorImportacion({
   // Subtotales para el desglose en 3 bloques (CIF / impuestos / despacho+locales).
   const totalImpuestos =
     r.di + r.tasa + r.iva + r.percIva + r.percGan + r.iibb;
+  // Desembolso del grupo: el IVA de honorarios se paga aunque después se
+  // recupere, así que suma acá. Que vuelva se dice en la nota de la línea y en
+  // el «recuperás» del total.
   const totalGastos = r.honorarios + r.honorariosIva + r.gastosTerminal;
 
   // Costo final según el perfil fiscal: el modelo ya descuenta del costo real lo
@@ -601,7 +701,7 @@ export function CotizadorImportacion({
   const hayAntidumping = medidasAntidumping.length > 0;
 
   return (
-    <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
+    <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
       {/* Datos */}
       <div className="space-y-4">
         <Bloque titulo="¿Qué querés cotizar?">
@@ -617,7 +717,10 @@ export function CotizadorImportacion({
                 <button
                   key={value}
                   type="button"
-                  onClick={() => setModo(value)}
+                  onClick={() => {
+                    setModo(value);
+                    setDestinacion(DESTINACION_POR_DEFECTO[value]);
+                  }}
                   className={`h-9 rounded-lg text-sm font-semibold transition-colors ${
                     activo
                       ? "bg-accent text-[var(--accent-foreground)]"
@@ -629,19 +732,9 @@ export function CotizadorImportacion({
               );
             })}
           </div>
-          <p className={`mt-2 ${hintCls}`}>
-            {esExport
-              ? "Exportación: estimamos el derecho de exportación (retención), el reintegro y el neto sobre el FOB."
-              : "Importación: estimamos el derecho de importación, el IVA, las percepciones y el costo de nacionalizar."}
-          </p>
         </Bloque>
 
         <Bloque titulo={esExport ? "¿Qué vas a exportar?" : "¿Qué vas a importar?"}>
-          <p className={hintCls}>
-            Describí lo que vas a traer y te sugerimos la posición NCM con su
-            derecho de importación e IVA. Si hace falta precisar, te hacemos un
-            par de preguntas.
-          </p>
           <div className="mt-2 flex gap-2">
             <input
               className={inputCls}
@@ -656,7 +749,7 @@ export function CotizadorImportacion({
               type="button"
               onClick={clasificarProducto}
               disabled={clasificando || producto.trim().length < 2}
-              className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-lg bg-accent px-4 text-sm font-semibold text-[var(--accent-foreground)] transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg bg-accent px-4 text-sm font-semibold text-[var(--accent-foreground)] transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {clasificando ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -687,6 +780,32 @@ export function CotizadorImportacion({
         </Bloque>
 
         <Bloque titulo="Origen y transporte">
+          {/* La destinación va primero y sola: es lo que decide si los tributos
+              se pagan o se garantizan, o sea si el total de abajo es una salida
+              de caja o una garantía a constituir. */}
+          <Campo label="Destinación aduanera" className="mb-4">
+            <select
+              className={inputCls}
+              value={destinacion}
+              onChange={(e) => setDestinacion(e.target.value)}
+            >
+              {destinacionesDe(modo).map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.label}
+                </option>
+              ))}
+            </select>
+            {regimenElegido && regimenElegido.familia === "suspensiva" && (
+              <p className={`${hintCls} mt-1.5`}>
+                Régimen suspensivo ({regimenElegido.norma}): los tributos no se
+                pagan, se garantizan.
+                {regimenElegido.plazo
+                  ? ` Hay ${regimenElegido.plazo.dias} días desde ${regimenElegido.plazo.desde} para cancelarlo.`
+                  : " El plazo lo fija la autorización."}
+              </p>
+            )}
+          </Campo>
+
           {/* Los tres datos definen una sola cosa —de dónde viene y en qué
               condición— así que van juntos en un renglón. */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
@@ -707,7 +826,7 @@ export function CotizadorImportacion({
             )}
 
             <Campo label="Vía" className="shrink-0">
-              <div className="flex h-11 items-center gap-1 rounded-lg border border-border bg-surface p-1">
+              <div className="flex h-10 items-center gap-1 rounded-lg border border-border bg-surface p-1">
                 {VIAS.map((v) => {
                   const Icono = ICONO_VIA[v.value] ?? Ship;
                   const activa = viaValue === v.value;
@@ -719,7 +838,7 @@ export function CotizadorImportacion({
                       title={v.label}
                       aria-label={v.label}
                       aria-pressed={activa}
-                      className={`flex h-9 w-11 items-center justify-center rounded-md transition-colors ${
+                      className={`flex h-8 w-10 items-center justify-center rounded-md transition-colors ${
                         activa
                           ? "bg-accent text-[var(--accent-foreground)]"
                           : "text-muted hover:bg-surface-2 hover:text-foreground"
@@ -747,19 +866,13 @@ export function CotizadorImportacion({
             </Campo>
           </div>
 
-          {viaValue !== "maritima" && (
-            <p className={`${hintCls} mt-2`}>
-              Por aérea y terrestre solo aplican Incoterms multimodales: quedan
-              afuera FOB, CFR, CIF y FAS.
-            </p>
-          )}
         </Bloque>
 
         <Bloque titulo="Valor de la operación">
-          <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-x-3 gap-y-3 sm:grid-cols-2">
             <Campo label="Valor de la mercadería" full>
               <div className="flex gap-2">
-                <span className="inline-flex h-11 shrink-0 items-center rounded-lg border border-border bg-surface-2/60 px-3 text-sm font-semibold text-muted">
+                <span className="inline-flex h-10 shrink-0 items-center rounded-lg border border-border bg-surface-2/60 px-3 text-sm font-semibold text-muted">
                   USD
                 </span>
                 <input
@@ -771,11 +884,6 @@ export function CotizadorImportacion({
                 />
               </div>
             </Campo>
-            <p className={`${hintCls} -mt-2 sm:col-span-2`}>
-              {esExport
-                ? `Tu precio de venta en la condición ${incoterm.value}. La retención y el reintegro se calculan sobre el FOB.`
-                : `Valor en la condición ${incoterm.value}. Lo llevamos al CIF para liquidar los tributos.`}
-            </p>
 
             {mostrarFlete && (
               <Campo
@@ -831,41 +939,70 @@ export function CotizadorImportacion({
             )}
           </div>
 
-          <p className="mt-3 rounded-lg border border-border bg-surface-2/40 px-3 py-2 text-[11px] leading-snug text-muted">
-            El flete se carga a mano y se usa tal cual: vacío vale cero. El
-            seguro, si no lo completás, se toma al 1% sobre valor más flete.
-          </p>
         </Bloque>
 
         {!esExport && (
-          <Bloque titulo="Destino de la mercadería">
-            <Campo
-              label="¿Para qué traés esta mercadería?"
-              hint={DESTINOS.find((d) => d.value === destino)?.desc}
-            >
-              <select
-                className={inputCls}
-                value={destino}
-                onChange={(e) => setDestino(e.target.value as Destino)}
+          <Bloque titulo="Perfil del importador">
+            <div className="grid grid-cols-1 gap-x-3 gap-y-3 sm:grid-cols-2">
+              <Campo
+                label="Condición del importador frente al IVA"
+                hint={PERFILES.find((p) => p.value === perfil)?.desc}
               >
-                {DESTINOS.map((d) => (
-                  <option key={d.value} value={d.value}>
-                    {d.label}
-                  </option>
-                ))}
-              </select>
-            </Campo>
+                <select
+                  className={inputCls}
+                  value={perfil}
+                  onChange={(e) => setPerfil(e.target.value as PerfilFiscal)}
+                >
+                  {PERFILES.map((p) => (
+                    <option key={p.value} value={p.value}>
+                      {p.label}
+                    </option>
+                  ))}
+                </select>
+              </Campo>
+
+              <Campo
+                label="¿Para qué traés esta mercadería?"
+                hint={DESTINOS.find((d) => d.value === destino)?.desc}
+              >
+                <select
+                  className={inputCls}
+                  value={destino}
+                  onChange={(e) => setDestino(e.target.value as Destino)}
+                >
+                  {DESTINOS.map((d) => (
+                    <option key={d.value} value={d.value}>
+                      {d.label}
+                    </option>
+                  ))}
+                </select>
+              </Campo>
+
+              <Campo
+                label="¿El importador tiene Certificado MiPyME o de exclusión?"
+                hint="El MiPyME (RG 5501/5807) o el de exclusión (RG 5655/2025) eximen las percepciones de IVA y Ganancias. La exclusión para bienes esenciales e insumos MiPyME rige hasta el 31/12/2026 (RG 5868/2026). Es del importador de esta operación, no de quien cotiza."
+              >
+                <select
+                  className={inputCls}
+                  value={certExencionOp}
+                  onChange={(e) => setCertExencionOp(e.target.value)}
+                >
+                  <option value="no">No</option>
+                  <option value="si">Sí, vigente</option>
+                </select>
+              </Campo>
+            </div>
           </Bloque>
         )}
 
         <Bloque titulo="Servicios del despacho">
-          <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-x-3 gap-y-3 sm:grid-cols-3">
             <Campo
-              label="Honorarios despachante"
+              label="Honorarios despachante (sin IVA)"
               hint={
                 esExport
-                  ? "Sobre el FOB. Se cobra el mayor entre este % y el mínimo."
-                  : "Sobre el CIF. Se cobra el mayor entre este % y el mínimo."
+                  ? "Sobre el FOB, sin IVA. Se cobra el mayor entre este % y el mínimo."
+                  : "Sobre el CIF, sin IVA. Se cobra el mayor entre este % y el mínimo. El estudio factura con IVA discriminado (21%), que se suma abajo."
               }
             >
               <input
@@ -878,7 +1015,7 @@ export function CotizadorImportacion({
                 onChange={(e) => setHonorariosPct(e.target.value)}
               />
             </Campo>
-            <Campo label={`Honorarios mínimo (${moneda})`}>
+            <Campo label={`Mínimo sin IVA (${moneda})`}>
               <input
                 className={inputCls}
                 inputMode="decimal"
@@ -919,17 +1056,34 @@ export function CotizadorImportacion({
       </div>
 
       {/* Resultados */}
-      <div className="space-y-4 lg:sticky lg:top-4">
-        <div className="neon-top rounded-2xl border border-border glass p-5">
-          <div className="mb-4 flex items-center gap-2">
-            <Calculator className="h-4 w-4 text-accent" />
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-accent">
+      <div className="sin-scrollbar lg:sticky lg:top-3 lg:max-h-[calc(100vh-1.5rem)] lg:overflow-y-auto">
+        <div className="neon-top rounded-xl border border-border glass p-4">
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.1em] text-orange-700 dark:text-orange-300">
+              <Calculator className="h-4 w-4" />
               Estimación
             </p>
+            {/* Los supuestos no cambian el número: lo explican. Ocupaban un
+                tercio del panel antes de llegar a la primera cifra, así que
+                viven acá y se abren cuando hacen falta. */}
+            <button
+              type="button"
+              onClick={() => setVerSupuestos((v) => !v)}
+              aria-expanded={verSupuestos}
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                verSupuestos
+                  ? "border-accent bg-accent-soft text-orange-700 dark:text-orange-300"
+                  : "border-border text-foreground/75 hover:border-accent/60 hover:text-foreground"
+              }`}
+            >
+              <Info className="h-3.5 w-3.5" />
+              Supuestos
+            </button>
           </div>
 
-          {/* Resumen de supuestos */}
-          <div className="mb-3 flex flex-wrap gap-1.5">
+          {verSupuestos && (
+          <div className="mb-3 space-y-2 rounded-lg border border-border bg-surface-2/40 p-3">
+          <div className="flex flex-wrap gap-1.5">
             {clasif?.ncm && <Chip texto={`NCM ${clasif.ncm}`} />}
             {esExport ? (
               <>
@@ -949,16 +1103,18 @@ export function CotizadorImportacion({
             )}
           </div>
           {!clasif && (
-            <p className="mb-2 rounded-lg border border-border bg-surface-2/40 px-3 py-2 text-[11px] leading-snug text-muted">
+            <p className="text-[11px] leading-snug text-foreground/75">
               {esExport
                 ? "Clasificá tu producto arriba para estimar el derecho de exportación (retención) y el reintegro."
                 : "Clasificá tu producto arriba para estimar el derecho de importación y el IVA."}
             </p>
           )}
           {!esExport && notaPais(pais) && (
-            <p className="mb-4 rounded-lg border border-border bg-surface-2/40 px-3 py-2 text-[11px] leading-snug text-muted">
+            <p className="text-[11px] leading-snug text-foreground/75">
               {notaPais(pais)}
             </p>
+          )}
+          </div>
           )}
           {!esExport && cargandoAntidumping && clasif?.ncm && (
             <p className="mb-4 rounded-lg border border-border bg-surface-2/40 px-3 py-2 text-[11px] leading-snug text-muted">
@@ -1036,7 +1192,7 @@ export function CotizadorImportacion({
 
           {!esExport && (
           <>
-          <dl className="space-y-3 text-sm">
+          <dl className="space-y-2 text-sm">
             {/* 1) Mercadería puesta a bordo + flete + seguro = CIF */}
             <Grupo titulo="Mercadería (CIF)" total={fmt(r.cif, moneda)}>
               <Linea
@@ -1113,21 +1269,22 @@ export function CotizadorImportacion({
               titulo="Despacho y gastos locales"
               total={fmt(totalGastos, moneda)}
             >
+              {/* El IVA de honorarios va en la MISMA línea, no en una aparte.
+                  Para un responsable inscripto no es costo —lo computa como
+                  crédito fiscal—, así que darle un renglón propio dentro de
+                  «gastos» lo hace parecer un gasto más y engorda la lista.
+                  Para quien NO lo recupera sí es costo, y ahí se muestra
+                  directamente el honorario con IVA incluido: es lo que le va a
+                  salir. */}
               <Linea
                 label="Honorarios despachante"
-                valor={fmt(r.honorarios, moneda)}
+                valor={fmt(r.honorarios + r.honorariosIva, moneda)}
                 sub
                 nota={
-                  r.honorarios > (r.cif * num(honorariosPct)) / 100
-                    ? "(mínimo)"
-                    : `(${num(honorariosPct)}% s/ CIF)`
+                  regimen.recHonorariosIva
+                    ? `c/IVA · ${fmt(r.honorariosIva, moneda)} vuelve`
+                    : "IVA incluido"
                 }
-              />
-              <Linea
-                label="IVA honorarios"
-                valor={fmt(r.honorariosIva, moneda)}
-                sub
-                nota={regimen.recHonorariosIva ? "(crédito fiscal)" : "(costo)"}
               />
               {r.gastosTerminal > 0 && (
                 <Linea
@@ -1140,12 +1297,25 @@ export function CotizadorImportacion({
             </Grupo>
           </dl>
 
-          <div className="mt-4 space-y-3 border-t border-border pt-4">
+          <div className="mt-3 space-y-2 border-t border-border pt-3">
             <Total
               label={`Total a desembolsar (${moneda})`}
               valor={fmt(r.desembolso, moneda)}
               accent
             />
+            {r.garantia != null && (
+              <>
+                <Linea
+                  label="Garantía a constituir (no se paga)"
+                  valor={fmt(r.garantia, moneda)}
+                />
+                <p className="text-[11px] leading-snug text-muted">
+                  Derechos, IVA y percepciones quedan suspendidos y se
+                  garantizan: no salen de la caja. Si el régimen vence sin
+                  cancelarse, la garantía se ejecuta y ahí sí se pagan.
+                </p>
+              </>
+            )}
             {r.recuperable > 0 && (
               <Linea
                 label="Recuperás (crédito fiscal / pago a cuenta)"
@@ -1168,7 +1338,49 @@ export function CotizadorImportacion({
             )}
           </div>
 
-          <div className="mt-4 rounded-xl border border-border bg-surface-2/40 px-4 py-3">
+          <BotonDescargarEstimacion
+            payload={{
+              modo,
+              destinacion,
+              descripcion: clasif?.descripcion ?? null,
+              ncm: clasif?.ncm ?? null,
+              pais: pais.nombre,
+              via: via.label,
+              incoterm: incoterm?.value ?? "—",
+              moneda,
+              cantidad: null,
+              unidad: null,
+              perfilLabel:
+                PERFILES.find((p) => p.value === perfil)?.label ?? "Responsable inscripto",
+              destinoLabel: destino === "reventa" ? "Reventa" : "Uso propio",
+              cifra: {
+                valor: r.cif - r.flete - r.seguro,
+                flete: r.flete,
+                seguro: r.seguro,
+                cif: r.cif,
+                diPct: r.diPct,
+                di: r.di,
+                tasa: r.tasa,
+                tasaExenta: r.tasaExenta,
+                ivaPct: categoria.iva,
+                iva: r.iva,
+                percIva: r.percIva,
+                percGan: r.percGan,
+                iibb: r.iibb,
+                honorarios: r.honorarios,
+                honorariosIva: r.honorariosIva,
+                gastosTerminal: r.gastosTerminal,
+                recuperable: r.recuperable,
+                desembolso: r.desembolso,
+                costoReal: r.costoReal,
+                porUnidad: r.porUnidad,
+                garantia: r.garantia,
+                suspensiva: r.suspensiva,
+              },
+            }}
+          />
+
+          <div className="mt-3 rounded-lg border border-border bg-surface-2/40 px-3 py-2.5">
             <div className="flex items-baseline justify-between gap-3">
               <span className="text-xs font-medium text-muted">
                 Costo final real estimado{" "}
@@ -1186,20 +1398,6 @@ export function CotizadorImportacion({
           </>
           )}
         </div>
-
-        <div className="flex gap-2 rounded-xl border border-border bg-surface-2/40 px-4 py-3">
-          <Info className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-          <p className="text-[11px] leading-relaxed text-muted">
-            Cálculo <span className="font-semibold">estimado</span>. En la
-            práctica el número puede variar un poco según la clasificación exacta
-            (NCM) y otros detalles de la operación, pero en líneas generales esto
-            es lo que te va a salir. Los honorarios del despachante son
-            orientativos, no el valor final.{" "}
-            <span className="font-semibold text-foreground">
-              Por cualquier consulta, completá el formulario en Operaciones.
-            </span>
-          </p>
-        </div>
       </div>
     </div>
   );
@@ -1213,10 +1411,10 @@ function Bloque({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-border bg-surface/80 p-5 backdrop-blur-sm">
-      <div className="mb-4 flex items-center gap-2.5">
-        <span className="h-3.5 w-1 rounded-full bg-accent" />
-        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-accent">
+    <section className="rounded-xl border border-border bg-surface p-4">
+      <div className="mb-3 flex items-center gap-2">
+        <span className="h-3 w-0.5 rounded-full bg-accent" />
+        <h3 className="text-[11px] font-bold uppercase tracking-[0.1em] text-orange-700 dark:text-orange-300">
           {titulo}
         </h3>
       </div>
@@ -1233,18 +1431,21 @@ function Campo({
   children,
 }: {
   label: string;
+  /** Se muestra como tooltip del rótulo, no como renglón debajo del campo. */
   hint?: string;
   full?: boolean;
   className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <div
-      className={`space-y-1.5 ${full ? "col-span-2 sm:col-span-2" : ""} ${className}`}
-    >
-      <label className={labelCls}>{label}</label>
+    <div className={`space-y-1 ${full ? "col-span-2 sm:col-span-2" : ""} ${className}`}>
+      <label
+        className={`${labelCls} ${hint ? "cursor-help decoration-dotted underline-offset-2 hover:underline" : ""}`}
+        title={hint}
+      >
+        {label}
+      </label>
       {children}
-      {hint && <p className={hintCls}>{hint}</p>}
     </div>
   );
 }
@@ -1267,9 +1468,9 @@ function Grupo({
   children: ReactNode;
 }) {
   return (
-    <div className="space-y-1.5">
-      <div className="flex items-baseline justify-between gap-3 border-b border-border/60 pb-1">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+    <div className="space-y-1">
+      <div className="flex items-baseline justify-between gap-3 border-b border-border pb-1">
+        <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-foreground/80">
           {titulo}
         </span>
         <span className="text-sm font-semibold tabular-nums text-foreground">
@@ -1294,9 +1495,11 @@ function Linea({
 }) {
   return (
     <div className="flex items-baseline justify-between gap-3">
-      <dt className={sub ? "text-muted" : "text-foreground"}>
+      <dt className={sub ? "text-foreground/75" : "text-foreground"}>
         {label}
-        {nota && <span className="ml-1 text-[10px] text-muted">{nota}</span>}
+        {nota && (
+          <span className="ml-1 text-[10px] text-foreground/60">{nota}</span>
+        )}
       </dt>
       <dd
         className={`tabular-nums ${
@@ -1356,7 +1559,7 @@ function ExportPanel({
   });
   return (
     <>
-      <dl className="space-y-3 text-sm">
+      <dl className="space-y-2 text-sm">
         {/* Base FOB (sólo para mostrar de dónde sale, si hay que despejarlo) */}
         {(rx.fleteIntl > 0 || rx.seguroIntl > 0) && (
           <Grupo titulo="Base FOB" total={fmt(rx.fob, moneda)}>
@@ -1422,7 +1625,7 @@ function ExportPanel({
         </Grupo>
       </dl>
 
-      <div className="mt-4 space-y-3 border-t border-border pt-4">
+      <div className="mt-3 space-y-2 border-t border-border pt-3">
         <Total
           label={`Costo de exportar (${moneda})`}
           valor={fmt(rx.costoExportacion, moneda)}

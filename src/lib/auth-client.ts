@@ -4,14 +4,12 @@ import type { PublicUser } from "./types";
 
 type LoginInput = { identifier: string; password: string };
 
+/** Alta pública: solo despachantes. Los importadores entran por invitación. */
 type SignupInput = {
   companyName: string;
-  personType?: string;
   email: string;
   password: string;
   cuit?: string;
-  ivaCondition?: string;
-  certExencion?: string;
   contactName?: string;
   phone?: string;
   address?: string;

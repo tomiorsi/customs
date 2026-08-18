@@ -10,9 +10,9 @@ import {
   updateOperationEstado,
   type OpCampo,
 } from "@/lib/data";
-import { dentroDeClientes, rutaArchivo } from "@/lib/parquet-store";
+import { borrarDocumento } from "@/lib/archivos-cliente";
 import { esEstadoValido, estadoDescripcion, estadoLabel } from "@/lib/estados";
-import { esEquipo } from "@/lib/roles";
+import { esEquipo, alcanceDe } from "@/lib/roles";
 import { CAMPOS_LABEL } from "@/lib/ia-documentos";
 import { refrescarPendientesOperacion, camposDisparanPendientes } from "@/lib/validacion-doc";
 import { ETAPA_INICIAL } from "@/lib/workflow";
@@ -48,7 +48,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Estado inválido." }, { status: 400 });
   }
 
-  const op = await getOperationById(id);
+  const op = await getOperationById(id, alcanceDe(user));
   if (!op) {
     return NextResponse.json(
       { error: "Operación no encontrada." },
@@ -84,7 +84,7 @@ export async function PUT(
   }
 
   const { id } = await ctx.params;
-  const op = await getOperationById(id);
+  const op = await getOperationById(id, alcanceDe(user));
   if (!op) {
     return NextResponse.json(
       { error: "Operación no encontrada." },
@@ -155,7 +155,7 @@ export async function PUT(
   const claves = Object.keys(campos) as OpCampo[];
 
   if (camposDisparanPendientes(campos)) {
-    const fresh = await getOperationById(id);
+    const fresh = await getOperationById(id, alcanceDe(user));
     if (fresh) {
       await refrescarPendientesOperacion(fresh).catch(() => {});
     }
@@ -199,7 +199,7 @@ export async function DELETE(
   }
 
   const { id } = await ctx.params;
-  const op = await getOperationById(id);
+  const op = await getOperationById(id, alcanceDe(user));
   if (!op) {
     return NextResponse.json(
       { error: "Operación no encontrada." },
@@ -215,13 +215,7 @@ export async function DELETE(
   const docs = await removeOperation(op.user_id, id);
 
   // Borramos también los archivos físicos de cada documento.
-  await Promise.all(
-    docs.map((d) => {
-      const fullPath = rutaArchivo(d.user_id, d.stored_name);
-      if (!dentroDeClientes(fullPath)) return Promise.resolve();
-      return unlink(fullPath).catch(() => {});
-    }),
-  );
+  await Promise.all(docs.map((d) => borrarDocumento(d.user_id, d.stored_name)));
 
   return NextResponse.json({ ok: true });
 }

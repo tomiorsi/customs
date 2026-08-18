@@ -46,14 +46,10 @@ export default function LoginPage() {
           </Link>
         </div>
 
-        <h2 className="text-center text-2xl font-semibold tracking-tight text-foreground">
-          Ingresá a tu portal
-        </h2>
-        <p className="mt-1.5 text-center text-sm text-muted">
-          Accedé para gestionar tus operaciones y documentación.
-        </p>
-
-        <form onSubmit={onSubmit} className="mt-8 space-y-4">
+        {/* Sin encabezado: el logo ya dice dónde estás y los dos campos se
+            explican solos. Un título que repite lo obvio solo empuja el
+            formulario hacia abajo. */}
+        <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <label
               htmlFor="identifier"

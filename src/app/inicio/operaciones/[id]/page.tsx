@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth-server";
+import { alcanceDe } from "@/lib/roles";
 import {
   getDocumentsByOperation,
   getEventosByOperation,
@@ -20,7 +21,7 @@ export default async function OperacionDetallePage({
   if (!user) redirect("/login");
 
   const { id } = await params;
-  const opBase = await getOperationById(id);
+  const opBase = await getOperationById(id, alcanceDe(user));
   if (!opBase || opBase.user_id !== user.id) notFound();
   // El cliente ve su propio alias del nombre si lo cambió; si no, el oficial.
   const op = { ...opBase, titulo: opBase.titulo_cliente || opBase.titulo };

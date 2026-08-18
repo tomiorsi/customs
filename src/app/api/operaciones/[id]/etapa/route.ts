@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth-server";
-import { esEquipo } from "@/lib/roles";
+import { esEquipo, alcanceDe } from "@/lib/roles";
 import { addEvento, getOperationById, updateOperationEtapa } from "@/lib/data";
 import { limpiarProvisionalLogistica, limpiarProvisionalPaso1 } from "@/lib/valores-comercial";
 import { estadoDescripcion, estadoLabel } from "@/lib/estados";
@@ -25,7 +25,7 @@ export async function POST(
   }
 
   const { id } = await ctx.params;
-  const op = await getOperationById(id);
+  const op = await getOperationById(id, alcanceDe(user));
   if (!op) {
     return NextResponse.json(
       { error: "Operación no encontrada." },

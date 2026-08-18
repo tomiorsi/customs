@@ -7,6 +7,7 @@ import {
   setHallazgosDocumento,
   updateDocumentTipo,
   type OperationWithClient,
+  alcanceDelDueno,
 } from "@/lib/data";
 import {
   DOC_ETAPA_DE,
@@ -78,7 +79,7 @@ export async function procesarAnalisisDocumentoSubido(
       esImportacion: !esOperacionExportacion(op.tipo),
     });
 
-    const docVivo = await getDocumentById(ctx.docId);
+    const docVivo = await getDocumentById(ctx.docId, alcanceDelDueno(ctx.userId));
     if (!docVivo) return;
 
     const docTypeManual = ctx.tipoManual;
@@ -154,12 +155,12 @@ export async function procesarAnalisisDocumentoSubido(
       hallazgos: hallazgosFinales,
     });
 
-    const opHallazgos = await getOperationById(op.id);
+    const opHallazgos = await getOperationById(op.id, alcanceDelDueno(op.user_id));
     if (opHallazgos) {
       await resolverHallazgosDocumentos(opHallazgos);
     }
 
-    const opChecklist = await getOperationById(op.id);
+    const opChecklist = await getOperationById(op.id, alcanceDelDueno(op.user_id));
     if (opChecklist) {
       await actualizarChecklistAutomatico(opChecklist, {
         recienSubido: {
@@ -170,7 +171,7 @@ export async function procesarAnalisisDocumentoSubido(
       }).catch(() => {});
     }
 
-    const opPost = await getOperationById(op.id);
+    const opPost = await getOperationById(op.id, alcanceDelDueno(op.user_id));
     if (opPost) {
       await procesarPostSubidaDocumento(opPost, ctx.docId).catch(() => {});
     }

@@ -1,8 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { readFile, unlink } from "node:fs/promises";
 import { getCurrentUser } from "@/lib/auth-server";
-import { esEquipo } from "@/lib/roles";
-import { dentroDeClientes, rutaArchivo } from "@/lib/parquet-store";
+import { esEquipo, alcanceDe } from "@/lib/roles";
+import { borrarDocumento, leerDocumento } from "@/lib/archivos-cliente";
 import {
   getDocumentById,
   removeDocument,
@@ -21,7 +20,7 @@ export async function GET(
   }
 
   const { id } = await ctx.params;
-  const doc = await getDocumentById(id);
+  const doc = await getDocumentById(id, alcanceDe(user));
   if (!doc) {
     return NextResponse.json(
       { error: "Documento no encontrado." },
@@ -34,13 +33,9 @@ export async function GET(
     return NextResponse.json({ error: "No autorizado." }, { status: 403 });
   }
 
-  // Evitamos path traversal: resolvemos y verificamos que quede dentro de data/clientes.
-  const fullPath = rutaArchivo(doc.user_id, doc.stored_name);
-  if (!dentroDeClientes(fullPath)) {
-    return NextResponse.json({ error: "Ruta inválida." }, { status: 400 });
-  }
-
-  const data = await readFile(fullPath).catch(() => null);
+  // La lectura descifra y valida que la ruta no se escape del directorio de
+  // clientes: las dos cosas viven en leerDocumento, no repartidas por acá.
+  const data = await leerDocumento(doc.user_id, doc.stored_name);
   if (!data) {
     return NextResponse.json(
       { error: "El archivo ya no está disponible." },
@@ -79,7 +74,7 @@ export async function PATCH(
   }
 
   const { id } = await ctx.params;
-  const doc = await getDocumentById(id);
+  const doc = await getDocumentById(id, alcanceDe(user));
   if (!doc) {
     return NextResponse.json(
       { error: "Documento no encontrado." },
@@ -119,7 +114,7 @@ export async function DELETE(
   }
 
   const { id } = await ctx.params;
-  const doc = await getDocumentById(id);
+  const doc = await getDocumentById(id, alcanceDe(user));
   if (!doc) {
     return NextResponse.json(
       { error: "Documento no encontrado." },
@@ -134,11 +129,8 @@ export async function DELETE(
 
   const { operation_id, doc_type, user_id, file_name } = doc;
 
-  // Borramos el archivo físico (si la ruta es válida) y luego la metadata.
-  const fullPath = rutaArchivo(doc.user_id, doc.stored_name);
-  if (dentroDeClientes(fullPath)) {
-    await unlink(fullPath).catch(() => {});
-  }
+  // Borramos el archivo físico y luego la metadata.
+  await borrarDocumento(doc.user_id, doc.stored_name);
   await removeDocument(doc.user_id, id);
 
   if (operation_id) {

@@ -16,7 +16,6 @@ import {
   subpartidasDePartida,
   resolverNcmEnPaquete,
   hayCompetenciaMaterialEntreBloques,
-  materiaDeclaradaEnHechos,
   partidaPreferidaPorCadenaHechos,
   partidaPreferidaPorRankingClaro,
   type BloqueCandidatos,
@@ -100,19 +99,28 @@ async function finalizarDesdeCruce(
   if (cruce.confirma !== true || !cruce.ncm?.trim()) return null;
   const ncm = resolverNcmEnPaquete(cruce.ncm.trim(), bloques) ?? cruce.ncm.trim();
   const ncmDigitos = soloDigitos(ncm);
-  const ncmsCandidatos = new Set(bloques.flatMap((b) => b.sims.map((s) => soloDigitos(s.codigo))));
-  if (!ncmsCandidatos.has(ncmDigitos)) return null;
   const p4 = ncmDigitos.slice(0, 4);
+  // La línea se valida contra el nomenclador —`reconstruirHipotesis` la busca en
+  // su partida real—, no contra el paquete que armó el retrieval. Exigir que
+  // estuviera en el paquete descartaba cierres correctos cuando el motor no
+  // había traído la partida: ahí el que falló fue el retrieval, no la IA, y el
+  // importador terminaba viendo «la posición no está en el listado» con la
+  // respuesta buena ya calculada.
   const hip = await reconstruirHipotesis(ncm, p4);
   if (!hip) return null;
-  const propuestasAll = propuestasDesdeBloques(bloques);
+  // Si la partida no venía en el paquete, se suma para que las propuestas y las
+  // posiciones en mira se armen sobre el mismo universo del que salió el cierre.
+  const bloquesCierre = bloques.some((b) => b.partida === p4)
+    ? bloques
+    : [...bloques, { partida: p4, partidaDesc: hip.partidaDesc, sims: hip.candidatos }];
+  const propuestasAll = propuestasDesdeBloques(bloquesCierre);
   // Si el motor afinó la línea, `justificacion`/`descartadas` de la IA quedaron vacíos
   // (referían a otra NCM): armamos la fundamentación del cierre real, no la del modelo.
   const justificacion = cruce.justificacion?.trim()
     ? cruce.justificacion
     : justificacionLineaFinal(hip.ncm, textoLegalResumido(hip.exacto));
   const enMira = await armarPosicionesEnMira(propuestasAll, ncm, cruce.descartadas);
-  return armarFinal(producto, hip, justificacion, propuestasAll, enMira, bloques);
+  return armarFinal(producto, hip, justificacion, propuestasAll, enMira, bloquesCierre);
 }
 
 /** Fundamentación del cierre cuando el motor eligió la línea específica (RGI 3 a)/6). */
@@ -485,25 +493,16 @@ async function clasificarProductoInterno(
     subpartidas: subpartidas.length ? subpartidas : undefined,
   };
 
-  // Material sin declarar: solo si el cruce no cerró ya con NCM válida.
-  if (
-    cruceFinal.confirma !== true &&
-    puedePreguntar(listaRespuestas) &&
-    hayCompetenciaMaterialEntreBloques(bloques) &&
-    !materiaDeclaradaEnHechos(hechos)
-  ) {
-    return preguntar(
-      producto,
-      {
-        pregunta: "¿De qué material está hecho el artículo?",
-        opciones: ["Caucho", "Plástico", "Metal", "Textil", "Otro / no sé"].slice(0, MAX_OPCIONES),
-        permiteTextoLibre: true,
-        maxOpcionesBotones: MAX_OPCIONES,
-      },
-      provisional,
-      contextoPartidas,
-    );
-  }
+  // Acá vivía una pregunta fija «¿De qué material está hecho el artículo?» con
+  // opciones escritas a mano (caucho/plástico/metal/textil). Medida sobre los
+  // 260 fixtures, se disparaba en 21 casos: en 20 la partida correcta ya estaba
+  // en el paquete —así que la pregunta sobraba— y en el restante ninguna de las
+  // respuestas la rescataba. Cero de 21 de utilidad.
+  //
+  // No era una pregunta: era el síntoma de un retrieval que se había ido detrás
+  // del material en vez del artículo, disfrazado de dato faltante. La pregunta
+  // que sigue —la que la IA formula sobre lo que realmente falta decidir— es
+  // específica del caso y sale del cruce, no de una lista fija.
 
   // Preguntar antes de forzar cierre: descripción corta o dato que falta.
   if (

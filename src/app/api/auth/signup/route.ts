@@ -9,25 +9,33 @@ import {
   type DBUser,
 } from "@/lib/auth-server";
 
+/**
+ * Alta de cuenta de despachante: es el único registro público.
+ *
+ * El importador no se registra solo — entra invitado por su despachante desde
+ * Accesos. Es la única forma de que nazca dentro de una cartera; auto-registrado
+ * quedaría sin estudio, sin bandeja y sin nadie con quien chatear.
+ *
+ * La cuenta nueva es dueña de su estudio (`despachante_id` en NULL): panel
+ * completo, cartera propia vacía y sus propias subcuentas. Por eso el alta es
+ * directa y no necesita aprobación: no da acceso a los datos de nadie.
+ *
+ * No se le pide nada más que nombre, email y contraseña: entra a probar y recién
+ * al vencerse los días de prueba tiene que elegir un plan.
+ */
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const companyName = String(body.companyName ?? "").trim();
-  const personTypeRaw = String(body.personType ?? "").trim();
-  const personType = personTypeRaw === "fisica" ? "fisica" : "juridica";
   const email = String(body.email ?? "").trim().toLowerCase();
   const password = String(body.password ?? "");
   const cuit = String(body.cuit ?? "").trim();
-  const ivaCondition = String(body.ivaCondition ?? "").trim();
-  const certExencion = String(body.certExencion ?? "").trim() === "si" ? "si" : "no";
   const contactName = String(body.contactName ?? "").trim();
   const phone = String(body.phone ?? "").trim();
   const address = String(body.address ?? "").trim();
 
   if (!companyName || !email || !password) {
-    const nombreCampo =
-      personType === "fisica" ? "Nombre y apellido" : "Razón social";
     return NextResponse.json(
-      { error: `${nombreCampo}, email y contraseña son obligatorios.` },
+      { error: "Nombre o estudio, email y contraseña son obligatorios." },
       { status: 400 },
     );
   }
@@ -53,18 +61,15 @@ export async function POST(req: Request) {
   const id = cryptoId();
   db.prepare(
     `INSERT INTO users
-       (id, username, email, password_hash, role, company_name, person_type,
-        cuit, iva_condition, cert_exencion, contact_name, phone, address)
-     VALUES (?, NULL, ?, ?, 'client', ?, ?, ?, ?, ?, ?, ?, ?)`,
+       (id, username, email, password_hash, role, company_name,
+        cuit, contact_name, phone, address, trial_hasta)
+     VALUES (?, NULL, ?, ?, 'operador', ?, ?, ?, ?, ?, datetime('now', '+5 days'))`,
   ).run(
     id,
     email,
     hashPassword(password),
     companyName,
-    personType,
     cuit || null,
-    ivaCondition || null,
-    certExencion,
     contactName || null,
     phone || null,
     address || null,

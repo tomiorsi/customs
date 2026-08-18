@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth-server";
+import { esDuenoDeEstudio, estudioDe } from "@/lib/roles";
 import {
   createOperador,
   getOperadores,
@@ -9,15 +10,15 @@ import {
 
 export async function GET() {
   const user = await getCurrentUser();
-  if (!user || user.role !== "admin") {
+  if (!user || !esDuenoDeEstudio(user)) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
-  return NextResponse.json({ operadores: getOperadores() });
+  return NextResponse.json({ operadores: getOperadores(estudioDe(user)) });
 }
 
 export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
-  if (!user || user.role !== "admin") {
+  if (!user || !esDuenoDeEstudio(user)) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
 
@@ -44,12 +45,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { id } = createOperador({
-      nombre,
-      username,
-      email: email || null,
-      password,
-    });
+    const { id } = createOperador(
+      { nombre, username, email: email || null, password },
+      estudioDe(user),
+    );
     return NextResponse.json({ ok: true, id });
   } catch {
     return NextResponse.json(
@@ -61,7 +60,7 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   const user = await getCurrentUser();
-  if (!user || user.role !== "admin") {
+  if (!user || !esDuenoDeEstudio(user)) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
 
@@ -96,13 +95,19 @@ export async function PATCH(req: NextRequest) {
   }
 
   try {
-    updateOperador({
-      id,
-      nombre,
-      username,
-      email: email || null,
-      password: password || null,
-    });
+    const ok = updateOperador(
+      {
+        id,
+        nombre,
+        username,
+        email: email || null,
+        password: password || null,
+      },
+      estudioDe(user),
+    );
+    if (!ok) {
+      return NextResponse.json({ error: "Cuenta no encontrada." }, { status: 404 });
+    }
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json(
@@ -114,7 +119,7 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const user = await getCurrentUser();
-  if (!user || user.role !== "admin") {
+  if (!user || !esDuenoDeEstudio(user)) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
   const body = (await req.json().catch(() => null)) as { id?: string } | null;
@@ -122,6 +127,8 @@ export async function DELETE(req: NextRequest) {
   if (!id) {
     return NextResponse.json({ error: "Falta el id." }, { status: 400 });
   }
-  removeOperador(id);
+  if (!removeOperador(id, estudioDe(user))) {
+    return NextResponse.json({ error: "Cuenta no encontrada." }, { status: 404 });
+  }
   return NextResponse.json({ ok: true });
 }

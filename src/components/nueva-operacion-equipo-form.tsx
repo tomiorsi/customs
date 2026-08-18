@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { Plane, Ship, Truck } from "lucide-react";
 import { useRouter } from "next/navigation";
+import {
+  DESTINACION_POR_DEFECTO,
+  destinacionesDe,
+} from "@/lib/destinaciones";
 
 export type ClienteOpcion = {
   id: string;
@@ -10,11 +15,10 @@ export type ClienteOpcion = {
   cuit: string | null;
 };
 
-const VIAS = [
-  { value: "", label: "Sin definir" },
-  { value: "maritima", label: "Marítima" },
-  { value: "aerea", label: "Aérea" },
-  { value: "terrestre", label: "Terrestre" },
+const VIAS_ICONO = [
+  { value: "maritima", label: "Marítima", Icono: Ship },
+  { value: "aerea", label: "Aérea", Icono: Plane },
+  { value: "terrestre", label: "Terrestre", Icono: Truck },
 ];
 
 /** Incoterms 2020 (cláusula de entrega). */
@@ -38,6 +42,14 @@ export function NuevaOperacionEquipoForm({ clientes }: { clientes: ClienteOpcion
   const router = useRouter();
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // El tipo filtra las destinaciones posibles: no tiene sentido ofrecer una
+  // exportación temporaria dentro de una importación.
+  const [flujo, setFlujo] = useState<"importacion" | "exportacion">("importacion");
+  const [destinacion, setDestinacion] = useState<string>(
+    DESTINACION_POR_DEFECTO.importacion,
+  );
+  // Vacía = sin definir. Volver a tocar el ícono activo la limpia.
+  const [via, setVia] = useState("");
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -91,29 +103,71 @@ export function NuevaOperacionEquipoForm({ clientes }: { clientes: ClienteOpcion
           )}
         </Campo>
 
-        <Campo label="Tipo *">
-          <Select name="tipo" defaultValue="Importación" required>
-            <option value="Importación">Importación</option>
-            <option value="Exportación">Exportación</option>
-          </Select>
-        </Campo>
+        {/* Tipo, vía y destinación definen la misma cosa —qué operación es— así
+            que van juntos. La vía va con íconos: son tres opciones fijas y se
+            eligen de un toque, sin desplegar una lista. */}
+        <div className="flex flex-col gap-4 sm:col-span-2 sm:flex-row sm:items-end">
+          <Campo className="min-w-0 flex-1" label="Tipo *">
+            <Select
+              name="tipo"
+              defaultValue="Importación"
+              required
+              onChange={(e) => {
+                const f =
+                  e.target.value === "Exportación" ? "exportacion" : "importacion";
+                setFlujo(f);
+                setDestinacion(DESTINACION_POR_DEFECTO[f]);
+              }}
+            >
+              <option value="Importación">Importación</option>
+              <option value="Exportación">Exportación</option>
+            </Select>
+          </Campo>
 
-        <Campo label="Vía">
-          <Select name="via" defaultValue="">
-            {VIAS.map((v) => (
-              <option key={v.value} value={v.value}>
-                {v.label}
-              </option>
-            ))}
-          </Select>
-        </Campo>
+          <Campo className="shrink-0" label="Vía">
+            <input type="hidden" name="via" value={via} />
+            <div className="flex h-11 items-center gap-1 rounded-lg border border-border bg-surface p-1">
+              {VIAS_ICONO.map(({ value, label, Icono }) => {
+                const activa = via === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setVia(activa ? "" : value)}
+                    title={label}
+                    aria-label={label}
+                    aria-pressed={activa}
+                    className={`flex h-9 w-11 items-center justify-center rounded-md transition-colors ${
+                      activa
+                        ? "bg-accent text-[var(--accent-foreground)]"
+                        : "text-muted hover:bg-surface-2 hover:text-foreground"
+                    }`}
+                  >
+                    <Icono className="h-[18px] w-[18px]" />
+                  </button>
+                );
+              })}
+            </div>
+          </Campo>
+
+          <Campo className="min-w-0 flex-1" label="Destinación *">
+            <Select
+              name="destinacion"
+              value={destinacion}
+              onChange={(e) => setDestinacion(e.target.value)}
+              required
+            >
+              {destinacionesDe(flujo).map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.label}
+                </option>
+              ))}
+            </Select>
+          </Campo>
+        </div>
 
         <Campo className="sm:col-span-2" label="Nombre de la operación *">
           <Input name="titulo" placeholder="Ej. Film policarbonato Brasil" required />
-        </Campo>
-
-        <Campo className="sm:col-span-2" label="Mercadería">
-          <Input name="mercaderia" placeholder="Descripción de la mercadería" />
         </Campo>
 
         <Campo label="País de origen">

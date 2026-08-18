@@ -3,12 +3,26 @@
 import { useEffect, useRef, useState } from "react";
 import {
   AlertTriangle,
+  BookOpen,
+  CheckCircle2,
   FileUp,
+  Lightbulb,
+  ListTree,
   Loader2,
+  PackageOpen,
+  Globe,
+  Info,
+  Landmark,
+  Percent,
+  Receipt,
   ScanSearch,
+  Send,
+  TrendingUp,
   ShieldAlert,
   Sparkles,
+  UploadCloud,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import type {
   ClasificacionResultado,
@@ -91,8 +105,6 @@ type FichaPosicion = {
   tributos: TributoVuce[];
 };
 
-const inputCls =
-  "h-12 w-full rounded-lg border border-border bg-surface px-4 text-base text-foreground outline-none transition-colors placeholder:text-muted focus:border-accent focus-visible:ring-2 focus-visible:ring-[var(--ring)]";
 
 const ACCEPT_CATALOGO =
   "application/pdf,image/jpeg,image/png,image/gif,image/webp";
@@ -147,6 +159,50 @@ function medidaVencida(vencimiento: string | null): boolean {
  * Buscador de posición NCM: solo el clasificador con IA, en grande. Pensado para
  * que el equipo consulte rápido la posición correcta de un producto.
  */
+
+/**
+ * Los tres modos de búsqueda, cada uno con su color.
+ *
+ * No son estados de un mismo interruptor: importación y exportación miran
+ * datos distintos de la misma posición, y «manual» es recorrer el nomenclador
+ * a mano. El color los separa antes de que haga falta leer la etiqueta.
+ */
+const MODOS = [
+  {
+    value: "importacion" as const,
+    label: "Importación",
+    Icono: PackageOpen,
+    activo: "bg-accent text-[var(--accent-foreground)] shadow-sm",
+    inactivo:
+      "border border-border bg-surface text-foreground hover:border-accent/50 hover:text-accent",
+  },
+  {
+    value: "exportacion" as const,
+    label: "Exportación",
+    Icono: Send,
+    activo: "bg-emerald-600 text-white shadow-sm",
+    inactivo:
+      "border border-border bg-surface text-foreground hover:border-emerald-500/50 hover:text-emerald-600",
+  },
+  {
+    value: "manual" as const,
+    label: "Manual",
+    Icono: BookOpen,
+    activo: "bg-sky-600 text-white shadow-sm",
+    inactivo:
+      "border border-border bg-surface text-foreground hover:border-sky-500/50 hover:text-sky-600",
+  },
+];
+
+/** Puertas de entrada por rubro, para el que no sabe cómo describir su producto. */
+const CATEGORIAS = [
+  "Máquinas y aparatos",
+  "Eléctricos y electrónicos",
+  "Plásticos y sus manufacturas",
+  "Textiles y confecciones",
+];
+
+
 export function NomencladorClasificador() {
   // Importación o exportación: define qué datos se muestran de la posición.
   const [modo, setModo] = useState<"importacion" | "exportacion" | "manual">(
@@ -369,34 +425,32 @@ export function NomencladorClasificador() {
 
   return (
     <div className="w-full">
-      <div className="rounded-2xl border border-border bg-surface/80 p-6 backdrop-blur-sm sm:p-8">
-        <div className="mb-4 flex items-center gap-2">
-          <ScanSearch className="h-5 w-5 text-accent" />
-          <p className="text-xs font-semibold uppercase tracking-wider text-accent">
+      <div className="rounded-2xl border border-border bg-surface p-6 sm:p-8">
+        <div className="mb-6 flex items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft">
+            <ScanSearch className="h-5 w-5 text-accent" />
+          </span>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             Buscar posición NCM
-          </p>
+          </h1>
         </div>
 
-        <div className="mb-4 grid grid-cols-3 gap-1 rounded-xl border border-border bg-surface-2/40 p-1">
-          {(
-            [
-              ["importacion", "Importación"],
-              ["exportacion", "Exportación"],
-              ["manual", "Manual"],
-            ] as const
-          ).map(([value, label]) => {
-            const activo = modo === value;
+        {/* Los tres modos, cada uno con su color: no son un toggle de dos
+            estados sino tres caminos distintos, y el color los separa antes de
+            leer la etiqueta. */}
+        <div className="mb-6 grid gap-3 sm:grid-cols-3">
+          {MODOS.map(({ value, label, Icono, activo, inactivo }) => {
+            const esActivo = modo === value;
             return (
               <button
                 key={value}
                 type="button"
                 onClick={() => setModo(value)}
-                className={`h-9 rounded-lg text-sm font-semibold transition-colors ${
-                  activo
-                    ? "bg-accent text-[var(--accent-foreground)]"
-                    : "text-muted hover:text-foreground"
+                className={`flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all ${
+                  esActivo ? activo : inactivo
                 }`}
               >
+                <Icono className="h-4 w-4 shrink-0" />
                 {label}
               </button>
             );
@@ -406,33 +460,35 @@ export function NomencladorClasificador() {
         {esManual && <NomencladorManual esExport={esExport} />}
 
         {!esManual && (
-        <p className="text-sm leading-snug text-muted">
-          Describí el producto con el mayor detalle posible (material, uso,
-          características técnicas). Cuanto más preciso, mejor engancha la
-          posición exacta y{" "}
-          {esExport
-            ? "sus derechos de exportación (retención) y reintegros."
-            : "su derecho de importación."}
-        </p>
-        )}
-
-        {!esManual && (
         <>
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-          <input
-            className={inputCls}
-            placeholder="Descripción del producto: material, uso, función…"
+        <p className="text-sm leading-relaxed text-foreground">
+          Describí tu producto con el mayor detalle posible para clasificarlo
+          correctamente
+          {esExport
+            ? " y ver sus derechos de exportación y reintegros."
+            : " y ver su derecho de importación."}
+        </p>
+
+        <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+          <textarea
+            rows={2}
+            className="min-h-[76px] flex-1 resize-y rounded-xl border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted focus:border-accent focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            placeholder="Ej.: Compresor hermético 1/2HP, R134a, 220V, para refrigeración comercial…"
             value={consulta}
             onChange={(e) => setConsulta(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") clasificar();
+              // Enter clasifica; Shift+Enter hace salto de línea.
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                clasificar();
+              }
             }}
           />
           <button
             type="button"
             onClick={clasificar}
             disabled={clasificando || consulta.trim().length < 2}
-            className="inline-flex h-12 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-accent px-6 text-sm font-semibold text-[var(--accent-foreground)] transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="inline-flex h-12 shrink-0 items-center justify-center gap-2 self-start rounded-xl bg-accent px-6 text-sm font-semibold text-[var(--accent-foreground)] shadow-sm transition-all hover:opacity-90 disabled:opacity-50 sm:h-[76px]"
           >
             {clasificando ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -444,68 +500,104 @@ export function NomencladorClasificador() {
         </div>
 
         {mostrarEntradaCatalogo && (
-          <>
-            <div className="relative mt-8 mb-4 flex items-center gap-3">
-              <div className="h-px flex-1 bg-border" />
-              <span className="text-xs font-medium uppercase tracking-wide text-muted">
-                o catálogo / ficha
-              </span>
-              <div className="h-px flex-1 bg-border" />
+          <div className="mt-5 grid gap-4 lg:grid-cols-3">
+            {/* Qué escribir para que la clasificación enganche. Es lo que más
+                cambia el resultado y nadie lo adivina solo. */}
+            <div className="rounded-xl border border-border bg-accent-soft/40 p-4">
+              <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <Lightbulb className="h-4 w-4 shrink-0 text-accent" />
+                Consejos útiles
+              </p>
+              <ul className="mt-3 space-y-2">
+                {[
+                  "Especificá material y uso",
+                  "Incluí medidas o potencia",
+                  "Adjuntá ficha técnica si tenés",
+                ].map((t) => (
+                  <li key={t} className="flex items-start gap-2 text-xs text-foreground">
+                    <CheckCircle2 className="mt-px h-3.5 w-3.5 shrink-0 text-accent" />
+                    {t}
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            <p className="text-sm leading-snug text-muted">
-              Subí un PDF o imagen: lo leemos, completamos la descripción arriba y
-              clasificamos con el mismo flujo.
-            </p>
+            {/* Catálogo o ficha: se lee el archivo y se completa la descripción. */}
+            <label
+              className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-2/30 p-4 text-center transition-colors hover:border-accent/60 hover:bg-accent-soft/30 ${
+                clasificando ? "pointer-events-none opacity-50" : ""
+              }`}
+            >
+              <p className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.16em] text-muted">
+                <FileUp className="h-3.5 w-3.5" />
+                Catálogo / ficha
+              </p>
+              <UploadCloud className="mt-3 h-8 w-8 text-accent" />
+              <p className="mt-2 text-sm font-semibold text-foreground">
+                Arrastrá o elegí archivo
+              </p>
+              <p className="mt-0.5 text-xs text-muted">PDF, JPG o PNG</p>
+              <input
+                type="file"
+                accept={ACCEPT_CATALOGO}
+                className="sr-only"
+                disabled={clasificando}
+                onChange={(e) => {
+                  const f = e.target.files?.[0] ?? null;
+                  e.target.value = "";
+                  if (f) void subirCatalogo(f);
+                }}
+              />
+            </label>
 
-            <div className="mt-3">
-              <label
-                className={`inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-surface-2/30 px-4 text-sm font-medium text-muted transition-colors hover:border-accent/50 hover:text-foreground ${
-                  clasificando ? "pointer-events-none opacity-50" : ""
-                }`}
-              >
-                <FileUp className="h-4 w-4 shrink-0" />
-                Elegir PDF o imagen
-                <input
-                  type="file"
-                  accept={ACCEPT_CATALOGO}
-                  className="sr-only"
-                  disabled={clasificando}
-                  onChange={(e) => {
-                    const f = e.target.files?.[0] ?? null;
-                    e.target.value = "";
-                    if (f) void subirCatalogo(f);
-                  }}
-                />
-              </label>
+            {/* Atajos por rubro: para el que no sabe cómo describir y prefiere
+                entrar por donde ya conoce. */}
+            <div className="rounded-xl border border-border bg-surface-2/30 p-4">
+              <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <ListTree className="h-4 w-4 shrink-0 text-accent" />
+                Explorá categorías
+              </p>
+              <ul className="mt-3 space-y-1.5">
+                {CATEGORIAS.map((c) => (
+                  <li key={c}>
+                    <button
+                      type="button"
+                      onClick={() => setConsulta(c)}
+                      className="text-left text-xs text-foreground transition-colors hover:text-accent"
+                    >
+                      {c}
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
+          </div>
+        )}
 
-            {catalogoNombre && (
-              <div className="mt-3 flex items-start gap-2 rounded-lg border border-border bg-surface-2/40 px-3 py-2.5 text-xs">
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-foreground">
-                    Catálogo: {catalogoNombre}
-                  </p>
-                  {catalogoResumen && (
-                    <p className="mt-1 line-clamp-3 leading-snug text-muted">
-                      {catalogoResumen}
-                    </p>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCatalogoNombre(null);
-                    setCatalogoResumen(null);
-                  }}
-                  className="shrink-0 rounded p-1 text-muted hover:text-foreground"
-                  title="Quitar referencia al archivo"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            )}
-          </>
+        {catalogoNombre && (
+          <div className="mt-4 flex items-start gap-2 rounded-xl border border-border bg-surface-2/40 px-3 py-2.5 text-xs">
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold text-foreground">
+                Catálogo: {catalogoNombre}
+              </p>
+              {catalogoResumen && (
+                <p className="mt-1 line-clamp-3 leading-snug text-foreground/70">
+                  {catalogoResumen}
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setCatalogoNombre(null);
+                setCatalogoResumen(null);
+              }}
+              className="shrink-0 rounded p-1 text-muted transition-colors hover:text-foreground"
+              title="Quitar referencia al archivo"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         )}
 
         {clasificando && (
@@ -556,22 +648,43 @@ export function NomencladorClasificador() {
   );
 }
 
+/**
+ * Un tributo de la posición: etiqueta arriba, porcentaje grande abajo.
+ *
+ * Antes era un renglón "etiqueta ....... 3%", que obliga a leer de izquierda a
+ * derecha uno por uno. Puestos como columnas, los porcentajes quedan alineados
+ * y se comparan de un vistazo, que es lo que uno hace con una tributación:
+ * mirar cuál pesa.
+ */
 function ArancelDato({
   label,
   valor,
   sufijo = "",
+  Icono,
 }: {
   label: string;
   valor: number;
   sufijo?: string;
+  Icono?: LucideIcon;
 }) {
   return (
-    <div className="flex items-baseline justify-between gap-2">
-      <span className="text-muted">{label}</span>
-      <span className="font-semibold tabular-nums text-foreground">
+    <div className="min-w-0 px-3 py-3">
+      <p className="flex items-start gap-1.5">
+        {Icono && (
+          <Icono className="mt-px h-3.5 w-3.5 shrink-0 text-foreground/60" />
+        )}
+        <span className="text-[11px] font-bold uppercase leading-tight tracking-[0.08em] text-foreground/80">
+          {label}
+        </span>
+      </p>
+      <p className="mt-1.5 text-2xl font-bold tabular-nums text-foreground">
         {valor.toLocaleString("es-AR", { maximumFractionDigits: 2 })}%
-        {sufijo}
-      </span>
+        {sufijo && (
+          <span className="ml-1 text-xs font-normal text-foreground/70">
+            {sufijo}
+          </span>
+        )}
+      </p>
     </div>
   );
 }
@@ -590,10 +703,10 @@ function FilaAlternativa({
       }`}
     >
       <span className="min-w-0 text-foreground">
-        <span className="font-mono text-accent">{a.codigo}</span>{" "}
+        <span className="font-mono">{a.codigo}</span>{" "}
         {a.descripcion}
       </span>
-      <span className="shrink-0 tabular-nums text-muted">{a.di}%</span>
+      <span className="shrink-0 font-medium tabular-nums text-foreground">{a.di}%</span>
     </li>
   );
 }
@@ -602,10 +715,10 @@ function BloquePosicionesEnMira({ items }: { items: PosicionEnMira[] }) {
   if (items.length === 0) return null;
   return (
     <div className="rounded-lg border border-border bg-surface/60 px-3 py-2.5">
-      <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted">
+      <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.1em] text-foreground/80">
         Otras posiciones evaluadas en el cruce legal
       </p>
-      <p className="mb-2.5 text-[11px] leading-snug text-muted">
+      <p className="mb-2.5 text-xs leading-relaxed text-foreground/80">
         Líneas que el cruce legal evaluó y descartó frente a la elegida (RGI y
         notas). Pueden ser de la misma partida u otra rama del nomenclador.
       </p>
@@ -616,17 +729,17 @@ function BloquePosicionesEnMira({ items }: { items: PosicionEnMira[] }) {
             className="border-l-2 border-muted/40 pl-2.5 text-[11px] leading-snug"
           >
             <p className="font-medium text-foreground/90">
-              <span className="font-mono text-accent">{p.ncm}</span>
+              <span className="font-mono">{p.ncm}</span>
               {p.di != null && (
-                <span className="ml-2 tabular-nums text-muted">DI {p.di}%</span>
+                <span className="ml-2 font-medium tabular-nums text-foreground">DI {p.di}%</span>
               )}
             </p>
             {p.descripcion && (
               <p className="mt-0.5 text-foreground/85">{p.descripcion}</p>
             )}
             {p.motivo && (
-              <p className="mt-1 text-muted">
-                <span className="font-semibold text-foreground/70">
+              <p className="mt-1 text-foreground/80">
+                <span className="font-semibold text-foreground">
                   Por qué no:
                 </span>{" "}
                 {p.motivo}
@@ -641,7 +754,7 @@ function BloquePosicionesEnMira({ items }: { items: PosicionEnMira[] }) {
 
 function Chip({ texto }: { texto: string }) {
   return (
-    <span className="rounded-full bg-surface-2 px-3 py-1 text-xs font-medium text-muted">
+    <span className="rounded-full bg-surface-2 px-3 py-1 text-xs font-medium text-foreground">
       {texto}
     </span>
   );
@@ -685,7 +798,7 @@ function ResultadoClasif({
     );
     return (
       <div className="mt-5 space-y-4">
-        <div className="rounded-xl border border-border bg-surface-2/40 px-5 py-4 text-sm leading-snug text-muted">
+        <div className="rounded-xl border border-border bg-surface-2/40 px-5 py-4 text-sm leading-snug text-foreground/75">
           {r.justificacion ??
             "No pudimos cerrar la posición automáticamente. Agregá detalle arriba (material, uso, partes) y volvé a clasificar."}
         </div>
@@ -705,7 +818,7 @@ function ResultadoClasif({
               </p>
             )}
             {(prov?.descripcion || r.descripcion) && (
-              <p className="mt-2 text-xs leading-snug text-muted">
+              <p className="mt-2 text-xs leading-snug text-foreground/75">
                 {prov?.descripcion ?? r.descripcion}
               </p>
             )}
@@ -769,8 +882,8 @@ function ResultadoClasif({
       {bloquePreguntas}
 
       {hayPreguntas && !hayHipotesis && (
-        <div className="rounded-lg border border-dashed border-muted/40 bg-surface/50 px-4 py-3">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted">
+        <div className="rounded-xl border border-border bg-surface-2/30 px-4 py-3.5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-foreground/80">
             Nomenclatura en curso
           </p>
           <p className="mt-1 text-sm text-foreground/80">
@@ -781,14 +894,14 @@ function ResultadoClasif({
 
       {hayPreguntas && hayHipotesis && (
         <div className="rounded-lg border border-dashed border-muted/40 bg-surface/50 px-4 py-3">
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-muted">
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-foreground/70">
             {fasePartida
               ? "Partida en evaluación (puede cambiar)"
               : "Nomenclatura en curso (orientativa)"}
           </p>
           <div className="flex flex-wrap items-center gap-2">
             {codigoOrientativo && (
-              <span className="rounded-md border border-border bg-surface px-3 py-1 font-mono text-sm font-medium text-foreground/80">
+              <span className="rounded-md border border-border bg-surface px-3 py-1 font-mono text-sm font-semibold text-foreground">
                 {codigoOrientativo}
               </span>
             )}
@@ -800,14 +913,16 @@ function ResultadoClasif({
             )}
           </div>
           {(prov?.partidaDesc || r.partidaDesc) && (
-            <p className="mt-2 text-[11px] uppercase tracking-wide text-muted">
-              {fasePartida ? "Hipótesis: " : "Partida "}
+            <p className="mt-2 text-xs leading-snug text-foreground">
+              <span className="font-semibold">
+                {fasePartida ? "Hipótesis" : "Partida"}
+              </span>{" "}
               {prov?.partida ?? r.partida}:{" "}
               {prov?.partidaDesc ?? r.partidaDesc}
             </p>
           )}
           {fasePartida && (
-            <p className="mt-2 text-xs leading-snug text-muted">
+            <p className="mt-2 text-xs leading-snug text-foreground/75">
               La partida no está cerrada hasta responder. Si tus respuestas apuntan
               a otro capítulo, el resultado final puede ser distinto.
             </p>
@@ -818,19 +933,19 @@ function ResultadoClasif({
             </p>
           )}
           {(prov?.justificacion || r.justificacion) && (
-            <p className="mt-1.5 text-xs leading-snug text-muted">
+            <p className="mt-1.5 text-xs leading-snug text-foreground/75">
               {prov?.justificacion ?? r.justificacion}
             </p>
           )}
           {!esExport && arancel && prov?.ncm && (
-            <p className="mt-2 text-[10px] leading-snug text-muted">
+            <p className="mt-2 text-xs leading-relaxed text-foreground/80">
               Tributación estimada según posición probable — puede cambiar al
               responder.
             </p>
           )}
           {alternativas.length > 0 && hayPreguntas && (
             <div className="mt-3 space-y-1 border-t border-border/60 pt-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted">
+              <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-foreground/80">
                 Otras posiciones posibles
               </p>
               <ul className="space-y-1">
@@ -845,13 +960,16 @@ function ResultadoClasif({
 
       {esDefinitivo && (
         <>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
             {r.ncm && (
-              <span className="rounded-md bg-accent/15 px-3 py-1 font-mono text-base font-semibold text-accent">
-                NCM {r.ncm}
-              </span>
+              <p
+                className="font-mono text-2xl font-bold tracking-tight text-orange-700 dark:text-orange-300 sm:text-3xl"
+              >
+                <span className="mr-2 text-lg font-semibold sm:text-xl">NCM</span>
+                {r.ncm}
+              </p>
             )}
-            <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+            <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700 dark:text-emerald-300">
               Posición definitiva
             </span>
             {esExport ? (
@@ -873,13 +991,15 @@ function ResultadoClasif({
           </div>
 
           {r.ncm && arancel && (
-            <div className="rounded-lg border border-border bg-surface/60 px-3 py-2.5">
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-muted">
+            <div className="overflow-hidden rounded-xl border border-border bg-surface">
+              <p className="border-b border-border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.1em] text-foreground/80">
                 {esExport
                   ? "Aranceles de exportación (nomenclador)"
                   : "Tributación aplicable (Argentina)"}
               </p>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs sm:grid-cols-3">
+              {/* Columnas con divisor entre sí: cada tributo es una unidad y la
+                  línea evita que se lean como una sola tira de números. */}
+              <div className="grid grid-cols-2 divide-x divide-y divide-border sm:grid-cols-3 lg:grid-cols-6 lg:divide-y-0">
                 {esExport ? (
                   <>
                     <ArancelDato
@@ -906,25 +1026,40 @@ function ResultadoClasif({
                     <ArancelDato
                       label="Derecho importación (DIE)"
                       valor={arancel.di}
+                      Icono={Landmark}
                     />
                     {arancel.aec != null && arancel.aec !== arancel.di && (
-                      <ArancelDato label="AEC (referencia)" valor={arancel.aec} />
+                      <ArancelDato
+                        label="AEC (referencia)"
+                        valor={arancel.aec}
+                        Icono={Info}
+                      />
                     )}
                     {arancel.dii != null && (
-                      <ArancelDato label="DII (Mercosur)" valor={arancel.dii} />
+                      <ArancelDato
+                        label="DII (Mercosur)"
+                        valor={arancel.dii}
+                        Icono={Globe}
+                      />
                     )}
                     {arancel.te != null && (
-                      <ArancelDato label="Tasa estadística" valor={arancel.te} />
+                      <ArancelDato
+                        label="Tasa estadística"
+                        valor={arancel.te}
+                        Icono={TrendingUp}
+                      />
                     )}
                     <ArancelDato
                       label="IVA"
                       valor={arancel.iva}
                       sufijo={arancel.ivaEstimado ? " est." : ""}
+                      Icono={Percent}
                     />
                     {arancel.ivaAdicional != null && (
                       <ArancelDato
                         label="IVA adicional (percepción)"
                         valor={arancel.ivaAdicional}
+                        Icono={Receipt}
                       />
                     )}
                     {arancel.ganancias != null && (
@@ -946,7 +1081,7 @@ function ResultadoClasif({
                 )}
               </div>
               {!esExport && arancel.te === 0 && (
-                <p className="mt-2 text-[10px] leading-snug text-muted">
+                <p className="mt-2 text-xs leading-relaxed text-foreground/80">
                   La tasa estadística general es 3%. VUCE publica esta posición
                   en 0%: es una exención por régimen (bienes de capital,
                   informática y telecomunicaciones), no depende del país de
@@ -954,7 +1089,7 @@ function ResultadoClasif({
                 </p>
               )}
               {!esExport && arancel.dieRegimen && (
-                <p className="mt-2 text-[10px] leading-snug text-muted">
+                <p className="mt-2 text-xs leading-relaxed text-foreground/80">
                   Régimen: {arancel.dieRegimen}
                   {arancel.bk ? " · Bien de capital (BK)" : ""}
                 </p>
@@ -962,13 +1097,13 @@ function ResultadoClasif({
               {!esExport &&
                 arancel.diNominal != null &&
                 arancel.diNominal !== arancel.di && (
-                  <p className="mt-1 text-[10px] leading-snug text-muted">
+                  <p className="mt-1 text-xs leading-relaxed text-foreground/80">
                     Tarifa nominal del nomenclador: {arancel.diNominal}% (no es la
                     alícuota aplicable).
                   </p>
                 )}
               {esExport && (
-                <p className="mt-2 text-[10px] leading-snug text-muted">
+                <p className="mt-2 text-xs leading-relaxed text-foreground/80">
                   La retención (DE) y el reintegro se calculan sobre el FOB. El IVA
                   de exportación es 0% y el de los servicios es recuperable.
                 </p>
@@ -977,22 +1112,27 @@ function ResultadoClasif({
           )}
 
           {r.partidaDesc && (
-            <p className="text-[11px] uppercase tracking-wide text-muted">
-              Partida {r.partida}: {r.partidaDesc}
+            <p className="text-xs leading-relaxed text-foreground/80">
+              <span className="font-semibold text-foreground">
+                Partida {r.partida}
+              </span>{" "}
+              · {r.partidaDesc}
             </p>
           )}
 
           {r.descripcion && (
-            <p className="text-sm font-medium leading-snug text-foreground">
+            <p className="text-lg font-semibold leading-snug text-foreground">
               {r.descripcion}
             </p>
           )}
           {r.justificacion && (
-            <p className="text-xs leading-snug text-muted">{r.justificacion}</p>
+            <p className="text-sm leading-relaxed text-foreground/85">
+              {r.justificacion}
+            </p>
           )}
 
           {!esExport && r.aranceles && r.aranceles.length > 1 && (
-            <p className="rounded-lg border border-border bg-surface/60 px-3 py-2 text-[11px] leading-snug text-muted">
+            <p className="rounded-lg border border-border bg-surface/60 px-3 py-2 text-xs leading-relaxed text-foreground/80">
               Dentro de esta partida hay posiciones con distinto derecho (
               {r.aranceles.map((a) => `${a}%`).join(", ")}). Precisá el producto
               para fijar la posición exacta.
@@ -1001,9 +1141,11 @@ function ResultadoClasif({
         </>
       )}
 
-      {/* Dónde cayó la posición a la izquierda; qué exige el Estado, a la derecha. */}
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <div className="min-w-0 space-y-4">
+      {/* Dónde cayó la posición a la izquierda; qué exige el Estado, a la
+          derecha. Mientras el motor todavía pregunta no hay nada que poner a la
+          derecha, así que las listas se quedan con todo el ancho. */}
+      <div className={`grid gap-4 ${esDefinitivo ? "lg:grid-cols-5" : ""}`}>
+        <div className={`min-w-0 space-y-4 ${esDefinitivo ? "lg:col-span-3" : ""}`}>
           {(r.subpartidas?.length ?? 0) > 0 && (
             <BloqueSubpartidas
               partida={r.partida ?? prov?.partida ?? ""}
@@ -1022,7 +1164,7 @@ function ResultadoClasif({
 
           {alternativas.length > 0 && esDefinitivo && (
             <div className="space-y-1.5 border-t border-border pt-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+              <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-foreground/80">
                 Otras posiciones posibles
               </p>
               <ul className="space-y-1">
@@ -1034,7 +1176,7 @@ function ResultadoClasif({
           )}
         </div>
 
-        <div className="min-w-0 space-y-4">
+        <div className={`min-w-0 space-y-4 ${esDefinitivo ? "lg:col-span-2" : ""}`}>
           {esDefinitivo && (r.unidad || (r.sufijos?.length ?? 0) > 0) && (
             <BloqueDeclaracion unidad={r.unidad} sufijos={r.sufijos ?? []} />
           )}
@@ -1048,7 +1190,7 @@ function ResultadoClasif({
           )}
 
           {esDefinitivo && r.ncm && esExport && (
-            <p className="rounded-lg border border-border bg-surface/60 px-3 py-2 text-[11px] leading-snug text-muted">
+            <p className="rounded-lg border border-border bg-surface/60 px-3 py-2 text-xs leading-relaxed text-foreground/80">
               El antidumping y las intervenciones de VUCE son del lado importador
               (no aplican a la exportación argentina). Para exportar regís por la
               retención y el reintegro de arriba; las intervenciones de
@@ -1070,8 +1212,8 @@ function BloqueDeclaracion({
   sufijos: SufijoNcm[];
 }) {
   return (
-    <div className="rounded-lg border border-border bg-surface/60 px-4 py-3">
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted">
+    <div className="rounded-xl border border-border bg-surface px-4 py-3.5">
+      <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-foreground/80">
         Cómo se declara
       </p>
       {unidad && (
@@ -1089,7 +1231,7 @@ function BloqueDeclaracion({
           <ul className="mt-1.5 space-y-1">
             {sufijos.map((s) => (
               <li key={s.sufijo} className="flex gap-2 text-xs leading-snug">
-                <span className="shrink-0 rounded bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] text-accent">
+                <span className="shrink-0 rounded bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] font-medium">
                   {s.sufijo}
                 </span>
                 <span className="min-w-0 text-muted">
@@ -1108,11 +1250,11 @@ function BloqueDeclaracion({
 function BloqueNotas({ notas }: { notas: NotaNcm[] }) {
   const [abierta, setAbierta] = useState<string | null>(null);
   return (
-    <div className="rounded-lg border border-border bg-surface/60 px-4 py-3">
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted">
+    <div className="rounded-xl border border-border bg-surface px-4 py-3.5">
+      <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-foreground/80">
         Notas legales
       </p>
-      <p className="mt-1 text-[11px] leading-snug text-muted">
+      <p className="mt-1.5 text-xs leading-snug text-foreground/75">
         Deciden qué entra y qué queda excluido de esta partida. Mandan sobre el
         texto de la posición.
       </p>
@@ -1130,10 +1272,10 @@ function BloqueNotas({ notas }: { notas: NotaNcm[] }) {
                 <p className="text-xs font-medium text-foreground hover:text-accent">
                   {n.referencia}
                 </p>
-                <p className="text-[11px] leading-snug text-muted">{n.titulo}</p>
+                <p className="text-xs leading-relaxed text-foreground/80">{n.titulo}</p>
               </button>
               {activa && (
-                <p className="mt-1.5 max-h-72 overflow-y-auto whitespace-pre-line border-l border-border pl-3 text-[11px] leading-relaxed text-muted">
+                <p className="mt-1.5 max-h-72 overflow-y-auto whitespace-pre-line border-l border-border pl-3 text-[11px] leading-relaxed text-foreground/75">
                   {n.texto}
                 </p>
               )}
@@ -1158,23 +1300,23 @@ function BloqueSubpartidas({
   const digitos = (s: string) => (s ?? "").replace(/\D/g, "");
   const elegida = digitos(ncmElegida ?? "").slice(0, 6);
   return (
-    <div className="space-y-1.5 border-t border-border pt-3">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+    <div className="overflow-hidden rounded-xl border border-border bg-surface">
+      <p className="border-b border-border px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-foreground/80">
         Subpartidas de la partida {partida}
       </p>
-      <ul className="space-y-0.5">
+      <ul className="divide-y divide-border">
         {items.map((s) => {
           const activa = digitos(s.codigo) === elegida;
           return (
             <li
               key={s.codigo}
-              className={`flex gap-2 rounded-md px-2 py-1 text-xs leading-snug ${
+              className={`flex gap-4 px-4 py-2.5 text-xs leading-snug ${
                 activa
-                  ? "bg-accent-soft font-medium text-accent"
-                  : "text-muted"
+                  ? "bg-accent-soft font-semibold text-orange-700 dark:text-orange-300"
+                  : "text-foreground"
               }`}
             >
-              <span className="shrink-0 font-mono">{s.codigo}</span>
+              <span className="w-20 shrink-0 font-mono font-medium">{s.codigo}</span>
               <span className="min-w-0">{s.descripcion}</span>
             </li>
           );
@@ -1187,24 +1329,26 @@ function BloqueSubpartidas({
 /** Las partidas que el motor evaluó: si la elegida no encaja, la buena suele estar acá. */
 function BloquePartidasEvaluadas({ items }: { items: PartidaEvaluada[] }) {
   return (
-    <div className="space-y-1.5 border-t border-border pt-3">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+    <div className="overflow-hidden rounded-xl border border-border bg-surface">
+      <p className="border-b border-border px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-foreground/80">
         Partidas evaluadas
       </p>
-      <ul className="space-y-0.5">
+      <ul className="divide-y divide-border">
         {items.map((p) => (
           <li
             key={p.partida}
-            className={`flex gap-2 rounded-md px-2 py-1 text-xs leading-snug ${
-              p.elegida ? "bg-accent-soft font-medium text-accent" : "text-muted"
+            className={`flex gap-4 px-4 py-2.5 text-xs leading-snug ${
+              p.elegida
+                ? "bg-accent-soft font-semibold text-orange-700 dark:text-orange-300"
+                : "text-foreground"
             }`}
           >
-            <span className="shrink-0 font-mono">{p.partida}</span>
+            <span className="w-20 shrink-0 font-mono font-medium">{p.partida}</span>
             <span className="min-w-0">{p.descripcion}</span>
           </li>
         ))}
       </ul>
-      <p className="px-2 text-[10px] leading-snug text-muted">
+      <p className="border-t border-border px-4 py-2.5 text-xs leading-snug text-foreground/75">
         Si la posición elegida no encaja con tu mercadería, revisá estas: son las
         que el nomenclador puso a consideración.
       </p>
@@ -1352,13 +1496,13 @@ function BloqueAntidumping({ medidas }: { medidas: AntidumpingVuce[] }) {
           </ul>
 
           {hayFobMinimo(medidas) && (
-            <p className="text-[10px] leading-snug text-muted">
+            <p className="text-xs leading-relaxed text-foreground/80">
               <span className="font-semibold">Valor FOB mínimo:</span> precio de
               referencia (en USD por kilogramo). Si el FOB declarado es menor, se
               aplica un derecho antidumping por la diferencia hasta ese mínimo.
             </p>
           )}
-          <p className="text-[10px] leading-snug text-muted">
+          <p className="text-xs leading-relaxed text-foreground/80">
             Dato de VUCE a la fecha de descarga. Una fecha vencida no significa
             que la medida haya caído: si está en revisión sigue aplicándose.
             Confirmá la vigencia real en{" "}
@@ -1421,7 +1565,7 @@ function FichaVuce({
             <ShieldAlert className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
             Trámites que pueden aplicar
           </p>
-          <p className="mb-2.5 text-[11px] leading-snug text-muted">
+          <p className="mb-2.5 text-xs leading-relaxed text-foreground/80">
             Según VUCE, para esta posición estos organismos pueden exigir un
             permiso previo. No dependen del país de origen (eso afecta
             antidumping y certificado de origen).
@@ -1435,7 +1579,7 @@ function FichaVuce({
                 <ul className="space-y-2.5">
                   {agruparPorOrganismo(bloque.items).map((g) => (
                     <li key={g.organismo}>
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted">
+                      <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-foreground/80">
                         {g.organismo}
                       </p>
                       <ul className="mt-1 space-y-2 border-l-2 border-border pl-2.5">
@@ -1445,12 +1589,12 @@ function FichaVuce({
                               {fraseAccion(iv)}
                             </p>
                             {iv.regimen && (
-                              <p className="text-[10px] leading-snug text-muted">
+                              <p className="text-xs leading-relaxed text-foreground/80">
                                 {iv.regimen}
                               </p>
                             )}
                             {iv.resumen && (
-                              <p className="text-[10px] leading-snug text-muted">
+                              <p className="text-xs leading-relaxed text-foreground/80">
                                 {recortar(iv.resumen, 140)}
                               </p>
                             )}
@@ -1469,7 +1613,7 @@ function FichaVuce({
       {/* Tributos extra */}
       {ficha.tributos.length > 0 && (
         <div className="rounded-lg border border-border bg-surface/60 px-3 py-2">
-          <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-muted">
+          <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.1em] text-foreground/80">
             Tributos (además del derecho)
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -1486,7 +1630,7 @@ function FichaVuce({
       {/* Regímenes opcionales */}
       {ficha.regimenes.length > 0 && (
         <details className="rounded-lg border border-border bg-surface/60 px-3 py-2">
-          <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide text-muted">
+          <summary className="cursor-pointer text-[11px] font-bold uppercase tracking-[0.1em] text-foreground/80">
             Regímenes opcionales ({ficha.regimenes.length})
           </summary>
           <ul className="mt-1 space-y-1">

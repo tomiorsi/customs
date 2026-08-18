@@ -129,3 +129,47 @@ export function separarViaje(raw: string): { buque: string; viaje: string | null
   if (!m) return { buque: limpio, viaje: null };
   return { buque: m[1], viaje: m[2] };
 }
+
+/* ───────────────────── Vigencia de una escala ─────────────────────
+ * Vive acá y no en el componente porque la usan las dos capas: la tabla para
+ * decidir qué muestra, y el almacenamiento para separar lo vivo de lo
+ * histórico. Si cada una tuviera su criterio, el archivo y la pantalla dirían
+ * cosas distintas.
+ */
+
+const TERMINADOS = new Set<EstadoBuque>(["finalizado", "cancelado"]);
+const EN_PUERTO = new Set<EstadoBuque>(["arribado", "operando"]);
+
+/**
+ * Días que una escala puede seguir figurando "en puerto" antes de que dejemos
+ * de creerle a la fuente.
+ *
+ * Una escala real dura horas, a lo sumo un par de días. Un buque que hace tres
+ * semanas dice "operando" no está operando: la terminal publicó ese renglón y
+ * nunca lo cerró. Sin este corte esos registros quedaban vigentes para siempre
+ * y ensuciaban la lista de lo que de verdad hay que atender.
+ */
+const DIAS_GRACIA_EN_PUERTO = 7;
+
+function diasEntre(desdeIso: string, hastaIso: string): number {
+  const a = Date.parse(`${desdeIso}T00:00:00Z`);
+  const b = Date.parse(`${hastaIso}T00:00:00Z`);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return 0;
+  return Math.round((b - a) / 86_400_000);
+}
+
+/**
+ * ¿Esta escala sigue importando? Es decir: ¿hay algo por hacer todavía?
+ *
+ * Vigente = el buque está en puerto ahora, o todavía no llegó. Lo terminado ya
+ * operó; lo que quedó con ETA vencida sin cerrarse es un renglón que la fuente
+ * nunca actualizó. En ninguno de los dos casos hay carga que despachar.
+ */
+export function sigueVigente(a: Arribo, hoy: string): boolean {
+  if (TERMINADOS.has(a.estado)) return false;
+  if (EN_PUERTO.has(a.estado)) {
+    // En puerto sí, pero no eternamente: pasada la gracia es dato muerto.
+    return !a.eta || diasEntre(a.eta, hoy) <= DIAS_GRACIA_EN_PUERTO;
+  }
+  return !a.eta || a.eta >= hoy;
+}

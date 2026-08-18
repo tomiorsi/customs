@@ -9,6 +9,7 @@ import {
   vistasEstudioTodas,
 } from "@/lib/data";
 import { getCurrentUser } from "@/lib/auth-server";
+import { estudioDe } from "@/lib/roles";
 import {
   OperacionesLista,
   type OperacionItem,
@@ -20,7 +21,7 @@ export default async function AdminOperacionesPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const ops = await getAllOperations();
+  const ops = await getAllOperations(estudioDe(user));
   const vistas = vistasEstudioTodas();
   const items: OperacionItem[] = await Promise.all(
     ops.map(async (op) => {

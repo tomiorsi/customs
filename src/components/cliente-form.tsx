@@ -69,7 +69,7 @@ export function ClienteForm({ cliente }: { cliente?: ClienteEditable }) {
           <Input
             name="companyName"
             defaultValue={cliente?.company_name ?? ""}
-            placeholder="Ej. Dayplas S.A."
+            placeholder="Razón social como figura en AFIP"
             required
           />
         </Campo>

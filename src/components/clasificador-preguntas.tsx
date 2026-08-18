@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import type { Pregunta } from "@/lib/clasificador/tipos";
 
 type Props = {
@@ -29,13 +29,23 @@ export function haySeleccionClasificador(
   });
 }
 
+/**
+ * Las preguntas que hace el clasificador cuando le falta un dato para cerrar la
+ * posición.
+ *
+ * Solo opciones, sin campo de texto libre. El texto libre parecía una salida
+ * amable —"escribí si ninguna aplica"— pero entra crudo al motor y le mete
+ * ruido a un retrieval que ya es sensible: una frase ambigua tira la
+ * clasificación a otra rama. Las opciones las arma el propio motor sabiendo qué
+ * necesita para desempatar, así que si ninguna encaja el camino correcto es
+ * reescribir la descripción del producto, no forzar una respuesta acá.
+ */
 export function ClasificadorPreguntas({
   preguntas,
   fasePartida = false,
   sel,
   textoLibre,
   onSelect,
-  onTextoLibre,
   onAfinar,
   afinando,
   className = "",
@@ -44,87 +54,95 @@ export function ClasificadorPreguntas({
   if (preguntas.length === 0) return null;
 
   const haySeleccion = haySeleccionClasificador(preguntas, sel, textoLibre);
-  const btnCls = compacto
-    ? "inline-flex items-center gap-1.5 rounded-lg border border-accent/40 px-2.5 py-1.5 text-[10px] font-semibold text-accent transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-60"
-    : "inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-xs font-semibold text-[var(--accent-foreground)] transition-opacity hover:opacity-90 disabled:opacity-50";
-  const chipCls = compacto
-    ? "rounded-full border px-2 py-1 text-[10px] font-medium transition-colors"
-    : "rounded-full border px-3 py-1 text-left text-xs font-medium transition-colors";
+  const visibles = preguntas.slice(0, 4);
 
   return (
     <div
-      className={`space-y-3 rounded-lg border border-border bg-surface/60 px-3 py-3 ${className}`}
+      className={`rounded-xl border border-border bg-surface ${
+        compacto ? "p-3" : "p-4 sm:p-5"
+      } ${className}`}
     >
-      {preguntas.slice(0, 4).map((q, i) => {
-        const maxBotones = q.maxOpcionesBotones ?? 3;
-        const opcionesVisibles = (q.opciones ?? []).slice(0, maxBotones);
-        const etiquetaLibre =
-          q.etiquetaTextoLibre?.trim() || "Otra respuesta (texto libre)";
-        const libre = textoLibre[q.pregunta] ?? "";
-        return (
-          <div key={i} className="space-y-1.5">
-            <p
-              className={
-                compacto
-                  ? "text-[11px] font-medium text-foreground"
-                  : "text-xs leading-snug text-foreground"
-              }
-            >
-              {q.pregunta}
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {opcionesVisibles.map((op) => {
-                const activo = sel[q.pregunta] === op && !libre.trim();
-                return (
-                  <button
-                    key={op}
-                    type="button"
-                    onClick={() => {
-                      onTextoLibre(q.pregunta, "");
-                      onSelect(q.pregunta, op);
-                    }}
-                    className={`${chipCls} ${
-                      activo
-                        ? "border-accent bg-accent text-[var(--accent-foreground)]"
-                        : "border-border bg-surface text-muted hover:border-accent/50"
-                    }`}
-                  >
-                    {op}
-                  </button>
-                );
-              })}
-            </div>
-            {q.permiteTextoLibre !== false && (
-              <div className="mt-1 space-y-1">
-                <label className="text-[10px] font-medium text-muted">
-                  {etiquetaLibre}
-                </label>
-                <input
-                  type="text"
-                  className={`w-full rounded-lg border border-border bg-surface px-3 text-foreground outline-none focus:border-accent ${
-                    compacto ? "h-8 text-[11px]" : "h-9 text-xs"
-                  }`}
-                  value={libre}
-                  onChange={(e) => {
-                    onTextoLibre(q.pregunta, e.target.value);
-                    if (e.target.value.trim()) onSelect(q.pregunta, "");
-                  }}
-                  placeholder="Escribí acá si ninguna opción aplica"
-                />
+      <div className={compacto ? "space-y-4" : "space-y-5"}>
+        {visibles.map((q, i) => {
+          const maxBotones = q.maxOpcionesBotones ?? 3;
+          const opciones = (q.opciones ?? []).slice(0, maxBotones);
+          const elegida = sel[q.pregunta];
+          return (
+            <div key={i}>
+              <p
+                className={`font-semibold text-foreground ${
+                  compacto ? "text-xs leading-snug" : "text-sm leading-snug"
+                }`}
+              >
+                {/* Numerada solo si hay más de una: con una sola, el "1." sobra. */}
+                {visibles.length > 1 && (
+                  <span className="mr-1.5 font-mono text-orange-700 dark:text-orange-300">
+                    {i + 1}.
+                  </span>
+                )}
+                {q.pregunta}
+              </p>
+
+              {/* Una opción por renglón y a lo ancho: son frases largas, y
+                  puestas en fila se cortaban y costaba compararlas. Apiladas
+                  se leen de un barrido. */}
+              <div className={compacto ? "mt-2 space-y-1.5" : "mt-2.5 space-y-2"}>
+                {opciones.map((op) => {
+                  const activo = elegida === op;
+                  return (
+                    <button
+                      key={op}
+                      type="button"
+                      onClick={() => onSelect(q.pregunta, activo ? "" : op)}
+                      aria-pressed={activo}
+                      className={`flex w-full items-center gap-2.5 rounded-lg border text-left font-medium transition-all ${
+                        compacto ? "px-3 py-2 text-[11px]" : "px-3.5 py-2.5 text-sm"
+                      } ${
+                        activo
+                          ? "border-accent bg-accent-soft text-foreground shadow-sm"
+                          : "border-border bg-surface text-foreground hover:border-accent/60 hover:bg-accent-soft/40"
+                      }`}
+                    >
+                      <span
+                        aria-hidden
+                        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                          activo
+                            ? "border-accent bg-accent text-[var(--accent-foreground)]"
+                            : "border-border"
+                        }`}
+                      >
+                        {activo && <Check className="h-2.5 w-2.5" strokeWidth={3} />}
+                      </span>
+                      {op}
+                    </button>
+                  );
+                })}
               </div>
-            )}
-          </div>
-        );
-      })}
-      <button
-        type="button"
-        onClick={onAfinar}
-        disabled={!haySeleccion || afinando}
-        className={compacto ? `${btnCls} w-full justify-center` : btnCls}
-      >
-        {afinando && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-        {fasePartida ? "Continuar clasificación" : "Afinar clasificación"}
-      </button>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* El botón cierra el bloque, pegado a la última opción: es el paso
+          siguiente de lo que se acaba de elegir, no una acción suelta. */}
+      <div className="mt-5 flex items-center gap-3 border-t border-border pt-4">
+        <button
+          type="button"
+          onClick={onAfinar}
+          disabled={!haySeleccion || afinando}
+          className={`inline-flex items-center justify-center gap-2 rounded-lg bg-accent font-semibold text-[var(--accent-foreground)] shadow-sm transition-all hover:opacity-90 disabled:opacity-50 ${
+            compacto ? "h-9 w-full px-3 text-xs" : "h-11 px-6 text-sm"
+          }`}
+        >
+          {afinando && <Loader2 className="h-4 w-4 animate-spin" />}
+          {fasePartida ? "Continuar clasificación" : "Afinar clasificación"}
+        </button>
+        {!haySeleccion && !compacto && (
+          <p className="text-xs text-foreground/70">
+            Elegí una opción para seguir.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

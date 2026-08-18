@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, CalendarDays } from "lucide-react";
 import {
   FAMILIAS,
   decodificarGde,
@@ -9,8 +10,11 @@ import {
   type FamiliaControl,
   type NormaBoletin,
 } from "@/lib/boletin/tipos";
-import { faviconDeMedio } from "@/lib/noticias/tipos";
-import type { ListadoNoticias, Noticia } from "@/lib/noticias/tipos";
+import type { ListadoNoticias } from "@/lib/noticias/tipos";
+import {
+  NotaDestacada,
+  PORTALES,
+} from "@/components/noticia-tarjetas";
 
 /**
  * Inicio del equipo: la normativa del día, leída como se lee el Boletín.
@@ -149,97 +153,61 @@ function LineaSumario({
   );
 }
 
-/**
- * El colophon del Boletín: año en romanos y número de edición, como los
- * imprime la tapa. Ancla la pantalla en la fuente y da la escala de la cosa
- * (va por el año CXXXIV: sale sin faltar desde 1893).
- */
-function Sello({ boletin }: { boletin: BoletinDelDia }) {
-  return (
-    <div className="shrink-0 self-start border-2 border-double border-border bg-surface px-5 py-4 text-center">
-      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
-        Año
-      </p>
-      <p className="font-mono text-3xl font-semibold leading-none tracking-tight text-foreground">
-        {boletin.anioRomano ?? "—"}
-      </p>
-      <div className="my-3 border-t border-dotted border-border" />
-      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
-        Edición
-      </p>
-      <p className="font-mono text-lg leading-tight text-accent">
-        {boletin.numero ?? "—"}
-      </p>
-    </div>
-  );
-}
+
+
+
+
 
 /**
- * Cada portal con su color. Los feeds no traen imagen —dos de los cuatro ni
- * siquiera publican og:image—, así que el color y la tipografía son lo que
- * distingue una nota de otra y le da ritmo a la portada.
+ * La tapa del Boletín, dibujada.
+ *
+ * Es SVG y no una foto: pesa nada, se ve nítida en cualquier pantalla y sigue
+ * al tema sin tener que mantener dos archivos. No pretende ser la portada real
+ * —eso sería copiar un documento oficial—; es el gesto de "acá hay una edición
+ * impresa", que es lo que le da peso al bloque.
  */
-const MEDIO_ESTILO: Record<string, { texto: string; barra: string }> = {
-  "aduana-news": { texto: "text-accent", barra: "bg-accent" },
-  "trade-news": { texto: "text-indigo-500", barra: "bg-indigo-500" },
-  argenports: { texto: "text-sky-500", barra: "bg-sky-500" },
-  globalports: { texto: "text-emerald-500", barra: "bg-emerald-500" },
-};
-
-function estiloMedio(id: string) {
-  return MEDIO_ESTILO[id] ?? { texto: "text-muted", barra: "bg-muted" };
-}
-
-/** Sello del medio: ícono del portal, nombre, cuándo salió y de qué trata. */
-function Firma({ n }: { n: Noticia }) {
-  const e = estiloMedio(n.medioId);
-  const icono = faviconDeMedio(n.medioId);
+function PortadaBoletin() {
   return (
-    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-[0.14em]">
-      {icono && (
-        // Ícono del propio medio: si el portal lo mueve de lugar, se oculta.
-        // Va con <img> y no con next/image: son 14px de un dominio ajeno, y
-        // optimizarlos costaría más que servirlos tal cual.
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={icono}
-          alt=""
-          width={14}
-          height={14}
-          loading="lazy"
-          className="h-3.5 w-3.5 shrink-0 rounded-[3px] object-contain"
-          onError={(ev) => {
-            ev.currentTarget.style.display = "none";
-          }}
+    <svg
+      viewBox="0 0 132 168"
+      width={106}
+      height={136}
+      /* El tamaño va en atributos y no en clases: una clase arbitraria que no
+         llegue a generarse deja el SVG a tamaño completo y se come la pantalla.
+         Los atributos los respeta el navegador siempre. */
+      className="hidden shrink-0 drop-shadow-lg sm:block"
+      aria-hidden
+    >
+      {/* Hoja */}
+      <rect x="6" y="4" width="120" height="160" rx="6" fill="#fdf6ef" />
+      {/* Encabezado */}
+      <text
+        x="18"
+        y="28"
+        fill="#1f2937"
+        fontSize="9"
+        fontWeight="700"
+        fontFamily="ui-sans-serif, system-ui, sans-serif"
+        letterSpacing="0.4"
+      >
+        BOLETÍN OFICIAL
+      </text>
+      <rect x="18" y="38" width="52" height="4" rx="2" fill="#1f2937" />
+      {/* Renglones del texto */}
+      {[54, 64, 74, 84, 94, 104, 114].map((y, i) => (
+        <rect
+          key={y}
+          x="18"
+          y={y}
+          width={i % 3 === 2 ? 62 : 96}
+          height="3"
+          rx="1.5"
+          fill="#d8cfc4"
         />
-      )}
-      <span className={`font-semibold ${e.texto}`}>{n.medioNombre}</span>
-      {n.cuando && <span className="text-muted">· {n.cuando}</span>}
-      {n.categoria && <span className="text-muted">· {n.categoria}</span>}
-    </p>
-  );
-}
-
-/** Las demás notas del día, en columnas. */
-function NotaBreve({ n }: { n: Noticia }) {
-  const e = estiloMedio(n.medioId);
-  return (
-    <a href={n.url} target="_blank" rel="noreferrer noopener" className="group block">
-      <span
-        aria-hidden
-        className={`mb-2 block h-0.5 w-8 rounded-full transition-all group-hover:w-14 ${e.barra}`}
-      />
-      <Firma n={n} />
-      <h3 className="mt-1.5 text-sm font-medium leading-snug text-foreground transition-colors group-hover:text-accent">
-        {n.titulo}
-      </h3>
-      {n.resumen && (
-        <p className="mt-1 line-clamp-3 text-xs leading-relaxed text-muted">
-          {n.resumen}
-        </p>
-      )}
-      {n.autor && <p className="mt-1.5 text-[11px] text-muted">Por {n.autor}</p>}
-    </a>
+      ))}
+      {/* Sello al pie */}
+      <rect x="86" y="132" width="28" height="12" rx="3" fill="#f97316" />
+    </svg>
   );
 }
 
@@ -251,6 +219,12 @@ export function BoletinInicio({
   prensa: ListadoNoticias;
 }) {
   const [abierta, setAbierta] = useState<string | null>(null);
+
+  // Destacadas: las tres primeras QUE TENGAN portada. Si se tomaran las tres
+  // primeras a secas, un día sin imagen dejaba tres tarjetas grandes vacías —
+  // peor que no tener destacadas.
+  const conPortada = prensa.noticias.filter((n) => n.imagen);
+  const destacadas = conPortada.slice(0, 3);
 
   // Solo comercio exterior: el resto de la normativa del día no es asunto del
   // estudio y llenar la pantalla con eso hace perder lo que sí importa.
@@ -276,12 +250,42 @@ export function BoletinInicio({
       : `Se revisaron las ${boletin.normas.length} norma${boletin.normas.length === 1 ? "" : "s"} de la Primera Sección y ninguna toca comercio exterior.`;
 
   return (
-    <div className="space-y-10">
-      {/* El veredicto del día: la única pregunta que importa a las 9 de la mañana. */}
-      {/* En mobile el veredicto va primero: el sello es contexto, no la respuesta. */}
-      <section className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+    <div className="space-y-6">
+      {/* Dos mitades a lo ancho: la tapa de la edición y el veredicto del día.
+          Con `flex` y no con una grilla de columnas arbitrarias — esa se
+          apilaba en una sola columna y el bloque quedaba altísimo. */}
+      <section className="flex flex-col overflow-hidden rounded-2xl border border-border bg-surface sm:flex-row">
+        {/* Tapa de la edición: identidad del Boletín, en el naranja de la
+            marca. Ancla la pantalla en la fuente y da la escala de la cosa —va
+            por el año CXXXIV, sale sin faltar desde 1893—. */}
+        <div className="flex shrink-0 items-center gap-5 bg-accent p-5 text-[var(--accent-foreground)] sm:w-80 lg:w-96">
+          <div className="min-w-0 flex-1">
+            <p className="font-mono text-[9px] uppercase tracking-[0.2em] opacity-80">
+              Boletín Oficial
+            </p>
+            <p className="mt-4 font-mono text-[9px] uppercase tracking-[0.2em] opacity-80">
+              Año
+            </p>
+            <p className="font-mono text-2xl font-semibold leading-none tracking-tight">
+              {boletin.anioRomano ?? "—"}
+            </p>
+            <p className="mt-2.5 font-mono text-[9px] uppercase tracking-[0.2em] opacity-80">
+              Edición N°
+            </p>
+            <p className="font-mono text-xl leading-tight">
+              {boletin.numero ?? "—"}
+            </p>
+            <p className="mt-4 font-mono text-[9px] uppercase tracking-[0.14em] opacity-80">
+              {prensa.noticias.length} notas · {PORTALES} portales
+            </p>
+          </div>
+
+          <PortadaBoletin />
+        </div>
+
+        {/* El veredicto: la única pregunta que importa a las nueve de la mañana. */}
+        <div className="flex min-w-0 flex-col justify-center p-5 sm:p-6">
+          <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
             <span
               aria-hidden
               className={`h-1.5 w-1.5 rounded-full ${
@@ -292,19 +296,24 @@ export function BoletinInicio({
                     : "bg-emerald-500"
               }`}
             />
-            Boletín Oficial · Primera Sección
+            {boletin.error
+              ? "No se pudo leer"
+              : hayNovedades
+                ? "Con novedades"
+                : "Revisión completa"}
           </p>
 
-          <h1 className="mt-3 max-w-2xl text-3xl font-semibold leading-[1.15] tracking-tight text-foreground sm:text-4xl">
+          <h1 className="mt-2 text-2xl font-semibold leading-[1.15] tracking-tight text-foreground">
             {titular}
           </h1>
 
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted">
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted">
             {bajada}
           </p>
 
           {boletin.fechaTexto && (
-            <p className="mt-4 text-sm text-foreground first-letter:uppercase">
+            <p className="mt-3 flex items-center gap-2 text-sm text-foreground first-letter:uppercase">
+              <CalendarDays className="h-4 w-4 shrink-0 text-muted" />
               {boletin.fechaTexto}
             </p>
           )}
@@ -313,14 +322,12 @@ export function BoletinInicio({
             href={boletin.url}
             target="_blank"
             rel="noreferrer noopener"
-            className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-muted transition-colors hover:text-accent"
+            className="mt-2 inline-flex items-center gap-1 self-start text-xs font-medium text-accent transition-opacity hover:opacity-80"
           >
             Ver el Boletín completo
             <ArrowUpRight className="h-3.5 w-3.5" />
           </a>
         </div>
-
-        {!boletin.error && <Sello boletin={boletin} />}
       </section>
 
       {/* Qué organismos aparecieron hoy y qué controla cada uno. */}
@@ -361,25 +368,27 @@ export function BoletinInicio({
         </section>
       )}
 
-      {/* Qué está pasando en el rubro, según los medios que lo cubren. */}
-      {prensa.noticias.length > 0 && (
+      {/* Las tres del día, con portada. El resto vive en «Ver todas»: la
+          portada tiene que entrar en una pantalla, y treinta notas apiladas no
+          se leen — se scrollean sin mirar. */}
+      {destacadas.length > 0 && (
         <section>
           <div className="flex items-baseline justify-between gap-4 border-b-2 border-foreground pb-2">
             <h2 className="text-lg font-semibold tracking-tight text-foreground">
-              En el rubro
+              Noticias destacadas del día
             </h2>
-            <p className="hidden text-[11px] uppercase tracking-[0.14em] text-muted sm:block">
-              {prensa.noticias.length} notas · 4 portales
-            </p>
+            <Link
+              href="/admin/noticias"
+              className="shrink-0 text-xs font-medium text-accent transition-opacity hover:opacity-80"
+            >
+              Ver todas ({prensa.noticias.length}) →
+            </Link>
           </div>
 
-          {/* Todas del mismo tamaño: no medimos importancia, solo cuándo salió
-              cada una, y eso ya lo dice la firma. Una sola grilla continua:
-              cortarla por día dejaba huecos cuando un día traía impares. */}
-          <ul className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2 xl:grid-cols-3">
-            {prensa.noticias.map((n) => (
+          <ul className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {destacadas.map((n) => (
               <li key={n.id}>
-                <NotaBreve n={n} />
+                <NotaDestacada n={n} />
               </li>
             ))}
           </ul>

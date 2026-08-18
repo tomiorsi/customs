@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth-server";
-import { esEquipo } from "@/lib/roles";
+import { esEquipo, estudioDe } from "@/lib/roles";
 import { getClients } from "@/lib/data";
 import {
   NuevaOperacionEquipoForm,
@@ -13,7 +13,7 @@ export default async function NuevaOperacionEquipoPage() {
   const user = await getCurrentUser();
   if (!esEquipo(user?.role)) redirect("/admin/operaciones");
 
-  const clientes = await getClients();
+  const clientes = await getClients(estudioDe(user!));
   const opciones: ClienteOpcion[] = clientes.map((c) => ({
     id: c.id,
     company_name: c.company_name,

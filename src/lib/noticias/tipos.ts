@@ -69,6 +69,14 @@ export type Noticia = {
   cuando: string;
   medioId: string;
   medioNombre: string;
+  /**
+   * Portada de la nota (og:image del medio), o null si no tiene.
+   *
+   * No viene en el RSS: los feeds de estos portales publican título, resumen y
+   * poco más. Se resuelve entrando a la nota una sola vez, al refrescar, y se
+   * arrastra entre refrescos para no volver a pedirla.
+   */
+  imagen: string | null;
 };
 
 /** Ícono del medio por id, para la UI. */

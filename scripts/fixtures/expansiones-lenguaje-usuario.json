@@ -1,0 +1,279 @@
+{
+  "zapatillas de tela": [
+    "calzado de lona",
+    "zapatilla de tela",
+    "calzado deportivo",
+    "zapato de lona",
+    "calzado de algodón",
+    "zapatilla textil",
+    "calzado de tela",
+    "zapato de tela"
+  ],
+  "zapatillas de cuero": [
+    "calzado de cuero",
+    "zapatilla",
+    "calzado deportivo",
+    "cuero natural",
+    "suela de caucho",
+    "calzado de lona y cuero"
+  ],
+  "ojotas de goma": [
+    "calzado de caucho",
+    "sandalia de goma",
+    "ojota",
+    "calzado de elastómero",
+    "sandalia de suela de caucho",
+    "calzado de playa",
+    "sandalia de tiras"
+  ],
+  "remera de algodón": [
+    "prenda de vestir",
+    "camiseta",
+    "tejido de algodón",
+    "confección de algodón",
+    "prenda de punto",
+    "artículo textil"
+  ],
+  "campera de abrigo": [
+    "prenda de abrigo",
+    "chaqueta",
+    "campera",
+    "prenda de vestir exterior",
+    "abrigo corto",
+    "chaquetón"
+  ],
+  "pantalón de jean": [
+    "pantalón de algodón",
+    "pantalón de tela vaquera",
+    "prenda de vestir para hombre",
+    "prenda de vestir para mujer",
+    "pantalón tejido de algodón denim"
+  ],
+  "notebook": [
+    "computadora portátil",
+    "máquina de procesamiento de datos",
+    "ordenador portátil",
+    "dispositivo electrónico de cálculo"
+  ],
+  "heladera con freezer": [
+    "refrigerador",
+    "congelador",
+    "aparato frigorífico",
+    "mueble frigorífico",
+    "electrodoméstico de refrigeración",
+    "cámara frigorífica",
+    "equipo de frío",
+    "nevera"
+  ],
+  "lavarropas automático": [
+    "máquina de lavar ropa",
+    "lavadora automática",
+    "aparato electrodoméstico",
+    "máquina lavadora de carga frontal",
+    "máquina lavadora de carga superior",
+    "lavadora de uso doméstico"
+  ],
+  "microondas": [
+    "horno de microondas",
+    "aparato de cocción por microondas",
+    "horno electrodoméstico",
+    "equipo de calentamiento por radiación",
+    "aparato electrodoméstico de cocina"
+  ],
+  "aire acondicionado split": [
+    "aparato de aire acondicionado",
+    "unidad interior",
+    "unidad exterior",
+    "equipo de climatización",
+    "sistema split",
+    "compresor",
+    "evaporador",
+    "condensador"
+  ],
+  "auriculares inalámbricos": [
+    "auriculares",
+    "auriculares inalámbricos",
+    "transductores acústicos",
+    "aparatos receptores de sonido",
+    "equipos de telecomunicación",
+    "dispositivos portátiles de audio"
+  ],
+  "parlante bluetooth": [
+    "altavoz",
+    "altavoz portátil",
+    "aparato receptor de sonido",
+    "transductor acústico",
+    "dispositivo de reproducción de audio",
+    "altavoz inalámbrico"
+  ],
+  "teclado de computadora": [
+    "teclado",
+    "teclado de máquina de procesamiento de datos",
+    "teclado electrónico",
+    "dispositivo de entrada",
+    "periférico de computadora"
+  ],
+  "cargador de celular": [
+    "cargador de batería",
+    "adaptador de corriente",
+    "fuente de alimentación",
+    "cargador de teléfono móvil",
+    "aparato para cargar",
+    "transformador de voltaje"
+  ],
+  "taza de cerámica": [
+    "taza de cerámica",
+    "recipiente de cerámica",
+    "vajilla de cerámica",
+    "artículo de cerámica",
+    "taza para bebidas"
+  ],
+  "vaso de vidrio": [
+    "vaso de vidrio",
+    "recipiente de vidrio",
+    "vajilla de vidrio",
+    "artículo de vidrio",
+    "vaso para beber"
+  ],
+  "sartén antiadherente": [
+    "sartén",
+    "utensilio de cocina",
+    "revestimiento antiadherente",
+    "artículo de cocina",
+    "recipiente para cocinar"
+  ],
+  "cuchillo de cocina": [
+    "cuchillo de cocina",
+    "cuchillo de mesa",
+    "utensilio de cocina",
+    "cuchillo de hoja fija",
+    "instrumento cortante",
+    "cuchillería"
+  ],
+  "silla de plástico": [
+    "silla de plástico",
+    "asiento de plástico",
+    "mueble de plástico",
+    "silla moldeada",
+    "silla de resina",
+    "artículo de plástico"
+  ],
+  "colchón de espuma": [
+    "colchón de espuma",
+    "colchón de poliuretano",
+    "artículo de cama",
+    "colchón relleno de espuma",
+    "espuma flexible",
+    "producto textil para cama"
+  ],
+  "mochila escolar": [
+    "mochila",
+    "bolsa de transporte",
+    "bolsa escolar",
+    "morral",
+    "bolsa con correas",
+    "artículo de viaje",
+    "bolsa de tela",
+    "equipaje de mano"
+  ],
+  "valija de viaje": [
+    "maleta",
+    "equipaje",
+    "bolsa de viaje",
+    "valija",
+    "estuche de viaje",
+    "contenedor de transporte de efectos personales"
+  ],
+  "anteojos de sol": [
+    "gafas de sol",
+    "anteojos de protección solar",
+    "lentes de sol",
+    "gafas oscuras",
+    "anteojos tintados",
+    "gafas para protección contra rayos ultravioleta"
+  ],
+  "reloj pulsera": [
+    "reloj de pulsera",
+    "reloj de muñeca",
+    "relojería",
+    "mecanismo de relojería",
+    "caja de reloj",
+    "esfera de reloj",
+    "correa de reloj",
+    "pulsera reloj"
+  ],
+  "juguete de plástico": [
+    "juguete de plástico",
+    "artículo de plástico para juego",
+    "juguete de materia plástica",
+    "objeto lúdico de plástico"
+  ],
+  "pelota de fútbol": [
+    "balón de fútbol",
+    "pelota de cuero",
+    "pelota de material sintético",
+    "artículo de deporte",
+    "balón inflable"
+  ],
+  "bicicleta de montaña": [
+    "bicicleta",
+    "bicicleta de montaña",
+    "ciclo",
+    "velocípedo",
+    "bicicleta todo terreno"
+  ],
+  "cubierta de auto": [
+    "carrocería",
+    "cubierta de vehículo",
+    "techo de automóvil",
+    "panel de carrocería",
+    "cubierta metálica",
+    "estructura de carrocería"
+  ],
+  "pintura látex para pared": [
+    "pintura de emulsión",
+    "pintura acrílica",
+    "pintura al agua",
+    "revestimiento de pared",
+    "pintura látex",
+    "pintura para interiores",
+    "pintura para exteriores",
+    "producto de acabado"
+  ],
+  "taladro eléctrico": [
+    "taladro eléctrico",
+    "máquina herramienta eléctrica",
+    "aparato para taladrar",
+    "herramienta eléctrica portátil",
+    "taladro de percusión",
+    "motor eléctrico"
+  ],
+  "shampoo para el pelo": [
+    "champú",
+    "preparación para el cuidado del cabello",
+    "producto cosmético capilar",
+    "detergente capilar"
+  ],
+  "perfume importado": [
+    "perfume",
+    "agua de perfume",
+    "esencia perfumante",
+    "producto de perfumería",
+    "líquido perfumado",
+    "concentrado aromático"
+  ],
+  "café molido": [
+    "café molido",
+    "café tostado molido",
+    "polvo de café",
+    "café en polvo",
+    "café torrefacto molido"
+  ],
+  "vino tinto": [
+    "vino tinto",
+    "vino de uva",
+    "bebida fermentada",
+    "vino tranquilo",
+    "vino de mesa"
+  ]
+}

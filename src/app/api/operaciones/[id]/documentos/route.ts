@@ -2,9 +2,10 @@ import { NextResponse, type NextRequest } from "next/server";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { getCurrentUser } from "@/lib/auth-server";
-import { esEquipo } from "@/lib/roles";
+import { esEquipo, alcanceDe } from "@/lib/roles";
 import { cryptoId } from "@/lib/db";
-import { archivosDir } from "@/lib/parquet-store";
+import { guardarDocumento } from "@/lib/archivos-cliente";
+import { verificarDocumento } from "@/lib/tipo-archivo";
 import {
   addDocument,
   addEvento,
@@ -48,7 +49,7 @@ export async function POST(
   }
 
   const { id } = await ctx.params;
-  const op = await getOperationById(id);
+  const op = await getOperationById(id, alcanceDe(user));
   if (!op) {
     return NextResponse.json(
       { error: "Operación no encontrada." },
@@ -90,6 +91,13 @@ export async function POST(
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
+  // Qué es el archivo lo dicen sus bytes, no el Content-Type que mandó el
+  // navegador: ese lo elige quien sube y se falsifica renombrando.
+  const verif = verificarDocumento(buffer, file.name);
+  if (!verif.ok) {
+    return NextResponse.json({ error: verif.error }, { status: 400 });
+  }
+
   const docTypeRaw = String(form.get("docType") ?? "");
   const tipoManual: DocType | null =
     docTypeRaw !== "auto" && TIPOS_VALIDOS.has(docTypeRaw as DocType)
@@ -99,11 +107,13 @@ export async function POST(
   /** Sin clasificar por nombre: queda otro hasta que la IA lea el contenido. */
   const docTypeProvisional: DocType = tipoManual ?? "otro";
 
-  const dir = archivosDir(op.user_id);
-  await mkdir(dir, { recursive: true });
-
   const storedName = `${op.id}__${cryptoId()}__${nombreSeguro(file.name)}`;
-  await writeFile(path.join(dir, storedName), buffer);
+  if (!(await guardarDocumento(op.user_id, storedName, buffer))) {
+    return NextResponse.json(
+      { error: "No se pudo guardar el archivo." },
+      { status: 500 },
+    );
+  }
 
   const docId = await addDocument({
     operationId: op.id,
@@ -111,12 +121,12 @@ export async function POST(
     docType: docTypeProvisional,
     fileName: file.name,
     storedName,
-    mimeType: file.type || null,
+    mimeType: verif.tipo.mime,
     size: file.size,
   });
 
   const base64 = buffer.toString("base64");
-  const mediaType = file.type || "application/octet-stream";
+  const mediaType = verif.tipo.mime;
   encolarAnalisisDocumentoSubido(op, {
     operationId: op.id,
     docId,

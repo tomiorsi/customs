@@ -12,6 +12,7 @@ import {
   setValidacionEtapa,
   updateOperationEtapa,
   type OperationWithClient,
+  alcanceDelDueno,
 } from "@/lib/data";
 import {
   iaDocsDisponible,
@@ -437,7 +438,7 @@ async function aplicarEnriquecimientoReconciliacion(
         soloCache: opts?.soloCache,
       });
       if (costos?.campos.gastos_destino || costos?.campos.gastos_origen) {
-        const opCostos = (await getOperationById(op.id)) ?? op;
+        const opCostos = (await getOperationById(op.id, alcanceDelDueno(op.user_id))) ?? op;
         sincronizarCamposDesdeOperacion(opCostos, resultado);
       }
       const monto =
@@ -556,7 +557,7 @@ async function purgarValidacionOperacionDeDocumento(
   fileName: string,
   quedaMismoTipo: boolean,
 ): Promise<void> {
-  const op = await getOperationById(operationId);
+  const op = await getOperationById(operationId, alcanceDelDueno(ownerId));
   if (!op) return;
 
   const mapa = parseValidacionIA(op.validacion_ia);
@@ -638,7 +639,7 @@ export async function actualizarValidacionEtapaDesdeCache(
   const recon =
     opts?.recon ??
     (await reconciliarDocumentosSiCambio(op)).recon;
-  const opCruce = (await getOperationById(op.id)) ?? op;
+  const opCruce = (await getOperationById(op.id, alcanceDelDueno(op.user_id))) ?? op;
 
   if (
     !opts?.sinCruce &&
@@ -652,7 +653,7 @@ export async function actualizarValidacionEtapaDesdeCache(
   await aplicarEnriquecimientoReconciliacion(opFresh, etapa, resultado, recon, {
     soloCache: true,
   });
-  opFresh = (await getOperationById(op.id)) ?? opFresh;
+  opFresh = (await getOperationById(op.id, alcanceDelDueno(op.user_id))) ?? opFresh;
   sincronizarCamposDesdeOperacion(opFresh, resultado);
 
   const docPaso2 = parseValidacionIA(op.validacion_ia).documentacion
@@ -710,7 +711,7 @@ export async function refrescarPendientesOperacion(
   try {
     await setValidacionEtapa(op.user_id, op.id, "documentacion", resultado);
     await actualizarChecklistAutomatico(
-      (await getOperationById(op.id)) ?? op,
+      (await getOperationById(op.id, alcanceDelDueno(op.user_id))) ?? op,
       { resultadoValidacion: resultado },
     );
   } catch {
@@ -758,7 +759,7 @@ export async function validarEtapaDocumental(
   });
 
   try {
-    const opFresh = await getOperationById(op.id);
+    const opFresh = await getOperationById(op.id, alcanceDelDueno(op.user_id));
     if (opFresh) {
       await actualizarChecklistAutomatico(opFresh, {
         resultadoValidacion: resultado,
@@ -788,7 +789,7 @@ export async function invalidarValidacionCruzadaPorSubida(
   operationId: string,
   docType: DocType,
 ): Promise<void> {
-  const op = await getOperationById(operationId);
+  const op = await getOperationById(operationId, alcanceDelDueno(userId));
   if (!op) return;
   const mapa = parseValidacionIA(op.validacion_ia);
   let cambio = false;
@@ -844,7 +845,7 @@ export async function procesarPostSubidaDocumento(
   }
 
   try {
-    const opCheck = (await getOperationById(op.id)) ?? op;
+    const opCheck = (await getOperationById(op.id, alcanceDelDueno(op.user_id))) ?? op;
     await actualizarChecklistAutomatico(opCheck);
   } catch {
     /* best-effort */
@@ -883,7 +884,7 @@ export function programarPostSubidaDocumento(
     postSubidaPendiente.delete(clave);
     void (async () => {
       try {
-        const fresh = await getOperationById(operationId);
+        const fresh = await getOperationById(operationId, alcanceDelDueno(op.user_id));
         if (fresh) await procesarPostSubidaDocumento(fresh, docRecienSubidoId);
       } catch {
         /* best-effort */
@@ -918,14 +919,14 @@ export async function procesarEliminacionDocumento(args: {
     );
   }
 
-  const opResolucion = await getOperationById(args.operationId);
+  const opResolucion = await getOperationById(args.operationId, alcanceDelDueno(args.ownerId));
   if (opResolucion) {
     await resolverHallazgosDocumentos(opResolucion);
   }
 
   await clearResolucionesConflictos(args.ownerId, args.operationId);
 
-  let op = await getOperationById(args.operationId);
+  let op = await getOperationById(args.operationId, alcanceDelDueno(args.ownerId));
   if (!op) return;
 
   await purgarValidacionOperacionDeDocumento(
@@ -937,7 +938,7 @@ export async function procesarEliminacionDocumento(args: {
     quedaMismoTipo,
   );
 
-  op = (await getOperationById(args.operationId)) ?? op;
+  op = (await getOperationById(args.operationId, alcanceDelDueno(args.ownerId))) ?? op;
 
   try {
     await desmarcarChecklistPorDocumentoEliminado(
@@ -958,7 +959,7 @@ export async function procesarEliminacionDocumento(args: {
     /* best-effort */
   }
 
-  op = (await getOperationById(args.operationId)) ?? op;
+  op = (await getOperationById(args.operationId, alcanceDelDueno(args.ownerId))) ?? op;
 
   const etapas = new Set<EtapaDocumental>([
     etapaDocumentalDe(op.etapa),
@@ -977,7 +978,7 @@ export async function procesarEliminacionDocumento(args: {
     } catch {
       /* best-effort */
     }
-    op = (await getOperationById(args.operationId)) ?? op;
+    op = (await getOperationById(args.operationId, alcanceDelDueno(args.ownerId))) ?? op;
   }
 
   try {

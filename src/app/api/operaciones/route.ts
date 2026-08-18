@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { getCurrentUser } from "@/lib/auth-server";
 import { cryptoId } from "@/lib/db";
-import { archivosDir } from "@/lib/parquet-store";
+import { guardarDocumento } from "@/lib/archivos-cliente";
+import { detectarTipo, verificarDocumento } from "@/lib/tipo-archivo";
 import {
   OP_CAMPOS,
   addDocument,
@@ -15,7 +14,9 @@ import {
   type OpCampo,
 } from "@/lib/data";
 import { docLabelDe } from "@/lib/docs";
-import { esEquipo } from "@/lib/roles";
+import { destinacionPorId } from "@/lib/destinaciones";
+import { esExportacion } from "@/lib/workflow";
+import { esEquipo, estudioDe } from "@/lib/roles";
 
 const TIPOS_VALIDOS = new Set(["Importación", "Exportación"]);
 const VIAS_VALIDAS = new Set(["maritima", "aerea", "terrestre"]);
@@ -53,7 +54,7 @@ export async function POST(req: Request) {
   }
 
   const clienteId = String(form.get("cliente_id") ?? "").trim();
-  if (!clienteId || !existeCliente(clienteId)) {
+  if (!clienteId || !existeCliente(clienteId, estudioDe(user))) {
     return NextResponse.json(
       { error: "Elegí un cliente válido para la operación." },
       { status: 400 },
@@ -86,6 +87,16 @@ export async function POST(req: Request) {
     campos.via = null;
   }
 
+  // La destinación tiene que existir y pertenecer al flujo elegido: una
+  // exportación temporaria dentro de una importación armaría un paso a paso
+  // incoherente (pediría reimportar algo que nunca salió). Si no cierra, la
+  // dejamos vacía y se lee como «a consumo».
+  if (campos.destinacion) {
+    const d = destinacionPorId(campos.destinacion);
+    const flujo = esExportacion(tipo) ? "exportacion" : "importacion";
+    if (!d || d.flujo !== flujo) campos.destinacion = null;
+  }
+
   const nuevaOperacion: NewOperationInput = { userId: ownerId, tipo, ...campos };
 
   // Recolectamos los archivos presentes. Todos son opcionales: la operación se
@@ -103,6 +114,9 @@ export async function POST(req: Request) {
     }
   }
 
+  // Todo se valida ANTES de crear la operación: si un archivo no pasa, el
+  // usuario recibe el error y no le queda una carpeta a medio armar.
+  const contenidos = new Map<File, Buffer>();
   for (const { file } of archivos) {
     if (file.size > MAX_FILE_BYTES) {
       return NextResponse.json(
@@ -110,6 +124,12 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     }
+    const buf = Buffer.from(await file.arrayBuffer());
+    const verif = verificarDocumento(buf, file.name);
+    if (!verif.ok) {
+      return NextResponse.json({ error: verif.error }, { status: 400 });
+    }
+    contenidos.set(file, buf);
   }
 
   const operationId = await createOperation(nuevaOperacion);
@@ -154,24 +174,20 @@ export async function POST(req: Request) {
     interno: true,
   });
 
-  if (archivos.length > 0) {
-    const dir = archivosDir(ownerId);
-    await mkdir(dir, { recursive: true });
-
-    for (const { tipo: docType, file } of archivos) {
-      const storedName = `${operationId}__${cryptoId()}__${nombreSeguro(file.name)}`;
-      const buffer = Buffer.from(await file.arrayBuffer());
-      await writeFile(path.join(dir, storedName), buffer);
-      await addDocument({
-        operationId,
-        userId: ownerId,
-        docType,
-        fileName: file.name,
-        storedName,
-        mimeType: file.type || null,
-        size: file.size,
-      });
-    }
+  for (const { tipo: docType, file } of archivos) {
+    const buffer = contenidos.get(file);
+    if (!buffer) continue;
+    const storedName = `${operationId}__${cryptoId()}__${nombreSeguro(file.name)}`;
+    if (!(await guardarDocumento(ownerId, storedName, buffer))) continue;
+    await addDocument({
+      operationId,
+      userId: ownerId,
+      docType,
+      fileName: file.name,
+      storedName,
+      mimeType: detectarTipo(buffer)?.mime ?? null,
+      size: file.size,
+    });
   }
 
   return NextResponse.json({ id: operationId });

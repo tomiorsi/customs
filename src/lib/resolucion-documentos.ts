@@ -17,6 +17,7 @@ import {
   type OperationWithClient,
   type ResolucionConflictoPersistida,
   parseResolucionesConflictos,
+  alcanceDelDueno,
 } from "@/lib/data";
 import { leerYAplicarCostosForwarder } from "@/lib/costos-forwarder-extract";
 import {
@@ -39,7 +40,7 @@ import {
   type DatosDocumentoOperacion,
   type ValorElegidoIA,
 } from "@/lib/ia-documentos";
-import { dentroDeClientes, rutaArchivo } from "@/lib/parquet-store";
+import { leerDocumento } from "@/lib/archivos-cliente";
 import { buscarPais, nombrePaisCanonico } from "@/lib/cotizador";
 import {
   enriquecerFormaPagoComercial,
@@ -587,9 +588,7 @@ async function cargarArchivoDocumento(
   userId: string,
   doc: DocumentRow,
 ): Promise<ArchivoIA | null> {
-  const fullPath = rutaArchivo(userId, doc.stored_name);
-  if (!dentroDeClientes(fullPath)) return null;
-  const bytes = await readFile(fullPath).catch(() => null);
+  const bytes = await leerDocumento(userId, doc.stored_name);
   if (!bytes) return null;
   return {
     rol: DOC_LABELS[doc.doc_type] ?? "Documento",
@@ -1555,7 +1554,7 @@ export async function sincronizarOperacionDesdeDocumentosRestantes(
     return RECON_VACIA;
   }
 
-  const opFresh = (await getOperationById(op.id)) ?? op;
+  const opFresh = (await getOperationById(op.id, alcanceDelDueno(op.user_id))) ?? op;
   const recon = await reconciliarDocumentosOperacion(opFresh, { sinIA: true });
 
   try {

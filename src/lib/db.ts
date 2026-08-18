@@ -88,6 +88,41 @@ export function getDb(): Database.Database {
       operation_id TEXT PRIMARY KEY,
       seen_at      TEXT NOT NULL
     );
+
+    -- Chat directo entre un cliente y su despachante. Un hilo por cliente, sin
+    -- atarlo a una operación: el cliente puede escribir antes de tener la
+    -- primera, que es justo cuando más falta hace.
+    CREATE TABLE IF NOT EXISTS chat_messages (
+      id             TEXT PRIMARY KEY,
+      cliente_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      origen         TEXT NOT NULL CHECK (origen IN ('cliente','estudio')),
+      autor_id       TEXT,
+      autor          TEXT,
+      texto          TEXT NOT NULL,
+      leido_estudio  TEXT NOT NULL DEFAULT '0',
+      leido_cliente  TEXT NOT NULL DEFAULT '0',
+      created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_chat_cliente ON chat_messages(cliente_id);
+
+    -- Soporte de la plataforma: un hilo por cuenta que consulta. Queda todo
+    -- registrado —es el historial que después lee el chatbot y lo que se
+    -- adjunta al derivar por mail—, así que nada se borra al responder.
+    CREATE TABLE IF NOT EXISTS soporte_mensajes (
+      id           TEXT PRIMARY KEY,
+      cuenta_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      origen       TEXT NOT NULL CHECK (origen IN ('usuario','soporte','bot')),
+      autor        TEXT,
+      texto        TEXT NOT NULL,
+      leido_soporte TEXT NOT NULL DEFAULT '0',
+      leido_usuario TEXT NOT NULL DEFAULT '0',
+      /* Marca que este mensaje disparó el aviso por mail al equipo. */
+      derivado     TEXT NOT NULL DEFAULT '0',
+      created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_soporte_cuenta ON soporte_mensajes(cuenta_id);
   `);
 
   migrate(db);
@@ -144,6 +179,53 @@ function migrate(db: Database.Database) {
   // el estudio habilita el portal cliente por cliente al crearle el acceso.
   if (!tiene("portal_habilitado")) {
     db.exec("ALTER TABLE users ADD COLUMN portal_habilitado TEXT DEFAULT '0'");
+  }
+
+  // Suscripción del estudio (solo en cuentas raíz de despachante).
+  // `trial_hasta`: fin de la prueba gratis, se fija al registrarse.
+  // `plan`: null mientras no contrató; después, la clave del plan elegido.
+  // `suscripcion_hasta`: hasta cuándo está paga. El estado se DERIVA de estas
+  // dos fechas contra hoy, no se guarda: un estado guardado se desactualiza
+  // solo con que pase el tiempo, sin que nadie toque la fila.
+  if (!tiene("trial_hasta")) {
+    db.exec("ALTER TABLE users ADD COLUMN trial_hasta TEXT");
+    // Los estudios que ya existían arrancan su prueba ahora, no en el pasado.
+    // El admin de la plataforma queda afuera: no es un estudio suscripto.
+    db.exec(
+      `UPDATE users SET trial_hasta = datetime('now', '+5 days')
+       WHERE role = 'operador' AND despachante_id IS NULL`,
+    );
+  }
+  if (!tiene("plan")) {
+    db.exec("ALTER TABLE users ADD COLUMN plan TEXT");
+  }
+  if (!tiene("suscripcion_hasta")) {
+    db.exec("ALTER TABLE users ADD COLUMN suscripcion_hasta TEXT");
+  }
+
+  // Cartera propia por cuenta: a qué despachante (o admin) pertenece este
+  // cliente. Cada cuenta del equipo ve solo los suyos; nadie ve la cartera de
+  // otro. En las cuentas del equipo queda en NULL: solo aplica a 'client'.
+  if (!tiene("despachante_id")) {
+    db.exec("ALTER TABLE users ADD COLUMN despachante_id TEXT");
+    // Los clientes que ya existían son del admin fundador, que hasta ahora era
+    // el único dueño posible.
+    const admin = db
+      .prepare("SELECT id FROM users WHERE role = 'admin' ORDER BY created_at ASC LIMIT 1")
+      .get() as { id: string } | undefined;
+    if (admin) {
+      db.prepare(
+        "UPDATE users SET despachante_id = ? WHERE role = 'client' AND despachante_id IS NULL",
+      ).run(admin.id);
+    }
+  }
+
+  // Logo del estudio para los PDF que se le mandan al cliente. Guarda solo el
+  // nombre del archivo; los bytes viven en el directorio del estudio. Es del
+  // DUEÑO del estudio: los empleados descargan con el logo de su estudio, no
+  // con uno propio.
+  if (!tiene("logo")) {
+    db.exec("ALTER TABLE users ADD COLUMN logo TEXT");
   }
 
   // Rol/función del participante (texto libre que carga quien lo invita).

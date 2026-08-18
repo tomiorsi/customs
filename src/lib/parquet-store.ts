@@ -1,6 +1,6 @@
 import "server-only";
 import { existsSync } from "node:fs";
-import { mkdir, rename, unlink } from "node:fs/promises";
+import { chmod, mkdir, rename, unlink } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import {
@@ -90,7 +90,10 @@ export async function escribirFilas(
   cols: readonly string[],
   filas: Fila[],
 ): Promise<void> {
-  await mkdir(path.dirname(file), { recursive: true });
+  // 0o700: el directorio del cliente lo abre solo el usuario que corre el
+  // proceso. Con los 0o755 que deja mkdir por defecto, cualquier cuenta del
+  // servidor podía listar y leer la documentación de todos los clientes.
+  await mkdir(path.dirname(file), { recursive: true, mode: 0o700 });
 
   if (filas.length === 0) {
     if (existsSync(file)) await unlink(file);
@@ -112,6 +115,9 @@ export async function escribirFilas(
       await writer.appendRow(registro);
     }
     await writer.close();
+    // Antes del rename: así el archivo nunca existe con permisos abiertos, ni
+    // por un instante.
+    await chmod(tmp, 0o600).catch(() => {});
     await rename(tmp, file);
   } catch (err) {
     try {

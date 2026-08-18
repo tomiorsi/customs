@@ -26,7 +26,7 @@ import {
 import {
   claveSubtarea,
   estadoClienteDeEtapa,
-  etapaIndex,
+  indiceDeEtapa,
   etapasDe,
   gruposDeEtapa,
   parseChecklist,
@@ -49,6 +49,8 @@ export type MesaOp = {
   ref: string;
   titulo: string;
   tipo: string;
+  /** Destinación aduanera: define qué etapas tiene el paso a paso. */
+  destinacion: string | null;
   via: string | null;
   incoterm: string | null;
   liberacion: string | null;
@@ -449,8 +451,9 @@ export function MesaTrabajo({
                 via: o.via,
                 liberacion: o.liberacion,
                 formaPago: o.formaPago,
+                destinacion: o.destinacion,
               });
-              const idx = etapaIndex(o.etapa);
+              const idx = indiceDeEtapa(etapas, o.etapa);
               const def = etapas[idx];
               const activa = o.id === selId;
               return (
@@ -638,6 +641,7 @@ function PanelOperacion({
         via: op.via,
         liberacion: liberacionEfectiva,
         formaPago: formaPagoEfectiva,
+        destinacion: op.destinacion,
       }),
     [
       op.tipo,
@@ -650,7 +654,7 @@ function PanelOperacion({
   const etapas = etapasBase;
   const checklist = useMemo(() => parseChecklist(op.checklist), [op.checklist]);
 
-  const idxActual = etapaIndex(op.etapa);
+  const idxActual = indiceDeEtapa(etapas, op.etapa);
   const [verIdx, setVerIdx] = useState(idxActual);
 
   const [togglando, setTogglando] = useState<string | null>(null);
@@ -885,7 +889,7 @@ function PanelOperacion({
       setIaDocStage(etapa.id);
       if (data.avanzo && data.etapa === "embarque") {
         onEtapa("embarque");
-        setVerIdx(etapaIndex("embarque"));
+        setVerIdx(indiceDeEtapa(etapas, "embarque"));
         if (data.resultadoEmbarque) {
           setIaDoc(data.resultadoEmbarque as DocumentacionIA);
           setIaDocStage("embarque");

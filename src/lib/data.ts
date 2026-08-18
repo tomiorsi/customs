@@ -18,6 +18,8 @@ import {
 import { conArchivo } from "./lock-archivo";
 import path from "node:path";
 import { ESTADOS } from "./estados";
+import type { Alcance } from "./roles";
+import { faltantesFacturacion } from "./suscripcion";
 
 /** Última etapa del pipeline: una operación en este estado se considera cerrada. */
 const ESTADO_CERRADO = ESTADOS[ESTADOS.length - 1].value;
@@ -53,13 +55,51 @@ type ClienteBasico = {
   carta_garantia: string | null;
 };
 
-function clientesBasicos(): ClienteBasico[] {
+/**
+ * Cartera de una cuenta del equipo.
+ *
+ * Cada cuenta —el admin y cada despachante— gestiona sus propios clientes y no
+ * ve los de las demás. Como las operaciones viven en el parquet de cada cliente
+ * (`opsFile(clienteId)`), acotar esta lista acota también sus operaciones y
+ * documentos: es el único punto donde hay que filtrar.
+ */
+function clientesBasicos(despachanteId: string): ClienteBasico[] {
   return getDb()
     .prepare(
       `SELECT id, company_name, email, cuit, iva_condition, cert_exencion, carta_garantia
-       FROM users WHERE role = 'client'`,
+       FROM users WHERE role = 'client' AND despachante_id = ?`,
     )
-    .all() as ClienteBasico[];
+    .all(despachanteId) as ClienteBasico[];
+}
+
+/**
+ * Clientes visibles para un alcance: la cartera si es una cuenta del equipo,
+ * o únicamente su propio registro si es un cliente.
+ */
+function clientesDelAlcance(alcance: Alcance): ClienteBasico[] {
+  if (alcance.tipo === "equipo") return clientesBasicos(alcance.despachanteId);
+  return getDb()
+    .prepare(
+      `SELECT id, company_name, email, cuit, iva_condition, cert_exencion, carta_garantia
+       FROM users WHERE id = ? AND role = 'client'`,
+    )
+    .all(alcance.clienteId) as ClienteBasico[];
+}
+
+/**
+ * Alcance para releer una operación o documento que ya se tiene en mano: se
+ * consulta por su cliente dueño, sin depender de qué cuenta del equipo la abrió.
+ */
+export function alcanceDelDueno(clienteId: string): Alcance {
+  return { tipo: "cliente", clienteId };
+}
+
+/** Cuenta del equipo dueña de la cartera donde vive este cliente. */
+export function despachanteDeCliente(clienteId: string): string | null {
+  const row = getDb()
+    .prepare("SELECT despachante_id AS d FROM users WHERE id = ? AND role = 'client'")
+    .get(clienteId) as { d: string | null } | undefined;
+  return row?.d ?? null;
 }
 
 export type ClienteFiscal = {
@@ -75,8 +115,8 @@ export type ClienteFiscal = {
  * La condición de IVA y el certificado de exención cambian las percepciones,
  * así que el cotizador necesita el perfil real y no un default.
  */
-export function clientesParaCotizar(): ClienteFiscal[] {
-  return clientesBasicos()
+export function clientesParaCotizar(despachanteId: string): ClienteFiscal[] {
+  return clientesBasicos(despachanteId)
     .map((c) => ({
       id: c.id,
       nombre: c.company_name?.trim() || c.email?.trim() || "Sin razón social",
@@ -88,11 +128,13 @@ export function clientesParaCotizar(): ClienteFiscal[] {
 }
 
 /** ¿Existe un cliente con ese id? (para que el equipo cree operaciones a su nombre). */
-export function existeCliente(id: string): boolean {
+export function existeCliente(id: string, despachanteId: string): boolean {
   if (!id?.trim()) return false;
   const row = getDb()
-    .prepare("SELECT 1 FROM users WHERE id = ? AND role = 'client' LIMIT 1")
-    .get(id) as { 1: number } | undefined;
+    .prepare(
+      "SELECT 1 FROM users WHERE id = ? AND role = 'client' AND despachante_id = ? LIMIT 1",
+    )
+    .get(id, despachanteId) as { 1: number } | undefined;
   return Boolean(row);
 }
 
@@ -111,7 +153,10 @@ export type NuevoCliente = {
  * gestiona el estudio; no loguea (password aleatorio) mientras el portal esté
  * deshabilitado. Se puede resetear la contraseña si más adelante se reactiva.
  */
-export function createCliente(input: NuevoCliente): { id: string; error?: string } {
+export function createCliente(
+  input: NuevoCliente,
+  despachanteId: string,
+): { id: string; error?: string } {
   const companyName = input.companyName.trim();
   if (!companyName) return { id: "", error: "El nombre / razón social es obligatorio." };
   const email = input.email?.trim().toLowerCase() || null;
@@ -126,8 +171,8 @@ export function createCliente(input: NuevoCliente): { id: string; error?: string
   db.prepare(
     `INSERT INTO users
        (id, username, email, password_hash, role, company_name, person_type,
-        cuit, iva_condition, contact_name, phone, op_status)
-     VALUES (?, NULL, ?, ?, 'client', ?, ?, ?, ?, ?, ?, 'approved')`,
+        cuit, iva_condition, contact_name, phone, op_status, despachante_id)
+     VALUES (?, NULL, ?, ?, 'client', ?, ?, ?, ?, ?, ?, 'approved', ?)`,
   ).run(
     id,
     email,
@@ -138,6 +183,7 @@ export function createCliente(input: NuevoCliente): { id: string; error?: string
     input.ivaCondition?.trim() || null,
     input.contactName?.trim() || null,
     input.phone?.trim() || null,
+    despachanteId,
   );
   return { id };
 }
@@ -154,14 +200,14 @@ export type ClienteEditable = {
 };
 
 /** Datos de un cliente para prellenar el formulario de edición. */
-export function getClienteById(id: string): ClienteEditable | null {
+export function getClienteById(id: string, despachanteId: string): ClienteEditable | null {
   if (!id?.trim()) return null;
   const row = getDb()
     .prepare(
       `SELECT id, company_name, email, cuit, iva_condition, contact_name, phone, person_type
-       FROM users WHERE id = ? AND role = 'client'`,
+       FROM users WHERE id = ? AND role = 'client' AND despachante_id = ?`,
     )
-    .get(id) as ClienteEditable | undefined;
+    .get(id, despachanteId) as ClienteEditable | undefined;
   return row ?? null;
 }
 
@@ -174,11 +220,12 @@ export function getClienteById(id: string): ClienteEditable | null {
 export function updateCliente(
   id: string,
   input: Partial<NuevoCliente>,
+  despachanteId: string,
 ): { error?: string } {
   const db = getDb();
   const cliente = db
-    .prepare("SELECT id FROM users WHERE id = ? AND role = 'client'")
-    .get(id);
+    .prepare("SELECT id FROM users WHERE id = ? AND role = 'client' AND despachante_id = ?")
+    .get(id, despachanteId);
   if (!cliente) return { error: "Cliente no encontrado." };
 
   const sets: string[] = [];
@@ -230,6 +277,7 @@ export function darAccesoCliente(
   clienteId: string,
   email: string,
   password: string,
+  despachanteId: string,
 ): { error?: string } {
   const em = email.trim().toLowerCase();
   if (!em || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) {
@@ -240,8 +288,8 @@ export function darAccesoCliente(
   }
   const db = getDb();
   const cliente = db
-    .prepare("SELECT id FROM users WHERE id = ? AND role = 'client'")
-    .get(clienteId);
+    .prepare("SELECT id FROM users WHERE id = ? AND role = 'client' AND despachante_id = ?")
+    .get(clienteId, despachanteId);
   if (!cliente) return { error: "Cliente no encontrado." };
   const enUso = db
     .prepare("SELECT id FROM users WHERE email = ? AND id <> ?")
@@ -255,23 +303,29 @@ export function darAccesoCliente(
 }
 
 /** Habilita o revoca el acceso al portal de un cliente (sin tocar sus credenciales). */
-export function setPortalHabilitadoCliente(clienteId: string, habilitado: boolean): void {
+export function setPortalHabilitadoCliente(
+  clienteId: string,
+  habilitado: boolean,
+  despachanteId: string,
+): void {
   getDb()
-    .prepare("UPDATE users SET portal_habilitado = ? WHERE id = ? AND role = 'client'")
-    .run(habilitado ? "1" : "0", clienteId);
+    .prepare(
+      "UPDATE users SET portal_habilitado = ? WHERE id = ? AND role = 'client' AND despachante_id = ?",
+    )
+    .run(habilitado ? "1" : "0", clienteId, despachanteId);
 }
 
-export async function getClients(): Promise<ClientRow[]> {
+export async function getClients(despachanteId: string): Promise<ClientRow[]> {
   const users = getDb()
     .prepare(
       `SELECT id, email, company_name, cuit, iva_condition,
               contact_name, phone, op_status, portal_habilitado,
               carta_garantia, carta_garantia_vence, created_at
        FROM users
-       WHERE role = 'client'
+       WHERE role = 'client' AND despachante_id = ?
        ORDER BY created_at DESC`,
     )
-    .all() as Omit<ClientRow, "ops" | "opsActivas" | "opsCerradas">[];
+    .all(despachanteId) as Omit<ClientRow, "ops" | "opsActivas" | "opsCerradas">[];
 
   const out: ClientRow[] = [];
   for (const u of users) {
@@ -295,12 +349,14 @@ export function setCartaGarantia(
   userId: string,
   tipo: "anual" | "puntual" | "no",
   vence: string | null,
+  despachanteId: string,
 ): void {
   getDb()
     .prepare(
-      "UPDATE users SET carta_garantia = ?, carta_garantia_vence = ? WHERE id = ? AND role = 'client'",
+      `UPDATE users SET carta_garantia = ?, carta_garantia_vence = ?
+       WHERE id = ? AND role = 'client' AND despachante_id = ?`,
     )
-    .run(tipo, tipo === "anual" ? vence : null, userId);
+    .run(tipo, tipo === "anual" ? vence : null, userId, despachanteId);
 }
 
 /* ─────────────────────────  Operadores (empleados)  ───────────────────────── */
@@ -313,13 +369,124 @@ export type OperadorRow = {
   created_at: string;
 };
 
-export function getOperadores(): OperadorRow[] {
+/** Subcuentas del estudio: las que creó este dueño, nunca las de otro. */
+export function getOperadores(estudioId: string): OperadorRow[] {
   return getDb()
     .prepare(
       `SELECT id, username, email, contact_name, created_at
-       FROM users WHERE role = 'operador' ORDER BY created_at ASC`,
+       FROM users WHERE role = 'operador' AND despachante_id = ?
+       ORDER BY created_at ASC`,
     )
-    .all() as OperadorRow[];
+    .all(estudioId) as OperadorRow[];
+}
+
+/** Datos de suscripción del estudio al que pertenece una cuenta de equipo. */
+export function suscripcionDeEstudio(estudioId: string): {
+  trial_hasta: string | null;
+  plan: string | null;
+  suscripcion_hasta: string | null;
+} | null {
+  const row = getDb()
+    .prepare(
+      "SELECT trial_hasta, plan, suscripcion_hasta FROM users WHERE id = ?",
+    )
+    .get(estudioId) as
+    | { trial_hasta: string | null; plan: string | null; suscripcion_hasta: string | null }
+    | undefined;
+  return row ?? null;
+}
+
+/** Datos con los que se le emite la factura al estudio. */
+export function datosFacturacionDeEstudio(estudioId: string): {
+  cuit: string | null;
+  iva_condition: string | null;
+  address: string | null;
+} | null {
+  const row = getDb()
+    .prepare("SELECT cuit, iva_condition, address FROM users WHERE id = ?")
+    .get(estudioId) as
+    | { cuit: string | null; iva_condition: string | null; address: string | null }
+    | undefined;
+  return row ?? null;
+}
+
+export function guardarDatosFacturacion(
+  estudioId: string,
+  datos: { cuit: string; condicionIva: string; domicilio: string },
+): void {
+  getDb()
+    .prepare(
+      `UPDATE users SET cuit = ?, iva_condition = ?, address = ?
+       WHERE id = ? AND despachante_id IS NULL`,
+    )
+    .run(datos.cuit, datos.condicionIva, datos.domicilio, estudioId);
+}
+
+/** Datos de facturación listos para la UI, con el aviso de si están completos. */
+export function facturacionParaUi(estudioId: string): {
+  cuit: string;
+  condicionIva: string;
+  domicilio: string;
+  completa: boolean;
+} {
+  const d = datosFacturacionDeEstudio(estudioId);
+  const datos = {
+    cuit: d?.cuit ?? "",
+    condicionIva: d?.iva_condition ?? "",
+    domicilio: d?.address ?? "",
+  };
+  return { ...datos, completa: faltantesFacturacion(datos).length === 0 };
+}
+
+/** Contrata (o renueva) un plan por 30 días desde hoy. */
+export function activarPlan(estudioId: string, clave: string): void {
+  getDb()
+    .prepare(
+      `UPDATE users
+         SET plan = ?, suscripcion_hasta = datetime('now', '+30 days')
+       WHERE id = ? AND role IN ('admin','operador') AND despachante_id IS NULL`,
+    )
+    .run(clave, estudioId);
+}
+
+export type EstudioRow = {
+  id: string;
+  nombre: string;
+  email: string | null;
+  cuit: string | null;
+  clientes: number;
+  subcuentas: number;
+  created_at: string;
+  trial_hasta: string | null;
+  plan: string | null;
+  suscripcion_hasta: string | null;
+};
+
+/**
+ * Todos los estudios dados de alta en la plataforma (cuentas raíz de
+ * despachante). Es la vista de dueño del producto, no la de un estudio: la usa
+ * el admin para ver quién está usando el sistema. No incluye al propio admin.
+ */
+export function getEstudios(): EstudioRow[] {
+  return getDb()
+    .prepare(
+      `SELECT e.id,
+              COALESCE(NULLIF(TRIM(e.company_name), ''), e.contact_name, e.email, 'Sin nombre') AS nombre,
+              e.email,
+              e.cuit,
+              (SELECT COUNT(*) FROM users c
+                WHERE c.role = 'client' AND c.despachante_id = e.id) AS clientes,
+              (SELECT COUNT(*) FROM users s
+                WHERE s.role = 'operador' AND s.despachante_id = e.id) AS subcuentas,
+              e.created_at,
+              e.trial_hasta,
+              e.plan,
+              e.suscripcion_hasta
+       FROM users e
+       WHERE e.role = 'operador' AND e.despachante_id IS NULL
+       ORDER BY e.created_at DESC`,
+    )
+    .all() as EstudioRow[];
 }
 
 export type NuevoOperador = {
@@ -329,12 +496,14 @@ export type NuevoOperador = {
   password: string;
 };
 
-export function createOperador(input: NuevoOperador): { id: string } {
+/** Alta de subcuenta dentro de un estudio: comparte la cartera de su dueño. */
+export function createOperador(input: NuevoOperador, estudioId: string): { id: string } {
   const id = cryptoId();
   getDb()
     .prepare(
-      `INSERT INTO users (id, username, email, password_hash, role, contact_name)
-       VALUES (?, ?, ?, ?, 'operador', ?)`,
+      `INSERT INTO users
+         (id, username, email, password_hash, role, contact_name, despachante_id)
+       VALUES (?, ?, ?, ?, 'operador', ?, ?)`,
     )
     .run(
       id,
@@ -342,14 +511,19 @@ export function createOperador(input: NuevoOperador): { id: string } {
       input.email?.trim() || null,
       hashPassword(input.password),
       input.nombre.trim(),
+      estudioId,
     );
   return { id };
 }
 
-export function removeOperador(id: string): void {
-  getDb()
-    .prepare("DELETE FROM users WHERE id = ? AND role = 'operador'")
-    .run(id);
+/** Devuelve false si esa subcuenta no es de este estudio (no se toca nada). */
+export function removeOperador(id: string, estudioId: string): boolean {
+  const r = getDb()
+    .prepare(
+      "DELETE FROM users WHERE id = ? AND role = 'operador' AND despachante_id = ?",
+    )
+    .run(id, estudioId);
+  return r.changes > 0;
 }
 
 export type EditarOperador = {
@@ -361,36 +535,44 @@ export type EditarOperador = {
   password?: string | null;
 };
 
-export function updateOperador(input: EditarOperador): void {
+/** Devuelve false si esa subcuenta no es de este estudio (no se toca nada). */
+export function updateOperador(input: EditarOperador, estudioId: string): boolean {
   const db = getDb();
   const nombre = input.nombre.trim();
   const username = input.username.trim();
   const email = input.email?.trim() || null;
   if (input.password && input.password.length > 0) {
-    db.prepare(
-      `UPDATE users
-         SET contact_name = ?, username = ?, email = ?, password_hash = ?
-       WHERE id = ? AND role = 'operador'`,
-    ).run(nombre, username, email, hashPassword(input.password), input.id);
-  } else {
-    db.prepare(
+    const r = db
+      .prepare(
+        `UPDATE users
+           SET contact_name = ?, username = ?, email = ?, password_hash = ?
+         WHERE id = ? AND role = 'operador' AND despachante_id = ?`,
+      )
+      .run(nombre, username, email, hashPassword(input.password), input.id, estudioId);
+    return r.changes > 0;
+  }
+  const r = db
+    .prepare(
       `UPDATE users
          SET contact_name = ?, username = ?, email = ?
-       WHERE id = ? AND role = 'operador'`,
-    ).run(nombre, username, email, input.id);
-  }
+       WHERE id = ? AND role = 'operador' AND despachante_id = ?`,
+    )
+    .run(nombre, username, email, input.id, estudioId);
+  return r.changes > 0;
 }
 
-export function countClients(): number {
+export function countClients(despachanteId: string): number {
   const r = getDb()
-    .prepare("SELECT COUNT(*) AS c FROM users WHERE role = 'client'")
-    .get() as { c: number };
+    .prepare(
+      "SELECT COUNT(*) AS c FROM users WHERE role = 'client' AND despachante_id = ?",
+    )
+    .get(despachanteId) as { c: number };
   return r.c;
 }
 
-export async function countOperations(): Promise<number> {
+export async function countOperations(despachanteId: string): Promise<number> {
   let total = 0;
-  for (const c of clientesBasicos()) {
+  for (const c of clientesBasicos(despachanteId)) {
     const ops = await leerFilas(opsFile(c.id), OPERACION_COLS);
     total += ops.length;
   }
@@ -473,6 +655,13 @@ export const OP_CAMPOS = [
   // (titulo) lo maneja el equipo; si el cliente lo edita, se guarda acá.
   "titulo_cliente",
   "via",
+  // Destinación aduanera (impo_consumo, impo_temp_1330, expo_temporaria…).
+  // Define el paso a paso: una suspensiva agrega autorización previa, cambia
+  // liquidación por garantía y no cierra hasta cancelar el régimen. Vacío en
+  // las operaciones viejas: se leen como «a consumo», que es lo que son.
+  "destinacion",
+  /** Vencimiento del régimen suspensivo (ISO YYYY-MM-DD). */
+  "destinacion_vence",
   "contraparte",
   "detalle",
   "aduana",
@@ -712,18 +901,21 @@ async function asegurarTituloOperacion(
   return recuperado;
 }
 
-/** Genera una referencia legible: IMP-2026-0007 / EXP-2026-0012. */
-export async function nextOperationRef(tipo: string): Promise<string> {
+/**
+ * Genera una referencia legible: IMP-2026-0007 / EXP-2026-0012.
+ * La serie es por cartera: cada cuenta numera sus propias operaciones.
+ */
+export async function nextOperationRef(tipo: string, despachanteId: string): Promise<string> {
   const prefix = tipo.toLowerCase().startsWith("exp") ? "EXP" : "IMP";
   const year = new Date().getFullYear();
-  const seq = (await countOperations()) + 1;
+  const seq = (await countOperations(despachanteId)) + 1;
   return `${prefix}-${year}-${String(seq).padStart(4, "0")}`;
 }
 
 export async function createOperation(input: NewOperationInput): Promise<string> {
   return conArchivo(opsFile(input.userId), async () => {
   const id = cryptoId();
-  const ref = await nextOperationRef(input.tipo);
+  const ref = await nextOperationRef(input.tipo, despachanteDeCliente(input.userId) ?? input.userId);
 
   const filas = await leerFilas(opsFile(input.userId), OPERACION_COLS);
   const fila: Fila = {
@@ -1380,9 +1572,9 @@ export async function getOperationsByUser(
   return rows.sort(porFechaDesc);
 }
 
-export async function getAllOperations(): Promise<OperationWithClient[]> {
+export async function getAllOperations(despachanteId: string): Promise<OperationWithClient[]> {
   const all: OperationWithClient[] = [];
-  for (const c of clientesBasicos()) {
+  for (const c of clientesBasicos(despachanteId)) {
     const [ops, docs] = await Promise.all([
       leerFilas(opsFile(c.id), OPERACION_COLS),
       leerFilas(docsFile(c.id), DOCUMENTO_COLS),
@@ -1410,8 +1602,9 @@ export async function getAllOperations(): Promise<OperationWithClient[]> {
 
 export async function getOperationById(
   id: string,
+  alcance: Alcance,
 ): Promise<OperationWithClient | null> {
-  for (const c of clientesBasicos()) {
+  for (const c of clientesDelAlcance(alcance)) {
     const ops = await leerFilas(opsFile(c.id), OPERACION_COLS);
     const o = ops.find((x) => x.id === id);
     if (!o) continue;
@@ -1443,8 +1636,11 @@ export async function getDocumentsByOperation(
     .sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
 }
 
-export async function getDocumentById(id: string): Promise<DocumentRow | null> {
-  for (const c of clientesBasicos()) {
+export async function getDocumentById(
+  id: string,
+  alcance: Alcance,
+): Promise<DocumentRow | null> {
+  for (const c of clientesDelAlcance(alcance)) {
     const docs = await leerFilas(docsFile(c.id), DOCUMENTO_COLS);
     const d = docs.find((x) => x.id === id);
     if (d) return aDocumentRow(d);

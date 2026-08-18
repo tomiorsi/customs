@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth-server";
-import { esEquipo } from "@/lib/roles";
+import { esEquipo, alcanceDe } from "@/lib/roles";
 import {
   getDocumentsByOperation,
   getEventosByOperation,
@@ -22,7 +22,7 @@ export default async function AdminOperacionDetallePage({
   if (!user || !esEquipo(user.role)) redirect("/login");
 
   const { id } = await params;
-  const op = await getOperationById(id);
+  const op = await getOperationById(id, alcanceDe(user));
   if (!op) notFound();
 
   // El equipo abrió la operación: marcamos las novedades como vistas.

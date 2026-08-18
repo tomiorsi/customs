@@ -1190,8 +1190,17 @@ const CAPITULOS_MATERIA = new Set([
   "72", "73", "74", "75", "76", "78", "79", "80", "81", // metales comunes
 ]);
 
+/**
+ * Materias que, nombradas en HECHOS, ya declaran de qué está hecho el artículo.
+ *
+ * La lista cubre el vocabulario corriente, no solo el legal: el importador
+ * escribe «de tela» o «de gamuza» donde el nomenclador dice «materia textil» o
+ * «cuero». Faltaba justamente «tela» —la más común de todas— mientras estaban
+ * «lona», «lino» y «lana», así que el sistema pedía el material a quien ya lo
+ * había escrito.
+ */
 const MATERIA_EN_HECHOS =
-  /\b(?:plastico|plastica|caucho|goma|metal|metalic|acero|hierro|fundicion|textil|algodon|nylon|poliuretano|pvc|polietileno|bronce|laton|aluminio|cobre|zinc|cinc|estano|plomo|niquel|titanio|madera|contrachapad|corcho|mimbre|bambu|ratan|cuero|piel|lona|sintetic|papel|carton|celulosa|vidrio|ceramic|porcelana|gres|loza|piedra|marmol|granito|yeso|hormigon|lino|lana|seda|yute|viscosa|poliester|polipropileno|acrilic|elastomer|elastomero|fibra|fieltro|hilado|filamento)\b/;
+  /\b(?:plastico|plastica|caucho|goma|latex|neopreno|silicona|resina|metal|metalic|acero|hierro|fundicion|chapa|hojalata|peltre|textil|tela|telas|tejido|algodon|nylon|poliamida|poliuretano|pvc|polietileno|bronce|laton|aluminio|cobre|zinc|cinc|estano|plomo|niquel|titanio|madera|contrachapad|aglomerado|melamina|corcho|mimbre|bambu|ratan|cuero|gamuza|piel|lona|sintetic|papel|carton|celulosa|vidrio|ceramic|porcelana|porcelanato|gres|loza|piedra|marmol|granito|yeso|hormigon|lino|lana|seda|yute|canamo|sisal|ramio|viscosa|poliester|polipropileno|acrilic|elastomer|elastomero|fibra|fieltro|hilado|filamento)\b/;
 
 export function materiaDeclaradaEnHechos(hechos: string): boolean {
   if (MATERIA_EN_HECHOS.test(corpusNormalizado(hechos ?? ""))) return true;
@@ -1535,27 +1544,48 @@ export async function partidasMotor(args: ArgsPartidasPaquete): Promise<string[]
 const MAX_PARTIDAS_PAQUETE_EXPANDIDO = 7;
 
 /**
- * Une las partidas del retrieval normal con las del retrieval sobre el texto
- * expandido (términos legales de la Fase 0). Preserva las base (no las desplaza)
- * y agrega las que la expansión aporta, hasta el tope expandido.
+ * Une las partidas del retrieval normal con las del retrieval de la Fase 0.
+ *
+ * Los términos legales se buscan **de a uno y votan**, en vez de mandarse como
+ * una bolsa concatenada al texto original. Dos motivos, los dos medidos:
+ * el puntaje por clave es binario, así que en una bolsa única «calzado» repetido
+ * en cinco sinónimos valía lo mismo que un término suelto de ruido —la
+ * redundancia entre sinónimos es justamente la señal de cuál es el núcleo—; y
+ * arrastrar el texto original mantenía su ruido pesando sobre la expansión.
+ *
+ * Después se **intercalan** con las base en vez de anexarse detrás: cuando el
+ * retrieval base falla —que es exactamente cuando la expansión hace falta—,
+ * anexarla al final la dejaba fuera del tope.
  */
 export async function resolverPartidasConExpansion(
   args: ArgsPartidasPaquete,
   terminosExpansion: string[],
 ): Promise<string[]> {
   const base = await resolverPartidasPaquete(args);
-  const extra = (terminosExpansion ?? []).join(" ").trim();
-  if (!extra) return base;
-  const conExtra = (t: string) => (t.trim() ? `${t} ${extra}` : extra);
-  const exp = await resolverPartidasPaquete({
-    textoNombreBase: conExtra(args.textoNombreBase),
-    textoFiltro: conExtra(args.textoFiltro),
-    textoSims: conExtra(args.textoSims),
-  });
-  const union = [...base];
-  for (const p of exp) {
-    if (union.length >= MAX_PARTIDAS_PAQUETE_EXPANDIDO) break;
-    if (!union.includes(p)) union.push(p);
+  const terminos = (terminosExpansion ?? []).map((t) => t.trim()).filter(Boolean);
+  if (!terminos.length) return base;
+
+  const votos = new Map<string, number>();
+  for (const termino of terminos) {
+    const partidas = await resolverPartidasPaquete({
+      textoNombreBase: termino,
+      textoFiltro: termino,
+      textoSims: termino,
+    });
+    // Encabezar el ranking de un término pesa más que aparecer al final.
+    partidas.forEach((p, i) => votos.set(p, (votos.get(p) ?? 0) + 1 / (i + 1)));
+  }
+  const expandidas = [...votos.entries()].sort((a, b) => b[1] - a[1]).map(([p]) => p);
+
+  const union: string[] = [];
+  const largo = Math.max(base.length, expandidas.length);
+  for (let i = 0; i < largo && union.length < MAX_PARTIDAS_PAQUETE_EXPANDIDO; i++) {
+    for (const lista of [base, expandidas]) {
+      const p = lista[i];
+      if (!p || union.includes(p)) continue;
+      if (union.length >= MAX_PARTIDAS_PAQUETE_EXPANDIDO) break;
+      union.push(p);
+    }
   }
   return union;
 }

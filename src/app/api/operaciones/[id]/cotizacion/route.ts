@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth-server";
-import { esEquipo } from "@/lib/roles";
+import { esEquipo, alcanceDe } from "@/lib/roles";
 import {
   addEvento,
   getOperationById,
@@ -51,7 +51,7 @@ export async function GET(
   }
 
   const { id } = await ctx.params;
-  const op = await getOperationById(id);
+  const op = await getOperationById(id, alcanceDe(user));
   if (!op) {
     return NextResponse.json(
       { error: "Operación no encontrada." },
@@ -68,7 +68,7 @@ export async function GET(
       ),
       requisitosOperacion(op),
     ]);
-    const pdf = await generarCotizacionPDF(op, liq, requisitos, { vista });
+    const pdf = await generarCotizacionPDF(op, liq, requisitos, { vista, user });
     // dl=1 fuerza la descarga; si no, se muestra embebido en el navegador.
     const descargar = req.nextUrl.searchParams.get("dl") === "1";
     const disposition = descargar ? "attachment" : "inline";
@@ -104,7 +104,7 @@ export async function POST(
   }
 
   const { id } = await ctx.params;
-  const op = await getOperationById(id);
+  const op = await getOperationById(id, alcanceDe(user));
   if (!op) {
     return NextResponse.json(
       { error: "Operación no encontrada." },
@@ -145,7 +145,7 @@ export async function POST(
       calcularLiquidacion(op, destino),
       requisitosOperacion(op),
     ]);
-    const pdf = await generarCotizacionPDF(op, liq, requisitos);
+    const pdf = await generarCotizacionPDF(op, liq, requisitos, { user });
     const content = Buffer.from(pdf).toString("base64");
 
     await enviarCotizacionCliente({

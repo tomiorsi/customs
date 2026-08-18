@@ -5,7 +5,13 @@ import { getDb } from "./db";
 import type { PublicUser } from "./types";
 
 export const SESSION_COOKIE = "session";
-const SESSION_DAYS = 30;
+
+/**
+ * La sesión se cierra sola tras dos horas SIN actividad, no dos horas desde el
+ * ingreso: cada request la renueva. Así nadie queda expulsado en medio de un
+ * despacho, pero una pantalla olvidada en la oficina no queda abierta.
+ */
+export const SESSION_INACTIVIDAD_MS = 2 * 60 * 60 * 1000;
 
 export type { Rol } from "./types";
 
@@ -21,7 +27,7 @@ export function toSafeUser(u: DBUser): SafeUser {
 export function createSession(userId: string): { token: string; expires: Date } {
   const db = getDb();
   const token = randomBytes(32).toString("hex");
-  const expires = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
+  const expires = new Date(Date.now() + SESSION_INACTIVIDAD_MS);
   db.prepare(
     "INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)",
   ).run(token, userId, expires.toISOString());
@@ -42,7 +48,16 @@ export function getUserByToken(token: string | undefined | null): DBUser | null 
        WHERE s.id = ? AND s.expires_at > datetime('now')`,
     )
     .get(token) as DBUser | undefined;
-  return row ?? null;
+  if (!row) return null;
+
+  // Cada request corre la ventana hacia adelante: la sesión muere por estar
+  // quieta, no por haber durado. Se limpia de paso lo ya vencido.
+  db.prepare(
+    `UPDATE sessions SET expires_at = datetime('now', '+2 hours') WHERE id = ?`,
+  ).run(token);
+  db.prepare("DELETE FROM sessions WHERE expires_at <= datetime('now')").run();
+
+  return row;
 }
 
 export async function getCurrentUser(): Promise<SafeUser | null> {

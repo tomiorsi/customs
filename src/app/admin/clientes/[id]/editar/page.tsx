@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth-server";
-import { esEquipo } from "@/lib/roles";
+import { esEquipo, estudioDe } from "@/lib/roles";
 import { getClienteById } from "@/lib/data";
 import { ClienteForm } from "@/components/cliente-form";
 
@@ -16,7 +16,7 @@ export default async function EditarClientePage({
   if (!esEquipo(user?.role)) redirect("/admin/operaciones");
 
   const { id } = await params;
-  const cliente = getClienteById(id);
+  const cliente = getClienteById(id, estudioDe(user!));
   if (!cliente) notFound();
 
   return (

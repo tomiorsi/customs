@@ -9,12 +9,47 @@
   --surface: #ffffff;
   --surface-2: #f1f1f3;
   --foreground: #16181d;
-  --muted: #6b7280;
+  /* Gris de apoyo. Estaba en #6b7280, que sobre las tarjetas grises
+     (surface-2) daba 4,29:1 — por debajo del mínimo legible, y buena parte de
+     la interfaz lo usa en textos de 10-11 px. Este da 6,7:1 sobre blanco y
+     5,97:1 sobre surface-2, sin volverse negro ni perder la jerarquía. */
+  --muted: #565c66;
   --border: #e5e7eb;
   --accent: #f97316;
   --accent-foreground: #ffffff;
   --accent-soft: #fff3ea;
+  /* Naranja para TEXTO. El de la marca (#f97316) da 2,6:1 sobre blanco: sirve
+     para pintar un botón, no para escribir. Este mantiene el mismo tono y llega
+     a 5,35:1, así que un código NCM en color se lee de verdad. */
+  --accent-text: #b84610;
   --ring: rgba(249, 115, 22, 0.35);
+}
+
+/*
+ * Modo noche. Se activa con la clase .dark en <html>, no por preferencia del
+ * sistema: la elección es del usuario y se guarda. El acento naranja no cambia
+ * —es la marca—; lo que se invierte son los neutros, y `accent-soft` pasa de
+ * un naranja lavado a uno apagado, porque sobre fondo oscuro el original
+ * quedaba como un bloque blanco.
+ */
+.dark {
+  --background: #101216;
+  --surface: #181b21;
+  --surface-2: #21252d;
+  --foreground: #e9ebef;
+  --muted: #a7aeb9;
+  --border: #2b3039;
+  --accent: #fb8c3c;
+  --accent-foreground: #1a1207;
+  --accent-soft: #2b1c10;
+  /* En oscuro el problema se invierte: hay que aclararlo, no oscurecerlo. */
+  --accent-text: #fdba74;
+  --ring: rgba(251, 140, 60, 0.45);
+}
+
+/* El chevron de los selects sigue al tema: en oscuro el gris original no se ve. */
+.dark select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%239aa2ae' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 }
 
 
@@ -24,6 +59,7 @@
   --color-surface-2: var(--surface-2);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
+  --color-accent-text: var(--accent-text);
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
@@ -54,6 +90,21 @@ select {
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 1.5rem;
+  /* Sin barra de scroll en toda la página. Se sigue scrolleando igual —rueda,
+     trackpad, teclado, gestos— solo que no se dibuja.
+     El efecto secundario buscado: la barra ocupaba ~15 px del ancho de la
+     ventana y empujaba TODO el contenido centrado a la izquierda. Sin ella, el
+     centro de la página es el centro real de la pantalla. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* Nada de scrollbar-gutter: reservar el hueco anularía el recentrado. */
+  scrollbar-gutter: auto;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -310,4 +361,58 @@ body::before {
   .landing-flecha {
     animation: none;
   }
+}
+
+
+/*
+ * Fondo del chat: una trama de puntos muy tenue. Separa la conversación del
+ * resto del panel sin bordes extra, y en oscuro se apoya en el fondo base para
+ * que las burbujas sigan siendo lo más claro de la pantalla.
+ */
+.chat-trama {
+  background-color: color-mix(in srgb, var(--surface-2) 45%, var(--surface));
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    color-mix(in srgb, var(--muted) 22%, transparent) 1px,
+    transparent 0
+  );
+  background-size: 18px 18px;
+}
+
+/* Los tres puntos de «escribiendo». */
+@keyframes chat-punto {
+  0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-2px); }
+}
+
+.chat-punto {
+  animation: chat-punto 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-punto {
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
+/* ─────────────────────── Scroll sin barra visible ───────────────────────
+ * Para paneles que scrollean por dentro (la estimación de la calculadora, por
+ * ejemplo). La barra sigue funcionando —rueda, trackpad, teclado, arrastre—
+ * solo que no se dibuja: en un panel angosto se comía ancho y partía la
+ * alineación de los números con su etiqueta.
+ *
+ * No usarla en la página entera: ahí la barra es la única señal de que queda
+ * contenido abajo, y sin ella el usuario no sabe que puede seguir bajando.
+ */
+.sin-scrollbar {
+  /* Firefox */
+  scrollbar-width: none;
+  /* IE / Edge viejo */
+  -ms-overflow-style: none;
+}
+
+.sin-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }

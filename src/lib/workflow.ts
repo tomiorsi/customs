@@ -27,6 +27,7 @@ import {
   labelPagoLogistica,
   ordenarSubtareasEmbarque,
 } from "./retiro-transporte";
+import { destinacionDe, type Destinacion } from "./destinaciones";
 
 export type SubTarea = { id: string; label: string };
 
@@ -230,6 +231,8 @@ export type EtapasOpts = {
   liberacion?: string | null;
   /** Forma de pago (anticipado, cuenta abierta, cobranza, carta de crédito): define cuándo se libera el BL. */
   formaPago?: string | null;
+  /** Destinación aduanera. Sin dato se asume «a consumo». */
+  destinacion?: string | null;
 };
 
 function metaIncotermDe(incoterm?: string | null): IncotermMeta | null {
@@ -592,26 +595,135 @@ function adaptarEtapa(
   return e;
 }
 
-/** Lista de etapas internas según el tipo de operación, Incoterm y vía. */
+/* ─────────────────────── Ajustes por destinación ─────────────────────── */
+
+/**
+ * Reordena el paso a paso según la destinación.
+ *
+ * Una destinación a consumo no cambia nada: el tronco YA es el flujo a consumo.
+ * Una suspensiva hace tres cosas, y ninguna es cosmética:
+ *
+ * 1. Mete una etapa de AUTORIZACIÓN después de la apertura. El CTIT de una
+ *    temporaria del 1330 es previo a oficializar: si aparece tarde, la carpeta
+ *    se frena.
+ * 2. Convierte la liquidación en GARANTÍA. En un régimen suspensivo los
+ *    tributos no se pagan, se garantizan — dejar «IVA y percepciones
+ *    liquidados» ahí sería pedirle al operador algo que no corresponde.
+ * 3. Agrega la CANCELACIÓN antes del cierre. Una temporaria no termina cuando
+ *    se retira la mercadería: termina meses después, cuando se reexporta o se
+ *    convierte a consumo. Sin esta etapa la carpeta se cerraría con el régimen
+ *    abierto y la garantía viva.
+ */
+function etapaAutorizacion(d: Destinacion): EtapaDef | null {
+  if (!d.autorizacion) return null;
+  const plazo = d.plazo
+    ? ` El régimen corre ${d.plazo.dias} días desde ${d.plazo.desde}: cargá la fecha apenas la tengas.`
+    : " El plazo lo fija la autorización: cargalo en la operación cuando llegue.";
+  return {
+    id: "autorizacion",
+    label: d.autorizacion.label,
+    guia:
+      `${d.cuando} Se tramita en: ${d.autorizacion.donde}. Norma: ${d.norma}.` +
+      plazo +
+      (d.prorroga ? ` Prórroga: ${d.prorroga}` : ""),
+    estadoCliente: ESTADO_PREPARACION,
+    subtareas: d.autorizacion.subtareas,
+  };
+}
+
+function etapaCancelacion(d: Destinacion): EtapaDef | null {
+  if (!d.cancelacion) return null;
+  return {
+    id: "cancelacion",
+    label: d.cancelacion.label,
+    guia: d.cancelacion.guia,
+    estadoCliente: ESTADO_ENTREGADA,
+    subtareas: d.cancelacion.subtareas,
+  };
+}
+
+/** La liquidación de una suspensiva no cobra tributos: los garantiza. */
+function etapaGarantia(e: EtapaDef): EtapaDef {
+  return {
+    ...e,
+    label: "Garantía del régimen",
+    guia:
+      "Régimen suspensivo: los tributos NO se pagan, se garantizan (arts. 453 y ss. del Código Aduanero). Determiná el valor en aduana igual que en una operación a consumo —la garantía se calcula sobre esa base— y constituí la garantía por el total de los tributos que se suspenden. Verificá la modalidad aceptada y su vigencia: tiene que cubrir todo el plazo del régimen, prórrogas incluidas.",
+    subtareas: [
+      { id: "cif", label: "Valor en aduana determinado (base de la garantía)" },
+      { id: "tributos_suspendidos", label: "Tributos suspendidos calculados" },
+      { id: "garantia", label: "Garantía constituida y aceptada por Aduana" },
+      { id: "vigencia_garantia", label: "Vigencia de la garantía cubre todo el plazo del régimen" },
+    ],
+  };
+}
+
+function aplicarDestinacion(etapas: EtapaDef[], d: Destinacion): EtapaDef[] {
+  if (d.familia === "definitiva" && !d.autorizacion) return etapas;
+
+  const salida: EtapaDef[] = [];
+  const autorizacion = etapaAutorizacion(d);
+  const cancelacion = etapaCancelacion(d);
+
+  for (const e of etapas) {
+    salida.push(
+      e.id === "liquidacion" && d.familia === "suspensiva" ? etapaGarantia(e) : e,
+    );
+    // La autorización va apenas cerrada la apertura: es lo primero que hay que
+    // destrabar y suele ser lo más lento de todo el expediente.
+    if (e.id === "apertura" && autorizacion) salida.push(autorizacion);
+    // La cancelación va antes del cierre, no después: la carpeta no se archiva
+    // con el régimen abierto.
+    if (e.id === "retiro" && cancelacion) salida.push(cancelacion);
+  }
+  return salida;
+}
+
+/** Lista de etapas internas según destinación, tipo de operación, Incoterm y vía. */
 export function etapasDe(
   tipo: string | null | undefined,
   opts?: EtapasOpts,
 ): EtapaDef[] {
   const esImpo = !esExportacion(tipo);
+  const destinacion = destinacionDe(tipo, opts?.destinacion);
   const base = esImpo
     ? ETAPAS_IMPO
     : ETAPAS_IMPO.map((e) => {
         const ov = EXPO_OVERRIDES[e.id];
         return ov ? { ...e, ...ov } : e;
       });
-  if (!opts) return base;
+  const conDestinacion = aplicarDestinacion(base, destinacion);
+  if (!opts) return conDestinacion;
   const meta = metaIncotermDe(opts.incoterm);
   const fp = formaPagoMeta(opts.formaPago, opts.via);
-  return base.map((e) => adaptarEtapa(e, esImpo, meta, fp, opts));
+  return conDestinacion.map((e) => adaptarEtapa(e, esImpo, meta, fp, opts));
 }
 
 export const ETAPA_INICIAL = ETAPAS_IMPO[0].id;
-export const ETAPA_IDS = ETAPAS_IMPO.map((e) => e.id);
+
+/**
+ * Orden canónico de TODAS las etapas posibles, incluidas las que solo aparecen
+ * en regímenes suspensivos. Es el eje contra el que se comparan posiciones
+ * ("¿ya pasó embarque?"), así que tiene que contener también las etapas que una
+ * operación a consumo nunca ve: si no, una carpeta parada en «autorización»
+ * caería en el índice 0 y el sistema la leería como recién abierta.
+ */
+export const ETAPA_IDS: string[] = (() => {
+  const ids: string[] = [];
+  for (const e of ETAPAS_IMPO) {
+    ids.push(e.id);
+    if (e.id === "apertura") ids.push("autorizacion");
+    if (e.id === "retiro") ids.push("cancelacion");
+  }
+  return ids;
+})();
+
+/** Estado que ve el cliente, por etapa. Las suspensivas también tienen el suyo. */
+const ESTADO_POR_ETAPA: Record<string, string> = {
+  ...Object.fromEntries(ETAPAS_IMPO.map((e) => [e.id, e.estadoCliente])),
+  autorizacion: ESTADO_PREPARACION,
+  cancelacion: ESTADO_ENTREGADA,
+};
 
 /**
  * Etapas que ya no existen y a dónde se mapean (para operaciones viejas).
@@ -636,6 +748,21 @@ export function etapaIndex(etapaId: string | null): number {
   return i < 0 ? 0 : i;
 }
 
+/**
+ * Posición de la etapa DENTRO del flujo de esta operación.
+ *
+ * `etapaIndex` da la posición en el orden canónico, que sirve para comparar
+ * ("¿ya pasó embarque?") pero NO para indexar el array que devuelve `etapasDe`:
+ * ese array tiene 8 etapas en una operación a consumo y 10 en una suspensiva.
+ * Indexar el primero con el índice del segundo devuelve la etapa equivocada, o
+ * `undefined` al final del flujo. Para pintar el paso a paso, esta.
+ */
+export function indiceDeEtapa(etapas: EtapaDef[], etapaId: string | null): number {
+  const id = normalizarEtapa(etapaId);
+  const i = etapas.findIndex((e) => e.id === id);
+  return i < 0 ? 0 : i;
+}
+
 export function esEtapaValida(etapaId: string): boolean {
   return ETAPA_IDS.includes(normalizarEtapa(etapaId));
 }
@@ -643,13 +770,18 @@ export function esEtapaValida(etapaId: string): boolean {
 export function etapaDef(
   etapaId: string | null,
   tipo: string | null | undefined,
+  destinacion?: string | null,
 ): EtapaDef {
-  return etapasDe(tipo)[etapaIndex(etapaId)];
+  const etapas = etapasDe(tipo, destinacion ? { destinacion } : undefined);
+  const id = normalizarEtapa(etapaId);
+  // Por id y no por índice: el flujo de la operación puede tener más etapas que
+  // el canónico (o menos), y buscar por posición devolvería otra etapa.
+  return etapas.find((e) => e.id === id) ?? etapas[0];
 }
 
 /** Estado simple (para el cliente) que corresponde a una etapa interna. */
 export function estadoClienteDeEtapa(etapaId: string | null): string {
-  return ETAPAS_IMPO[etapaIndex(etapaId)].estadoCliente;
+  return ESTADO_POR_ETAPA[normalizarEtapa(etapaId)] ?? ETAPAS_IMPO[0].estadoCliente;
 }
 
 /** Mapea los estados viejos (5 estados clásicos) a la nueva etapa interna. */

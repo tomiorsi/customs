@@ -6,6 +6,7 @@ import {
   parseHallazgosIA,
   setChecklistItem,
   type OperationWithClient,
+  alcanceDelDueno,
 } from "@/lib/data";
 import { documentoValidoSegunIA, documentoCierraFaltante } from "@/lib/validacion-documento-legal";
 import {
@@ -255,7 +256,7 @@ export async function actualizarChecklistAutomatico(
     { recienSubido: opts?.recienSubido, op },
   );
   const derivados = await sincronizarChecklistDerivados(
-    (await getOperationById(op.id)) ?? op,
+    (await getOperationById(op.id, alcanceDelDueno(op.user_id))) ?? op,
     opts?.resultadoValidacion,
     autor,
   );

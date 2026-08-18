@@ -142,22 +142,17 @@ function Detalle({ a }: { a: Arribo }) {
   );
 }
 
-const ESTADOS_TERMINADOS = new Set<EstadoBuque>(["finalizado", "cancelado"]);
-const ESTADOS_EN_PUERTO = new Set<EstadoBuque>(["arribado", "operando"]);
+/** Estados en los que la escala efectivamente se cerró. */
+const ESTADO_CERRADO = new Set<EstadoBuque>(["finalizado", "cancelado"]);
 
-/**
- * Una escala sigue importando mientras haya algo por hacer: el buque está en
- * puerto ahora, o todavía no llegó. Las terminadas ya operaron, y las que
- * quedaron con ETA vencida sin cerrarse son datos que la fuente nunca
- * actualizó — en ninguno de los dos casos hay carga que despachar.
- */
-function sigueVigente(a: Arribo, hoy: string): boolean {
-  if (ESTADOS_TERMINADOS.has(a.estado)) return false;
-  if (ESTADOS_EN_PUERTO.has(a.estado)) return true;
-  return !a.eta || a.eta >= hoy;
-}
-
-export function BuquesTabla({ inicial }: { inicial: ListadoBuques }) {
+export function BuquesTabla({
+  inicial,
+  historico = [],
+}: {
+  inicial: ListadoBuques;
+  /** Escalas ya terminadas, de su propio archivo. */
+  historico?: Arribo[];
+}) {
   const datos = inicial;
   const [q, setQ] = useState("");
   const [puerto, setPuerto] = useState("todos");
@@ -165,33 +160,36 @@ export function BuquesTabla({ inicial }: { inicial: ListadoBuques }) {
   // Las escalas terminadas ya no requieren acción: se ocultan salvo pedido.
   const [verTerminados, setVerTerminados] = useState(false);
 
-  const puertos = useMemo(
-    () => [...new Set(datos.arribos.map((a) => a.puerto))].sort(),
-    [datos.arribos],
-  );
 
-  // El índice se recalcula solo cuando cambian los datos, no en cada tecla.
+  /**
+   * «Ver anteriores» CAMBIA la lista, no la amplía.
+   *
+   * Antes sumaba las terminadas a las vigentes y quedaba todo mezclado: por eso
+   * al pedir "anteriores" aparecían escalas «Operando» y «Esperando» entre las
+   * finalizadas. Son dos listas distintas y se miran de a una.
+   */
+  const lista = verTerminados ? historico : datos.arribos;
+
+  // El índice se recalcula solo cuando cambia la lista, no en cada tecla.
   const indexados = useMemo(
-    () => datos.arribos.map((a) => ({ a, clave: clavesBusqueda(a) })),
-    [datos.arribos],
+    () => lista.map((a) => ({ a, clave: clavesBusqueda(a) })),
+    [lista],
   );
 
-  // La fecha viene del servidor: evita que cliente y servidor filtren distinto.
-  const hoy = datos.consultado.slice(0, 10);
+  const terminados = historico.length;
 
-  const terminados = useMemo(
-    () => datos.arribos.filter((a) => !sigueVigente(a, hoy)).length,
-    [datos.arribos, hoy],
+  const puertos = useMemo(
+    () => [...new Set(lista.map((a) => a.puerto))].sort(),
+    [lista],
   );
 
   const filtrados = useMemo(() => {
     const tokens = normalizarBusqueda(q).split(" ").filter(Boolean);
     return indexados
-      .filter(({ a }) => verTerminados || sigueVigente(a, hoy))
       .filter(({ a }) => puerto === "todos" || a.puerto === puerto)
       .filter(({ clave }) => tokens.every((t) => clave.includes(t)))
       .map(({ a }) => a);
-  }, [indexados, q, puerto, verTerminados, hoy]);
+  }, [indexados, q, puerto]);
 
   const conError = datos.fuentes.filter((f) => f.error);
 
@@ -238,6 +236,15 @@ export function BuquesTabla({ inicial }: { inicial: ListadoBuques }) {
           )}
         </div>
       </div>
+
+      {verTerminados && (
+        <p className="text-xs leading-relaxed text-muted">
+          Escalas cuya fecha ya pasó. Las que figuran{" "}
+          <span className="font-medium text-foreground">Sin informar</span> son
+          las que la terminal nunca cerró — Bahía Blanca, por ejemplo, publica
+          los arribos pero no avisa cuándo terminan.
+        </p>
+      )}
 
       {conError.length > 0 && (
         <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm">
@@ -325,11 +332,29 @@ export function BuquesTabla({ inicial }: { inicial: ListadoBuques }) {
                           </p>
                         </td>
                         <td className="px-5 py-3.5">
-                          <span
-                            className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${ESTADO_CLASE[a.estado]}`}
-                          >
-                            {ETIQUETA_ESTADO[a.estado]}
-                          </span>
+                          {/* En la lista de anteriores, un estado abierto
+                              («Operando», «Esperado») no significa que el buque
+                              esté ahí: significa que la fuente no publicó el
+                              cierre. Hay dos motivos y ninguno es un problema
+                              nuestro: o la terminal se olvidó de actualizar el
+                              renglón, o —como Bahía Blanca— esa fuente
+                              directamente no informa cierres, solo anuncia
+                              arribos. Mostrar «Operando» en verde hacía parecer
+                              que había escalas activas entre las viejas. */}
+                          {verTerminados && !ESTADO_CERRADO.has(a.estado) ? (
+                            <span
+                              className="inline-flex rounded-full bg-surface-2 px-2.5 py-1 text-xs font-medium text-muted"
+                              title={`La fuente no informó el cierre de esta escala: la dejó como «${ETIQUETA_ESTADO[a.estado]}». La fecha ya pasó.`}
+                            >
+                              Sin informar
+                            </span>
+                          ) : (
+                            <span
+                              className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${ESTADO_CLASE[a.estado]}`}
+                            >
+                              {ETIQUETA_ESTADO[a.estado]}
+                            </span>
+                          )}
                         </td>
                         <td className="px-5 py-3.5 text-right">
                           <ChevronDown

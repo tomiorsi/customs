@@ -26,4 +26,6 @@ export type PublicUser = {
   op_reviewed_at: string | null;
   /** Acceso al portal self-service habilitado por el estudio ('1' = sí). */
   portal_habilitado: string | null;
+  /** Nombre del archivo del logo del estudio (los bytes viven en disco). */
+  logo: string | null;
 };

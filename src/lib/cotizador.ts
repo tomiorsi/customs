@@ -28,6 +28,7 @@
  */
 
 import type { TipoContenedor } from "./costos-logistica";
+import { destinacionPorId } from "./destinaciones";
 
 export type Preferencia =
   | "mercosur"
@@ -837,6 +838,39 @@ export const DESTINOS: { value: Destino; label: string; desc: string }[] = [
   },
 ];
 
+/**
+ * Perfiles fiscales del importador, con lo que cambia en cada uno.
+ *
+ * Lo que separa un perfil de otro no son las percepciones —esas se calculan
+ * igual para casi todos— sino QUÉ SE RECUPERA. El responsable inscripto computa
+ * el IVA de importación como crédito fiscal y las percepciones como pago a
+ * cuenta en su DDJJ. Los demás no presentan esa DDJJ: para ellos el IVA y las
+ * percepciones son costo definitivo, y el costo real de la misma importación
+ * puede ser 40% más alto.
+ */
+export const PERFILES: { value: PerfilFiscal; label: string; desc: string }[] = [
+  {
+    value: "responsable_inscripto",
+    label: "Responsable inscripto",
+    desc: "Recupera el IVA como crédito fiscal y las percepciones como pago a cuenta. El costo real es el neto.",
+  },
+  {
+    value: "monotributo",
+    label: "Monotributo",
+    desc: "No presenta DDJJ de IVA: el IVA y las percepciones son costo definitivo. Ojo: importar para reventa excluye del monotributo (art. 20 inc. f, anexo ley 24.977).",
+  },
+  {
+    value: "exento",
+    label: "Exento / no alcanzado",
+    desc: "Sujeto exento en IVA (asociación civil, fundación, organismo). No genera crédito fiscal: todo es costo.",
+  },
+  {
+    value: "consumidor_final",
+    label: "Consumidor final / persona humana",
+    desc: "Importa a título personal. No recupera nada, y si es para uso particular la percepción de Ganancias sube al 11%.",
+  },
+];
+
 /** Mapea la condición de IVA guardada en el alta del cliente a un perfil fiscal. */
 export function perfilDesdeCondicionIva(c?: string | null): PerfilFiscal {
   switch ((c ?? "").trim().toLowerCase()) {
@@ -1121,6 +1155,11 @@ export type CotizarInput = {
   gastosTerminal: number;
   tipoCambio?: number | null;
   otrosArs: number;
+  /**
+   * Destinación aduanera. Cambia el resultado de raíz: en un régimen suspensivo
+   * los tributos no se pagan, se garantizan. Sin dato se calcula a consumo.
+   */
+  destinacion?: string | null;
 };
 
 export type CotizarResult = {
@@ -1139,6 +1178,13 @@ export type CotizarResult = {
   honorarios: number;
   honorariosIva: number;
   gastosTerminal: number;
+  /**
+   * Régimen suspensivo: los tributos no se desembolsan, se garantizan. Este es
+   * el total a garantizar. `null` en una destinación definitiva.
+   */
+  garantia: number | null;
+  /** true si el cálculo salió por régimen suspensivo. */
+  suspensiva: boolean;
   /** Suma de conceptos recuperables (crédito fiscal / pago a cuenta). */
   recuperable: number;
   /** Suma de IVA y percepciones que NO se recuperan (son costo real). */
@@ -1215,8 +1261,16 @@ export function cotizar(i: CotizarInput): CotizarResult {
   const diPct = info.di0 ? 0 : diBase;
   const di = (cif * diPct) / 100;
 
+  // Régimen suspensivo: los tributos se calculan igual —hay que saber CUÁNTO
+  // garantizar— pero no salen de la caja. Ver el cierre de la función.
+  const regimen = destinacionPorId(i.destinacion);
+  const suspensiva = regimen?.familia === "suspensiva";
+
   // Tasa de estadística: VUCE por NCM, o 3% con tope; exenta según acuerdo/origen.
-  const tasaExenta = info.tasaExenta;
+  // También en los regímenes suspensivos: el 3% está fijado para las
+  // destinaciones DEFINITIVAS de importación para consumo, y el decreto 1330/04
+  // exime expresamente de estadística y de comprobación de destino.
+  const tasaExenta = info.tasaExenta || suspensiva;
   let tasa: number;
   if (tasaExenta) {
     tasa = 0;
@@ -1259,9 +1313,22 @@ export function cotizar(i: CotizarInput): CotizarResult {
     (i.recIibb ? 0 : iibb) +
     (i.recHonorariosIva ? 0 : honorariosIva);
 
-  const baseCostos = cif + di + tasa + honorarios + gastosTerminal;
-  const costoReal = baseCostos + noRecuperable;
-  const desembolso = baseCostos + iva + percIva + percGan + iibb + honorariosIva;
+  // En una destinación DEFINITIVA los tributos son plata que sale: integran el
+  // costo y el desembolso. En una SUSPENSIVA no se pagan, se garantizan (art.
+  // 256 del Código Aduanero: la importación temporaria no está sujeta a la
+  // imposición de tributos, salvo tasas retributivas de servicios). Meterlos en
+  // el desembolso le mostraría al cliente una salida de caja que no existe, y
+  // en el costo un gasto que va a recuperar al reexportar.
+  const garantia = suspensiva ? di + tasa + iva + percIva + percGan + iibb : null;
+
+  const baseCostos = suspensiva
+    ? cif + honorarios + gastosTerminal
+    : cif + di + tasa + honorarios + gastosTerminal;
+  const costoReal =
+    baseCostos + (suspensiva ? (i.recHonorariosIva ? 0 : honorariosIva) : noRecuperable);
+  const desembolso = suspensiva
+    ? baseCostos + honorariosIva
+    : baseCostos + iva + percIva + percGan + iibb + honorariosIva;
 
   const tc = i.tipoCambio ?? 0;
   const desembolsoArs = tc > 0 ? desembolso * tc + i.otrosArs : null;
@@ -1282,6 +1349,8 @@ export function cotizar(i: CotizarInput): CotizarResult {
     di,
     tasa,
     tasaExenta,
+    garantia,
+    suspensiva,
     baseIva,
     iva,
     percIva,
@@ -1338,6 +1407,11 @@ export function gastosExportacionOrigen(
 export type ExportarInput = {
   /** Valor de venta en la condición del Incoterm (USD). */
   valor: number;
+  /**
+   * Destinación aduanera de exportación. En un régimen suspensivo no hay
+   * derecho de exportación ni reintegro: la mercadería vuelve.
+   */
+  destinacion?: string | null;
   pesoKg: number;
   cantidad: number;
   /** Derecho de Exportación (DE) % oficial por NCM (ar1). */
@@ -1429,9 +1503,17 @@ export function cotizarExportacion(i: ExportarInput): ExportarResult {
   // FOB = valor de venta − flete − seguro internacional (si el Incoterm los incluye).
   const fob = Math.max(0, i.valor - fleteIntl - seguroIntl);
 
-  const dePct = i.dePct;
+  // Régimen suspensivo de exportación (temporaria, tránsito): la mercadería no
+  // se va definitivamente, así que no hay derecho de exportación ni reintegro.
+  // El reintegro premia la exportación a consumo; una temporaria que vuelve no
+  // lo genera, y cobrárselo al cliente como recupero sería prometerle plata que
+  // no va a ver.
+  const regimenExpo = destinacionPorId(i.destinacion);
+  const suspensiva = regimenExpo?.familia === "suspensiva";
+
+  const dePct = suspensiva ? 0 : i.dePct;
   const de = (fob * dePct) / 100;
-  const reintegroPct = i.reintegroPct;
+  const reintegroPct = suspensiva ? 0 : i.reintegroPct;
   const reintegro = (fob * reintegroPct) / 100;
 
   const honorarios = Math.max((fob * i.honorariosPct) / 100, i.honorariosMin);

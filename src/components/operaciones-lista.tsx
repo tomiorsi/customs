@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import {
+  AlertTriangle,
   Bell,
   Calendar,
   ChevronRight,
@@ -15,7 +16,8 @@ import {
 import { progresoDocs } from "@/lib/docs";
 import { rutaOperacion } from "@/lib/ruta-operacion";
 import { estadoLabel } from "@/lib/estados";
-import { etapaIndex, etapasDe } from "@/lib/workflow";
+import { etapasDe, indiceDeEtapa } from "@/lib/workflow";
+import { destinacionDe, estadoPlazo } from "@/lib/destinaciones";
 import { aNumero, formatMoneda, formatNumero } from "@/lib/formato";
 import { nombreOperacion } from "@/lib/operacion-display";
 import { iconoVia, resolverViaUi, VIA_LABEL } from "@/lib/via-ui";
@@ -100,6 +102,37 @@ function ordenarPorFecha(items: OperacionItem[]): OperacionItem[] {
   });
 }
 
+/**
+ * Aviso del plazo de un régimen suspensivo.
+ *
+ * Solo aparece cuando hay algo que hacer: vencido, cerca de vencer, o sin fecha
+ * cargada. Con plazo holgado no muestra nada — un cartel permanente deja de
+ * leerse, y este tiene que saltar a la vista el día que importa.
+ */
+function ChipPlazo({ op }: { op: OperationRow }) {
+  const plazo = estadoPlazo(
+    destinacionDe(op.tipo, op.destinacion),
+    op.destinacion_vence,
+  );
+  if (!plazo || plazo.nivel === "holgado") return null;
+
+  const estilo =
+    plazo.nivel === "vencido" || plazo.nivel === "critico"
+      ? "bg-red-500/10 text-red-600 dark:text-red-400"
+      : plazo.nivel === "proximo"
+        ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+        : "bg-surface-2 text-muted";
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${estilo}`}
+    >
+      <AlertTriangle className="h-3 w-3" />
+      {plazo.texto}
+    </span>
+  );
+}
+
 /** Paso interno actual de la operación (índice 1-based, total y etiqueta). */
 function pasoDe(op: OperationRow): { n: number; total: number; label: string } {
   const etapas = etapasDe(op.tipo, {
@@ -107,8 +140,9 @@ function pasoDe(op: OperationRow): { n: number; total: number; label: string } {
     via: op.via,
     liberacion: op.liberacion_doc,
     formaPago: op.forma_pago,
+    destinacion: op.destinacion,
   });
-  const i = etapaIndex(op.etapa);
+  const i = indiceDeEtapa(etapas, op.etapa);
   const etapa = etapas[i] ?? etapas[0];
   return { n: i + 1, total: etapas.length, label: etapa?.label ?? "—" };
 }
@@ -173,6 +207,7 @@ export function OperacionesLista({
                         {viaLabelDe(op)}
                       </span>
                     )}
+                    <ChipPlazo op={op} />
                     {cliente && (
                       <span className="truncate text-xs font-medium text-foreground">
                         {cliente}

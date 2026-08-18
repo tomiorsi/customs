@@ -10,7 +10,8 @@ export default async function AdminCotizadorPage() {
   if (!user) redirect("/login");
   if (!esEquipo(user.role)) redirect("/inicio");
 
-  // Sin selector de cliente: se cotiza como responsable inscripto sin
-  // certificado de exención, que es el caso más común y el más conservador.
-  return <CotizadorImportacion ivaCondition="responsable_inscripto" />;
+  // Arranca en responsable inscripto porque es el caso más común, pero es solo
+  // el valor inicial: la condición del importador se elige dentro, en «Perfil
+  // del importador». No es un dato del despachante que cotiza.
+  return <CotizadorImportacion ivaCondition="Responsable Inscripto" />;
 }

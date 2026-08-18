@@ -1,7 +1,5 @@
 import "server-only";
 
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { PDFDocument, StandardFonts, rgb, type PDFFont } from "pdf-lib";
 import type { OperationWithClient } from "@/lib/data";
 import type { LiquidacionResult } from "@/lib/liquidacion";
@@ -11,6 +9,8 @@ import {
   PREFIJO_ARCHIVO_RESUMEN_FONDOS,
   TITULO_RESUMEN_FONDOS,
 } from "@/lib/cotizacion-labels";
+import { embeberLogo, encajarLogo } from "@/lib/pdf-marca";
+import type { PublicUser } from "@/lib/types";
 
 /**
  * Genera PDF de importación para el cliente:
@@ -30,22 +30,6 @@ const LINE = rgb(0.886, 0.91, 0.941); // #e2e8f0
 const BRAND = rgb(0.431, 0.455, 0.502); // #6e7480 (gris del logotipo de la página)
 const ACCENT_SOFT = rgb(1, 0.953, 0.906); // #fff3e7 (banda suave naranja)
 const ACCENT_DARK = rgb(0.722, 0.275, 0.063); // #b84610 (texto sobre la banda)
-
-/** Logo de la marca, para el encabezado del PDF. */
-const LOGO_PATH = path.join(process.cwd(), "public", "jc-logo.png");
-
-/**
- * Embebe el logo en el documento. Si el archivo no está, devolvemos null y el
- * encabezado cae al nombre en texto: un PDF de cotización no puede fallar por
- * una imagen.
- */
-async function logoEmbebido(doc: PDFDocument) {
-  try {
-    return await doc.embedPng(await readFile(LOGO_PATH));
-  } catch {
-    return null;
-  }
-}
 
 export function formatUsd(n: number): string {
   const neg = n < 0;
@@ -97,7 +81,7 @@ export async function generarCotizacionPDF(
   op: OperationWithClient,
   liq: LiquidacionResult,
   requisitos: Requisito[] = [],
-  opts: { vista?: VistaCotizacionPdf } = {},
+  opts: { vista?: VistaCotizacionPdf; user?: PublicUser | null } = {},
 ): Promise<Uint8Array> {
   const vista = opts.vista === "liquidacion" ? "liquidacion" : "cotizacion";
   const esLiquidacion = vista === "liquidacion";
@@ -124,7 +108,10 @@ export async function generarCotizacionPDF(
     c.percGan +
     c.iibb;
   const gastosLocales = liq.logistica.costoLogistica;
-  const fondosOperacion = totalTributos + liq.adelanto;
+  // En un régimen suspensivo los tributos se garantizan: no son fondos que el
+  // cliente tenga que juntar. Sumarlos acá le pediría plata que no debe.
+  const suspensiva = c.suspensiva === true;
+  const fondosOperacion = (suspensiva ? 0 : totalTributos) + liq.adelanto;
 
   /* ── helpers de dibujo ── */
   const text = (
@@ -220,10 +207,19 @@ export async function generarCotizacionPDF(
 
   // Logo a la derecha. Es un wordmark: ya dice el nombre, así que al lado solo
   // va el descriptor del estudio.
-  const logoX = X1 - S - 2;
-  const logo = await logoEmbebido(doc);
+  // Caja del logo: apaisada, para que un wordmark entre a buen tamaño y un
+  // isotipo cuadrado no quede gigante. `encajarLogo` respeta la proporción.
+  const CAJA_LOGO = { maxAncho: 132, maxAlto: S + 6 };
+  const logo = await embeberLogo(doc, opts.user ?? null);
+  let logoX = X1 - S - 2;
   if (logo) {
-    page.drawImage(logo, { x: logoX, y: logoY - S, width: S, height: S });
+    const box = encajarLogo(logo, {
+      derecha: X1,
+      centroY: logoY - S / 2,
+      ...CAJA_LOGO,
+    });
+    page.drawImage(logo, box);
+    logoX = box.x;
   } else {
     // Sin archivo de logo el PDF igual sale: cae al nombre en texto.
     text(ESTUDIO, logoX - 10, studioY + 2, { size: 14, font: bold, color: BRAND });
@@ -306,8 +302,13 @@ export async function generarCotizacionPDF(
   }
   y -= 8;
 
-  // 2) Impuestos y tributos (VEP)
-  grupo("Impuestos y tributos (los paga el cliente por VEP)", money(totalTributos));
+  // 2) Impuestos y tributos (VEP), o garantía si el régimen los suspende
+  grupo(
+    suspensiva
+      ? "Tributos suspendidos (se garantizan, no se pagan)"
+      : "Impuestos y tributos (los paga el cliente por VEP)",
+    money(totalTributos),
+  );
   item(`Derecho de importación (${c.diPct}%)`, money(c.di));
   item("Tasa de estadística", c.tasaExenta ? "Exenta" : money(c.tasa));
   item(
@@ -346,16 +347,22 @@ export async function generarCotizacionPDF(
     });
     y -= 13;
     text(
-      "incluye VEP de tributos + adelanto logístico · no incluye mercadería ni pagos al proveedor / forwarder",
+      suspensiva
+        ? "incluye solo el adelanto logístico · los tributos se garantizan, no se pagan · no incluye mercadería ni pagos al proveedor / forwarder"
+        : "incluye VEP de tributos + adelanto logístico · no incluye mercadería ni pagos al proveedor / forwarder",
       X0,
       y,
       { size: 8, color: MUTED },
     );
     y -= 22;
-    item("Tributos por VEP", money(totalTributos), "cliente paga ARCA");
+    item(
+      suspensiva ? "Garantía a constituir" : "Tributos por VEP",
+      money(totalTributos),
+      suspensiva ? "no es un pago" : "cliente paga ARCA",
+    );
     item("Adelanto logístico", money(liq.adelanto), "cliente paga al estudio");
     item("Mercadería, flete y seguro", "se pagan aparte", "proveedor / forwarder");
-    if (c.recuperable > 0) {
+    if (c.recuperable > 0 && !suspensiva) {
       item("Parte recuperable del VEP", money(c.recuperable), "crédito fiscal / pago a cuenta");
     }
     y -= 14;
