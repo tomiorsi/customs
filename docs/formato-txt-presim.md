@@ -406,15 +406,35 @@ carácter.
 «Otro país (Unión Europea)» y «Otro país (extrazona)» **no son países**: sirven
 para cotizar, pero la declaración lleva uno concreto. Ahí falta el dato.
 
-### Lo que hay que arreglar en el formulario
+### El formulario ya no deja escribir códigos inválidos
 
-`aduana` y `moneda` son **campos de texto libre sin catálogo**: se puede escribir
-una aduana que el SIM no acepta y enterarse recién al emitir. Hay que alimentar
-esos campos con `vigentes("BUR")` y `vigentes("DEV")`.
+`aduana` y `moneda` eran campos de texto libre: se podía escribir una aduana que
+el SIM no acepta y enterarse recién al emitir. Ahora salen de `opciones.ts`, que
+lee **las vigentes a la fecha** de `BUR` (77) y `DEV` (33).
 
-No es teórico: escribiendo la prueba de la cadena usé `002` para el dólar y la
+No era teórico: escribiendo la prueba de la cadena usé `002` para el dólar y la
 validación lo rechazó — **ese código venció el 11/01/2024** y el vigente es
-`DOL`. Un formulario con lista no habría dejado escribirlo.
+`DOL`. La lista ya no lo ofrece.
+
+Lo que ya estaba cargado se conserva aunque no figure entre las vigentes: puede
+ser una carpeta vieja, y borrarle el dato al abrir el formulario sería peor.
+
+### La pantalla
+
+`PresimPanel` vive en la etapa de **oficialización** de la mesa de trabajo, al
+lado de la ficha para Malvina: la ficha sirve para cargar a mano y esto arma el
+archivo que el Kit importa. Es el mismo momento del trabajo.
+
+Muestra primero **lo que falta cargar**, después lo que el SIM va a objetar, y
+recién entonces el botón de descarga. Un despachante que abre esto quiere saber
+si puede emitir; el archivo es el resultado, no la pregunta.
+
+Se descarga en **latin-1 con saltos de Windows**, que es como vienen los
+archivos de Sintia y lo que espera el Kit. La ruta es solo para el equipo: el
+archivo lleva el CUIT del importador y los valores de la operación.
+
+El CUIT del despachante sale de la variable de entorno `ESTUDIO_CUIT`, la misma
+que ya usaba la ficha para Malvina.
 
 ### Una limitación del modelo de operación
 

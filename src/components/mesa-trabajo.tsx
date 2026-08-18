@@ -42,6 +42,7 @@ import {
 } from "@/lib/docs";
 import { LiquidacionPanel } from "@/components/liquidacion-panel";
 import { FichaMalvinaPanel } from "@/components/ficha-malvina-panel";
+import { PresimPanel } from "@/components/presim-panel";
 import { ncmPareceGeneral } from "@/lib/formato";
 
 export type MesaOp = {
@@ -1343,6 +1344,10 @@ function PanelOperacion({
               onDocumentoSubido={() => void sincronizarDesdeServidor()}
             />
           )}
+
+          {/* La ficha sirve para cargar a mano; esto arma el archivo que el Kit
+              importa. Es el mismo momento del trabajo, así que van juntos. */}
+          {esOficializacion && <PresimPanel opId={op.id} />}
 
           {esEmbarque && (
             <LiquidacionPanel

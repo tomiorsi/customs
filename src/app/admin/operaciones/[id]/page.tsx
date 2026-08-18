@@ -10,6 +10,7 @@ import {
   marcarOperacionVistaEstudio,
 } from "@/lib/data";
 import { OperacionEditable } from "@/components/operacion-editable";
+import { opcionesDelFormulario } from "@/lib/presim/opciones";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,10 @@ export default async function AdminOperacionDetallePage({
     getEventosByOperation(op.user_id, op.id),
   ]);
 
+  // Aduanas y divisas vigentes del SIM: el formulario las ofrece en lugar de
+  // dejar escribirlas, para que no entre un código que el SIM va a rechazar.
+  const { aduanas, divisas } = opcionesDelFormulario();
+
   return (
     <div className="space-y-6">
       <Link
@@ -49,6 +54,8 @@ export default async function AdminOperacionDetallePage({
         completo
         showClient
         editableEstado
+        aduanas={aduanas}
+        divisas={divisas}
         volverHref="/admin/operaciones"
       />
     </div>

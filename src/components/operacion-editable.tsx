@@ -18,6 +18,8 @@ export function OperacionEditable({
   showClient = false,
   editableEstado = false,
   soloNombre = false,
+  aduanas = [],
+  divisas = [],
 }: {
   op: OperationRow;
   docs: DocumentRow[];
@@ -28,6 +30,9 @@ export function OperacionEditable({
   editableEstado?: boolean;
   /** Modo cliente: sólo puede editar el nombre (su alias) y no eliminar. */
   soloNombre?: boolean;
+  /** Aduanas y divisas vigentes del SIM, para los selectores del formulario. */
+  aduanas?: { codigo: string; label: string }[];
+  divisas?: { codigo: string; label: string }[];
 }) {
   const [editando, setEditando] = useState(false);
 
@@ -37,6 +42,8 @@ export function OperacionEditable({
         op={op}
         completo={completo}
         soloNombre={soloNombre}
+        aduanas={aduanas}
+        divisas={divisas}
         onDone={() => setEditando(false)}
       />
     );

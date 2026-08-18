@@ -7,7 +7,7 @@ import type { OperationRow } from "@/lib/data";
 import { UNIDADES } from "@/lib/unidades";
 import { destinacionesDe } from "@/lib/destinaciones";
 
-type CampoTipo = "text" | "date" | "via" | "moneda" | "unidad" | "destinacion";
+type CampoTipo = "text" | "date" | "via" | "moneda" | "unidad" | "destinacion" | "aduana";
 
 type Campo = {
   campo: string;
@@ -38,7 +38,7 @@ const SECCIONES: { titulo: string; campos: Campo[] }[] = [
       },
       { campo: "via", label: "Vía", type: "via", basico: true },
       { campo: "contraparte", label: "Proveedor / comprador", basico: true },
-      { campo: "aduana", label: "Aduana" },
+      { campo: "aduana", label: "Aduana", type: "aduana" },
       { campo: "pais_origen", label: "País de origen", basico: true },
       { campo: "pais_procedencia", label: "Procedencia" },
       { campo: "pais_adquisicion", label: "País de adquisición" },
@@ -76,7 +76,7 @@ const SECCIONES: { titulo: string; campos: Campo[] }[] = [
     campos: [
       { campo: "nro_factura", label: "N° de factura", basico: true },
       { campo: "incoterm", label: "Incoterm", basico: true },
-      { campo: "moneda", label: "Moneda", basico: true },
+      { campo: "moneda", label: "Moneda", type: "moneda", basico: true },
       { campo: "valor_factura", label: "Valor factura", basico: true },
       { campo: "valor_fob", label: "Valor FOB" },
       { campo: "flete", label: "Flete" },
@@ -128,12 +128,21 @@ export function EditarOperacionForm({
   onDone,
   completo = false,
   soloNombre = false,
+  aduanas = [],
+  divisas = [],
 }: {
   op: OperationRow;
   onDone: () => void;
   completo?: boolean;
   /** Modo cliente: sólo el nombre. Se guarda como alias que sólo ve el cliente. */
   soloNombre?: boolean;
+  /**
+   * Aduanas y divisas vigentes del SIM, para no escribirlas a mano. Llegan del
+   * servidor porque salen de las tablas del Kit. Vacías, el campo cae a texto
+   * libre: preferible a bloquear la carga si el Kit no está exportado.
+   */
+  aduanas?: { codigo: string; label: string }[];
+  divisas?: { codigo: string; label: string }[];
 }) {
   const router = useRouter();
   const fuente = op as unknown as Record<string, string | null>;
@@ -258,6 +267,27 @@ export function EditarOperacionForm({
                       {VIAS.map((v) => (
                         <option key={v.value} value={v.value}>
                           {v.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (type === "aduana" || type === "moneda") &&
+                    (type === "aduana" ? aduanas : divisas).length > 0 ? (
+                    <select
+                      className={inputCls}
+                      value={form[campo]}
+                      onChange={(e) => set(campo, e.target.value)}
+                    >
+                      <option value="">— Sin especificar —</option>
+                      {/* Lo que ya estaba cargado se conserva aunque no figure
+                          entre las vigentes: puede ser una carpeta vieja, y
+                          borrarle el dato al abrir el formulario sería peor. */}
+                      {form[campo] &&
+                        !(type === "aduana" ? aduanas : divisas).some(
+                          (o) => o.codigo === form[campo],
+                        ) && <option value={form[campo]}>{form[campo]}</option>}
+                      {(type === "aduana" ? aduanas : divisas).map((o) => (
+                        <option key={o.codigo} value={o.codigo}>
+                          {o.label}
                         </option>
                       ))}
                     </select>
