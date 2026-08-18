@@ -360,10 +360,91 @@ coincide con `GEN` en 99% (motivo, plazo) y 86% (segunda aduana, país).
 No se integra: duplicar la misma parametría con otro nombre agrega una fuente
 que se puede desincronizar, sin aportar un control nuevo.
 
-## Lo que falta del pre-SIM
+## El adaptador: de una operación al archivo
 
-1. **El adaptador `OperationWithClient` → `OperacionSim`.** Es lo único que
-   falta para que todo esto se use desde una pantalla.
-2. **Muestras de zona franca y depósito.** Todo lo medido sale de EC01, IC04 y
-   EC01: las convenciones numéricas y los flags constantes se infirieron de
-   ahí. Con una declaración real de cada familia alcanza para confirmarlas.
+`desde-operacion.ts` cierra la cadena:
+
+```
+operación del sistema → OperacionSim → declaración → validación → archivo
+```
+
+**Nunca completa un dato que no tiene.** Lo que no se puede resolver va a
+`faltantes` con el motivo, y sin los datos mínimos no devuelve archivo. Un valor
+inventado viaja al SIM como si fuera cierto y vuelve como rechazo sin
+explicación; un hueco se ve antes de emitir.
+
+### La situación de arribo se deduce de la carpeta
+
+- **Sin documento de transporte** cuando no hay ninguno cargado: vía postal o
+  mercadería que llega por sus propios medios.
+- **Directo a plaza** cuando la declaración se registra antes del arribo del
+  medio de transporte (art. 278 del Código Aduanero).
+- **Con documento de transporte** en el resto.
+
+«Sobre depósito de almacenamiento» no se deduce: depende de si la mercadería ya
+fue sometida a esa destinación suspensiva, y el sistema no lo sabe. Se pasa a
+mano.
+
+### Traducción de catálogos (`catalogos.ts`)
+
+El sistema guarda texto —«Kilogramos», «Brasil»— y el archivo lleva códigos.
+**No se traduce por parecido de texto**: da 13% en unidades, pero el problema no
+es la tasa sino que un match difuso falla en silencio donde más caro sale. En
+`PAY`, `308` es COREA DEMOCRATICA y `309` COREA REPUBLICANA.
+
+| Catálogo | Cómo se resuelve |
+|---|---|
+| Unidades | Binding explícito de las 15, revisable de un vistazo |
+| Países | Coincidencia exacta (31 de 36) + 2 bindings: Alemania y Corea del Sur |
+| Incoterms | Sin traducción: el sistema ya guarda el código del SIM. 11/11 en `INC` |
+| Aduana, moneda, embalaje | Coincidencia exacta contra `BUR`, `DEV` y `NEB` |
+
+España figura como `ESPA#A` —el export del Kit perdió la ñ—; se resuelve leyendo
+`#` como `Ñ` al normalizar, que alcanza a las únicas tres filas del Kit con ese
+carácter.
+
+«Otro país (Unión Europea)» y «Otro país (extrazona)» **no son países**: sirven
+para cotizar, pero la declaración lleva uno concreto. Ahí falta el dato.
+
+### Lo que hay que arreglar en el formulario
+
+`aduana` y `moneda` son **campos de texto libre sin catálogo**: se puede escribir
+una aduana que el SIM no acepta y enterarse recién al emitir. Hay que alimentar
+esos campos con `vigentes("BUR")` y `vigentes("DEV")`.
+
+No es teórico: escribiendo la prueba de la cadena usé `002` para el dólar y la
+validación lo rechazó — **ese código venció el 11/01/2024** y el vigente es
+`DOL`. Un formulario con lista no habría dejado escribirlo.
+
+### Una limitación del modelo de operación
+
+La operación tiene **una** posición, una cantidad y una unidad, así que sale un
+solo ítem. Una carpeta con varias posiciones hoy no se puede representar. Es del
+modelo de operación, no del pre-SIM.
+
+## Pruebas del pre-SIM
+
+```bash
+for s in verificar pruebas-negativas pruebas-vigencia pruebas-sufijos \
+         pruebas-armar pruebas-subregimen pruebas-catalogos pruebas-cadena; do
+  npx tsx --require ./scripts/register-server-only-stub.cjs scripts/presim-$s.mjs
+done
+```
+
+| Prueba | Qué demuestra | Resultado |
+|---|---|---|
+| Sufijos | 72.466 strings reales reconstruidos | **100%** |
+| Armador | Las 3 declaraciones reales, idénticas | **3/3** |
+| Subregímenes | Contra la RG 4200 y las 3 reales | **42/42** |
+| Catálogos | Ningún código inventado | **19/19** |
+| Cadena | De una operación al archivo validado | **19/19** |
+| Negativas | Roturas a propósito detectadas | **14/14** |
+| Vigencias | Bordes por fecha | **11/11** |
+
+## Lo que falta
+
+1. **La pantalla.** El motor está entero y probado; falta el botón.
+2. **Listas en el formulario** para aduana y moneda, que hoy son texto libre.
+3. **Muestras de zona franca y depósito.** Todo lo medido sale de EC01, IC04 e
+   IT04: las convenciones numéricas y los flags constantes se infirieron de ahí.
+   Con una declaración real de cada familia alcanza para confirmarlas.

@@ -24,6 +24,8 @@ export {
   seccionesDelSubregimen,
   validarDeclaracion,
 } from "@/lib/presim/validar";
+export type { Faltante, Resultado } from "@/lib/presim/desde-operacion";
+export { operacionSimDesde, situacionDeArribo } from "@/lib/presim/desde-operacion";
 export type { Traduccion } from "@/lib/presim/catalogos";
 export { codigoIncoterm, codigoPais, codigoUnidad } from "@/lib/presim/catalogos";
 export type { Sufijo, SufijoDeCatalogo } from "@/lib/presim/sufijos";
