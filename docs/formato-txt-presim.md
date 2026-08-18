@@ -229,14 +229,82 @@ npx tsx --require ./scripts/register-server-only-stub.cjs \
 Los scripts leen los valores de los archivos en tiempo de ejecución: no tienen
 adentro ningún CUIT ni importe, por eso pueden vivir en el repo.
 
+## Destinación → subrégimen (`subregimen.ts`)
+
+Elegir mal el subrégimen es presentar mal la declaración, así que el código se
+**compone** con dos reglas de la RG 4200 y después se verifica contra `STA`.
+Fuente: [Anexo II](https://servicios.infoleg.gob.ar/infolegInternet/anexos/305000-309999/306452/resgral4200-2.pdf)
+(subregímenes) y [Anexo III](https://servicios.infoleg.gob.ar/infolegInternet/anexos/305000-309999/306452/resgral4200-3.pdf)
+(motivos y plazos).
+
+### Regla 1 — el último dígito es la situación de arribo
+
+| Dígito | Situación | Anexo II |
+|---|---|---|
+| 1 | sin documento de transporte | «que arribe sin documento de transporte por la vía postal y aquella que lo hace por sus propios medios» |
+| 4 | con documento de transporte | «cuya solicitud de destinación es efectuada con posterioridad al arribo del medio de transporte» |
+| 5 | directo a plaza (DAP) | «con anterioridad al arribo del medio de transporte para su despacho directo a plaza» |
+| 6 | sobre depósito de almacenamiento | «previamente sometida a la destinación suspensiva de depósito de almacenamiento» |
+
+Verificado contra las 24 descripciones del Kit que mencionan la situación:
+**24 de 24**. Las tres que no siguen el dígito —IC07, IT07, IT17— son del
+régimen automotriz, que es un eje aparte y no una excepción.
+
+**`DAP` acá es «Despacho Directo A Plaza» (art. 278 CA), no el Incoterm DAP**
+(*Delivered At Place*). El sistema tiene un campo `incoterm` que puede valer
+«DAP»: confundirlos elegiría el subrégimen por el término de entrega pactado con
+el proveedor. Una de las fuentes consultadas los confunde.
+
+### Regla 2 — la transformación la fija el motivo, no el nombre del régimen
+
+- **Art. 31, punto 1** del Dto. 1.001/82 (motivos `I31.1x`: muestras, ferias,
+  envases, pallets, material científico) → vuelve en el mismo estado → `IT0x`.
+- **Art. 31, apartado 3** (`I31.3`, «transformación, elaboración, combinación,
+  mezcla o reparación») → `IT1x`, que el Anexo II describe como «en el marco del
+  Art. 31, Ap. 3, del Dto. 1.001/82».
+
+La familia se lee del código del motivo, así que un motivo nuevo del apartado 3
+entra solo. Un `I31.3` sobre la destinación de mismo estado se rechaza con el
+porqué, en vez de emitir un código plausible.
+
+**En exportación temporaria la numeración va al revés**: `ET01` es **con**
+transformación y `ET02` **sin**. No se puede trasladar la intuición de
+importación.
+
+### Qué se resuelve y qué no
+
+| Destinación | Subregímenes |
+|---|---|
+| Importación a consumo | IC01 · IC04 · IC05 · IC06 |
+| Temporaria perfeccionamiento industrial | IT11 · IT14 · IT15 · IT16 |
+| Temporaria bienes de capital | IT01 · IT04 · IT05 · IT06 |
+| Tránsito de importación | TR01 · TR04 · TR05 · TR06 |
+| Exportación a consumo | EC01 |
+| Exportación temporaria | ET01 · ET02 |
+| Depósito de almacenamiento | **sin resolver** — IDA2 o IDA4, la tabla local no dice qué las separa |
+| Zona franca (ingreso / egreso) | **sin resolver** — ZFI1-ZFI8 y ZFE1-ZFE7 sin descripción local |
+| Tránsito de exportación | **sin resolver** — sin familia propia en la tabla local |
+
+Las cuatro sin resolver devuelven el motivo, no un código: es preferible no
+emitir a emitir algo que suena bien.
+
+```bash
+npx tsx --require ./scripts/register-server-only-stub.cjs \
+  scripts/presim-pruebas-subregimen.mjs
+```
+
+27 controles, incluidas las tres declaraciones reales reproducidas desde su
+destinación: EC01, IC04 e IT04 con motivo `I31.1C`.
+
 ## Lo que falta del pre-SIM
 
-1. **El adaptador `OperationWithClient` → `OperacionSim`.** El armador ya toma
-   una operación del dominio del SIM; falta traducirle la del sistema. **El
-   punto que lo traba es el mapeo destinación → subrégimen**, y no hay dato del
-   que sacarlo: `link_caratula.csv` (13.671 despachos reales) mezcla
-   destinaciones —EC01 29,7%, IC04 11,3%, ZFI5 4,6%— con licencias que no son
-   destinaciones —SIMI 18,6%, DJAI 10,5%, SIRA 4,8%—. Es una tabla de criterio,
-   la confirma un despachante, y va en `destinaciones.ts`.
-2. **Usar `ERR`** (791 mensajes del SIM) para que el aviso diga qué rechazo
+1. **Las cuatro destinaciones sin resolver.** Falta la descripción de ZFI/ZFE e
+   IDA, que no está en la base local. Sale del Kit instalado o de los anexos de
+   zona franca de la RG 4200.
+2. **El adaptador `OperationWithClient` → `OperacionSim`.** Con el subrégimen ya
+   resuelto, lo que queda es mapear los campos de la operación a los del SIM.
+3. **Usar `ERR`** (791 mensajes del SIM) para que el aviso diga qué rechazo
    concreto se estaría evitando.
+4. **`cod_dest.csv`** dice por subrégimen qué campos exige la declaración
+   (motivo, autorización, plazo, segunda aduana). Sirve para validar y todavía
+   no se usa.

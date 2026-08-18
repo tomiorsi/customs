@@ -37,3 +37,9 @@ export type {
   SubitemSim,
 } from "@/lib/presim/armar";
 export { armarDeclaracion } from "@/lib/presim/armar";
+export type { ResultadoSubregimen, SituacionArribo } from "@/lib/presim/subregimen";
+export {
+  destinacionesResolubles,
+  motivoImplicaTransformacion,
+  subregimenPara,
+} from "@/lib/presim/subregimen";
