@@ -86,6 +86,29 @@ function esComplementarioConocido(codigo: string): boolean {
   return complementariosEnUso.has(codigo);
 }
 
+/**
+ * El texto con el que el SIM rechaza, por número de error.
+ *
+ * `ERR` tiene los 791 mensajes, pero **solo 5 nombran un campo del archivo**,
+ * así que no hay forma de ligar automáticamente un hallazgo nuestro a su
+ * mensaje: hacerlo por palabras clave sería adivinar. Lo que sí se puede es
+ * citar el número a mano en los controles donde sabemos cuál es, y que el
+ * despachante lea el rechazo con las palabras del SIM y no con las nuestras.
+ */
+function mensajeSim(numero: string): string | null {
+  try {
+    return buscar("ERR", numero)?.campos["MENSAJE"]?.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+/** Agrega la cita del SIM al detalle, si la tenemos. */
+function citando(detalle: string, numeroErr: string): string {
+  const m = mensajeSim(numeroErr);
+  return m ? `${detalle} El SIM rechaza con: «${m}» (error ${numeroErr}).` : detalle;
+}
+
 /** Fila de `GEN` para un subrégimen, vigente a la fecha dada. */
 function parametria(subregimen: string, fecha?: Date): Record<string, string> | null {
   const gen = tabla("GEN");
@@ -327,6 +350,26 @@ export function validarDeclaracion(
       clave: "NARTEXT",
       detalle: `Hay más de un ítem con el número ${n}.`,
     });
+  }
+
+  /**
+   * Un subítem sin sufijos.
+   *
+   * El SIM tiene rechazo propio para esto —el 1029— y el validador no lo
+   * miraba. Va como aviso y no como error porque en el corpus del estudio hay
+   * 210 subítems reales sin sufijos sobre 72.759 (0,29%): es raro, no
+   * imposible, y frenar la emisión por algo que pasó de verdad sería peor.
+   */
+  for (const s of bloques(d, "SBT")) {
+    if (!valor(s, "CSBTSVL")?.trim()) {
+      hallazgos.push({
+        nivel: "aviso",
+        seccion: "SBT",
+        nart: nartDe(s),
+        clave: "CSBTSVL",
+        detalle: citando("El subítem no declara sufijos.", "1029"),
+      });
+    }
   }
 
   return hallazgos;

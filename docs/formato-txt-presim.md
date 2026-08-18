@@ -330,12 +330,35 @@ npx tsx --require ./scripts/register-server-only-stub.cjs \
 42 controles, incluidas las tres declaraciones reales reproducidas desde su
 destinación: EC01, IC04 e IT04 con motivo `I31.1C`.
 
+## Usar `ERR` (los 791 rechazos del SIM)
+
+**No se pueden ligar automáticamente a nuestros hallazgos**: solo 5 de los 791
+mensajes nombran un campo del archivo. Mapearlos por palabras clave sería
+adivinar, que es justo lo que `CLAUDE.md` prohíbe.
+
+Lo que sí sirve, y es lo que se hizo:
+
+1. **Leerlos para descubrir qué controla el SIM y nosotros no.** Así apareció
+   el 1029, «Falta sufijo de valor del subítem»: el SIM rechaza el subítem sin
+   sufijos y el validador ni lo miraba. Ahora lo avisa —no lo bloquea, porque
+   hay 210 subítems reales sin sufijos sobre 72.759 (0,29%)—.
+2. **Citar el número a mano donde sabemos cuál es**, para que el despachante
+   lea el rechazo con las palabras del SIM y no con las nuestras.
+
+## `cod_dest.csv`: descartado por redundante
+
+Parecía una segunda fuente de qué exige cada subrégimen. Medido, **es el espejo
+de `GEN` en la interfaz de Sintia**: sus columnas `Txt…` son controles de
+formulario y la `x` marca el campo **deshabilitado**, no pedido. Leído así
+coincide con `GEN` en 99% (motivo, plazo) y 86% (segunda aduana, país).
+
+No se integra: duplicar la misma parametría con otro nombre agrega una fuente
+que se puede desincronizar, sin aportar un control nuevo.
+
 ## Lo que falta del pre-SIM
 
-1. **El adaptador `OperationWithClient` → `OperacionSim`.** Con el subrégimen ya
-   resuelto, lo que queda es mapear los campos de la operación a los del SIM.
-2. **Usar `ERR`** (791 mensajes del SIM) para que el aviso diga qué rechazo
-   concreto se estaría evitando.
-3. **`cod_dest.csv`** dice por subrégimen qué campos exige la declaración
-   (motivo, autorización, plazo, segunda aduana). Sirve para validar y todavía
-   no se usa.
+1. **El adaptador `OperationWithClient` → `OperacionSim`.** Es lo único que
+   falta para que todo esto se use desde una pantalla.
+2. **Muestras de zona franca y depósito.** Todo lo medido sale de EC01, IC04 y
+   EC01: las convenciones numéricas y los flags constantes se infirieron de
+   ahí. Con una declaración real de cada familia alcanza para confirmarlas.

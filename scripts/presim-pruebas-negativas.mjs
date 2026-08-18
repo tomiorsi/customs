@@ -82,6 +82,12 @@ const CASOS = [
   ["poner una sección que el subrégimen prohíbe", (d) => {
       d.bloques.push({ seccion: "TRC", pares: [["CTRCTIPDOC", "1"], ["CTRCNUMDOC", "1"]] });
     }, "error", (sub) => marcaDeSeccion(sub, "ITRC") === "P"],
+
+  // El SIM tiene rechazo propio para el subítem sin sufijos (error 1029).
+  ["subítem sin sufijos", (d) => {
+      const sbt = d.bloques.find((b) => b.seccion === "SBT");
+      sbt.pares = sbt.pares.filter(([k]) => k !== "CSBTSVL");
+    }, "aviso"],
 ];
 
 const antes = validar(base);
