@@ -57,8 +57,11 @@ predice `GEN`.**
 | IT04 | `CDDTMOT` | **O** obligatorio | `=I31.1C` ✓ |
 | IT04 | `QDDTREGSUS` | **O** obligatorio | `=90` (plazo) ✓ |
 
-Única discrepancia: `CDDTPRFTIT`, marcada `O` y ausente en dos archivos —
-probablemente la completa el Kit en una etapa posterior. No bloquea nada.
+Única discrepancia: `CDDTPRFTIT`, marcada `O` y ausente en dos archivos. Al
+principio supuse que la completaba el Kit después; **medido, es otra cosa**: esa
+columna no existe en la tabla `DDT`, donde el campo se llama `CDDTPFXTIT`. Es un
+desajuste entre dos tablas del mismo Kit, y por eso el validador no la pide (ver
+«Errores vs avisos»).
 
 **Conclusión: con `GEN` se puede generar un archivo válido para cualquiera de los
 257 subregímenes de `STA`, sin tener un ejemplo de cada uno.**
@@ -84,19 +87,14 @@ Los sufijos van en un solo string con formato propio:
 AA(S/M)-AI(RBD)-AJ(TAMBOR X 190 KG)-CA03-NA01-
 ```
 
-Es el mismo formato que aparece en la columna `SUFIJOS` de los 61.134 subítems
-del corpus, así que hay de dónde sacar ejemplos para cada posición.
+Es el mismo formato que aparece en la columna `SUFIJOS` de los subítems del
+corpus. Medido sobre los 72.466 que lo traen, las reglas salen solas: ver «El
+formato de sufijos, medido».
 
-## Qué falta para emitir
+## Qué faltaba para emitir
 
-Nada de datos. Lo que queda es escribir:
-
-1. El armador del INI a partir de una operación.
-2. El validador previo: cada valor contra su tabla y contra su vigencia en la
-   fecha de la declaración.
-3. El armador del string de sufijos por posición.
-
-`ERR` (791 mensajes del SIM) sirve para anticipar los rechazos.
+Nada de datos, y ya está escrito: el validador previo, el armador del INI y el
+del string de sufijos. Lo pendiente está al final del documento.
 
 ---
 
@@ -110,6 +108,9 @@ Nada de datos. Lo que queda es escribir:
 | `archivo.ts` | Leer y escribir el INI. Texto puro, sin dependencias del servidor |
 | `tablas.ts` | Carga las tablas del Kit desde `data/Normas/SIM/kit/*.csv`, con vigencias |
 | `validar.ts` | Valida contra `GEN` y contra las tablas, a una fecha dada |
+| `sufijos.ts` | Arma y controla el string de `CSBTSVL` |
+| `armar.ts` | Produce la declaración desde una operación |
+| `subregimen.ts` | Elige el subrégimen según la destinación |
 | `index.ts` | La API pública |
 
 Las tablas se cargan una vez y quedan en caché, igual que `vuce.ts`. Las columnas
@@ -129,10 +130,14 @@ falsos en masa.
 Medido contra las tres declaraciones reales:
 
 - **`P` (prohibido) se cumplió 3 de 3** → violarlo es **error**.
-- **`O` (obligatorio) no se cumplió**: `CDDTPRFTIT` está marcado O para IC04 e IT04
-  y las dos declaraciones reales lo omiten (es O en 60 de 250 subregímenes, así que
-  no es un caso aislado). El archivo es la **entrada** al Kit, no la declaración
-  final: hay obligatorios que el Kit completa después → **aviso**.
+- **`O` (obligatorio) ausente es aviso, no error.** El archivo es la **entrada**
+  al Kit, no la declaración final: hay obligatorios que se completan después.
+- **`CDDTPRFTIT` no se pide en absoluto.** Era el caso que motivaba lo anterior, y
+  resultó ser otra cosa: `GEN` lo exige en 60 subregímenes (23%) y la tabla `DDT`
+  no tiene esa columna —ahí el campo es `CDDTPFXTIT`—. Pedir un campo que no se
+  puede cargar con ese nombre es un aviso sin acción posible, y eso enseña a
+  ignorar los avisos. La regla es general: si `GEN` nombra un campo que `DDT` no
+  tiene, no se opina.
 - Un código que no figura en su tabla es **aviso**, no error: puede ser real y que
   el Kit todavía no lo haya bajado.
 
@@ -143,7 +148,7 @@ Medido contra las tres declaraciones reales:
 npx tsx --require ./scripts/register-server-only-stub.cjs \
   scripts/presim-verificar.mjs <archivo.txt> [...]
 
-# 12 roturas a propósito: tiene que detectarlas todas
+# 14 roturas a propósito: tiene que detectarlas todas
 npx tsx --require ./scripts/register-server-only-stub.cjs \
   scripts/presim-pruebas-negativas.mjs <archivo.txt>
 
@@ -158,7 +163,7 @@ Resultado al 18/08/2026, sobre IC04, IT04 y EC01 reales:
 |---|---|
 | Ida y vuelta (leer → escribir da idéntico) | **3/3** |
 | Orden de secciones respetado | **3/3** |
-| Roturas detectadas | **12/12 en cada archivo (36/36)** |
+| Roturas detectadas | **14/14 en cada archivo** (dos se saltean según el subrégimen) |
 | Vigencias y bordes | **11/11** |
 
 Una de las 12 roturas falló en el primer intento y **el error era de la prueba**:
