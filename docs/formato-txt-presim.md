@@ -271,7 +271,32 @@ porqué, en vez de emitir un código plausible.
 transformación y `ET02` **sin**. No se puede trasladar la intuición de
 importación.
 
-### Qué se resuelve y qué no
+### Regla 3 — zona franca tiene ejes propios
+
+No usa el dígito de arribo. La RG 1452 la cruza por dos ejes:
+
+**Ingreso** — de dónde viene × para qué entra:
+
+| | del territorio aduanero | del exterior |
+|---|---|---|
+| bienes de capital, radicación definitiva | ZFI1 | ZFI3 |
+| almacenamiento / comercialización / reparación | ZFI4 | ZFI5 |
+| insumos para proceso productivo | ZFI7 | ZFI8 |
+
+**Egreso** — qué sale × hacia dónde:
+
+| | al territorio aduanero | al exterior |
+|---|---|---|
+| en el mismo estado | ZFE1 | ZFE2 |
+| producto de un proceso productivo | ZFE3 | ZFE4 |
+| residuo con valor comercial | ZFE5 | ZFE6 |
+
+**El régimen arancelario del egreso lo fija el destino, no la salida.** ZFE1 y
+ZFE3 son `IMPCON` —salir de la zona franca hacia el territorio aduanero es una
+importación— y ZFE2 y ZFE4 son `EXPCON`. La zona franca no es territorio
+aduanero general.
+
+### Qué se resuelve
 
 | Destinación | Subregímenes |
 |---|---|
@@ -279,32 +304,38 @@ importación.
 | Temporaria perfeccionamiento industrial | IT11 · IT14 · IT15 · IT16 |
 | Temporaria bienes de capital | IT01 · IT04 · IT05 · IT06 |
 | Tránsito de importación | TR01 · TR04 · TR05 · TR06 |
+| Depósito de almacenamiento | IDA4 |
+| Ingreso a zona franca | ZFI1 · ZFI3 · ZFI4 · ZFI5 · ZFI7 · ZFI8 |
+| Egreso de zona franca | ZFE1 · ZFE2 · ZFE3 · ZFE4 · ZFE5 · ZFE6 |
 | Exportación a consumo | EC01 |
 | Exportación temporaria | ET01 · ET02 |
-| Depósito de almacenamiento | **sin resolver** — IDA2 o IDA4, la tabla local no dice qué las separa |
-| Zona franca (ingreso / egreso) | **sin resolver** — ZFI1-ZFI8 y ZFE1-ZFE7 sin descripción local |
-| Tránsito de exportación | **sin resolver** — sin familia propia en la tabla local |
+| Tránsito de exportación | **no lleva subrégimen** — se registra por MIC/DTA en SINTIA |
 
-Las cuatro sin resolver devuelven el motivo, no un código: es preferible no
-emitir a emitir algo que suena bien.
+Depósito de almacenamiento resuelve a **IDA4**: es el que corresponde con
+documento de transporte por la regla del dígito, y el único que el estudio usa
+—203 despachos contra ninguno de IDA2 en los 13.671 de `link_caratula.csv`—.
+IDA2 es el que figura en la RG 1452; IDA4 nació en 2006, después de esa
+resolución, y por eso no está en el anexo.
+
+El tránsito de exportación no es un dato que falte: la mercadería ya fue
+destinada a exportación y lo que se registra para moverla hasta la aduana de
+salida es el MIC/DTA, que es otro documento. Los `TRB*` de `STA` son trasbordo,
+que es otra cosa.
 
 ```bash
 npx tsx --require ./scripts/register-server-only-stub.cjs \
   scripts/presim-pruebas-subregimen.mjs
 ```
 
-27 controles, incluidas las tres declaraciones reales reproducidas desde su
+42 controles, incluidas las tres declaraciones reales reproducidas desde su
 destinación: EC01, IC04 e IT04 con motivo `I31.1C`.
 
 ## Lo que falta del pre-SIM
 
-1. **Las cuatro destinaciones sin resolver.** Falta la descripción de ZFI/ZFE e
-   IDA, que no está en la base local. Sale del Kit instalado o de los anexos de
-   zona franca de la RG 4200.
-2. **El adaptador `OperationWithClient` → `OperacionSim`.** Con el subrégimen ya
+1. **El adaptador `OperationWithClient` → `OperacionSim`.** Con el subrégimen ya
    resuelto, lo que queda es mapear los campos de la operación a los del SIM.
-3. **Usar `ERR`** (791 mensajes del SIM) para que el aviso diga qué rechazo
+2. **Usar `ERR`** (791 mensajes del SIM) para que el aviso diga qué rechazo
    concreto se estaría evitando.
-4. **`cod_dest.csv`** dice por subrégimen qué campos exige la declaración
+3. **`cod_dest.csv`** dice por subrégimen qué campos exige la declaración
    (motivo, autorización, plazo, segunda aduana). Sirve para validar y todavía
    no se usa.

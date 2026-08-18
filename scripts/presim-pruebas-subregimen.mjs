@@ -95,6 +95,43 @@ const incoherente = subregimenPara({
 chequear("I31.3 sobre la de mismo estado: se rechaza", String(incoherente.subregimen), "null");
 if (incoherente.subregimen === null) console.log(`       → ${incoherente.porque}`);
 
+/* ── 2b. zona franca y depósito ── */
+
+console.log("\n2b. Zona franca: dos ejes propios, sin dígito de arribo\n");
+
+const zfi = (finalidad, origen) =>
+  sub({ destinacion: "impo_zona_franca", situacion: "con_documento", finalidadZonaFranca: finalidad, origenZonaFranca: origen });
+const zfe = (salida, origen) =>
+  sub({ destinacion: "expo_zona_franca", situacion: "con_documento", salidaZonaFranca: salida, origenZonaFranca: origen });
+
+console.log("   Ingreso — de dónde viene × para qué entra");
+chequear("bienes de capital, del territorio aduanero", zfi("bienes_capital", "territorio_aduanero"), "ZFI1");
+chequear("bienes de capital, del exterior", zfi("bienes_capital", "exterior"), "ZFI3");
+chequear("almacenamiento, del territorio aduanero", zfi("almacenamiento", "territorio_aduanero"), "ZFI4");
+chequear("almacenamiento, del exterior", zfi("almacenamiento", "exterior"), "ZFI5");
+chequear("insumos, del territorio aduanero", zfi("insumos", "territorio_aduanero"), "ZFI7");
+chequear("insumos, del exterior", zfi("insumos", "exterior"), "ZFI8");
+
+console.log("\n   Egreso — qué sale × hacia dónde");
+chequear("mismo estado, al territorio aduanero", zfe("mismo_estado", "territorio_aduanero"), "ZFE1");
+chequear("mismo estado, al exterior", zfe("mismo_estado", "exterior"), "ZFE2");
+chequear("producto de proceso, al territorio", zfe("producto_proceso", "territorio_aduanero"), "ZFE3");
+chequear("producto de proceso, al exterior", zfe("producto_proceso", "exterior"), "ZFE4");
+chequear("residuo, al territorio aduanero", zfe("residuo", "territorio_aduanero"), "ZFE5");
+chequear("residuo, al exterior", zfe("residuo", "exterior"), "ZFE6");
+
+// Sin los dos ejes no se puede elegir, y decirlo es mejor que tomar el primero.
+const sinEjes = subregimenPara({ destinacion: "impo_zona_franca", situacion: "con_documento" });
+chequear("sin los dos ejes no adivina", String(sinEjes.subregimen), "null");
+
+console.log("\n   Depósito de almacenamiento");
+chequear("con documento de transporte", sub({ destinacion: "impo_deposito", situacion: "con_documento" }), "IDA4");
+chequear(
+  "fuera de eso no hay código",
+  String(sub({ destinacion: "impo_deposito", situacion: "directo_a_plaza" })),
+  "null",
+);
+
 /* ── 3. contra las declaraciones reales ── */
 
 console.log("\n3. Contra las declaraciones que la aduana aceptó\n");
@@ -125,9 +162,8 @@ if (fs.existsSync(DIR)) {
 console.log("\n4. Qué destinaciones se resuelven hoy\n");
 
 for (const d of destinacionesResolubles()) {
-  const codigos = Object.values(d.subregimenes);
-  if (codigos.length) {
-    console.log(`   ✓ ${d.label.padEnd(46)} ${[...new Set(codigos)].join(" ")}`);
+  if (d.subregimenes.length) {
+    console.log(`   ✓ ${d.label.padEnd(46)} ${d.subregimenes.join(" ")}`);
   } else {
     console.log(`   · ${d.label.padEnd(46)} sin resolver`);
     console.log(`       ${d.porque}`);

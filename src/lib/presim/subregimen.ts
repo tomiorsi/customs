@@ -79,54 +79,129 @@ export function motivoImplicaTransformacion(motivo: string | null | undefined): 
   return /^I31\.3/i.test((motivo ?? "").trim());
 }
 
+/* ─────────────────────────── zona franca ─────────────────────────── */
+
 /**
- * Prefijo del subrégimen por destinación.
+ * Zona franca no usa el dígito de arribo: sus subregímenes se cruzan por dos
+ * ejes propios, y así los describe la RG 1452 (`subregimenes.json`).
  *
- * `null` donde la tabla local no alcanza para decidir, y el porqué está en el
- * comentario: es preferible no emitir a emitir un código que suena bien.
+ * **Ingreso** — de dónde viene × para qué entra:
+ *
+ * | | del territorio aduanero | del exterior |
+ * |---|---|---|
+ * | bienes de capital, radicación definitiva | ZFI1 | ZFI3 |
+ * | almacenamiento / comercialización / reparación | ZFI4 | ZFI5 |
+ * | insumos para proceso productivo | ZFI7 | ZFI8 |
+ *
+ * **Egreso** — a dónde va × qué sale:
+ *
+ * | | al territorio aduanero | al exterior |
+ * |---|---|---|
+ * | en el mismo estado | ZFE1 | ZFE2 |
+ * | producto de un proceso productivo | ZFE3 | ZFE4 |
+ * | residuo con valor comercial | ZFE5 | ZFE6 |
+ *
+ * Un detalle que conviene tener presente: el **régimen arancelario del egreso
+ * depende del destino**, no de que sea una salida. ZFE1 y ZFE3 son `IMPCON`
+ * —salir de la zona franca hacia el territorio aduanero es una importación— y
+ * ZFE2 y ZFE4 son `EXPCON`. La zona franca no es territorio aduanero general.
  */
-function prefijo(
+export type OrigenZonaFranca = "exterior" | "territorio_aduanero";
+export type FinalidadZonaFranca = "bienes_capital" | "almacenamiento" | "insumos";
+export type SalidaZonaFranca = "mismo_estado" | "producto_proceso" | "residuo";
+
+const ZF_INGRESO: Record<FinalidadZonaFranca, Record<OrigenZonaFranca, string>> = {
+  bienes_capital: { territorio_aduanero: "ZFI1", exterior: "ZFI3" },
+  almacenamiento: { territorio_aduanero: "ZFI4", exterior: "ZFI5" },
+  insumos: { territorio_aduanero: "ZFI7", exterior: "ZFI8" },
+};
+
+const ZF_EGRESO: Record<SalidaZonaFranca, Record<OrigenZonaFranca, string>> = {
+  mismo_estado: { territorio_aduanero: "ZFE1", exterior: "ZFE2" },
+  producto_proceso: { territorio_aduanero: "ZFE3", exterior: "ZFE4" },
+  residuo: { territorio_aduanero: "ZFE5", exterior: "ZFE6" },
+};
+
+/* ─────────────────────────── resolución ─────────────────────────── */
+
+type Resuelto = { codigo: string } | { falta: string };
+
+/**
+ * El subrégimen de cada destinación.
+ *
+ * Devuelve el código entero cuando la familia no usa el dígito de arribo
+ * (exportación, zona franca) y el prefijo cuando sí, para que lo complete
+ * `subregimenPara`.
+ */
+function resolver(
   destinacion: string,
   conTransformacion: boolean,
-): { prefijo: string } | { falta: string } {
+  zf: { origen?: OrigenZonaFranca; finalidad?: FinalidadZonaFranca; salida?: SalidaZonaFranca },
+  situacion: SituacionArribo,
+): Resuelto {
   switch (destinacion) {
     case "impo_consumo":
-      return { prefijo: "IC0" };
+      return { codigo: "IC0" + DIGITO[situacion] };
 
     // Las dos temporarias de importación se distinguen por el apartado del
     // art. 31, no por el nombre del régimen.
     case "impo_temp_1001":
       return conTransformacion
         ? { falta: "La temporaria de bienes de capital vuelve en el mismo estado: con transformación corresponde perfeccionamiento industrial (IT1x), no esta destinación." }
-        : { prefijo: "IT0" };
+        : { codigo: "IT0" + DIGITO[situacion] };
     case "impo_temp_1330":
-      return { prefijo: "IT1" };
+      return { codigo: "IT1" + DIGITO[situacion] };
 
     case "impo_transito":
-      return { prefijo: "TR0" };
+      return { codigo: "TR0" + DIGITO[situacion] };
 
-    // IDA solo tiene IDA2 e IDA4, así que no sigue el dígito de arribo, y las
-    // descripciones del Kit no dicen qué separa a una de otra.
+    /**
+     * Depósito de almacenamiento: la familia tiene solo IDA2 e IDA4 y no sigue
+     * el dígito de arribo en las cuatro posiciones.
+     *
+     * IDA4 es el que corresponde con documento de transporte —dígito 4, la
+     * misma regla que el resto— y es además el único que el estudio usa: 203
+     * despachos contra ninguno de IDA2 en los 13.671 de `link_caratula.csv`.
+     * IDA2 es el que figura en la RG 1452; IDA4 nació en 2006, después de esa
+     * resolución, y por eso no está en el anexo.
+     */
     case "impo_deposito":
-      return { falta: "El depósito de almacenamiento usa IDA2 o IDA4 y la tabla local no dice qué las separa." };
+      return situacion === "con_documento"
+        ? { codigo: "IDA4" }
+        : { falta: "El depósito de almacenamiento solo tiene IDA2 e IDA4: fuera de «con documento de transporte» no hay código que le corresponda." };
 
-    // Zona franca tiene ZFI1 a ZFI8 y ZFE1 a ZFE7 sin descripción en la base
-    // local: el criterio no se puede sostener con lo que hay.
-    case "impo_zona_franca":
-      return { falta: "Zona franca tiene ocho subregímenes de ingreso (ZFI1-ZFI8) sin descripción en la base local." };
-    case "expo_zona_franca":
-      return { falta: "Zona franca tiene siete subregímenes de egreso (ZFE1-ZFE7) sin descripción en la base local." };
+    case "impo_zona_franca": {
+      if (!zf.finalidad || !zf.origen) {
+        return { falta: "El ingreso a zona franca necesita saber de dónde viene la mercadería y para qué entra: son los dos ejes que eligen entre ZFI1, ZFI3, ZFI4, ZFI5, ZFI7 y ZFI8." };
+      }
+      return { codigo: ZF_INGRESO[zf.finalidad][zf.origen] };
+    }
+
+    case "expo_zona_franca": {
+      if (!zf.salida || !zf.origen) {
+        return { falta: "El egreso de zona franca necesita saber qué sale y hacia dónde: son los dos ejes que eligen entre ZFE1 a ZFE6." };
+      }
+      return { codigo: ZF_EGRESO[zf.salida][zf.origen] };
+    }
 
     // En exportación no hay «arribo», así que el dígito no significa lo mismo y
     // el código va entero.
     case "expo_consumo":
-      return { prefijo: "EC01" };
+      return { codigo: "EC01" };
     case "expo_temporaria":
       // Ojo: acá la numeración va al revés que en importación.
-      return { prefijo: conTransformacion ? "ET01" : "ET02" };
+      return { codigo: conTransformacion ? "ET01" : "ET02" };
 
+    /**
+     * El tránsito de exportación no se declara con un subrégimen del SIM.
+     *
+     * No es que falte el dato: la mercadería ya fue destinada a exportación y
+     * lo que se registra para moverla hasta la aduana de salida es el MIC/DTA
+     * en SINTIA, que es otro documento. Los TRB* de `STA` son trasbordo, que es
+     * otra cosa. Por eso acá no hay código y no debería inventarse uno.
+     */
     case "expo_transito":
-      return { falta: "El tránsito de exportación no tiene familia propia en la tabla local." };
+      return { falta: "El tránsito de exportación se registra por MIC/DTA en SINTIA, no con un subrégimen del SIM." };
 
     default:
       return { falta: `Destinación desconocida: ${destinacion}.` };
@@ -149,6 +224,12 @@ export function subregimenPara(opts: {
   /** Motivo de la suspensiva. Manda sobre `conTransformacion` si viene. */
   motivo?: string | null;
   conTransformacion?: boolean;
+  /** De dónde viene la mercadería, o hacia dónde va. Solo en zona franca. */
+  origenZonaFranca?: OrigenZonaFranca;
+  /** Para qué entra a la zona franca. */
+  finalidadZonaFranca?: FinalidadZonaFranca;
+  /** Qué sale de la zona franca. */
+  salidaZonaFranca?: SalidaZonaFranca;
   fecha?: Date;
 }): ResultadoSubregimen {
   const { destinacion, situacion, fecha } = opts;
@@ -157,39 +238,91 @@ export function subregimenPara(opts: {
     ? motivoImplicaTransformacion(opts.motivo)
     : (opts.conTransformacion ?? false);
 
-  const p = prefijo(destinacion, conTransformacion);
-  if ("falta" in p) return { subregimen: null, porque: p.falta };
-
-  // Los códigos de exportación vienen completos: no llevan dígito de arribo.
-  const codigo = p.prefijo.length === 4 ? p.prefijo : p.prefijo + DIGITO[situacion];
+  const r = resolver(
+    destinacion,
+    conTransformacion,
+    {
+      origen: opts.origenZonaFranca,
+      finalidad: opts.finalidadZonaFranca,
+      salida: opts.salidaZonaFranca,
+    },
+    situacion,
+  );
+  if ("falta" in r) return { subregimen: null, porque: r.falta };
 
   // La última palabra la tiene la tabla del SIM, no esta función: si el código
   // compuesto no existe o no regía en esa fecha, no se emite.
-  if (!existe("STA", codigo, fecha)) {
+  if (!existe("STA", r.codigo, fecha)) {
     return {
       subregimen: null,
-      porque: `${codigo} no existe en STA o no regía en esa fecha.`,
+      porque: `${r.codigo} no existe en STA o no regía en esa fecha.`,
     };
   }
 
-  return { subregimen: codigo, motivo: opts.motivo ?? undefined };
+  return { subregimen: r.codigo, motivo: opts.motivo ?? undefined };
 }
 
-/** Las destinaciones que hoy se pueden resolver, para mostrarlas en pantalla. */
+/**
+ * Todos los subregímenes que cada destinación puede tomar.
+ *
+ * Recorre los ejes que le correspondan a cada una: la situación de arribo en
+ * importación, y los dos ejes propios en zona franca. Sirve para poblar un
+ * selector y para ver de un vistazo qué queda sin resolver.
+ */
 export function destinacionesResolubles(fecha?: Date): {
   destinacion: string;
   label: string;
-  subregimenes: Partial<Record<SituacionArribo, string>>;
+  subregimenes: string[];
   porque?: string;
 }[] {
   return DESTINACIONES.map((d) => {
-    const subregimenes: Partial<Record<SituacionArribo, string>> = {};
+    const subregimenes = new Set<string>();
     let porque: string | undefined;
-    for (const s of Object.keys(DIGITO) as SituacionArribo[]) {
-      const r = subregimenPara({ destinacion: d.id, situacion: s, fecha });
+
+    const anotar = (r: ResultadoSubregimen) => {
       if (r.subregimen === null) porque ??= r.porque;
-      else subregimenes[s] = r.subregimen;
+      else subregimenes.add(r.subregimen);
+    };
+
+    if (d.id === "impo_zona_franca") {
+      for (const finalidad of Object.keys(ZF_INGRESO) as FinalidadZonaFranca[]) {
+        for (const origen of ["territorio_aduanero", "exterior"] as OrigenZonaFranca[]) {
+          anotar(
+            subregimenPara({
+              destinacion: d.id,
+              situacion: "con_documento",
+              finalidadZonaFranca: finalidad,
+              origenZonaFranca: origen,
+              fecha,
+            }),
+          );
+        }
+      }
+    } else if (d.id === "expo_zona_franca") {
+      for (const salida of Object.keys(ZF_EGRESO) as SalidaZonaFranca[]) {
+        for (const origen of ["territorio_aduanero", "exterior"] as OrigenZonaFranca[]) {
+          anotar(
+            subregimenPara({
+              destinacion: d.id,
+              situacion: "con_documento",
+              salidaZonaFranca: salida,
+              origenZonaFranca: origen,
+              fecha,
+            }),
+          );
+        }
+      }
+    } else {
+      for (const s of Object.keys(DIGITO) as SituacionArribo[]) {
+        anotar(subregimenPara({ destinacion: d.id, situacion: s, fecha }));
+      }
     }
-    return { destinacion: d.id, label: d.label, subregimenes, porque };
+
+    return {
+      destinacion: d.id,
+      label: d.label,
+      subregimenes: [...subregimenes].sort(),
+      porque: subregimenes.size ? undefined : porque,
+    };
   });
 }
