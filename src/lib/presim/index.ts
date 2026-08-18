@@ -20,3 +20,20 @@ export type { FilaSim, TablaSim } from "@/lib/presim/tablas";
 export { buscar, existe, vigentes } from "@/lib/presim/tablas";
 export type { Hallazgo } from "@/lib/presim/validar";
 export { resumirHallazgos, validarDeclaracion } from "@/lib/presim/validar";
+export type { Sufijo, SufijoDeCatalogo } from "@/lib/presim/sufijos";
+export {
+  armarSufijos,
+  parsearSufijos,
+  revisarSufijos,
+  sufijosDePosicion,
+} from "@/lib/presim/sufijos";
+export type {
+  BultosSim,
+  ComplementarioSim,
+  DocumentoSim,
+  IibbSim,
+  ItemSim,
+  OperacionSim,
+  SubitemSim,
+} from "@/lib/presim/armar";
+export { armarDeclaracion } from "@/lib/presim/armar";
