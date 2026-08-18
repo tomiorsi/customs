@@ -76,7 +76,7 @@ export function ClasificadorPreguntas({
               >
                 {/* Numerada solo si hay más de una: con una sola, el "1." sobra. */}
                 {visibles.length > 1 && (
-                  <span className="mr-1.5 font-mono text-orange-700 dark:text-orange-300">
+                  <span className="mr-1.5 font-mono text-sky-800 dark:text-sky-300">
                     {i + 1}.
                   </span>
                 )}

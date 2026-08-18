@@ -231,12 +231,6 @@ export function BoletinInicio({
   const relevantes = boletin.normas.filter((n) => n.relevante);
   const hayNovedades = relevantes.length > 0;
 
-  // Qué clases de control aparecieron hoy, para leer la jornada de un vistazo.
-  const porFamilia = FAMILIAS.map((f) => ({
-    ...f,
-    cantidad: relevantes.filter((n) => n.familia === f.id).length,
-  })).filter((f) => f.cantidad > 0);
-
   const titular = boletin.error
     ? "No se pudo leer la edición de hoy"
     : hayNovedades
@@ -330,31 +324,12 @@ export function BoletinInicio({
         </div>
       </section>
 
-      {/* Qué organismos aparecieron hoy y qué controla cada uno. */}
-      {porFamilia.length > 0 && (
-        <section className="flex flex-wrap gap-x-6 gap-y-2 border-y border-border py-3">
-          {porFamilia.map((f) => (
-            <span key={f.id} className="flex items-center gap-2 text-xs">
-              <span
-                aria-hidden
-                className={`h-2 w-2 rounded-full ${FAMILIA_ESTILO[f.id].punto}`}
-              />
-              <span className="text-foreground">{f.etiqueta}</span>
-              <span className="font-mono text-muted">{f.cantidad}</span>
-            </span>
-          ))}
-        </section>
-      )}
-
       {/* El sumario, como lo publica el Boletín, pero anotado. */}
       {hayNovedades && (
         <section>
-          <h2 className="text-sm font-semibold text-foreground">Lo que te toca</h2>
-          <p className="mt-1 text-xs text-muted">
-            Tocá un renglón para ver qué controla ese organismo y cómo se lee su
-            código de expediente.
-          </p>
-          <ul className="mt-2 divide-y divide-border border-y border-border">
+          {/* Sin encabezado a propósito: los renglones se explican solos y el
+              título repetía lo que la tarjeta de arriba ya dice. */}
+          <ul className="divide-y divide-border border-y border-border">
             {relevantes.map((n, i) => (
               <LineaSumario
                 key={n.id}

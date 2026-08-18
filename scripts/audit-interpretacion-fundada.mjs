@@ -27,6 +27,38 @@ function stable(obj) {
   return JSON.stringify(obj ?? null);
 }
 
+/**
+ * Qué campos cambió la re-fundamentación, con el valor que se perdió.
+ *
+ * Antes el informe decía solo «campo sin anclar» y `vacios` venía vacío en 6 de
+ * 7 fallas: se sabía que algo no anclaba pero no qué. Sin esto no se puede
+ * arreglar el motor, solo adivinarle.
+ */
+function camposCambiados(antes, despues, prefijo = "") {
+  const out = [];
+  const esObj = (v) => v && typeof v === "object" && !Array.isArray(v);
+  const claves = new Set([
+    ...Object.keys(antes ?? {}),
+    ...Object.keys(despues ?? {}),
+  ]);
+  for (const k of claves) {
+    const a = antes?.[k];
+    const d = despues?.[k];
+    const ruta = prefijo ? `${prefijo}.${k}` : k;
+    if (stable(a) === stable(d)) continue;
+    if (esObj(a) && esObj(d)) {
+      out.push(...camposCambiados(a, d, ruta));
+      continue;
+    }
+    out.push({
+      campo: ruta,
+      antes: a === undefined ? "(ausente)" : stable(a),
+      despues: d === undefined ? "(descartado)" : stable(d),
+    });
+  }
+  return out;
+}
+
 function auditarCarpeta(id) {
   const fixture = path.join(
     ROOT,
@@ -49,19 +81,31 @@ function auditarCarpeta(id) {
       { esImportacion: true },
     );
     const ok = stable(item.datos) === stable(limpio);
+    const cambios = ok ? [] : camposCambiados(item.datos, limpio);
     docs.push({
       archivo: item.archivo,
       tipo,
       ok,
       vacios_revalidacion: vacios,
+      cambios_revalidacion: cambios,
       datos: item.datos,
     });
     const flag = ok ? "OK" : "FALLA";
     console.log(`  [${flag}] ${item.archivo} (${tipo})`);
     if (!ok) {
-      console.log("    datos no pasan re-fundamentación (campo sin anclar)");
+      const motivo = new Map(vacios.map((v) => [v.campo, v.motivo]));
+      console.log("    datos no pasan re-fundamentación:");
+      for (const c of cambios) {
+        const por = motivo.get(c.campo);
+        console.log(
+          `    · ${c.campo}: ${c.antes} → ${c.despues}${por ? `  (${por})` : ""}`,
+        );
+      }
+      // Motivos registrados sobre campos que no aparecieron en el diff.
       for (const v of vacios) {
-        console.log(`    · ${v.campo}: ${v.motivo}`);
+        if (!cambios.some((c) => c.campo === v.campo)) {
+          console.log(`    · ${v.campo}: ${v.motivo}`);
+        }
       }
     }
   }

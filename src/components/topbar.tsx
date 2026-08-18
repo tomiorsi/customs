@@ -200,7 +200,7 @@ export function Topbar({
         </div>
 
         <Link href={home} className="justify-self-center">
-          <Brand size="sm" />
+          <Brand size="sm" conTexto={false} />
         </Link>
 
         <div className="flex shrink-0 items-center gap-2 justify-self-end">

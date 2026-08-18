@@ -4,7 +4,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Paleta clara: neutros + un solo acento (naranja) */
+  /* Paleta clara: neutros + un solo acento (azul de marca) */
   --background: #f7f7f8;
   --surface: #ffffff;
   --surface-2: #f1f1f3;
@@ -15,22 +15,23 @@
      5,97:1 sobre surface-2, sin volverse negro ni perder la jerarquía. */
   --muted: #565c66;
   --border: #e5e7eb;
-  --accent: #f97316;
+  /* Azul de la marca Wabe, el mismo de wabe.dev: #1A5080 en claro y #4d95d4
+     en oscuro. Reemplaza al naranja anterior en todos sus roles. */
+  --accent: #1a5080;
   --accent-foreground: #ffffff;
-  --accent-soft: #fff3ea;
-  /* Naranja para TEXTO. El de la marca (#f97316) da 2,6:1 sobre blanco: sirve
-     para pintar un botón, no para escribir. Este mantiene el mismo tono y llega
-     a 5,35:1, así que un código NCM en color se lee de verdad. */
-  --accent-text: #b84610;
-  --ring: rgba(249, 115, 22, 0.35);
+  --accent-soft: #eef3f9;
+  /* Acento para TEXTO. Acá el azul de marca ya sirve: #1a5080 da 9,2:1 sobre
+     blanco, así que no hace falta una variante oscurecida como con el naranja
+     —que daba 2,6:1 y obligaba a inventar un tono aparte solo para escribir. */
+  --accent-text: #1a5080;
+  --ring: rgba(26, 80, 128, 0.35);
 }
 
 /*
  * Modo noche. Se activa con la clase .dark en <html>, no por preferencia del
- * sistema: la elección es del usuario y se guarda. El acento naranja no cambia
- * —es la marca—; lo que se invierte son los neutros, y `accent-soft` pasa de
- * un naranja lavado a uno apagado, porque sobre fondo oscuro el original
- * quedaba como un bloque blanco.
+ * sistema: la elección es del usuario y se guarda. El azul se aclara —sobre
+ * fondo oscuro el de marca queda apagado— y `accent-soft` pasa de un celeste
+ * lavado a uno profundo, porque el original quedaba como un bloque blanco.
  */
 .dark {
   --background: #101216;
@@ -39,12 +40,12 @@
   --foreground: #e9ebef;
   --muted: #a7aeb9;
   --border: #2b3039;
-  --accent: #fb8c3c;
-  --accent-foreground: #1a1207;
-  --accent-soft: #2b1c10;
+  --accent: #4d95d4;
+  --accent-foreground: #0e2440;
+  --accent-soft: #14304d;
   /* En oscuro el problema se invierte: hay que aclararlo, no oscurecerlo. */
-  --accent-text: #fdba74;
-  --ring: rgba(251, 140, 60, 0.45);
+  --accent-text: #7ec8ff;
+  --ring: rgba(77, 149, 212, 0.45);
 }
 
 /* El chevron de los selects sigue al tema: en oscuro el gris original no se ve. */
@@ -159,7 +160,7 @@ body::before {
   }
 
   .text-gradient-accent {
-    background: linear-gradient(92deg, var(--accent), #fb923c 55%, #fbbf24);
+    background: linear-gradient(92deg, var(--accent), #2470b3 55%, #4d95d4);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -195,6 +196,75 @@ body::before {
       color-mix(in srgb, var(--accent) 70%, transparent),
       transparent
     );
+  }
+
+  /* El mismo resplandor del borde superior, pero dando la vuelta al recuadro.
+     Es una franja angosta de un cono de color que rota: el ::before pinta el
+     cono y una máscara lo recorta al anillo del borde, así el interior queda
+     limpio. Ocho segundos por vuelta y baja opacidad — tiene que registrarse
+     de reojo, no pedir atención. */
+  .borde-girando {
+    position: relative;
+    isolation: isolate;
+  }
+  .borde-girando::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(
+      from var(--giro),
+      transparent 0deg,
+      color-mix(in srgb, var(--accent) 85%, transparent) 30deg,
+      color-mix(in srgb, var(--accent) 25%, transparent) 70deg,
+      transparent 120deg,
+      transparent 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: girar-borde 8s linear infinite;
+  }
+
+  /* Cuadro aparte para el detalle que no entra en el panel (permisos por
+     posición). Va sobre la pantalla y no adentro del recuadro de la
+     estimación: el detalle es largo y ahí abajo tapaba las cifras. */
+  .capa-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgb(0 0 0 / 0.55);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+  .caja-modal {
+    width: 100%;
+    max-width: 34rem;
+    max-height: 82dvh;
+    overflow-y: auto;
+  }
+
+  /* Recuadro que acompaña el scroll. La altura máxima lo deja siempre entero
+     en pantalla, y el sobrante scrollea adentro en vez de arrastrar la página. */
+  .panel-fijo {
+    position: sticky;
+    /* La barra de arriba mide h-11 (2.75rem) y también es sticky: sin este
+       margen el panel se queda quieto pero por debajo de ella, y el título se
+       lee cortado. */
+    top: 3.5rem;
+    max-height: calc(100dvh - 4.25rem);
+    overflow-y: auto;
   }
 
   .hover-lift {
@@ -255,7 +325,7 @@ body::before {
 }
 
 /* ───────────────────────── Landing page ─────────────────────────
- * Color de los puntos del mapamundi (r, g, b). El naranja queda reservado
+ * Color de los puntos del mapamundi (r, g, b). El acento queda reservado
  * para las rutas comerciales animadas.
  */
 :root {
@@ -415,4 +485,25 @@ body::before {
 .sin-scrollbar::-webkit-scrollbar {
   width: 0;
   height: 0;
+}
+
+/* Ángulo animable del borde giratorio. Sin @property el navegador no puede
+   interpolar un <angle> dentro de un conic-gradient: se queda quieto en el
+   valor inicial, que igual se ve bien (un resplandor arriba, como antes). */
+@property --giro {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes girar-borde {
+  to {
+    --giro: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .borde-girando::before {
+    animation: none;
+  }
 }

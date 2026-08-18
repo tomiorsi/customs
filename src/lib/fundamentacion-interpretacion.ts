@@ -1337,7 +1337,9 @@ export function reglasInterpretacionPorTipo(
 ): string {
   const marcoImpo = opts?.esImportacion
     ? "\nIMPORTACIÓN (destino aduanero Argentina): origen.pais_destino = Argentina. " +
-      "Direcciones en Miami, «forward to», hub logístico o c/o NO son destino aduanero.\n"
+      "Una dirección de tránsito o consolidación —«forward to», «c/o», hub logístico, " +
+      "casilla de reexpedición, depósito del agente— NO es destino aduanero, esté en el " +
+      "país que esté.\n"
     : "";
   const comunes =
     "\nFUNDAMENTACIÓN: cada valor debe poder citarse en la transcripción. " +
@@ -1381,8 +1383,14 @@ export function reglasInterpretacionPorTipo(
         comunes +
         "CERTIFICADO DE ORIGEN:\n" +
         "- NCM puede figurar como código suelto en el formulario (sin etiqueta NCM).\n" +
-        "- Casilla «Peso líquido ou quantidade»: cantidad en piezas/kg/ton; casilla valor = comercial.valor_factura.\n" +
-        "- Formato monetario BR (16.673,200) sin unidad de masa → valor, NO mercaderia.peso_neto.\n" +
+        "- La casilla de peso/cantidad («Peso líquido o cantidad», «Peso líquido ou quantidade») " +
+        "y la de valor van CONTIGUAS y ambas son numéricas. Distinguilas por la unidad, no por " +
+        "la posición: un número CON unidad de masa o de piezas (kg, ton, t, lb, u, pcs) es " +
+        "cantidad; un número SIN unidad de masa es valor → comercial.valor_factura, nunca " +
+        "mercaderia.peso_neto.\n" +
+        "- Los certificados del Mercosur suelen venir en notación europea/brasileña (punto de " +
+        "miles, coma decimal). Esa notación no dice nada sobre si el número es peso o valor: " +
+        "decidilo por la unidad y por el rótulo de la casilla.\n" +
         "- Valor total y cantidad según casillas del certificado.\n"
       );
     case "transporte":

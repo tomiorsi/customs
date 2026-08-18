@@ -1,0 +1,350 @@
+/* ═══════════════════════════════════════════════════════
+   Stack de proyectos — tarjetas en abanico
+   Reemplaza la lista vertical de antes. Antes había un stack de Software y
+   uno de Webs con pestañas para alternar; ahora es una sola lista con todo
+   adentro. Usa los tokens de styles.css (--accent, --radius, --ease-out,
+   --dur-*) para no salirse del sistema visual del sitio, y reusa
+   .legal-modal (definido en styles.css) para el detalle de cada proyecto,
+   así el popup tiene exactamente el mismo estilo que los modales de
+   privacidad/términos.
+   ═══════════════════════════════════════════════════════ */
+
+.project-stack-section {
+  padding: clamp(1.5rem, 4vw, 2.5rem) 0;
+}
+
+/* ─── Modal "Qué hace" de cada proyecto ─── */
+/* .legal-modal (styles.css) sigue dando la tipografía de .legal-head/
+   .legal-body/.legal-close — nada de eso se toca. Lo que SÍ es propio de
+   acá es el position/tamaño: estos son <div hidden>, no <dialog>, así que
+   no heredan nada de `body > dialog.legal-modal`. Se armó position:fixed a
+   mano (initLegalModals en script.js hace el show/hide) porque Safari no
+   estaba prometiendo estos <dialog> al "top layer" de forma confiable —
+   quedaban position:absolute relativos al documento en vez de fixed al
+   viewport, y con la página scrolleada lejos del top se veían pegados
+   arriba de todo y angostos. Un <div>+fixed no depende de esa promoción.
+   `position: fixed !important` es necesario y no cosmético: styles.css
+   tiene `body > :not(.bg-wave3d):not(.bg-veil) { position: relative }`
+   (especificidad 0,2,1, más alta que una clase sola) para el fondo de olas,
+   y sin el !important esa regla gana y el popover cae `position:relative`
+   dentro del flujo normal — por eso aparecía pegado abajo del footer en vez
+   de fijo en pantalla. El `<dialog>` de los legales esquiva esto solo
+   porque el propio navegador fuerza el positioning al promoverlo al "top
+   layer"; un <div> no tiene esa ayuda, necesita el !important acá. */
+.project-detail-modal {
+  position: fixed !important;
+  /* top:50%/left:50%/translate en vez de inset:0+margin:auto: ese combo
+     (los 4 lados en 0 más margin auto) le pedía al motor "estirate a la
+     altura disponible y despues centrate encogiendo" — el resultado real
+     era una caja más alta que el contenido, con hueco vacío abajo. Con
+     transform no hay ambigüedad: la caja mide lo que su contenido pide
+     (hasta max-height), y ese es el tamaño real. */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 120;
+  margin: 0;
+  padding: 0;
+  /* Compacto sigue significando "no tan ancho como el modal legal de
+     680px", no "chico siempre" — en desktop hay lugar de sobra, así que usa
+     bastante más (600px, para que las 4 chips de tags entren en una sola
+     línea). Recién en mobile baja a 340px. */
+  width: min(600px, calc(100% - 3rem));
+  max-height: min(85vh, 640px);
+  border: 1px solid rgba(11, 18, 32, 0.12);
+  border-radius: var(--radius);
+  background: #ffffff;
+  color: #0b1220;
+  box-shadow: 0 40px 110px -35px rgba(11, 18, 32, 0.5);
+  overflow: hidden;
+}
+
+.project-detail-modal[hidden] { display: none; }
+
+/* Blanco adentro, azules para todo lo demás — título, cierre y texto en
+   navy, chips celestes en vez de blancas (ya no hacen falta blancas para
+   destacar sobre un fondo oscuro que ya no existe acá). */
+.project-detail-modal .legal-head {
+  background: #ffffff;
+  border-bottom-color: rgba(11, 18, 32, 0.1);
+}
+.project-detail-modal .legal-head h2,
+.project-detail-modal .legal-body strong { color: #0b1220; }
+.project-detail-modal .legal-close {
+  color: rgba(11, 18, 32, 0.5);
+  border-color: rgba(11, 18, 32, 0.14);
+}
+.project-detail-modal .legal-close:hover {
+  color: #0b1220;
+  border-color: #1a5080;
+}
+.project-detail-modal .legal-body,
+.project-detail-modal .project-desc,
+.project-detail-modal .project-features li {
+  color: #3d4a5c;
+}
+.project-detail-modal .project-domain { color: #1a5080; }
+.project-detail-modal .project-tags span {
+  color: #1a5080;
+  background: rgba(26, 80, 128, 0.08);
+  border-color: rgba(26, 80, 128, 0.2);
+}
+
+.project-detail-modal:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  /* No reusa @keyframes legal-in (styles.css): esa anima `transform`
+     directo (translateY+scale) sin el translate(-50%,-50%) de acá, así que
+     pisaría el centrado durante toda la animación. Este keyframe hace lo
+     mismo pero arrastrando el centrado en las dos puntas. */
+  animation: project-modal-in var(--dur-fast) var(--ease-out);
+}
+
+@keyframes project-modal-in {
+  from { opacity: 0; transform: translate(-50%, -50%) translateY(12px) scale(0.985); }
+  to   { opacity: 1; transform: translate(-50%, -50%) translateY(0) scale(1); }
+}
+
+@media (max-width: 900px) {
+  .project-detail-modal { width: min(340px, calc(100% - 2rem)); }
+}
+
+.popover-backdrop {
+  /* Mismo motivo que .project-detail-modal: hijo directo de body, la regla
+     global de position:relative del fondo de olas le gana sin !important. */
+  position: fixed !important;
+  inset: 0;
+  z-index: 119;
+  background: rgba(4, 12, 24, 0.62);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.popover-backdrop[hidden] { display: none; }
+
+.project-detail-modal .legal-head { padding: 1rem 1.25rem; }
+.project-detail-modal .legal-body { padding: 1rem 1.25rem 1.25rem; }
+
+/* ─── Escenario del abanico ─── */
+.project-stack {
+  --stack-card-w: min(560px, 84vw);
+  --stack-card-h: 380px;
+  position: relative;
+  width: 100%;
+  height: calc(var(--stack-card-h) + 70px);
+  touch-action: pan-y;
+}
+
+.project-stack-track {
+  position: absolute;
+  inset: 0 0 46px 0;
+}
+
+/* Tarjeta = el propio <article class="project"> o <article class="web-project">,
+   posicionado y transformado por JS (initProjectStack en script.js). Se
+   anula el layout de 2 columnas que .project tenía en previews.css.
+   height explícito a propósito: sus hijos van todos position:absolute (no
+   aportan alto), así que sin esto la tarjeta mide 0 y translate(-50%,-50%)
+   no la centra — cuelga desde arriba del stack en vez de quedar en el medio. */
+.project-stack .project,
+.project-stack .web-project {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--stack-card-w);
+  height: var(--stack-card-h);
+  padding: 0;
+  border-top: none;
+  display: block;
+  cursor: grab;
+  will-change: transform;
+  transition: transform var(--dur-med) var(--ease-out), filter var(--dur-med) var(--ease-out);
+}
+
+.project-stack .project:active,
+.project-stack .web-project:active { cursor: grabbing; }
+
+.project-stack .project.is-dragging,
+.project-stack .web-project.is-dragging { transition: none; }
+
+/* Tarjeta activa = adelante, viva. El resto queda congelado: sin click,
+   sin animación interna corriendo (scan beams, cursores, gráficos). */
+.project-stack .is-stack-inactive { pointer-events: none; filter: saturate(0.82) brightness(0.93); }
+.project-stack .is-stack-inactive,
+.project-stack .is-stack-inactive * { animation-play-state: paused !important; }
+
+.project-stack .is-stack-hidden { opacity: 0; }
+
+/* ─── Marco estándar de la tarjeta software ─── */
+.project-stack .project > .project-preview,
+.project-stack .project > .project-preview-link {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: var(--stack-card-h);
+  margin: 0;
+}
+
+.project-stack .project > .project-preview-link > .project-preview {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+}
+
+/* El contenido bespoke de cada demo (previews.css) ya sabe reflow-earse a
+   su ancho por container query — acá solo se achica si se pasa del alto
+   fijo, vía JS (fitPreviewsToStackCards en script.js) que mide y aplica un
+   transform:scale() a este wrapper, nunca recorta contenido. */
+.stack-fit-inner {
+  transform-origin: top left;
+  width: 100%;
+}
+
+/* ─── Caption: lo único de texto que queda sobre la tarjeta ─── */
+/* A la derecha (no a la izquierda) y con el scrim un poco más opaco para
+   que se lea bien sin importar qué haya detrás en la imagen/video. */
+.project-stack .project > .project-info {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 2;
+  padding: clamp(1.1rem, 3vw, 1.5rem);
+  background: linear-gradient(0deg, rgba(4, 10, 20, 0.92) 0%, rgba(4, 10, 20, 0.6) 55%, transparent 100%);
+  color: #fff;
+  text-align: right;
+  pointer-events: none;
+}
+
+.project-stack .project > .project-info > * { pointer-events: auto; }
+
+.project-stack .project-info .project-domain { color: rgba(255, 255, 255, 0.7); margin-bottom: 0.3rem; }
+
+.project-stack .project-info h2 {
+  font-size: clamp(1.15rem, 2.6vw, 1.5rem);
+  margin-bottom: 0.7rem;
+}
+
+.stack-caption-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.1rem;
+}
+
+.stack-detail-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #fff;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+  padding: 0 0 0.15rem;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out), gap var(--dur-fast) var(--ease-out);
+}
+
+.stack-detail-btn:hover { gap: 0.6rem; border-color: #fff; }
+.stack-detail-btn svg { width: 0.85rem; height: 0.85rem; }
+
+/* En la tarjeta de stack, el link "Ver sitio" (mismo componente que en
+   Webs) va al lado del botón Detalles, no como línea propia. */
+.project-stack .web-project-link { margin: 0; }
+
+/* ─── Tarjeta de Webs: solo ajustar ancho, el resto ya viene de styles.css ─── */
+.project-stack .web-project {
+  margin: 0;
+}
+
+.project-stack .web-project-card {
+  width: 100%;
+  height: 100%;
+}
+
+/* ─── Flechas prev/next ─── */
+.stack-arrow {
+  position: absolute;
+  top: 0;
+  bottom: 46px; /* deja libre la franja de los dots, se centra en el resto */
+  margin: auto 0;
+  height: 44px;
+  width: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--card);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--text-secondary);
+  cursor: pointer;
+  z-index: 200; /* por encima de cualquier tarjeta (tope 100) */
+  box-shadow: var(--shadow);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.stack-arrow svg { width: 20px; height: 20px; }
+.stack-arrow-prev { left: -4px; }
+.stack-arrow-next { right: -4px; }
+
+.stack-arrow:hover {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.stack-arrow:active { transform: scale(0.92); }
+
+@media (max-width: 900px) {
+  .stack-arrow { width: 38px; height: 38px; }
+  .stack-arrow svg { width: 17px; height: 17px; }
+  .stack-arrow-prev { left: -2px; }
+  .stack-arrow-next { right: -2px; }
+}
+
+/* ─── Dots de navegación ─── */
+/* Ocultos a pedido — la navegación queda sólo con las flechas prev/next
+   (initProjectStack, script.js, no depende de los dots para nada). */
+.stack-dots {
+  display: none;
+}
+
+.stack-dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--line);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+
+.stack-dot:hover { background: var(--accent-dim); }
+
+.stack-dot.is-active {
+  background: var(--accent);
+  transform: scale(1.35);
+}
+
+@media (max-width: 900px) {
+  .project-stack {
+    --stack-card-w: min(340px, 88vw);
+    --stack-card-h: 460px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-stack .project,
+  .project-stack .web-project {
+    transition: none;
+  }
+}

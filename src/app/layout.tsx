@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aduana · Portal de Comercio Exterior",
+  title: "Wabe · Sistemas para comercio exterior",
   description:
-    "Portal documental y de seguimiento para importadores y exportadores. Estudio de despachantes de aduana.",
+    "Sistemas para despachantes de aduana e importadores: clasificación NCM, costos y control de carpetas.",
 };
 
 export default function RootLayout({

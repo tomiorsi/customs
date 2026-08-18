@@ -771,8 +771,12 @@ export const IIBB_PERCEPCION = 2.5;
  * Honorarios del despachante de aduana. El arancel está desregulado (Dto.
  * 2284/91): el mercado se mueve entre ~0,5% y 2% sobre el CIF, casi siempre con
  * un mínimo. Usamos un porcentaje editable con un piso: se cobra el mayor entre
- * (CIF · %) y el mínimo. El IVA (21%) sobre los honorarios es crédito fiscal
- * para Responsable Inscripto.
+ * (CIF · %) y el mínimo.
+ *
+ * El importe que se carga es el FINAL, con el IVA (21%) ya adentro: es lo que
+ * el estudio le pasa al cliente y lo que el cliente paga. El IVA contenido se
+ * despeja para mostrarlo como crédito fiscal del Responsable Inscripto, no se
+ * suma encima.
  */
 export const HONORARIOS_PCT_DEFAULT = 2.0;
 export const HONORARIOS_MIN_DEFAULT = 350;
@@ -1290,10 +1294,12 @@ export function cotizar(i: CotizarInput): CotizarResult {
   const percGan = (baseIva * i.percGanPct) / 100;
   const iibb = (baseIva * i.iibbPct) / 100;
 
-  // Honorarios del despachante: el mayor entre (CIF · %) y el mínimo.
+  // Honorarios del despachante: el mayor entre (CIF · %) y el mínimo, con el
+  // IVA ya incluido (es el importe que se factura y se paga).
   const honorarios = Math.max((cif * i.honorariosPct) / 100, i.honorariosMin);
-  // IVA sobre honorarios: crédito fiscal para Responsable Inscripto (recuperable).
-  const honorariosIva = (honorarios * HONORARIOS_IVA) / 100;
+  // IVA contenido en ese importe: crédito fiscal para el Responsable Inscripto.
+  // Se despeja hacia atrás, no se agrega arriba.
+  const honorariosIva = honorarios - honorarios / (1 + HONORARIOS_IVA / 100);
   // Gastos de terminal/portuarios: costo de terceros (terminal/transportista).
   const gastosTerminal = i.gastosTerminal > 0 ? i.gastosTerminal : 0;
 
@@ -1306,12 +1312,13 @@ export function cotizar(i: CotizarInput): CotizarResult {
     (i.recPercGan ? percGan : 0) +
     (i.recIibb ? iibb : 0) +
     (i.recHonorariosIva ? honorariosIva : 0);
+  // Sin el IVA de honorarios: ese ya viene dentro de `honorarios`, que entra
+  // entero en la base de costos. Sumarlo acá lo contaría dos veces.
   const noRecuperable =
     (i.recIva ? 0 : iva) +
     (i.recPercIva ? 0 : percIva) +
     (i.recPercGan ? 0 : percGan) +
-    (i.recIibb ? 0 : iibb) +
-    (i.recHonorariosIva ? 0 : honorariosIva);
+    (i.recIibb ? 0 : iibb);
 
   // En una destinación DEFINITIVA los tributos son plata que sale: integran el
   // costo y el desembolso. En una SUSPENSIVA no se pagan, se garantizan (art.
@@ -1324,11 +1331,14 @@ export function cotizar(i: CotizarInput): CotizarResult {
   const baseCostos = suspensiva
     ? cif + honorarios + gastosTerminal
     : cif + di + tasa + honorarios + gastosTerminal;
+  // Del honorario facturado, al RI le vuelve el IVA contenido: sale de la caja
+  // pero no es costo. Al que no lo recupera le queda adentro y no se toca.
+  const honorariosCredito = i.recHonorariosIva ? honorariosIva : 0;
   const costoReal =
-    baseCostos + (suspensiva ? (i.recHonorariosIva ? 0 : honorariosIva) : noRecuperable);
+    baseCostos - honorariosCredito + (suspensiva ? 0 : noRecuperable);
   const desembolso = suspensiva
-    ? baseCostos + honorariosIva
-    : baseCostos + iva + percIva + percGan + iibb + honorariosIva;
+    ? baseCostos
+    : baseCostos + iva + percIva + percGan + iibb;
 
   const tc = i.tipoCambio ?? 0;
   const desembolsoArs = tc > 0 ? desembolso * tc + i.otrosArs : null;
@@ -1449,8 +1459,9 @@ export type ExportarResult = {
   reintegroPct: number;
   /** Reintegro a la exportación (beneficio). */
   reintegro: number;
+  /** Honorarios facturados, con el IVA ya incluido. */
   honorarios: number;
-  /** IVA de honorarios: recuperable (recupero IVA exportador), no es costo. */
+  /** IVA contenido en los honorarios: recuperable (recupero del exportador). */
   honorariosIva: number;
   gastosOrigen: number;
   /**
@@ -1516,12 +1527,15 @@ export function cotizarExportacion(i: ExportarInput): ExportarResult {
   const reintegroPct = suspensiva ? 0 : i.reintegroPct;
   const reintegro = (fob * reintegroPct) / 100;
 
+  // Igual que en importación: el honorario se carga con el IVA adentro.
   const honorarios = Math.max((fob * i.honorariosPct) / 100, i.honorariosMin);
-  const honorariosIva = (honorarios * HONORARIOS_IVA) / 100;
+  const honorariosIva = honorarios - honorarios / (1 + HONORARIOS_IVA / 100);
   const gastosOrigen = i.gastosOrigen > 0 ? i.gastosOrigen : 0;
 
   // Costo de exportar hasta la mercadería a bordo (no incluye el reintegro).
-  const costoExportacion = de + honorarios + gastosOrigen;
+  // El IVA de los honorarios se recupera vía recupero del exportador, así que
+  // sale del costo aunque haya salido de la caja.
+  const costoExportacion = de + honorarios - honorariosIva + gastosOrigen;
   const costoPct = fob > 0 ? (costoExportacion / fob) * 100 : 0;
 
   const tc = i.tipoCambio ?? 0;

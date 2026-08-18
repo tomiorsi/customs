@@ -1,0 +1,8 @@
+# robots.txt — wabe.dev
+# Le dice a los buscadores qué pueden recorrer y dónde está el mapa del sitio.
+# Todo el sitio es público, así que no se bloquea nada.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://wabe.dev/sitemap.xml

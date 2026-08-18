@@ -1,0 +1,27 @@
+# Cabeceras de seguridad para todo el sitio.
+#
+# Cloudflare (Workers Assets) lee este archivo y las aplica a cada respuesta
+# de archivo estático. El archivo en sí NO se sirve como contenido: es config.
+#
+# Objetivo: defensa en profundidad. La página no renderiza HTML del usuario
+# (el chat usa textContent, no innerHTML), así que el riesgo de XSS ya es bajo;
+# estas cabeceras cubren clickjacking, sniffing de tipo, fuga de referer y
+# fuerzan HTTPS.
+
+/*
+  # Nadie puede meter el sitio dentro de un <iframe> (evita clickjacking).
+  X-Frame-Options: DENY
+  # El navegador respeta el content-type declarado y no "adivina" otro.
+  X-Content-Type-Options: nosniff
+  # No filtrar la URL completa como referer hacia otros sitios.
+  Referrer-Policy: strict-origin-when-cross-origin
+  # Una vez visto por HTTPS, el navegador nunca más intenta HTTP (1 año).
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  # Apagamos APIs del navegador que la página no usa.
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=()
+  # CSP permisiva a propósito: el sitio carga Google Tag Manager, Meta Pixel,
+  # Google Fonts y Three.js (unpkg), y GTM inyecta scripts por diseño, así que
+  # una allowlist estricta los rompería. Aun permisiva, esta CSP bloquea
+  # scripts por http:/data:, embeds/plugins (object-src), secuestro de <base>,
+  # el framing del sitio y fuerza HTTPS en subrecursos.
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https:; frame-src https:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests

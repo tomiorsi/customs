@@ -276,8 +276,6 @@ export function CotizadorImportacion({
   // Destino de la mercadería: específico de cada despacho (reventa vs uso propio).
   const [destino, setDestino] = useState<Destino>("reventa");
 
-  const recuperaIva = perfil === "responsable_inscripto";
-
   // Datos que carga el cliente
   const [paisNombre, setPaisNombre] = useState(PAISES[0].nombre);
   const [incotermValue, setIncotermValue] = useState("FOB");
@@ -687,14 +685,13 @@ export function CotizadorImportacion({
   const totalImpuestos =
     r.di + r.tasa + r.iva + r.percIva + r.percGan + r.iibb;
   // Desembolso del grupo: el IVA de honorarios se paga aunque después se
-  // recupere, así que suma acá. Que vuelva se dice en la nota de la línea y en
-  // el «recuperás» del total.
-  const totalGastos = r.honorarios + r.honorariosIva + r.gastosTerminal;
+  // recupere. El honorario ya viene con el IVA adentro: no se suma aparte, y
+  // que la parte de IVA vuelva se dice en el «recuperás» del total.
+  const totalGastos = r.honorarios + r.gastosTerminal;
 
   // Costo final según el perfil fiscal: el modelo ya descuenta del costo real lo
   // recuperable (RI) y deja como costo el IVA/percepciones no recuperables
   // (monotributo, exento, consumidor final).
-  const costoFinal = r.costoReal;
   const derechoNcmPct = categoria.di;
   const derechoPreferencial = clasif != null && derechoNcmPct !== r.diPct;
   const medidasAntidumping = dedupMedidas(antidumping?.medidas ?? []);
@@ -738,7 +735,7 @@ export function CotizadorImportacion({
           <div className="mt-2 flex gap-2">
             <input
               className={inputCls}
-              placeholder="Ej.: zapatillas de cuero, notebook, vino tinto…"
+              placeholder="Describí el producto, o escribí la posición: 6403.99.90"
               value={producto}
               onChange={(e) => setProducto(e.target.value)}
               onKeyDown={(e) => {
@@ -997,14 +994,7 @@ export function CotizadorImportacion({
 
         <Bloque titulo="Servicios del despacho">
           <div className="grid grid-cols-1 gap-x-3 gap-y-3 sm:grid-cols-3">
-            <Campo
-              label="Honorarios despachante (sin IVA)"
-              hint={
-                esExport
-                  ? "Sobre el FOB, sin IVA. Se cobra el mayor entre este % y el mínimo."
-                  : "Sobre el CIF, sin IVA. Se cobra el mayor entre este % y el mínimo. El estudio factura con IVA discriminado (21%), que se suma abajo."
-              }
-            >
+            <Campo label="Honorarios despachante (IVA incluido)">
               <input
                 className={inputCls}
                 inputMode="decimal"
@@ -1015,7 +1005,7 @@ export function CotizadorImportacion({
                 onChange={(e) => setHonorariosPct(e.target.value)}
               />
             </Campo>
-            <Campo label={`Mínimo sin IVA (${moneda})`}>
+            <Campo label={`Mínimo con IVA (${moneda})`}>
               <input
                 className={inputCls}
                 inputMode="decimal"
@@ -1056,29 +1046,32 @@ export function CotizadorImportacion({
       </div>
 
       {/* Resultados */}
-      <div className="sin-scrollbar lg:sticky lg:top-3 lg:max-h-[calc(100vh-1.5rem)] lg:overflow-y-auto">
-        <div className="neon-top rounded-xl border border-border glass p-4">
+      <div className="panel-fijo sin-scrollbar">
+        <div className="borde-girando rounded-xl border border-border glass p-4">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.1em] text-orange-700 dark:text-orange-300">
+            <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.1em] text-sky-800 dark:text-sky-300">
               <Calculator className="h-4 w-4" />
               Estimación
             </p>
             {/* Los supuestos no cambian el número: lo explican. Ocupaban un
                 tercio del panel antes de llegar a la primera cifra, así que
                 viven acá y se abren cuando hacen falta. */}
+            <div className="flex shrink-0 items-center gap-1.5">
+            <IntervencionesNcm ncm={clasif?.ncm} esExport={esExport} />
             <button
               type="button"
               onClick={() => setVerSupuestos((v) => !v)}
               aria-expanded={verSupuestos}
               className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                 verSupuestos
-                  ? "border-accent bg-accent-soft text-orange-700 dark:text-orange-300"
+                  ? "border-accent bg-accent-soft text-sky-800 dark:text-sky-300"
                   : "border-border text-foreground/75 hover:border-accent/60 hover:text-foreground"
               }`}
             >
               <Info className="h-3.5 w-3.5" />
               Supuestos
             </button>
+            </div>
           </div>
 
           {verSupuestos && (
@@ -1174,8 +1167,6 @@ export function CotizadorImportacion({
               </div>
             </div>
           )}
-
-          <IntervencionesNcm ncm={clasif?.ncm} esExport={esExport} />
 
           {esExport && (
             <ExportPanel
@@ -1278,13 +1269,8 @@ export function CotizadorImportacion({
                   salir. */}
               <Linea
                 label="Honorarios despachante"
-                valor={fmt(r.honorarios + r.honorariosIva, moneda)}
+                valor={fmt(r.honorarios, moneda)}
                 sub
-                nota={
-                  regimen.recHonorariosIva
-                    ? `c/IVA · ${fmt(r.honorariosIva, moneda)} vuelve`
-                    : "IVA incluido"
-                }
               />
               {r.gastosTerminal > 0 && (
                 <Linea
@@ -1379,22 +1365,6 @@ export function CotizadorImportacion({
               },
             }}
           />
-
-          <div className="mt-3 rounded-lg border border-border bg-surface-2/40 px-3 py-2.5">
-            <div className="flex items-baseline justify-between gap-3">
-              <span className="text-xs font-medium text-muted">
-                Costo final real estimado{" "}
-                <span className="text-[10px]">
-                  {recuperaIva
-                    ? "(neto de IVA y percepciones)"
-                    : "(IVA y percepciones incluidos)"}
-                </span>
-              </span>
-              <span className="text-sm font-semibold text-foreground">
-                {fmt(costoFinal, moneda)}
-              </span>
-            </div>
-          </div>
           </>
           )}
         </div>
@@ -1414,7 +1384,7 @@ function Bloque({
     <section className="rounded-xl border border-border bg-surface p-4">
       <div className="mb-3 flex items-center gap-2">
         <span className="h-3 w-0.5 rounded-full bg-accent" />
-        <h3 className="text-[11px] font-bold uppercase tracking-[0.1em] text-orange-700 dark:text-orange-300">
+        <h3 className="text-[11px] font-bold uppercase tracking-[0.1em] text-sky-800 dark:text-sky-300">
           {titulo}
         </h3>
       </div>
@@ -1602,12 +1572,6 @@ function ExportPanel({
             label="Honorarios despachante"
             valor={fmt(rx.honorarios, moneda)}
             sub
-          />
-          <Linea
-            label="IVA honorarios"
-            valor={fmt(rx.honorariosIva, moneda)}
-            sub
-            nota="(recuperable)"
           />
           {rx.gastosOrigen > 0 && (
             <Linea

@@ -23,8 +23,8 @@ const CSP = [
   "frame-ancestors 'none'",
   "form-action 'self'",
   "img-src 'self' data: blob: https://*.cdninstagram.com https://aduananews.com https://*.tradenews.com.ar https://argenports.com https://*.globalports.com.ar",
-  "font-src 'self' data:",
-  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   `script-src 'self' 'unsafe-inline'${esDev ? " 'unsafe-eval'" : ""}`,
   "connect-src 'self'",
   "frame-src 'self' blob: https://www.instagram.com",
@@ -32,6 +32,25 @@ const CSP = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  /**
+   * La raíz sirve la landing de wabe.dev tal cual está en public/landing.
+   *
+   * No se portó a componentes a propósito: son 65 KB de CSS y 1.700 líneas de
+   * JS con un canvas de three.js y siete demos interactivos. Reescribirlo a
+   * Tailwind garantizaba diferencias contra el original, y lo que se pidió es
+   * que sea idéntica. Así el archivo es el mismo que el sitio publicado, y
+   * actualizarla es copiar la carpeta de nuevo.
+   *
+   * `beforeFiles` para que gane sobre cualquier ruta de la app.
+   */
+  async rewrites() {
+    return {
+      beforeFiles: [{ source: "/", destination: "/landing/index.html" }],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
+
   serverExternalPackages: ["better-sqlite3", "@dsnp/parquetjs"],
   devIndicators: false,
 

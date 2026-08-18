@@ -16,7 +16,7 @@ import type { PublicUser } from "./types";
  */
 
 /** Logo propio de la plataforma, para cuando el estudio no subió el suyo. */
-const LOGO_FALLBACK = path.join(process.cwd(), "public", "jc-logo.png");
+const LOGO_FALLBACK = path.join(process.cwd(), "public", "wabe-logo.png");
 
 /**
  * Embebe el logo del estudio; si no hay, cae al de la plataforma; si tampoco,

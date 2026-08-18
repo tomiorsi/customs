@@ -262,9 +262,8 @@ export async function generarEstimacionPDF(
   y -= 6;
 
   /* ── 3) servicios y gastos ── */
-  grupo("Servicios y gastos", money(c.honorarios + c.honorariosIva + c.gastosTerminal));
-  item("Honorarios del despachante", money(c.honorarios));
-  if (c.honorariosIva > 0) item("IVA sobre honorarios", money(c.honorariosIva));
+  grupo("Servicios y gastos", money(c.honorarios + c.gastosTerminal));
+  item("Honorarios del despachante", money(c.honorarios), "IVA incluido");
   if (c.gastosTerminal > 0) {
     item("Gastos locales", money(c.gastosTerminal), "naviera, terminal, despacho");
   }

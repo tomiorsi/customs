@@ -74,6 +74,11 @@ export type IntervencionVuce = {
   estados: string[];
   /** VUCE validó la intervención (mayor confianza). */
   validada: boolean;
+  /**
+   * El régimen alcanza a casi todo el nomenclador: no dice nada de ESTA
+   * posición, es una condición de importar. Ver `UMBRAL_GENERAL`.
+   */
+  general: boolean;
   tramites: TramiteVuce[];
 };
 
@@ -175,6 +180,17 @@ function paisClave(pais: string | null | undefined): string {
   return normal === "ee uu" ? "estados unidos" : normal;
 }
 
+/**
+ * A partir de qué cobertura un régimen deja de ser información sobre la
+ * posición y pasa a ser una condición de importar.
+ *
+ * Medido sobre el dataset entero, no elegido a ojo: de 113 regímenes hay
+ * exactamente dos que llegan al 99,8% de las 4603 NCM-8 (embalajes de madera
+ * NIMF-15 y resolución anticipada de origen) y el tercero cae al 23%. Entre
+ * 30% y 90% no hay ninguno, así que el corte no depende de dónde se ponga.
+ */
+const UMBRAL_GENERAL = 0.9;
+
 async function construirIndice(): Promise<Indice> {
   const filas = await leerFilas(INTERV_PATH, COLS);
   const idx: Indice = new Map();
@@ -197,6 +213,7 @@ async function construirIndice(): Promise<Indice> {
       estadoMercaderia: f["estado_mercaderia"] ?? null,
       estados: f["estado_mercaderia"] ? [f["estado_mercaderia"]] : [],
       validada: f["validada"] === "true" || f["validada"] === "True",
+      general: false,
       tramites: parseTramites(f["tramites"] ?? null),
     };
 
@@ -204,7 +221,33 @@ async function construirIndice(): Promise<Indice> {
     if (arr) arr.push(iv);
     else idx.set(ncm8, [iv]);
   }
+  marcarGenerales(idx);
   return idx;
+}
+
+/**
+ * Marca los regímenes que aparecen en casi todas las posiciones. Se calcula
+ * sobre el índice ya armado, una sola vez, sin nombrar ningún organismo ni
+ * ninguna partida: si mañana VUCE agrega o saca uno, el cálculo lo sigue solo.
+ */
+function marcarGenerales(idx: Indice) {
+  const alcance = new Map<string, Set<string>>();
+  for (const [ncm8, items] of idx) {
+    for (const iv of items) {
+      const k = claveDedup(iv);
+      let set = alcance.get(k);
+      if (!set) alcance.set(k, (set = new Set<string>()));
+      set.add(ncm8);
+    }
+  }
+  const total = idx.size;
+  if (total === 0) return;
+  for (const items of idx.values()) {
+    for (const iv of items) {
+      const n = alcance.get(claveDedup(iv))?.size ?? 0;
+      iv.general = n / total >= UMBRAL_GENERAL;
+    }
+  }
 }
 
 function getIndice(): Promise<Indice> {

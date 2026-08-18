@@ -963,7 +963,7 @@ function ResultadoClasif({
           <div className="flex flex-wrap items-center gap-3">
             {r.ncm && (
               <p
-                className="font-mono text-2xl font-bold tracking-tight text-orange-700 dark:text-orange-300 sm:text-3xl"
+                className="font-mono text-2xl font-bold tracking-tight text-sky-800 dark:text-sky-300 sm:text-3xl"
               >
                 <span className="mr-2 text-lg font-semibold sm:text-xl">NCM</span>
                 {r.ncm}
@@ -1312,7 +1312,7 @@ function BloqueSubpartidas({
               key={s.codigo}
               className={`flex gap-4 px-4 py-2.5 text-xs leading-snug ${
                 activa
-                  ? "bg-accent-soft font-semibold text-orange-700 dark:text-orange-300"
+                  ? "bg-accent-soft font-semibold text-sky-800 dark:text-sky-300"
                   : "text-foreground"
               }`}
             >
@@ -1339,7 +1339,7 @@ function BloquePartidasEvaluadas({ items }: { items: PartidaEvaluada[] }) {
             key={p.partida}
             className={`flex gap-4 px-4 py-2.5 text-xs leading-snug ${
               p.elegida
-                ? "bg-accent-soft font-semibold text-orange-700 dark:text-orange-300"
+                ? "bg-accent-soft font-semibold text-sky-800 dark:text-sky-300"
                 : "text-foreground"
             }`}
           >

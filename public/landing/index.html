@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="/landing/width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="/landing/dark" />
+  <!-- OJO: Safari 26 (iOS 26) IGNORA esta etiqueta — desde el rediseño Liquid
+       Glass saca el color de sus barras directo del background-color del
+       <body> (ver styles.css). Esta etiqueta se conserva igual porque sí la
+       respetan Chrome en Android, Edge, y las versiones de Safari iOS 15 a
+       18. Mismo valor que el de <body>, para que coincida en todos lados. -->
+  <meta name="theme-color" content="#ffffff" />
+
+  <!-- Consentimiento de cookies. Se lee ANTES que nada: si el visitante ya
+       rechazó en una visita anterior, ni el pixel ni Google llegan a medir.
+       Por defecto (sin decisión tomada) se mide, como es práctica acá. -->
+  
+
+  <!-- Google tag (gtag.js) -->
+  
+  
+
+  <!-- Meta Pixel — wabe.dev (dataset propio "Wabe", ID 1732970924498873).
+       Distinto del de IVA Scan: los datos de Wabe no se mezclan con otro negocio.
+       El pixel dispara PageView acá; el resto los manda script.js cuando el
+       usuario realmente interactúa. Escalera de más superficial a más profundo:
+       QuePodemosHacer → VerProyectos → Contact.
+       Se recolectan los tres y recién con el conteo real de un par de semanas
+       se elige por cuál optimizar la pauta. -->
+  
+
+  <!-- Tema fijo: navy oscuro siempre (data-theme="dark" en <html>). Identidad
+       de marca única y coherente con las portadas de Instagram. -->
+  <title>Wabe — Web y software a medida</title>
+
+  <!-- ══════════════ SEO ══════════════
+       Nada de esto se ve en la página: vive sólo en el <head> y define cómo
+       aparece el sitio en Google y en los previews de WhatsApp/Instagram/
+       LinkedIn. Si cambia el copy del hero, conviene actualizar description
+       y og:description para que sigan diciendo lo mismo. -->
+
+  <!-- Lo que Google muestra debajo del título en los resultados. Sin esto,
+       arma un fragmento suelto del texto de la página por su cuenta.
+       ~150 caracteres: más largo lo corta con puntos suspensivos. -->
+  <meta name="description" content="/landing/Desarrollamos software y automatizaciones a medida para empresas: integraciones con WhatsApp y tu sistema, y automatización de tareas repetitivas. Analizamos tu caso sin cargo." />
+
+  <!-- URL oficial de esta página. Evita que Google trate como duplicados a
+       las variantes con www, con http, o con parámetros pegados (?fbclid=…
+       de Facebook, ?gclid=… de Google Ads). Tiene que ser absoluta. -->
+  <link rel="canonical" href="https://wabe.dev/" />
+
+  <!-- Por defecto Google ya indexa; esto se declara igual para pedir
+       explícitamente vista previa de imagen grande en los resultados. -->
+  <meta name="robots" content="/landing/index, follow, max-image-preview:large" />
+
+  <!-- Open Graph — el preview al pegar el link en WhatsApp, Instagram,
+       LinkedIn, Slack o iMessage. Sin estas etiquetas el preview sale sin
+       imagen y con un texto arbitrario. La imagen es 1200×630 (el estándar
+       que respetan todas las plataformas) y pesa 32 kB, muy por debajo del
+       límite donde WhatsApp deja de mostrarla. Las URLs van absolutas: los
+       scrapers no resuelven rutas relativas. -->
+  <meta property="og:type" content="/landing/website" />
+  <meta property="og:site_name" content="/landing/Wabe" />
+  <meta property="og:locale" content="/landing/es_AR" />
+  <meta property="og:url" content="https://wabe.dev/" />
+  <meta property="og:title" content="/landing/Wabe — Web y software a medida" />
+  <meta property="og:description" content="/landing/Desarrollamos software y automatizaciones a medida para empresas: integraciones con WhatsApp y tu sistema, y automatización de tareas repetitivas. Analizamos tu caso sin cargo." />
+  <meta property="og:image" content="https://wabe.dev/og-image.jpg" />
+  <meta property="og:image:width" content="/landing/1200" />
+  <meta property="og:image:height" content="/landing/630" />
+  <meta property="og:image:type" content="/landing/image/jpeg" />
+  <meta property="og:image:alt" content="/landing/Wabe — Web y software a medida" />
+
+  <!-- X/Twitter no siempre cae en las de Open Graph, así que se repiten.
+       summary_large_image = tarjeta con la imagen grande arriba. -->
+  <meta name="twitter:card" content="/landing/summary_large_image" />
+  <meta name="twitter:title" content="/landing/Wabe — Web y software a medida" />
+  <meta name="twitter:description" content="/landing/Desarrollamos software y automatizaciones a medida para empresas: integraciones con WhatsApp y tu sistema, y automatización de tareas repetitivas. Analizamos tu caso sin cargo." />
+  <meta name="twitter:image" content="https://wabe.dev/og-image.jpg" />
+  <meta name="twitter:image:alt" content="/landing/Wabe — Web y software a medida" />
+
+  <!-- Datos estructurados (JSON-LD). Le dice a Google y a los buscadores con
+       IA QUÉ es Wabe en lugar de dejar que lo deduzca del texto: que es un
+       negocio de servicios profesionales, a qué se dedica, cómo contactarlo
+       y dónde trabaja. Los tres bloques van enlazados por @id — así se leen
+       como una sola entidad y no como tres cosas sueltas.
+       Sin dirección de calle a propósito: no hay local a la calle. Si algún
+       día se abre uno, va acá adentro y también en Google Business Profile,
+       con exactamente los mismos datos en los dos lados. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://wabe.dev/#organizacion",
+        "name": "Wabe",
+        "url": "https://wabe.dev/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://wabe.dev/wabe-instagram-logo-blue.png",
+          "width": 1080,
+          "height": 1080
+        },
+        "image": "https://wabe.dev/og-image.jpg",
+        "description": "Desarrollo de sitios web y software a medida para empresas, negocios y personas.",
+        "email": "info@wabe.dev",
+        "telephone": "+5491123703680",
+        "sameAs": ["https://www.instagram.com/wabe.dev/"]
+      },
+      {
+        "@type": "ProfessionalService",
+        "@id": "https://wabe.dev/#servicio",
+        "name": "Wabe",
+        "url": "https://wabe.dev/",
+        "parentOrganization": { "@id": "https://wabe.dev/#organizacion" },
+        "image": "https://wabe.dev/og-image.jpg",
+        "description": "Diseño y desarrollo de sitios web que convierten, integraciones entre tu web y los sistemas que ya usás, automatización de tareas repetitivas y motores de alerta y validación.",
+        "email": "info@wabe.dev",
+        "telephone": "+5491123703680",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "AR"
+        },
+        "areaServed": { "@type": "Country", "name": "Argentina" },
+        "availableLanguage": "es",
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Servicios",
+          "itemListElement": [
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Diseño web que convierte" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Integraciones que conectan tu negocio" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Automatización de tareas repetitivas" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Motores de alerta y validación" } }
+          ]
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://wabe.dev/#sitio",
+        "url": "https://wabe.dev/",
+        "name": "Wabe",
+        "inLanguage": "es-AR",
+        "publisher": { "@id": "https://wabe.dev/#organizacion" }
+      }
+    ]
+  }
+  </script>
+  <!-- ════════════ fin SEO ════════════ -->
+
+  <link rel="icon" href="/landing/favicon.svg?v=7" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/landing/apple-touch-icon.png?v=7" sizes="180x180" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <!-- ?v= fuerza al navegador a bajar la versión nueva en vez de la cacheada.
+       Subir el número cada vez que cambien los estilos o el script. -->
+  <link rel="stylesheet" href="/landing/styles.css?v=58" />
+  <link rel="stylesheet" href="/landing/previews.css?v=30" />
+  <link rel="stylesheet" href="/landing/card-stack.css?v=15" />
+  <script>
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+    scrollTo(0, 0);
+  </script>
+</head>
+<body>
+  <header class="site-header site-header--wave reveal">
+    <nav class="site-contact" aria-label="Contacto">
+      <button type="button" class="site-contact-link" data-copy="info@wabe.dev" aria-label="Copiar email">
+        <svg class="site-contact-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="14" rx="2" />
+          <path d="M3 7l9 6 9-6" />
+        </svg>
+        <span class="site-contact-text">info@wabe.dev</span>
+      </button>
+      <a href="https://wa.me/5491123703680" class="site-contact-link" target="_blank" rel="noopener noreferrer" aria-label="Escribir por WhatsApp">
+        <svg class="site-contact-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 1.67c2.2 0 4.27.86 5.82 2.42a8.19 8.19 0 0 1 2.42 5.82c0 4.54-3.7 8.24-8.24 8.24h-.01c-1.52 0-3.01-.41-4.31-1.18l-.31-.18-3.11.82.83-3.04-.2-.32a8.18 8.18 0 0 1-1.26-4.36c0-4.54 3.7-8.24 8.24-8.24zm-2.9 4.53c-.15 0-.39.06-.6.28-.2.22-.79.77-.79 1.88s.81 2.18.92 2.33c.11.15 1.58 2.5 3.9 3.42.55.22.98.35 1.31.45.55.17 1.06.15 1.45.09.44-.07 1.36-.55 1.55-1.09.19-.54.19-1 .13-1.09-.06-.1-.2-.15-.42-.26-.22-.11-1.36-.67-1.57-.75-.21-.08-.36-.11-.52.11-.15.22-.59.75-.72.9-.13.15-.27.17-.49.06-.22-.11-.94-.35-1.79-1.11-.66-.59-1.11-1.32-1.24-1.54-.13-.22-.01-.34.1-.45.1-.1.22-.27.33-.4.11-.13.15-.22.22-.37.07-.15.04-.28-.02-.39-.06-.11-.5-1.28-.71-1.75-.18-.42-.37-.42-.52-.42z" />
+        </svg>
+        <span class="site-contact-text">+54 9 11 2370-3680</span>
+      </a>
+      <a href="https://www.instagram.com/wabe.dev/" class="site-contact-link" target="_blank" rel="noopener noreferrer" aria-label="Instagram wabe.dev">
+        <svg class="site-contact-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="5" />
+          <circle cx="12" cy="12" r="4" />
+          <circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none" />
+        </svg>
+        <span class="site-contact-text">wabe.dev</span>
+      </a>
+    
+      <!-- Único agregado sobre la landing original: la puerta al portal.
+           Va con la clase del sitio para que herede su estilo, más un modifier
+           propio para destacarlo. -->
+      <a href="/login" class="site-contact-link site-contact-link--ingresar" aria-label="Ingresar al portal">
+        <svg class="site-contact-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+          <path d="M10 17l5-5-5-5" />
+          <path d="M15 12H3" />
+        </svg>
+        <span class="site-contact-text">Ingresar</span>
+      </a>
+    </nav>
+  </header>
+
+  <header class="hero hero--wave">
+    <!-- Ola 3D (Three.js) en vez del video de olas. Ver wave-ribbon.js.
+         El canvas pinta su propio fondo blanco (ver comentario ahí adentro:
+         el pase de bloom no respeta transparencia), así que no hace falta
+         una capa de fondo aparte debajo. -->
+    <canvas id="wave-canvas" aria-hidden="true"></canvas>
+    <div class="hero-inner">
+      <div class="hero-content">
+        <h1 class="hero-name">
+          <span class="hero-name-line hero-name-accent reveal-child">Sistemas a medida</span>
+        </h1>
+        <!-- Subtítulo (12/8/2026): antes el hero eran solo las dos palabras
+             del título. Quien llegaba desde Google aterrizaba sin una línea
+             que le diga qué hacemos.
+             Sin botón acá a propósito (pedido de Tomás, 12/8): el número y
+             el mail ya están en la píldora de arriba, a dos dedos. Los CTAs
+             van más abajo, donde no hay nada de contacto cerca. -->
+        <p class="hero-sub reveal">
+          Desarrollamos software y automatizaciones para empresas.
+        </p>
+      </div>
+    </div>
+    <div class="scroll-cue" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 5v14" /><path d="m6 13 6 6 6-6" />
+      </svg>
+    </div>
+  </header>
+
+  <section id="servicios" class="section">
+    <div class="section-head reveal">
+      <!-- Antes esto completaba la frase de cada título ("Podemos hacer… /
+           Que tu web..."). Ahora cada tarjeta tiene su propio título, así
+           que el label queda fijo y directo. -->
+      <div class="section-label">Servicios</div>
+    </div>
+
+    <div class="services">
+      <!-- 2 de web + 2 de software (29/7/2026). Criterio del copy: cada
+           panel nombra un RESULTADO, nunca un entregable — y mezcla
+           lenguaje simple con vocabulario técnico real (APIs, OCR, motor de
+           reglas) para sonar creíble sin dejar de entenderse.
+           Rediseño 2/8: paneles grandes alternados en vez de 4 tarjetas
+           chicas en fila (a pedido de Tomás, inspirado en un componente que
+           mandó — se toma la estructura, no las fotos ni la tipografía de
+           ese ejemplo). Cada panel va en su propio .service-panel-pin: se
+           queda pegado (sticky) mientras el contenido entra, con el mismo
+           efecto de scroll del componente de referencia — ver
+           initServicePanels en script.js. -->
+
+      <div class="service-panel-pin">
+      <article class="service-panel reveal">
+        <div class="service-panel-media">
+          <div class="service-demo" aria-hidden="true">
+            <div class="sd-card sd-site">
+              <div class="sd-browser">
+                <span class="sd-b-dot"></span><span class="sd-b-dot"></span><span class="sd-b-dot"></span>
+                <span class="sd-b-url">tuweb.com.ar</span>
+                <span class="sd-b-load"></span>
+              </div>
+              <div class="sd-hero-mini">
+                <span class="sd-h-line l1"></span>
+                <span class="sd-h-line l2"></span>
+                <span class="sd-h-sub"></span>
+                <span class="sd-cta">Escribime</span>
+              </div>
+              <div class="sd-speed"><i></i>Carga en 0.4s</div>
+            </div>
+          </div>
+        </div>
+        <div class="service-panel-content">
+          <span class="service-index">01</span>
+          <h3>Diseño web profesional</h3>
+          <!-- Copy sin stack (12/8/2026): antes nombraba Three.js, GSAP,
+               Next.js, React y TypeScript. Ese vocabulario lo reconoce un
+               dev, no un dueño de negocio — y el hallazgo del 7/8 en Ads
+               fue justamente contactos buscando trabajo. El resultado,
+               no la herramienta. -->
+          <p>
+            La misma tecnología de las webs premiadas afuera: piezas 3D e
+            interactivas, animaciones fluidas, todo hecho a mano — sin
+            plantillas ni plugins de más. Rápida, y pensada para que quien
+            entra te escriba.
+          </p>
+        </div>
+      </article>
+      </div>
+
+      <div class="service-panel-pin">
+      <article class="service-panel reveal">
+        <div class="service-panel-media">
+          <!-- Antes era un celular con chips flotando + un mini kanban: se leía
+               como "hay actividad" pero no como "todo está conectado". Un hub
+               central con 4 líneas animadas dice eso mismo de un vistazo, estilo
+               diagrama de automatización (n8n, Zapier). -->
+          <div class="service-demo" aria-hidden="true">
+            <div class="sd-card sd-flow">
+              <div class="sd-flow-glow"></div>
+              <svg class="sd-flow-lines" viewBox="0 0 220 190" preserveAspectRatio="none">
+                <path class="sd-flow-path" d="M31,27 Q70,60 110,95" />
+                <path class="sd-flow-path" d="M189,27 Q150,60 110,95" />
+                <path class="sd-flow-path" d="M31,163 Q70,130 110,95" />
+                <path class="sd-flow-path" d="M189,163 Q150,130 110,95" />
+                <path class="sd-flow-beam sd-flow-beam-1" pathLength="100" d="M31,27 Q70,60 110,95" />
+                <path class="sd-flow-beam sd-flow-beam-2" pathLength="100" d="M189,27 Q150,60 110,95" />
+                <path class="sd-flow-beam sd-flow-beam-3" pathLength="100" d="M31,163 Q70,130 110,95" />
+                <path class="sd-flow-beam sd-flow-beam-4" pathLength="100" d="M189,163 Q150,130 110,95" />
+              </svg>
+              <span class="sd-flow-node sd-flow-node-form"><i></i>Formulario</span>
+              <span class="sd-flow-node sd-flow-node-wa"><i></i>WhatsApp</span>
+              <span class="sd-flow-node sd-flow-node-stock"><i></i>Stock</span>
+              <span class="sd-flow-node sd-flow-node-cliente"><i></i>Cliente</span>
+              <span class="sd-flow-node sd-flow-hub">Tu web</span>
+            </div>
+          </div>
+        </div>
+        <div class="service-panel-content">
+          <span class="service-index">02</span>
+          <h3>Integraciones que conectan tu negocio</h3>
+          <p>
+            Tu web hablando con lo que ya usás: WhatsApp, tu sistema de stock,
+            tu sistema de clientes. Lo dejamos conectado para que nada se
+            cargue dos veces — un pedido que descuenta stock solo, un cliente
+            que entra y ve su trámite al instante.
+          </p>
+        </div>
+      </article>
+      </div>
+
+      <div class="service-panel-pin">
+      <article class="service-panel reveal">
+        <div class="service-panel-media">
+          <div class="service-demo" aria-hidden="true">
+            <div class="sd-card sd-manual">
+              <div class="sd-hdr"><span class="sd-dot"></span>Tareas de hoy</div>
+              <div class="sd-manual-body">
+                <ul class="sd-tasks">
+                  <li><i></i>Cargar factura 1042</li>
+                  <li><i></i>Responder consulta</li>
+                  <li><i></i>Avisar al cliente</li>
+                  <li><i></i>Armar el informe</li>
+                  <li><i></i>Cargar factura 1043</li>
+                </ul>
+                <span class="sd-divider" aria-hidden="true"></span>
+                <div class="sd-count">
+                  <span class="sd-odo"><i>44</i><i>45</i><i>46</i><i>47</i></span>
+                  <small>hechas sin<br />tocar nada</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="service-panel-content">
+          <span class="service-index">03</span>
+          <h3>Automatización de tareas repetitivas</h3>
+          <p>
+            Cargar facturas, responder siempre lo mismo, armar el informe de
+            cada semana: si se repite, armamos la automatización a tu medida
+            que lo hace por vos — todos los días, sin que nadie se lo pida.
+          </p>
+        </div>
+      </article>
+      </div>
+
+      <div class="service-panel-pin">
+      <article class="service-panel reveal">
+        <div class="service-panel-media">
+          <div class="service-demo" aria-hidden="true">
+            <div class="sd-card sd-alert">
+              <div class="sd-hdr"><span class="sd-dot"></span>Cruzando campos</div>
+              <ul class="sd-rows">
+                <li><span>Proveedor</span><i></i></li>
+                <li><span>CUIT</span><i></i></li>
+                <li><span>Precio</span><i></i></li>
+                <li><span>IVA 21%</span><i></i></li>
+                <li class="sd-bad"><span>Cantidad</span><i></i></li>
+              </ul>
+              <div class="sd-verdict">Factura retenida</div>
+              <div class="sd-toast">No coincide con el remito</div>
+            </div>
+          </div>
+        </div>
+        <div class="service-panel-content">
+          <span class="service-index">04</span>
+          <h3>Motores de alerta y validación</h3>
+          <p>
+            No alcanza con automatizar: hay que saber qué está pasando. Cruzamos
+            cada dato contra tus reglas de negocio con un motor de validaciones a
+            medida, frenamos el error antes de que lo pagues, y te avisamos al
+            instante si algo no cierra.
+          </p>
+        </div>
+      </article>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- CTA entre Servicios y Proyectos (12/8/2026): el visitante que llegó
+       hasta acá vio los 4 paneles y antes tenía que volver arriba, a un
+       icono de 20px, para escribir. La conversión de Google sólo dispara en
+       WhatsApp o al copiar el mail — sin un botón en el recorrido, las
+       conversiones daban 0.
+       Es su propia <section> y NO vive dentro de #servicios a propósito:
+       initSectionFades desvanece a opacity 0 los últimos 200px de esa
+       sección (el fundido hacia Proyectos), y ahí adentro el botón se
+       evaporaba justo al llegarle el scroll. Como .section suelta entra al
+       observer de reveals normal. -->
+  <section class="section section-cta-wrap">
+    <div class="section-cta">
+      <p class="section-cta-lead">¿Algo de esto pasa en tu negocio?</p>
+      <a href="https://wa.me/5491123703680?text=Hola%2C%20tengo%20un%20negocio%20de%20____%20y%20hago%20a%20mano%20____" class="cta-btn" target="_blank" rel="noopener noreferrer">
+        <svg class="cta-btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 1.67c2.2 0 4.27.86 5.82 2.42a8.19 8.19 0 0 1 2.42 5.82c0 4.54-3.7 8.24-8.24 8.24h-.01c-1.52 0-3.01-.41-4.31-1.18l-.31-.18-3.11.82.83-3.04-.2-.32a8.18 8.18 0 0 1-1.26-4.36c0-4.54 3.7-8.24 8.24-8.24zm-2.9 4.53c-.15 0-.39.06-.6.28-.2.22-.79.77-.79 1.88s.81 2.18.92 2.33c.11.15 1.58 2.5 3.9 3.42.55.22.98.35 1.31.45.55.17 1.06.15 1.45.09.44-.07 1.36-.55 1.55-1.09.19-.54.19-1 .13-1.09-.06-.1-.2-.15-.42-.26-.22-.11-1.36-.67-1.57-.75-.21-.08-.36-.11-.52.11-.15.22-.59.75-.72.9-.13.15-.27.17-.49.06-.22-.11-.94-.35-1.79-1.11-.66-.59-1.11-1.32-1.24-1.54-.13-.22-.01-.34.1-.45.1-.1.22-.27.33-.4.11-.13.15-.22.22-.37.07-.15.04-.28-.02-.39-.06-.11-.5-1.28-.71-1.75-.18-.42-.37-.42-.52-.42z" />
+        </svg>
+        Contanos por WhatsApp
+      </a>
+      <span class="cta-note">Analizamos tu caso y te decimos qué se puede hacer, sin cargo</span>
+    </div>
+  </section>
+
+  <section id="work" class="section">
+    <div class="section-head reveal">
+      <div class="section-label">Proyectos</div>
+    </div>
+
+    <!-- Antes había un stack de Software y uno de Webs, con pestañas para
+         alternar entre los dos. Ahora es una sola lista (a pedido de Tomás,
+         5/8/2026): todos los proyectos de software, más Wabe Jeans como
+         único caso de Webs que queda. El resto de las webs de demo
+         (Resort, Garden, Cars) se sacaron del sitio.
+         .project-stack sigue siendo un abanico de tarjetas de tamaño fijo,
+         motor genérico en script.js (initProjectStack). -->
+    <div class="project-stack-section" data-stack-section="software">
+      <div class="project-stack" data-stack="software">
+        <button type="button" class="stack-arrow stack-arrow-prev" aria-label="Proyecto anterior">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6" /></svg>
+        </button>
+        <button type="button" class="stack-arrow stack-arrow-next" aria-label="Proyecto siguiente">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg>
+        </button>
+        <div class="project-stack-track" id="stack-software">
+    <!-- MOTOR IVA -->
+    <article id="chatbot" class="project" data-project="chatbot">
+      <!-- Sin caption ni botón "Qué hace" a propósito (pedido de Tomás,
+           1/8/2026): esta tarjeta no tiene nada encima, para que la gente
+           interactúe con el chat directo sin ningún elemento tapando. -->
+      <!-- Chat REAL, no una animación: escribe el visitante y contesta el modelo.
+           Estética de mensajería (burbujas, fondo texturado, tildes) para que se
+           entienda de una, pero con cabecera propia de Wabe: si imitara a
+           WhatsApp de más, el botón "seguir por WhatsApp" no tendría sentido. -->
+      <div class="project-preview">
+        <div class="preview-chrome">
+          <span class="preview-dots"><i></i><i></i><i></i></span>
+          <span class="preview-url">Demo en vivo · probalo vos</span>
+        </div>
+        <div class="p-chat p-chat-live">
+          <div class="p-chat-head">
+            <div class="p-chat-avatar" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="7" width="16" height="12" rx="3" />
+                <path d="M12 7V4" /><circle cx="12" cy="3" r="1" fill="currentColor" stroke="none" />
+                <circle cx="9" cy="13" r="1" fill="currentColor" stroke="none" />
+                <circle cx="15" cy="13" r="1" fill="currentColor" stroke="none" />
+              </svg>
+            </div>
+            <div class="p-chat-head-info">
+              <strong>Asistente de Wabe</strong>
+              <span><i class="p-chat-online"></i>En línea · responde al instante</span>
+            </div>
+            <span class="p-chat-head-badge">IA</span>
+          </div>
+
+          <div class="p-chat-body" id="chat-live" aria-live="polite" aria-label="Conversación con el asistente de Wabe"></div>
+
+          <form class="p-chat-form" id="chat-form" autocomplete="off">
+            <input
+              type="text"
+              id="chat-input"
+              class="p-chat-field"
+              placeholder="Contame qué te lleva tiempo…"
+              maxlength="500"
+              aria-label="Escribí tu consulta"
+            />
+            <button type="submit" class="p-chat-send" aria-label="Enviar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13" /><path d="m13 6 6 6-6 6" /></svg>
+            </button>
+          </form>
+
+          <!-- Invitación a probarlo. Desaparece con el primer mensaje: una vez
+               que la persona escribió, ya cumplió su función y solo estorba.
+               El texto aclara que es real porque la duda por defecto, viendo un
+               chat en una web, es que sea una animación grabada. -->
+          <p class="p-chat-invite" id="chat-invite">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 19V5" /><path d="m5 12 7-7 7 7" />
+            </svg>
+            <span>Es un chat real, no una animación. Escribile</span>
+          </p>
+
+          <!-- Salida a WhatsApp: el objetivo real de toda la demo. -->
+          <a
+            href="https://wa.me/5491123703680"
+            class="p-chat-wa"
+            id="chat-wa"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-track="chatbot-whatsapp"
+            hidden
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 1.67c2.2 0 4.27.86 5.82 2.42a8.19 8.19 0 0 1 2.42 5.82c0 4.54-3.7 8.24-8.24 8.24h-.01c-1.52 0-3.01-.41-4.31-1.18l-.31-.18-3.11.82.83-3.04-.2-.32a8.18 8.18 0 0 1-1.26-4.36c0-4.54 3.7-8.24 8.24-8.24zm-2.9 4.53c-.15 0-.39.06-.6.28-.2.22-.79.77-.79 1.88s.81 2.18.92 2.33c.11.15 1.58 2.5 3.9 3.42.55.22.98.35 1.31.45.55.17 1.06.15 1.45.09.44-.07 1.36-.55 1.55-1.09.19-.54.19-1 .13-1.09-.06-.1-.2-.15-.42-.26-.22-.11-1.36-.67-1.57-.75-.21-.08-.36-.11-.52.11-.15.22-.59.75-.72.9-.13.15-.27.17-.49.06-.22-.11-.94-.35-1.79-1.11-.66-.59-1.11-1.32-1.24-1.54-.13-.22-.01-.34.1-.45.1-.1.22-.27.33-.4.11-.13.15-.22.22-.37.07-.15.04-.28-.02-.39-.06-.11-.5-1.28-.71-1.75-.18-.42-.37-.42-.52-.42z" />
+            </svg>
+            <span>Seguir por WhatsApp</span>
+          </a>
+        </div>
+      </div>
+    </article>
+    <!-- CHATBOT -->
+    <article id="escaneo-iva" class="project" data-project="motor-iva">
+      <div class="project-info">
+        <p class="project-domain">Impuestos · PyMEs</p>
+        <h2><a href="https://ivascan.com.ar" class="project-title-link" target="_blank" rel="noopener noreferrer">Escaneo IVA</a></h2>
+        <div class="stack-caption-actions">
+          <a href="https://ivascan.com.ar" class="web-project-link" target="_blank" rel="noopener noreferrer">
+            Ver sitio
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7" /><path d="M7 7h10v10" /></svg>
+          </a>
+          <button type="button" class="stack-detail-btn" data-legal="proyecto-motor-iva">
+            Qué hace
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /><path d="M21 8V5a2 2 0 0 0-2-2h-3" /><path d="M3 16v3a2 2 0 0 0 2 2h3" /><path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg>
+          </button>
+        </div>
+      </div>
+      <a href="https://ivascan.com.ar" class="project-preview-link" target="_blank" rel="noopener noreferrer" aria-label="Abrir Escaneo IVA">
+      <div class="project-preview">
+        <div class="preview-chrome">
+          <span class="preview-dots"><i></i><i></i><i></i></span>
+          <span class="preview-url">ivascan.com.ar</span>
+        </div>
+        <div class="p-iva">
+          <aside class="p-iva-side">
+            <div class="p-iva-logo">Escaneo<em>IVA</em></div>
+            <div class="p-iva-nav active">Dashboard</div>
+            <div class="p-iva-nav">Subir comprobantes</div>
+            <div class="p-iva-nav">Ventas</div>
+            <div class="p-iva-nav">Compras y gastos</div>
+            <div class="p-iva-nav">Ganancias</div>
+            <div class="p-iva-nav">Informes</div>
+            <div class="p-iva-plan">Plan Pro · activo</div>
+          </aside>
+          <div class="p-iva-main">
+            <div class="p-iva-top">
+              <span class="p-iva-badge">Posición de IVA</span>
+              <span class="p-iva-range">Ene – Jun 2026</span>
+            </div>
+            <div class="p-iva-hero">
+              <div class="p-iva-hero-block debit">
+                <small>Ventas · lo que cobraste</small>
+                <div class="label">IVA Débito</div>
+                <div class="val">$ 2.412.580</div>
+              </div>
+              <div class="p-iva-hero-pill">
+                <span>A pagar</span>
+                <strong id="iva-pagar">$ 612.340</strong>
+              </div>
+              <div class="p-iva-hero-block credit">
+                <small>Compras · lo que pagaste</small>
+                <div class="label">IVA Crédito</div>
+                <div class="val" id="iva-credito">$ 1.800.240</div>
+              </div>
+            </div>
+            <div class="p-iva-charts">
+              <div class="p-iva-chart-card">
+                <div class="p-iva-chart-head">
+                  <strong>Escanear factura</strong>
+                  <span class="p-iva-scan-badge ok" id="iva-scan-status">Cargada ✓</span>
+                </div>
+                <div class="p-iva-scan">
+                  <div class="p-iva-doc" id="iva-doc" aria-hidden="true">
+                    <span class="p-iva-doc-qr"></span>
+                    <i></i><i></i><i></i>
+                    <div class="p-iva-doc-beam"></div>
+                  </div>
+                  <ul class="p-iva-doc-fields" id="iva-fields">
+                    <li>Proveedor — Textil Andina S.A.</li>
+                    <li>Factura A · 0003-00012845</li>
+                    <li>Neto gravado — $ 210.000</li>
+                    <li>IVA 21% — $ 44.100</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="p-iva-chart-card">
+                <div class="p-iva-chart-head">
+                  <strong>Últimos comprobantes</strong>
+                  <span class="p-iva-count" id="iva-count">3 este mes</span>
+                </div>
+                <div class="p-iva-rows">
+                  <div class="p-iva-row"><span class="d">12 Jun</span><span class="n">Papelera Mitre</span><span class="m">$ 96.800</span><span class="v">IVA $ 16.800</span></div>
+                  <div class="p-iva-row"><span class="d">18 Jun</span><span class="n">Logística Oeste</span><span class="m">$ 72.600</span><span class="v">IVA $ 12.600</span></div>
+                  <div class="p-iva-row new" id="iva-newrow"><span class="d">24 Jun</span><span class="n">Textil Andina S.A.</span><span class="m">$ 254.100</span><span class="v">IVA $ 44.100</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </a>
+    </article>
+
+    <!-- VILLAR CAPITAL -->
+    <article id="villar-capital" class="project" data-project="villar">
+      <div class="project-info">
+        <p class="project-domain">Finanzas · Cuantitativo</p>
+        <h2><a href="https://villarcapital.com.ar" class="project-title-link" target="_blank" rel="noopener noreferrer">Villar Capital</a></h2>
+        <div class="stack-caption-actions">
+          <a href="https://villarcapital.com.ar" class="web-project-link" target="_blank" rel="noopener noreferrer">
+            Ver sitio
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7" /><path d="M7 7h10v10" /></svg>
+          </a>
+          <button type="button" class="stack-detail-btn" data-legal="proyecto-villar">
+            Qué hace
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /><path d="M21 8V5a2 2 0 0 0-2-2h-3" /><path d="M3 16v3a2 2 0 0 0 2 2h3" /><path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg>
+          </button>
+        </div>
+      </div>
+      <a href="https://villarcapital.com.ar" class="project-preview-link" target="_blank" rel="noopener noreferrer" aria-label="Abrir Villar Capital">
+      <div class="project-preview">
+        <div class="preview-chrome">
+          <span class="preview-dots"><i></i><i></i><i></i></span>
+          <span class="preview-url">villarcapital.com.ar</span>
+        </div>
+        <!-- Se replica el panel de resultados, que es el momento de pago de la
+             herramienta: el instante en que la cartera se convierte en números. -->
+        <!-- Se replica el flujo completo de la herramienta, no solo el final:
+             cargar activos, repartir pesos, ejecutar, y recién ahí los números.
+             Contada así, la demo explica para qué sirve; mostrando solo el
+             gráfico había que adivinarlo. -->
+        <div class="p-vc" id="vc-demo">
+          <!-- ── Columna de configuración ── -->
+          <div class="p-vc-panel">
+            <div class="p-vc-field">
+              <span class="p-vc-label">Buscar símbolo</span>
+              <div class="p-vc-input"><em id="vc-tipeo"></em><i class="p-vc-caret"></i></div>
+            </div>
+
+            <span class="p-vc-label p-vc-label-sep">Activos seleccionados</span>
+            <ul class="p-vc-assets">
+              <li class="p-vc-asset" data-vc-asset="1">
+                <span class="p-vc-avatar" style="--av:#3b82f6">Y</span>
+                <span class="p-vc-ticker">YPF</span>
+                <span class="p-vc-weight" data-vc-peso data-hasta="35">0</span>
+              </li>
+              <li class="p-vc-asset" data-vc-asset="2">
+                <span class="p-vc-avatar" style="--av:#8b5cf6">G</span>
+                <span class="p-vc-ticker">GGAL</span>
+                <span class="p-vc-weight" data-vc-peso data-hasta="25">0</span>
+              </li>
+              <li class="p-vc-asset" data-vc-asset="3">
+                <span class="p-vc-avatar" style="--av:#64748b">A</span>
+                <span class="p-vc-ticker">AAPL</span>
+                <span class="p-vc-weight" data-vc-peso data-hasta="20">0</span>
+              </li>
+              <li class="p-vc-asset p-vc-cash" data-vc-asset="4">
+                <span class="p-vc-avatar cash">$</span>
+                <span class="p-vc-ticker">Cash</span>
+                <span class="p-vc-weight" data-vc-peso data-hasta="20">100</span>
+              </li>
+            </ul>
+
+            <button type="button" class="p-vc-run" tabindex="-1" aria-hidden="true">
+              <span class="p-vc-run-txt">Analizar mi portafolio</span>
+              <span class="p-vc-run-load"><i></i><i></i><i></i></span>
+            </button>
+          </div>
+
+          <!-- ── Columna de resultados ── -->
+          <div class="p-vc-results">
+            <div class="p-vc-metrics">
+              <div class="p-vc-metric">
+                <span>CAGR</span>
+                <strong class="up" data-vc-num data-hasta="17.34" data-suf="%">—</strong>
+              </div>
+              <div class="p-vc-metric">
+                <span>Volatilidad</span>
+                <strong data-vc-num data-hasta="20.91" data-suf="%">—</strong>
+              </div>
+              <div class="p-vc-metric">
+                <span>Drawdown</span>
+                <strong class="down" data-vc-num data-hasta="-32.13" data-suf="%">—</strong>
+              </div>
+              <div class="p-vc-metric">
+                <span>Sharpe</span>
+                <strong data-vc-num data-hasta="0.87" data-suf="">—</strong>
+              </div>
+            </div>
+
+            <div class="p-vc-chart">
+              <span class="p-vc-axis">Capital</span>
+              <svg viewBox="0 0 420 150" preserveAspectRatio="none" aria-hidden="true">
+                <g class="p-vc-grid">
+                  <line x1="0" y1="6" x2="420" y2="6" /><line x1="0" y1="42" x2="420" y2="42" />
+                  <line x1="0" y1="78" x2="420" y2="78" /><line x1="0" y1="114" x2="420" y2="114" />
+                  <line x1="0" y1="146" x2="420" y2="146" />
+                </g>
+                <!-- Benchmark: el mercado. Punteado y gris, se lee como referencia. -->
+                <path class="p-vc-bench" d="M0,144 L28,141 L56,145 L84,137 L112,131 L140,126 L168,118 L196,111 L224,103 L252,96 L280,82 L308,89 L336,73 L364,64 L392,55 L420,44" />
+                <!-- La cartera. Verde y gruesa: es la protagonista. -->
+                <path class="p-vc-eq" d="M0,145 L28,140 L56,142 L84,134 L112,127 L140,122 L168,110 L196,101 L224,90 L252,78 L280,53 L308,64 L336,37 L364,44 L392,20 L420,6" />
+              </svg>
+            </div>
+
+            <div class="p-vc-chart p-vc-chart-dd">
+              <span class="p-vc-axis">Drawdown</span>
+              <svg viewBox="0 0 420 44" preserveAspectRatio="none" aria-hidden="true">
+                <path class="p-vc-dd" d="M0,3 L24,7 L48,2 L72,22 L96,36 L120,15 L144,8 L168,13 L192,5 L216,18 L240,7 L264,11 L288,29 L312,9 L336,6 L360,14 L384,4 L420,8" />
+              </svg>
+            </div>
+
+            <div class="p-vc-foot">
+              <span class="p-vc-tag"><i></i>Tu cartera</span>
+              <span class="p-vc-tag bench"><i></i>Mercado</span>
+              <span class="p-vc-period">2005 — 2026</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      </a>
+    </article>
+
+
+    <!-- DESPACHANTE -->
+    <article class="project" data-project="despachante">
+      <div class="project-info">
+        <p class="project-domain">Comercio exterior · Aduanas</p>
+        <h2><a href="https://jyccomex.com.ar" class="project-title-link" target="_blank" rel="noopener noreferrer">Estudio Aduanero</a></h2>
+        <div class="stack-caption-actions">
+          <a href="https://jyccomex.com.ar" class="web-project-link" target="_blank" rel="noopener noreferrer">
+            Ver sitio
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7" /><path d="M7 7h10v10" /></svg>
+          </a>
+          <button type="button" class="stack-detail-btn" data-legal="proyecto-despachante">
+            Qué hace
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /><path d="M21 8V5a2 2 0 0 0-2-2h-3" /><path d="M3 16v3a2 2 0 0 0 2 2h3" /><path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg>
+          </button>
+        </div>
+      </div>
+      <a href="https://jyccomex.com.ar" class="project-preview-link" target="_blank" rel="noopener noreferrer" aria-label="Abrir Estudio Aduanero">
+      <div class="project-preview">
+        <div class="preview-chrome">
+          <span class="preview-dots"><i></i><i></i><i></i></span>
+          <span class="preview-url">Mesa de operaciones · Cotizador</span>
+        </div>
+        <div class="p-desp">
+          <div class="p-desp-top">
+            <div class="p-desp-brand">
+              <div class="p-desp-icon"></div>
+              <div><strong>Estudio</strong> Aduanero</div>
+            </div>
+            <div class="p-desp-nav">
+              <span>Clientes</span>
+              <span class="on">Operaciones</span>
+              <span>Nomenclador</span>
+              <span>Cotizar</span>
+            </div>
+          </div>
+          <div class="p-desp-body">
+            <div class="p-desp-mesa">
+              <h3>OP-2026-0042 · Importación FOB Shanghai</h3>
+              <p class="sub">Cliente: Logística Sur S.A. · Incoterm FOB · ETA Buenos Aires</p>
+              <div class="p-desp-steps" id="desp-steps">
+                <div class="p-desp-step done">Apertura</div>
+                <div class="p-desp-step done">Clasificación</div>
+                <div class="p-desp-step on">Liquidación</div>
+                <div class="p-desp-step">VEP</div>
+                <div class="p-desp-step">SIM</div>
+                <div class="p-desp-step">Canal</div>
+                <div class="p-desp-step">Entrega</div>
+              </div>
+              <div class="p-desp-upload">
+                <div class="p-desp-file" id="desp-file">
+                  <span class="p-desp-file-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                  </span>
+                  <span class="p-desp-file-info">
+                    <strong>factura_comercial_OP0042.pdf</strong>
+                    <em>1,4 MB · Factura comercial · Shanghai</em>
+                  </span>
+                  <span class="p-desp-file-bar"><i id="desp-progress" style="width:100%"></i></span>
+                  <span class="p-desp-file-ok" id="desp-ok">✓</span>
+                </div>
+                <div class="p-desp-ai done" id="desp-ai">
+                  <span class="p-desp-ai-dot"></span>
+                  <span id="desp-ai-text">Clasificación lista · confianza 96%</span>
+                </div>
+              </div>
+              <div class="p-desp-panel">
+                <h5>Clasificación · IA + normativa</h5>
+                <div class="p-desp-fields" id="desp-fields">
+                  <div><label>Producto</label>Válvulas industriales · acero inox.</div>
+                  <div><label>NCM</label>8481.80.21.900.A</div>
+                  <div><label>Derecho</label>14% · Estadística 3%</div>
+                  <div><label>IVA</label>21% · Percepción 3%</div>
+                  <div><label>Origen</label>China · cert. ALADI</div>
+                  <div><label>Confianza</label>96% · 3 fallos citados</div>
+                </div>
+              </div>
+            </div>
+            <div class="p-desp-cotiz">
+              <h4>Desglose de cotización</h4>
+              <div class="p-desp-quote">
+                <div class="p-desp-chips">
+                  <span class="p-desp-chip">Importación</span>
+                  <span class="p-desp-chip">FOB</span>
+                  <span class="p-desp-chip">Marítimo</span>
+                  <span class="p-desp-chip">NCM 8481</span>
+                </div>
+                <div class="p-desp-lines" id="desp-lines">
+                  <div class="p-desp-line"><span>CIF (USD → ARS @ 1.045)</span><span>$ 54.812.400</span></div>
+                  <div class="p-desp-line"><span>Derecho de importación 14%</span><span>$ 7.673.736</span></div>
+                  <div class="p-desp-line"><span>Tasa estadística 3%</span><span>$ 1.644.372</span></div>
+                  <div class="p-desp-line"><span>IVA 21%</span><span>$ 13.197.312</span></div>
+                  <div class="p-desp-line"><span>Honorarios + logística</span><span>$ 890.000</span></div>
+                  <div class="p-desp-line"><span>Puerto + depósito</span><span>$ 412.500</span></div>
+                  <div class="p-desp-line total"><span>Costo total puesto acá</span><span>$ 78.630.320</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </a>
+    </article>
+
+    <!-- FINANZAS -->
+    <article class="project" data-project="finanzas">
+      <div class="project-info">
+        <p class="project-domain">Asesores financieros · Inversiones</p>
+        <h2>FinAsesor</h2>
+        <div class="stack-caption-actions">
+          <button type="button" class="stack-detail-btn" data-legal="proyecto-finanzas">
+            Qué hace
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /><path d="M21 8V5a2 2 0 0 0-2-2h-3" /><path d="M3 16v3a2 2 0 0 0 2 2h3" /><path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg>
+          </button>
+        </div>
+      </div>
+      <div class="project-preview">
+        <div class="preview-chrome">
+          <span class="preview-dots"><i></i><i></i><i></i></span>
+          <span class="preview-url">Panel del asesor · Carteras</span>
+        </div>
+        <div class="p-fin">
+          <aside class="p-fin-side">
+            <div class="p-fin-logo">Fin<b>Asesor</b></div>
+            <div class="p-fin-nav on">Asesor</div>
+            <div class="p-fin-nav">Clientes</div>
+            <div class="p-fin-nav">Carteras</div>
+            <div class="p-fin-nav">Tareas</div>
+          </aside>
+          <div class="p-fin-main">
+            <div class="p-fin-strip">
+              <div class="p-fin-pill"><small>Oficial</small><strong>$1.045</strong></div>
+              <div class="p-fin-pill"><small>MEP</small><strong>$1.082</strong></div>
+              <div class="p-fin-pill danger"><small>Riesgo país</small><strong>1.240</strong></div>
+            </div>
+            <div class="p-fin-kpis">
+              <div class="p-fin-kpi purple"><small>Plata gestionada</small><strong>$4,28M</strong></div>
+              <div class="p-fin-kpi green"><small>Entradas del mes</small><strong>$380K</strong></div>
+              <div class="p-fin-kpi red"><small>Salidas del mes</small><strong>$120K</strong></div>
+            </div>
+            <div class="p-fin-grid">
+              <div class="p-fin-chart-box">
+                <h5>Movimientos de plata</h5>
+                <div class="p-fin-ranges">
+                  <span class="on">12M</span><span>6M</span><span>3M</span><span>Año</span>
+                </div>
+                <svg viewBox="0 0 300 80" preserveAspectRatio="none">
+                  <defs><linearGradient id="finG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4318ff" stop-opacity="0.18"/><stop offset="100%" stop-color="#4318ff" stop-opacity="0"/></linearGradient></defs>
+                  <path d="M0,65 30,58 60,62 90,45 120,50 150,35 180,40 210,28 240,32 270,22 300,18 L300,80 0,80 Z" fill="url(#finG)"/>
+                  <polyline points="0,65 30,58 60,62 90,45 120,50 150,35 180,40 210,28 240,32 270,22 300,18" fill="none" stroke="#4318ff" stroke-width="2.5" stroke-linecap="round"/>
+                  <polyline points="0,70 30,68 60,72 90,60 120,65 150,55 180,58 210,48 240,52 270,45 300,40" fill="none" stroke="#05cd99" stroke-width="2" opacity="0.8" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="p-fin-chart-box">
+                <h5>Actividad reciente</h5>
+                <div class="p-fin-timeline">
+                  <div class="p-fin-event">
+                    <span class="date">02 Jul</span>
+                    <span>Dividendo GGAL · cartera García</span>
+                    <span class="amt">+$42.800</span>
+                  </div>
+                  <div class="p-fin-event">
+                    <span class="date">05 Jul</span>
+                    <span>Cupón AL30 · López</span>
+                    <span class="amt">+$18.200</span>
+                  </div>
+                  <div class="p-fin-event">
+                    <span class="date">08 Jul</span>
+                    <span>Rescate cliente · Martínez</span>
+                    <span class="amt out">-$120.000</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="p-fin-holdings">
+              <table>
+                <thead>
+                  <tr><th>Ticker</th><th>Activo</th><th>Peso</th><th>Valor</th><th>Rend.</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>GGAL</td><td>Galicia</td><td>18,2%</td><td>$780K</td><td class="pos">+24,1%</td></tr>
+                  <tr><td>AL30</td><td>Bono ley USD</td><td>22,5%</td><td>$964K</td><td class="pos">+8,3%</td></tr>
+                  <tr><td>YPFD</td><td>YPF</td><td>12,1%</td><td>$518K</td><td class="neg">-3,2%</td></tr>
+                  <tr><td>MMF</td><td>Fondo money market</td><td>15,0%</td><td>$642K</td><td class="pos">+42,0%</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- MOTOR DE BACKTEST -->
+    <article class="project" data-project="motor">
+      <div class="project-info">
+        <p class="project-domain">Finanzas · Inversiones</p>
+        <h2>Motor de Backtest</h2>
+        <div class="stack-caption-actions">
+          <button type="button" class="stack-detail-btn" data-legal="proyecto-motor">
+            Qué hace
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /><path d="M21 8V5a2 2 0 0 0-2-2h-3" /><path d="M3 16v3a2 2 0 0 0 2 2h3" /><path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg>
+          </button>
+        </div>
+      </div>
+      <div class="project-preview">
+        <div class="preview-chrome">
+          <span class="preview-dots"><i></i><i></i><i></i></span>
+          <span class="preview-url">Motor de Backtest · Optimizador</span>
+        </div>
+        <div class="p-motor">
+          <div class="p-motor-header">
+            <span>MOTOR DE BACKTEST</span>
+            <span>EURUSD · H1 · 2018–2024</span>
+          </div>
+          <div class="p-motor-grid">
+            <div class="p-motor-col">
+              <h4>Datos y reglas</h4>
+              <div class="p-motor-row"><label>Activo</label><span>EURUSD</span></div>
+              <div class="p-motor-row"><label>Plazo</label><span>1 hora</span></div>
+              <div class="p-motor-row"><label>Indicadores</label><span>RSI(14), EMA(50)</span></div>
+              <div class="p-motor-row"><label>Compra</label><span>RSI &lt; 30 + cruce EMA</span></div>
+              <div class="p-motor-row"><label>Venta</label><span>RSI &gt; 70 · stop 1.2%</span></div>
+            </div>
+            <div class="p-motor-col">
+              <h4>Mezcla y riesgo</h4>
+              <div class="p-motor-row"><label>Combinación</label><span>3 reglas · 40/35/25%</span></div>
+              <div class="p-motor-row"><label>Tamaño por operación</label><span>2% del capital</span></div>
+              <div class="p-motor-row"><label>Máx. operaciones</label><span>4 a la vez</span></div>
+              <div class="p-motor-row"><label>Comisión</label><span>0.8 pips</span></div>
+              <div class="p-motor-row"><label>Deslizamiento</label><span>0.3 pips</span></div>
+            </div>
+            <div class="p-motor-col">
+              <h4>Solidez · Cartera</h4>
+              <div class="p-motor-row"><label>Simulaciones</label><span>1.000 escenarios</span></div>
+              <div class="p-motor-row"><label>Permutaciones</label><span>500 pruebas</span></div>
+              <div class="p-motor-row"><label>Correlación</label><span>Pearson + Spearman</span></div>
+              <div class="p-motor-row"><label>Cartera</label><span>3 estrategias · riesgo %</span></div>
+            </div>
+          </div>
+          <div class="p-motor-btns">
+            <span class="p-motor-btn is">Prueba histórica</span>
+            <span class="p-motor-btn oos">Prueba a ciegas</span>
+          </div>
+          <div class="p-motor-charts">
+            <div class="p-motor-chart">
+              <div class="p-motor-chart-label">Curva de capital (histórico vs ciego)</div>
+              <svg viewBox="0 0 400 50" preserveAspectRatio="none">
+                <polyline points="0,45 40,42 80,38 120,32 160,28 200,22 240,18 280,14 320,10 360,8 400,5" fill="none" stroke="var(--pm-fg)" stroke-width="1.5"/>
+                <polyline points="0,48 80,46 160,40 240,35 320,28 400,20" fill="none" stroke="var(--pm-mut)" stroke-width="1.5" stroke-dasharray="4 2"/>
+              </svg>
+            </div>
+            <div class="p-motor-chart dd">
+              <div class="p-motor-chart-label">Caída máxima %</div>
+              <svg viewBox="0 0 400 30" preserveAspectRatio="none">
+                <polyline points="0,5 50,8 100,15 150,12 200,22 250,18 300,25 350,20 400,15" fill="none" stroke="var(--pm-mut)" stroke-width="1"/>
+              </svg>
+            </div>
+          </div>
+          <div class="p-motor-metrics">
+            <div class="p-motor-metric"><span>Sharpe</span><strong class="gain">1.84</strong></div>
+            <div class="p-motor-metric"><span>Rentab. anual</span><strong class="gain">24.1%</strong></div>
+            <div class="p-motor-metric"><span>Caída máx.</span><strong class="loss">-8.2%</strong></div>
+            <div class="p-motor-metric"><span>Aciertos</span><strong>58%</strong></div>
+            <div class="p-motor-metric"><span>Factor ganancia</span><strong>1.62</strong></div>
+            <div class="p-motor-metric"><span>Operaciones</span><strong>412</strong></div>
+            <div class="p-motor-metric"><span>Calmar</span><strong>2.94</strong></div>
+          </div>
+          <div class="p-motor-opt">
+            <h4>Estrategias aprobadas</h4>
+            <table class="p-motor-table">
+              <thead>
+                <tr><th>Entrada</th><th>TP</th><th>SL</th><th class="num">Sharpe</th><th class="num">Ret.</th><th class="num">Caída</th><th class="num">N</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>RSI 28/72</td><td>TP × ATR</td><td>SL × ATR</td><td class="num">1.91</td><td class="num">26%</td><td class="num">-7%</td><td class="num">384</td></tr>
+                <tr><td>RSI 30/70</td><td>TP RR 2:1</td><td>SL 1.2%</td><td class="num">1.84</td><td class="num">24%</td><td class="num">-8%</td><td class="num">412</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ARGENTINA -->
+    <article class="project" data-project="argentina">
+      <div class="project-info">
+        <p class="project-domain">Economía · Datos públicos</p>
+        <h2>Monitor Económico</h2>
+        <div class="stack-caption-actions">
+          <button type="button" class="stack-detail-btn" data-legal="proyecto-argentina">
+            Qué hace
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /><path d="M21 8V5a2 2 0 0 0-2-2h-3" /><path d="M3 16v3a2 2 0 0 0 2 2h3" /><path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg>
+          </button>
+        </div>
+      </div>
+      <div class="project-preview">
+        <div class="preview-chrome">
+          <span class="preview-dots"><i></i><i></i><i></i></span>
+          <span class="preview-url">Boletín Oficial · Series BCRA</span>
+        </div>
+        <div class="p-arg">
+          <div class="p-arg-title">MONITOR ECONÓMICO — actualización diaria · 29/06/2026 06:00</div>
+          <div class="p-arg-grid">
+            <div class="p-arg-panel">
+              <div class="p-arg-panel-head">Boletín Oficial · filtro diario</div>
+              <div class="p-arg-panel-body">
+                <div class="p-arg-stat"><span>Días procesados</span><strong>30 / 30</strong></div>
+                <div class="p-arg-stat"><span>Normas leídas</span><strong>1.847</strong></div>
+                <div class="p-arg-stat"><span>Relevantes (macro)</span><strong>23</strong></div>
+                <div class="p-arg-stat"><span>Descartadas (ruido)</span><span>1.824</span></div>
+                <div class="p-arg-bars">
+                  <div class="p-arg-bar-row"><span>Dólar / reservas</span><div class="bar"><i style="width:85%"></i></div><span>8</span></div>
+                  <div class="p-arg-bar-row"><span>Fiscal / impuestos</span><div class="bar"><i style="width:60%"></i></div><span>6</span></div>
+                  <div class="p-arg-bar-row"><span>Comercio / aduana</span><div class="bar"><i style="width:40%"></i></div><span>4</span></div>
+                  <div class="p-arg-bar-row"><span>Energía / servicios</span><div class="bar"><i style="width:25%"></i></div><span>3</span></div>
+                </div>
+                <table class="p-arg-table">
+                  <thead><tr><th>Norma</th><th>Tipo</th><th>Impacto</th></tr></thead>
+                  <tbody>
+                    <tr><td>Res. BCRA 5/2026</td><td class="tags">macro · FX</td><td class="hi">operable</td></tr>
+                    <tr><td>DNU 345/2026</td><td class="tags">FX · cepo</td><td class="hi">mueve mercado</td></tr>
+                    <tr><td>AFIP RG 5123</td><td class="tags">fiscal · IVA</td><td>seguir</td></tr>
+                    <tr><td>Sucesión García</td><td class="tags">—</td><td class="off">descartada</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="p-arg-panel">
+              <div class="p-arg-panel-head">BCRA · series estadísticas</div>
+              <div class="p-arg-panel-body">
+                <div class="p-arg-series">
+                  <div class="p-arg-series-row head"><span>Serie</span><span>Último</span><span>Δ 7d</span><span>Tendencia</span></div>
+                  <div class="p-arg-series-row"><span>Reservas (USD MM)</span><span>28.412</span><span class="up">+1,2%</span><span class="p-arg-spark"></span></div>
+                  <div class="p-arg-series-row"><span>Dólar oficial</span><span>1.045</span><span class="dn">-0,8%</span><span class="p-arg-spark"></span></div>
+                  <div class="p-arg-series-row"><span>M2 (ARS mil M)</span><span>12.840</span><span class="wr">+2,1%</span><span class="p-arg-spark"></span></div>
+                  <div class="p-arg-series-row"><span>Tasa LELIQ</span><span>40,0%</span><span>—</span><span class="p-arg-spark"></span></div>
+                  <div class="p-arg-series-row"><span>Depósitos USD priv.</span><span>18,2%</span><span class="up">+0,4pp</span><span class="p-arg-spark"></span></div>
+                </div>
+                <div class="p-arg-footer">
+                  <span class="up">$</span> actualización diaria · últimos 30 días<br>
+                  <span class="off">BORA [████████████████████] 30/30 | 29/06/2026</span><br>
+                  <span class="up">✓</span> 23 relevantes · temas: bcra, mulc, fx<br>
+                  <span class="ln">→</span> panel_wide.csv · boletin_oficial.json
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+      <!-- NYNA CLOTHES — único proyecto de Webs que queda. Vive en la misma
+           lista que el software: mismo motor de stack, misma tarjeta
+           .web-project de siempre (video en loop + link "Ver sitio").
+           El loop es un scroll real de la tienda (nyna.com.ar), grabado y
+           optimizado, para que se lea de una que es un e-commerce. -->
+      <article class="web-project">
+        <a
+          href="https://www.nyna.com.ar"
+          class="web-project-card"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Abrir Nyna Clothes"
+        >
+          <div class="preview-chrome" aria-hidden="true">
+            <span class="preview-dots"><i></i><i></i><i></i></span>
+            <span class="preview-url">nyna.com.ar</span>
+          </div>
+          <div class="web-project-body">
+            <video
+              class="web-project-img"
+              poster="/landing/media/proyectos/nyna-poster.jpg"
+              data-src-hd="/landing/media/proyectos/nyna-loop.mp4"
+              data-src-mobile="/landing/media/proyectos/nyna-loop-mobile.mp4"
+              muted
+              loop
+              playsinline
+              preload="none"
+              aria-hidden="true"
+            ></video>
+            <div class="web-project-overlay">
+              <p class="web-project-domain">Indumentaria · E-commerce</p>
+              <h2 class="web-project-title">Nyna Clothes</h2>
+              <span class="web-project-link">
+                Ver sitio
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7" /><path d="M7 7h10v10" /></svg>
+              </span>
+            </div>
+          </div>
+        </a>
+      </article>
+
+        </div>
+        <!-- Dots: los inserta initProjectStack (script.js) según cuántas
+             tarjetas haya — acá solo el contenedor vacío. -->
+        <div class="stack-dots" role="tablist" aria-label="Navegar proyectos"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer reveal">
+    <div class="site-footer-inner">
+      <div class="site-footer-brand">
+        <img src="/landing/wabe-logo.svg" alt="" width="22" height="15" />
+        <span>Wabe</span>
+      </div>
+      <nav class="site-contact" aria-label="Contacto">
+        <button type="button" class="site-contact-link" data-copy="info@wabe.dev" aria-label="Copiar email">
+          <span class="site-contact-text">info@wabe.dev</span>
+        </button>
+        <a href="https://wa.me/5491123703680" class="site-contact-link" target="_blank" rel="noopener noreferrer" aria-label="Escribir por WhatsApp">
+          <svg class="site-contact-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 1.67c2.2 0 4.27.86 5.82 2.42a8.19 8.19 0 0 1 2.42 5.82c0 4.54-3.7 8.24-8.24 8.24h-.01c-1.52 0-3.01-.41-4.31-1.18l-.31-.18-3.11.82.83-3.04-.2-.32a8.18 8.18 0 0 1-1.26-4.36c0-4.54 3.7-8.24 8.24-8.24zm-2.9 4.53c-.15 0-.39.06-.6.28-.2.22-.79.77-.79 1.88s.81 2.18.92 2.33c.11.15 1.58 2.5 3.9 3.42.55.22.98.35 1.31.45.55.17 1.06.15 1.45.09.44-.07 1.36-.55 1.55-1.09.19-.54.19-1 .13-1.09-.06-.1-.2-.15-.42-.26-.22-.11-1.36-.67-1.57-.75-.21-.08-.36-.11-.52.11-.15.22-.59.75-.72.9-.13.15-.27.17-.49.06-.22-.11-.94-.35-1.79-1.11-.66-.59-1.11-1.32-1.24-1.54-.13-.22-.01-.34.1-.45.1-.1.22-.27.33-.4.11-.13.15-.22.22-.37.07-.15.04-.28-.02-.39-.06-.11-.5-1.28-.71-1.75-.18-.42-.37-.42-.52-.42z" />
+          </svg>
+          <span class="site-contact-text">+54 9 11 2370-3680</span>
+        </a>
+        <a href="https://www.instagram.com/wabe.dev/" class="site-contact-link" target="_blank" rel="noopener noreferrer" aria-label="Instagram wabe.dev">
+          <svg class="site-contact-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="5" />
+            <circle cx="12" cy="12" r="4" />
+            <circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none" />
+          </svg>
+          <span class="site-contact-text">wabe.dev</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Legales: solo los títulos. El texto completo vive en los <dialog> de
+         abajo y se abre al hacer clic, para no ensuciar el pie de página. -->
+    <div class="site-legal">
+      <button type="button" class="site-legal-link" data-legal="privacidad">Política de privacidad</button>
+      <span class="site-legal-dot" aria-hidden="true">·</span>
+      <button type="button" class="site-legal-link" data-legal="terminos">Términos y condiciones</button>
+      <span class="site-legal-dot" aria-hidden="true">·</span>
+      <!-- El nombre del titular va A LA VISTA, no sólo adentro de los legales: Google
+           limitó la cuenta de Ads por "relaciones de marca poco claras" (27/7/2026).
+           Si el anunciante verificado es Tomás Orsi y el sitio sólo dice "Wabe", para
+           Google son dos identidades sueltas. Esta línea las conecta. -->
+      <span class="site-legal-copy">© <span data-year>2026</span> Wabe — estudio de Tomás Orsi</span>
+    </div>
+  </footer>
+
+  <!-- ═══ Legales ═══
+       Se usa <dialog> nativo en vez de un div: showModal() da gratis el foco
+       atrapado adentro, el cierre con Escape y el ::backdrop. Los datos entre
+       corchetes [ASÍ] son los que faltan completar. -->
+    <div class="popover-backdrop" hidden></div>
+
+    <!-- Modales "Qué hace" de cada proyecto del stack. Son <div hidden>, no
+         <dialog> — Safari no estaba prometiendo estos diálogos al "top
+         layer" de forma confiable (quedaban position:absolute relativos al
+         documento en vez de fixed al viewport), y con la página scrolleada
+         lejos del top se veían "arriba de todo" y angostos. Un <div> +
+         position:fixed manual (initLegalModals en script.js) no depende de
+         esa promoción del navegador. Viven como hijos directos de body por
+         el mismo motivo original: las tarjetas del stack cargan `transform`
+         (la animación .reveal), que las vuelve el containing block de
+         cualquier position:fixed que quede adentro suyo. -->
+    <div class="legal-modal project-detail-modal" id="legal-proyecto-motor-iva" role="dialog" aria-modal="true" aria-labelledby="legal-proyecto-motor-iva-title" hidden>
+      <div class="legal-head">
+        <h2 id="legal-proyecto-motor-iva-title">Escaneo IVA</h2>
+        <button type="button" class="legal-close" data-legal-close aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="legal-body">
+        <p class="project-domain">Impuestos · PyMEs</p>
+        <p class="project-desc">
+          Sistema para monotributistas y pequeñas empresas que quieren dejar de pelearse
+          con Excel. Escaneás facturas con el celular, el sistema carga todo solo
+          y te muestra cuánto IVA tenés que pagar o cuánto te deben.
+        </p>
+        <ul class="project-features">
+          <li><strong>Posición de IVA en vivo</strong> — Compará lo que vendiste vs lo que compraste y sabé al instante si pagás, tenés saldo a favor o estás en cero</li>
+          <li><strong>Carga de facturas</strong> — Escaneo con QR de AFIP, importación de archivos, carga manual y sueldos (libro de sueldos digital + comprobantes de aportes)</li>
+          <li><strong>Impuesto a las ganancias</strong> — Ingresos vs gastos deducibles; vista acumulada o mensual; estimación según las alícuotas vigentes</li>
+          <li><strong>Reportes</strong> — Exportá a Excel para tu contador: IVA por alícuota, retenciones provinciales; plan Pro con cobro automático por suscripción</li>
+        </ul>
+        <div class="project-tags">
+          <span>Escaneo de facturas</span><span>Cálculo automático</span><span>Reportes</span><span>Suscripción online</span>
+        </div>
+      </div>
+    </div>
+    <div class="legal-modal project-detail-modal" id="legal-proyecto-villar" role="dialog" aria-modal="true" aria-labelledby="legal-proyecto-villar-title" hidden>
+      <div class="legal-head">
+        <h2 id="legal-proyecto-villar-title">Villar Capital</h2>
+        <button type="button" class="legal-close" data-legal-close aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="legal-body">
+        <p class="project-domain">Finanzas · Cuantitativo</p>
+        <p class="project-desc">
+          Un backtester gratuito y abierto a cualquiera. Armás una cartera con los
+          activos y los porcentajes que quieras, elegís desde qué año, y el motor te
+          muestra cómo habría rendido de verdad — con las mismas métricas que mira
+          un fondo, no con promesas.
+        </p>
+        <ul class="project-features">
+          <li><strong>Veinte años de historia en segundos</strong> — Reconstruye la curva de capital día por día desde 2005 y la compara contra el mercado, así ves si tu cartera realmente le gana o solo lo sigue</li>
+          <li><strong>Las cuatro métricas que importan</strong> — Retorno anualizado, volatilidad, caída máxima y Sharpe: cuánto ganás, cuánto sufrís y si el riesgo que tomás está pago</li>
+          <li><strong>Acciones argentinas y del exterior</strong> — YPF y Galicia conviven con Apple en la misma cartera, cada una con su peso y su logo</li>
+          <li><strong>Informe descargable y diagnóstico</strong> — Te llevás el análisis en PDF, y si querés que miremos tu cartera real, pedís la revisión desde el mismo lugar</li>
+        </ul>
+        <div class="project-tags">
+          <span>Backtesting</span><span>Gratis y sin registro</span><span>Argentina + global</span><span>Informe en PDF</span>
+        </div>
+      </div>
+    </div>
+    <div class="legal-modal project-detail-modal" id="legal-proyecto-despachante" role="dialog" aria-modal="true" aria-labelledby="legal-proyecto-despachante-title" hidden>
+      <div class="legal-head">
+        <h2 id="legal-proyecto-despachante-title">Estudio Aduanero</h2>
+        <button type="button" class="legal-close" data-legal-close aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="legal-body">
+        <p class="project-domain">Comercio exterior · Aduanas</p>
+        <p class="project-desc">
+          Portal para despachantes de aduana. Cotiza cuánto cuesta importar o exportar,
+          sigue cada operación paso a paso y valida documentos con inteligencia artificial.
+          El cliente también puede entrar y ver el estado de su trámite.
+        </p>
+        <ul class="project-features">
+          <li><strong>Cotizador de importación/exportación</strong> — Estima costos reales: aranceles, impuestos, fletes e honorarios, según el tipo de producto y régimen fiscal del cliente</li>
+          <li><strong>Mesa de operaciones</strong> — Cada importación pasa por etapas claras: clasificación, liquidación, pagos, trámite aduanero y entrega — nada se pierde</li>
+          <li><strong>Clasificador de productos</strong> — La IA ayuda a determinar en qué categoría aduanera entra cada mercadería y calcula impuestos y tasas automáticamente</li>
+          <li><strong>Portal del cliente</strong> — El importador ve el avance, sube documentos y accede con un link seguro; alta de clientes con formulario y videollamada</li>
+        </ul>
+        <div class="project-tags">
+          <span>Cotizaciones</span><span>Seguimiento</span><span>Validación con IA</span><span>Portal cliente</span>
+        </div>
+      </div>
+    </div>
+    <div class="legal-modal project-detail-modal" id="legal-proyecto-finanzas" role="dialog" aria-modal="true" aria-labelledby="legal-proyecto-finanzas-title" hidden>
+      <div class="legal-head">
+        <h2 id="legal-proyecto-finanzas-title">FinAsesor</h2>
+        <button type="button" class="legal-close" data-legal-close aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="legal-body">
+        <p class="project-domain">Asesores financieros · Inversiones</p>
+        <p class="project-desc">
+          Plataforma para asesores de inversión en Argentina. Toda la info de clientes,
+          carteras, cotizaciones del mercado y tareas del día a día en un solo lugar —
+          sin saltar entre planillas, mails y pantallas distintas.
+        </p>
+        <ul class="project-features">
+          <li><strong>Panel del asesor</strong> — Plata total bajo gestión, entradas y salidas de plata del mes, gráfico de movimientos y línea de tiempo de todos los clientes</li>
+          <li><strong>Armado de carteras</strong> — Acciones, bonos, fondos comunes, plazo fijo y más; comparación de rendimiento y distribución por tipo de activo</li>
+          <li><strong>Datos de mercado</strong> — Cotizaciones de la Bolsa y fondos actualizadas automáticamente; tipos de dólar (oficial, MEP, CCL) y riesgo país siempre visibles</li>
+          <li><strong>Operaciones del día</strong> — Rebalanceos pendientes, tareas por hacer, reuniones y documentos de cada cliente organizados</li>
+        </ul>
+        <div class="project-tags">
+          <span>Gestión de clientes</span><span>Carteras</span><span>Cotizaciones en vivo</span><span>Reportes</span>
+        </div>
+      </div>
+    </div>
+    <div class="legal-modal project-detail-modal" id="legal-proyecto-motor" role="dialog" aria-modal="true" aria-labelledby="legal-proyecto-motor-title" hidden>
+      <div class="legal-head">
+        <h2 id="legal-proyecto-motor-title">Motor de Backtest</h2>
+        <button type="button" class="legal-close" data-legal-close aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="legal-body">
+        <p class="project-domain">Finanzas · Inversiones</p>
+        <p class="project-desc">
+          Herramienta para probar ideas de inversión antes de poner plata real.
+          Simula años de operaciones en minutos y muestra si una estrategia funciona,
+          cuánto gana y cuánto puede perder.
+        </p>
+        <ul class="project-features">
+          <li><strong>Laboratorio de estrategias</strong> — Definís reglas de compra y venta y el sistema prueba cómo hubieran funcionado en el pasado, con gráficos claros de ganancias y caídas</li>
+          <li><strong>Optimizador</strong> — Prueba miles de combinaciones automáticamente y se queda solo con las que cumplen tus metas de rentabilidad y riesgo</li>
+          <li><strong>Pruebas de solidez</strong> — Simula escenarios difíciles para ver si la estrategia es confiable o dependió de la suerte</li>
+          <li><strong>Cartera combinada</strong> — Une varias estrategias y muestra cómo se comportan juntas, para no poner todos los huevos en la misma canasta</li>
+        </ul>
+        <div class="project-tags">
+          <span>Simulaciones</span><span>Gráficos en vivo</span><span>Análisis de riesgo</span><span>Multi-estrategia</span>
+        </div>
+      </div>
+    </div>
+    <div class="legal-modal project-detail-modal" id="legal-proyecto-argentina" role="dialog" aria-modal="true" aria-labelledby="legal-proyecto-argentina-title" hidden>
+      <div class="legal-head">
+        <h2 id="legal-proyecto-argentina-title">Monitor Económico</h2>
+        <button type="button" class="legal-close" data-legal-close aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="legal-body">
+        <p class="project-domain">Economía · Datos públicos</p>
+        <p class="project-desc">
+          Sistema que lee el Boletín Oficial y datos del Banco Central todos los días,
+          separa lo que importa de lo que no, y organiza la información para
+          quien necesita entender qué está pasando en la economía argentina.
+        </p>
+        <ul class="project-features">
+          <li><strong>Lectura del Boletín Oficial</strong> — Entra automáticamente cada día, lee las normas publicadas y extrae tipo, número y referencia legal de cada una</li>
+          <li><strong>Filtro de relevancia</strong> — De miles de publicaciones, se queda solo con las que pueden afectar el dólar, impuestos, comercio exterior o mercados</li>
+          <li><strong>Clasificación por tema</strong> — Etiqueta cada norma: tipos de cambio, reservas, deuda, bancos, energía, inflación, comercio, etc.</li>
+          <li><strong>Series del Banco Central</strong> — Reservas, dólar, base monetaria, tasas e inflación desde 2016, unificadas en un solo archivo listo para analizar</li>
+        </ul>
+        <div class="project-tags">
+          <span>Lectura automática</span><span>Clasificación</span><span>Datos del BCRA</span><span>Boletín Oficial</span>
+        </div>
+      </div>
+    </div>
+
+  <dialog class="legal-modal" id="legal-privacidad" aria-labelledby="legal-privacidad-title">
+    <div class="legal-head">
+      <h2 id="legal-privacidad-title">Política de privacidad</h2>
+      <button type="button" class="legal-close" data-legal-close aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="legal-body">
+      <p class="legal-updated">Última actualización: 26 de julio de 2026</p>
+
+      <h3>1. Quién es responsable de tus datos</h3>
+      <p>
+        El responsable del tratamiento es <strong>Tomás Orsi</strong>, monotributista,
+        CUIT <strong>20-42567298-4</strong>, con domicilio en <strong>Campana 3321, CP 1417,
+        Ciudad Autónoma de Buenos Aires, Argentina</strong>, titular del sitio
+        <strong>wabe.dev</strong>, que opera comercialmente bajo el nombre <strong>Wabe</strong>.
+        Para cualquier consulta sobre esta política podés escribirnos a <strong>info@wabe.dev</strong>.
+      </p>
+
+      <h3>2. Qué datos recolectamos</h3>
+      <p>Este sitio <strong>no tiene formularios</strong>: no te pedimos ningún dato de forma directa. Sí se recolectan automáticamente:</p>
+      <ul>
+        <li><strong>Datos de navegación</strong> — dirección IP, tipo de dispositivo, sistema operativo y navegador, páginas vistas, tiempo de permanencia y de qué anuncio o sitio llegaste.</li>
+        <li><strong>Identificadores publicitarios</strong> — los que asignan las cookies de Meta y Google para reconocer tu navegador entre visitas.</li>
+      </ul>
+      <p>
+        Si nos contactás por email, WhatsApp o Instagram, tratamos los datos que vos mismo nos compartas
+        en ese mensaje, con la única finalidad de responderte.
+      </p>
+
+      <h3>3. Para qué los usamos</h3>
+      <ul>
+        <li>Medir cuánta gente visita el sitio y qué secciones le interesan.</li>
+        <li>Medir el rendimiento de nuestras campañas publicitarias y optimizarlas.</li>
+        <li>Mostrarte publicidad de Wabe en Facebook, Instagram y Google.</li>
+        <li>Responder las consultas que nos hagas.</li>
+      </ul>
+      <p>No vendemos, alquilamos ni cedemos tus datos a terceros con fines comerciales.</p>
+
+      <h3>4. Herramientas de terceros y transferencia internacional</h3>
+      <p>Para lo anterior usamos servicios de medición y publicidad de terceros, que recolectan datos por su cuenta según sus propias políticas:</p>
+      <ul>
+        <li><strong>Google Ads</strong> (Google LLC) — <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">policies.google.com/privacy</a></li>
+        <li><strong>Meta Pixel</strong> (Meta Platforms, Inc.) — <a href="https://www.facebook.com/privacy/policy" target="_blank" rel="noopener noreferrer">facebook.com/privacy/policy</a></li>
+      </ul>
+      <p>
+        Ambas empresas están radicadas fuera de la República Argentina, por lo que el uso de este sitio
+        implica una <strong>transferencia internacional de datos</strong> hacia Estados Unidos.
+      </p>
+
+      <h3>5. Cookies</h3>
+      <p>
+        Una cookie es un archivo chico que se guarda en tu navegador. Este sitio usa cookies
+        <strong>publicitarias y de medición</strong> puestas por Google y Meta; no usamos cookies para
+        perfilar más allá de eso.
+      </p>
+      <p>Podés desactivarlas de tres formas:</p>
+      <ul>
+        <li>Con el botón que está acá abajo, que revoca el consentimiento en este navegador.</li>
+        <li>Desde la configuración de tu navegador, bloqueando o borrando cookies.</li>
+        <li>Desde tus preferencias de anuncios en <a href="https://myadcenter.google.com" target="_blank" rel="noopener noreferrer">Google</a> y <a href="https://www.facebook.com/adpreferences" target="_blank" rel="noopener noreferrer">Meta</a>.</li>
+      </ul>
+      <p>Rechazarlas no afecta en nada tu navegación: el sitio funciona igual.</p>
+      <p class="legal-optout-wrap">
+        <button type="button" class="legal-optout" data-cookie-optout>Rechazar cookies en este navegador</button>
+        <span class="legal-optout-ok" data-optout-ok hidden>Listo: dejamos de medir en este navegador.</span>
+      </p>
+
+      <h3>6. Tus derechos</h3>
+      <p>
+        Como titular de los datos tenés derecho a <strong>acceder, rectificar, actualizar y suprimir</strong>
+        tus datos personales. Para ejercerlos escribí a <strong>info@wabe.dev</strong> y te respondemos
+        dentro de los plazos legales.
+      </p>
+      <p class="legal-note">
+        El titular de los datos personales tiene la facultad de ejercer el derecho de acceso a los mismos
+        en forma gratuita a intervalos no inferiores a seis meses, salvo que se acredite un interés
+        legítimo al efecto, conforme lo establecido en el artículo 14, inciso 3 de la Ley N.º 25.326.
+      </p>
+      <p class="legal-note">
+        La <strong>Agencia de Acceso a la Información Pública</strong>, en su carácter de órgano de control
+        de la Ley N.º 25.326, tiene la atribución de atender las denuncias y reclamos que interpongan
+        quienes resulten afectados en sus derechos por incumplimiento de las normas vigentes en materia
+        de protección de datos personales.
+      </p>
+
+      <h3>7. Conservación y seguridad</h3>
+      <p>
+        Conservamos los datos el tiempo necesario para las finalidades descriptas, o hasta que pidas su
+        supresión. Los datos de medición quedan en poder de Google y Meta según los plazos que fija cada
+        plataforma. Aplicamos medidas técnicas razonables para protegerlos, aunque ningún sistema conectado
+        a internet puede garantizar seguridad absoluta.
+      </p>
+
+      <h3>8. Menores de edad</h3>
+      <p>Este sitio está dirigido a personas mayores de 18 años. No recolectamos datos de menores de forma intencional.</p>
+
+      <h3>9. Cambios en esta política</h3>
+      <p>
+        Podemos actualizar esta política cuando cambien nuestras herramientas o la normativa aplicable.
+        La fecha de arriba siempre indica la última versión vigente.
+      </p>
+    </div>
+  </dialog>
+
+  <dialog class="legal-modal" id="legal-terminos" aria-labelledby="legal-terminos-title">
+    <div class="legal-head">
+      <h2 id="legal-terminos-title">Términos y condiciones</h2>
+      <button type="button" class="legal-close" data-legal-close aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="legal-body">
+      <p class="legal-updated">Última actualización: 26 de julio de 2026</p>
+
+      <h3>1. Objeto</h3>
+      <p>
+        <strong>wabe.dev</strong> es el sitio institucional de <strong>Wabe</strong>, nombre comercial bajo
+        el que opera <strong>Tomás Orsi</strong>, monotributista, CUIT <strong>20-42567298-4</strong>. Acá
+        presentamos nuestros servicios de desarrollo de software y automatización. Es un sitio
+        <strong>informativo</strong>: no se venden productos ni se contratan servicios a través de él. Al
+        navegarlo, aceptás estos términos.
+      </p>
+
+      <h3>2. Descargo de responsabilidad</h3>
+      <p>
+        El contenido de este sitio tiene <strong>carácter informativo y general</strong>. No constituye
+        asesoramiento profesional contable, impositivo, aduanero, financiero ni legal, ni reemplaza la
+        consulta con un profesional matriculado.
+      </p>
+      <p>
+        Varios de los sistemas que mostramos operan sobre materia impositiva, aduanera o financiera. Se
+        exhiben como <strong>ejemplos de desarrollos hechos a medida para clientes puntuales</strong>, con
+        datos de demostración. Los resultados obtenidos en un proyecto no son necesariamente replicables en
+        otro. Toda decisión fiscal, aduanera o de inversión es responsabilidad exclusiva de quien la toma y
+        debe validarse con el profesional correspondiente y con la normativa vigente.
+      </p>
+      <p>
+        En particular, <strong>ningún contenido de este sitio constituye una recomendación de inversión</strong>.
+        El rendimiento pasado de cualquier estrategia o modelo no garantiza resultados futuros.
+      </p>
+
+      <h3>3. Propiedad intelectual</h3>
+      <p>
+        Los textos, el diseño, el código, las capturas y el logotipo de este sitio son propiedad de Wabe o
+        se usan con autorización. No está permitido reproducirlos ni reutilizarlos con fines comerciales
+        sin permiso previo por escrito.
+      </p>
+      <p>
+        Los proyectos mostrados fueron desarrollados para clientes y se exhiben con fines ilustrativos. Las
+        marcas, nombres comerciales y logotipos de terceros que puedan aparecer pertenecen a sus respectivos
+        titulares.
+      </p>
+
+      <h3>4. Uso del sitio</h3>
+      <p>
+        Te comprometés a usar el sitio de buena fe y a no intentar dañarlo, vulnerar su seguridad,
+        sobrecargarlo ni extraer su contenido de forma automatizada y masiva.
+      </p>
+
+      <h3>5. Contratación de servicios</h3>
+      <p>
+        Cualquier trabajo se formaliza por fuera de este sitio, mediante un presupuesto y un acuerdo
+        específico entre las partes, donde se definen alcance, plazos, precio y condiciones. La información
+        publicada acá <strong>no constituye una oferta contractual vinculante</strong>.
+      </p>
+
+      <h3>6. Enlaces a terceros</h3>
+      <p>
+        El sitio contiene enlaces a servicios de terceros (WhatsApp, Instagram, entre otros). No controlamos
+        esos sitios ni respondemos por sus contenidos, políticas o prácticas.
+      </p>
+
+      <h3>7. Disponibilidad</h3>
+      <p>
+        Procuramos que el sitio esté siempre disponible, pero no garantizamos su funcionamiento
+        ininterrumpido ni libre de errores. Podemos modificar, suspender o discontinuar cualquier parte
+        del contenido sin aviso previo.
+      </p>
+
+      <h3>8. Ley aplicable y jurisdicción</h3>
+      <p>
+        Estos términos se rigen por las leyes de la República Argentina. Ante cualquier controversia, las
+        partes se someten a los tribunales ordinarios de
+        la <strong>Ciudad Autónoma de Buenos Aires</strong>,
+        con renuncia a todo otro fuero.
+      </p>
+    </div>
+  </dialog>
+
+  <!-- Aviso de cookies: consentimiento implícito, sin botonera que frene al
+       visitante. Cumple con informar en el momento de la recolección; la opción
+       de rechazar existe pero vive dentro de la política, no acá. -->
+  <div class="cookie-bar" id="cookie-bar" role="note" aria-label="Aviso de cookies" hidden>
+    <p class="cookie-text">
+      Usamos cookies para medir el uso del sitio y mostrarte nuestra publicidad. Si seguís navegando,
+      entendemos que las aceptás.
+      <button type="button" class="cookie-more" data-legal="privacidad">Más info</button>
+    </p>
+    <button type="button" class="cookie-close" data-cookie="aceptado" aria-label="Cerrar aviso">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+        <path d="M18 6 6 18M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <script src="/landing/script.js?v=38"></script>
+
+  <!-- Ola 3D del hero. Three.js por CDN vía import map: el sitio no tiene
+       build step, así que no hay forma de instalarlo como paquete. -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "/landing/vendor/three/three.module.js",
+      "three/addons/": "/landing/vendor/three/addons/"
+    }
+  }
+  </script>
+  <script type="module" src="/landing/wave-ribbon.js?v=3"></script>
+</body>
+</html>
