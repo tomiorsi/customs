@@ -22,6 +22,27 @@ const NCM = new Set(ncmFilas.map((r) => String(r.codigo ?? "").trim()));
 const validar = (d) => validarDeclaracion(d, { ncmValido: (n) => NCM.has(n) });
 
 const base = leerDeclaracion(fs.readFileSync(archivo, "latin1"));
+
+/**
+ * La marca de una sección en `GEN` para este subrégimen.
+ *
+ * Hace falta porque las roturas de sección no aplican a cualquier archivo: no
+ * se puede probar «sacar [BUL]» sobre una declaración cuyo subrégimen no la
+ * exige. La prueba se saltea en vez de dar un falso negativo.
+ */
+const GEN = leerCsv(path.join(process.cwd(), "data/Normas/SIM/kit/GEN.csv"));
+function marcaDeSeccion(sub, marca) {
+  const fila = GEN.find((x) => (x.ISTA ?? "").trim() === sub);
+  return (fila?.[marca] ?? "").trim();
+}
+function leerCsv(p) {
+  const [cab, ...filas] = fs.readFileSync(p, "utf8").split(/\r?\n/);
+  const cols = cab.replace(/^﻿/, "").split(",").map((c) => c.replace(/"/g, "").trim());
+  return filas.filter((l) => l.trim()).map((l) => {
+    const v = l.split(",").map((c) => c.replace(/"/g, "").trim());
+    return Object.fromEntries(cols.map((c, i) => [c, v[i] ?? ""]));
+  });
+}
 const clonar = () => JSON.parse(JSON.stringify(base));
 const set = (d, sec, clave, val) => {
   const b = d.bloques.find((x) => x.seccion === sec);
@@ -51,13 +72,31 @@ const CASOS = [
       const art = d.bloques.find((b) => b.seccion === "ART");
       d.bloques.push(JSON.parse(JSON.stringify(art)));
     }, "error"],
+
+  // Secciones enteras. `GEN` marca si van con la misma escala O/P/F que los
+  // campos: [BUL] es obligatoria en 214 de los 257 subregímenes y prohibida en
+  // 42, así que quitarla o ponerla donde no va tiene que verse.
+  ["sacar una sección que el subrégimen exige", (d) => {
+      d.bloques = d.bloques.filter((b) => b.seccion !== "BUL");
+    }, "aviso", (sub) => marcaDeSeccion(sub, "IBUL") === "O"],
+  ["poner una sección que el subrégimen prohíbe", (d) => {
+      d.bloques.push({ seccion: "TRC", pares: [["CTRCTIPDOC", "1"], ["CTRCNUMDOC", "1"]] });
+    }, "error", (sub) => marcaDeSeccion(sub, "ITRC") === "P"],
 ];
 
 const antes = validar(base);
 console.log(`base: ${antes.filter((h) => h.nivel === "error").length} error(es), ${antes.filter((h) => h.nivel === "aviso").length} aviso(s)\n`);
 
+const SUB = (base.bloques.find((b) => b.seccion === "DDT")?.pares.find(([k]) => k === "ISTA") ?? [])[1];
+
 let fallas = 0;
-for (const [nombre, romper, esperado] of CASOS) {
+let corridos = 0;
+for (const [nombre, romper, esperado, aplica] of CASOS) {
+  if (aplica && !aplica(SUB)) {
+    console.log(`  · ${nombre.padEnd(38)} no aplica a ${SUB}`);
+    continue;
+  }
+  corridos++;
   const d = clonar();
   romper(d);
   const h = validar(d);
@@ -77,5 +116,9 @@ for (const [nombre, romper, esperado] of CASOS) {
 }
 
 console.log();
-console.log(fallas === 0 ? `TODAS DETECTADAS (${CASOS.length}/${CASOS.length})` : `${fallas} de ${CASOS.length} sin detectar`);
+console.log(
+  fallas === 0
+    ? `TODAS DETECTADAS (${corridos}/${corridos}${corridos < CASOS.length ? `, ${CASOS.length - corridos} no aplican a ${SUB}` : ""})`
+    : `${fallas} de ${corridos} sin detectar`,
+);
 process.exit(fallas === 0 ? 0 : 1);

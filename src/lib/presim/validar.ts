@@ -104,6 +104,28 @@ function esClaveDeCabecera(k: string): boolean {
 }
 
 /**
+ * `GEN` no solo dice qué campos van: también si una **sección entera** va.
+ *
+ * Las columnas con forma `I` + tres letras son marcas de sección, con la misma
+ * escala `O`/`P`/`F` que los campos. Es lo que faltaba controlar, y no es
+ * menor: `[BUL]` es obligatoria en 214 de los 257 subregímenes y está prohibida
+ * en 42, así que una declaración sin bultos podía pasar en verde y rebotar en
+ * el SIM.
+ *
+ * Verificado contra las tres declaraciones reales, 3 de 3: EC01 tiene
+ * `IBUL=O` y lleva `[BUL]`; IC04 e IT04 la tienen en `F` y no la llevan.
+ *
+ * `IDSO` e `IDAL` quedan afuera a propósito: son marcas de `GEN` pero no hay
+ * tabla ni sección con ese nombre —ni en el Kit ni en los archivos reales—, y
+ * opinar sobre algo que no sabemos qué es sería inventar una regla.
+ */
+const SECCION_DE_MARCA: Record<string, string> = {
+  ICPL: "CPL",
+  IBUL: "BUL",
+  ITRC: "TRC",
+};
+
+/**
  * Valida una declaración contra la parametría del SIM y sus tablas.
  *
  * `fecha` es la de la declaración, no la de hoy: un código que venció en 2020
@@ -175,6 +197,34 @@ export function validarDeclaracion(
     });
   }
 
+  /* ── 1b. secciones enteras que el subrégimen exige o prohíbe ── */
+  if (param) {
+    for (const [marca, seccion] of Object.entries(SECCION_DE_MARCA)) {
+      const regla = exigencia(param[marca] ?? "");
+      const esta = bloques(d, seccion).length > 0;
+      if (regla === "prohibido" && esta) {
+        hallazgos.push({
+          nivel: "error",
+          seccion,
+          nart: NART_CABECERA,
+          clave: marca,
+          detalle: `${sub} no admite la sección [${seccion}].`,
+        });
+      } else if (regla === "obligatorio" && !esta) {
+        hallazgos.push({
+          // Aviso y no error, por lo mismo que los campos obligatorios: el
+          // archivo es la entrada al Kit y hay secciones que se completan
+          // después. Igual conviene verlo antes de emitir.
+          nivel: "aviso",
+          seccion,
+          nart: NART_CABECERA,
+          clave: marca,
+          detalle: `${sub} exige la sección [${seccion}] y no está.`,
+        });
+      }
+    }
+  }
+
   /* ── 2. cada valor contra su tabla ── */
   for (const b of d.bloques) {
     const nart = nartDe(b);
@@ -244,6 +294,25 @@ export function validarDeclaracion(
   }
 
   return hallazgos;
+}
+
+/**
+ * Qué secciones exige, admite o prohíbe un subrégimen.
+ *
+ * Se consulta **antes** de cargar, no después: si el subrégimen pide bultos,
+ * la pantalla tiene que pedirlos; si los prohíbe, no tiene sentido mostrar el
+ * campo. Validar al final está bien para atajar el error, pero llegar al final
+ * para enterarse es hacerle perder el trabajo al que carga.
+ */
+export function seccionesDelSubregimen(
+  subregimen: string,
+  fecha?: Date,
+): { seccion: string; regla: "obligatorio" | "prohibido" | "libre" }[] {
+  const param = parametria(subregimen, fecha);
+  return Object.entries(SECCION_DE_MARCA).map(([marca, seccion]) => ({
+    seccion,
+    regla: param ? exigencia(param[marca] ?? "") : "libre",
+  }));
 }
 
 /** Resumen corto para mostrar en pantalla. */

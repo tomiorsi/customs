@@ -19,7 +19,11 @@ export {
 export type { FilaSim, TablaSim } from "@/lib/presim/tablas";
 export { buscar, existe, vigentes } from "@/lib/presim/tablas";
 export type { Hallazgo } from "@/lib/presim/validar";
-export { resumirHallazgos, validarDeclaracion } from "@/lib/presim/validar";
+export {
+  resumirHallazgos,
+  seccionesDelSubregimen,
+  validarDeclaracion,
+} from "@/lib/presim/validar";
 export type { Sufijo, SufijoDeCatalogo } from "@/lib/presim/sufijos";
 export {
   armarSufijos,
