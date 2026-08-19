@@ -52,50 +52,39 @@ qué forma**, no los valores.
 
 ---
 
-## 2. Tablas del Kit que vinieron vacías
+## 2. Tablas del Kit vacías — RESUELTO, no hace falta pedir nada
 
-Al correr `scripts/kit-sim/3-exportar-kit.bat` salieron **112 tablas**, pero
-seis de ellas quedaron **sin una sola fila, ni siquiera el encabezado**:
+> Cerrado el 19/08/2026 con un segundo export. **No volver sobre esto.**
 
-```
-SECSUF    NOVSUF    SECPOS    NOVPOS    TIT    DEP
-```
+Seis tablas —`SECSUF`, `NOVSUF`, `SECPOS`, `NOVPOS`, `TIT`, `DEP`— salieron
+vacías, y sospechábamos que era por falta de los parches de ARCA. **No es eso.**
 
-Y una salió casi vacía: **`SUFVAL` con 13 filas**, cuando debería tener miles.
+El segundo export llegó sin los parches aplicados y con las codificadoras
+idénticas, pero trajo la respuesta igual: lo único que cambió fueron las tablas
+de despachos —una declaración más, EC01— y **`SUFVAL`, que pasó de tener los
+sufijos de `7214.99.10.100U` a los de `7214.20.00.000X`**.
 
-### Esto no es un error del script
+O sea que `SUFVAL` no es un catálogo incompleto: es una **tabla de trabajo** que
+guarda los sufijos de la posición que se está cargando en ese momento.
+Verificado — su única posición está entre los ítems del Kit. `IMP` es lo mismo
+para el formulario de impresión (`NRO_HOJA`, `TIPO`, `NRO_CAMPO`, `VALOR`).
 
-El script exporta **todas** las tablas automáticamente (`SELECT name FROM
-sys.tables`), así que si salieron vacías es porque **están vacías en el Kit**.
+**Conclusión: el Kit no guarda el catálogo de sufijos. Lo pide al SIM por
+posición, cuando lo necesita, y no lo conserva.** Las seis vacías responden al
+mismo patrón. Aplicar los parches no las va a llenar.
 
-### Por qué importa
+Lo que sí tenemos —`cod_SUFIDOS.csv`, de Sintia, 11.672 posiciones— resultó ser
+la **mejor** fuente disponible, porque Sintia sí acumula lo que fue usando en
+años de trabajo real. La cobertura crece sola a medida que el estudio despacha:
+un export de Sintia más nuevo va a traer más posiciones que uno viejo.
 
-`SECSUF` y `SUFVAL` son las que dicen **qué sufijos pide cada posición del
-nomenclador**. Hoy usamos `SUFIDOS` (que vino de Sintia, no del Kit) y cubre
-**11.672 posiciones de las 33.172** del nomenclador: para el **51,7%** de los
-subítems reales no sabemos qué sufijos corresponden.
+Y de paso: cada export del Kit captura el `SUFVAL` de la posición que estaban
+tocando. Al importar se **unen**, no se pisan (ver el commit del 19/08), así que
+si exportan cada tanto se acumula de a poco.
 
-El sistema lo maneja bien —cuando no sabe, dice que no sabe en vez de inventar—
-pero con esas tablas podría avisar antes de emitir.
+### Lo único que quedó pendiente del Kit
 
-### La pregunta concreta
-
-> **¿El Kit tiene aplicados los últimos parches de tabla de AFIP?**
-
-Las tablas del SIM **no se actualizan solas por tener el Kit prendido**. AFIP
-reparte:
-
-- **Versiones nuevas del Kit** (la 7.0 es obligatoria desde el 24/06/2025).
-- **Parches puntuales por tabla**: ejecutables que escriben los valores en la
-  base local. Ejemplo real: `POR-sqlkit.exe`, que carga la tabla de Puertos.
-
-Si hace mucho que no los aplica, puede que esas tablas nunca se hayan poblado.
-**Si aplica los parches y vuelve a correr `3-exportar-kit.bat`, quizás vengan
-llenas.** Si aun así salen vacías, es que el Kit las consulta al SIM cada vez y
-no las guarda — y entonces esa parte no la vamos a tener localmente nunca, y
-hay que dejar de buscarla.
-
----
+Nada. El export está completo y no hay más que pedirle.
 
 ## 3. Dos cosas para confirmar de palabra
 
@@ -124,5 +113,6 @@ Los pasos son:
 2. Deja un `tablas-kit.zip` en esa misma carpeta.
 3. Mandar ese zip, más los tres `.txt` del punto 1.
 
-Si aplica los parches de AFIP primero, mejor — así vemos si `SECSUF` y `SUFVAL`
-se pueblan.
+Ya no hace falta pedir el export de tablas otra vez: se hizo dos veces y quedó
+demostrado que el Kit no guarda lo que faltaba (ver el punto 2). **Lo único que
+necesitamos son los tres `.txt` del punto 1.**

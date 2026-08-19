@@ -197,11 +197,24 @@ El tipo no está hardcodeado: sale de `cod_SUFIDOS.csv`, donde una clave de dos
 caracteres (`AA` = MARCA) es texto libre y una de cuatro (`NA03` = "CON
 POLIPROPILENO") es uno de los valores admitidos.
 
-**La tabla local está incompleta y el código lo asume.** Cubre 11.672 posiciones
-contra las 33.172 del nomenclador: para el 51,7% de los subítems reales no dice
-nada. Mismo cuadro que los complementarios de `ZCP` — el catálogo completo lo
-baja el Kit del SIM. Por eso `sufijosDePosicion` vacío significa «no sé», nunca
-«no lleva sufijos», y `revisarSufijos` devuelve solo avisos.
+**La tabla local está incompleta, y va a seguir estándolo.** Cubre 11.672
+posiciones contra las 33.172 del nomenclador: para el 51,7% de los subítems
+reales no dice nada.
+
+No es que falte exportarla mejor. Se comprobó con dos exports del Kit separados
+en el tiempo (19/08/2026): su tabla `SUFVAL` contiene los sufijos de **una sola
+posición**, la que estaban cargando en ese momento, y cambió de una a otra entre
+los dos exports. **El Kit no guarda el catálogo: se lo pide al SIM por posición
+y no lo conserva.** Las tablas `SECSUF`, `NOVSUF`, `SECPOS` y `NOVPOS` están
+vacías por lo mismo.
+
+Así que `cod_SUFIDOS.csv` —que viene de Sintia, no del Kit— es la mejor fuente
+que hay, porque Sintia sí acumula lo que fue usando. La cobertura crece sola con
+el trabajo del estudio: un export de Sintia más nuevo trae más posiciones.
+
+Por eso `sufijosDePosicion` vacío significa «no sé», nunca «no lleva sufijos», y
+`revisarSufijos` devuelve solo avisos. Es una condición permanente del diseño,
+no un dato que falta cargar.
 
 ### Dos reglas que la prueba encontró y yo tenía mal
 
