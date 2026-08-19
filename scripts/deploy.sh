@@ -30,6 +30,19 @@ if ! npm ci; then
   npm ci
 fi
 
+echo "▸ Instalando dependencias de Python"
+# El servidor lee PDF escaneados y planillas de Excel con Python, así que las
+# dependencias de requirements.txt tienen que llegar igual que las de Node.
+# Faltaba: el venv del servidor solo se tocaba a mano, y una librería nueva
+# —como las de Excel— quedaba sin instalar y la lectura fallaba en silencio.
+if [ -f requirements.txt ]; then
+  [ -d .venv ] || python3 -m venv .venv
+  # `python3 -m pip` y no `.venv/bin/pip`: si el venv se creó en otra ruta, su
+  # pip queda con el shebang viejo y no arranca. El módulo siempre funciona.
+  ./.venv/bin/python3 -m pip install --quiet --upgrade pip
+  ./.venv/bin/python3 -m pip install --quiet -r requirements.txt
+fi
+
 echo "▸ Compilando"
 npm run build
 
