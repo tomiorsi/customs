@@ -396,6 +396,30 @@ export function OperacionDetalle({
     }
   })();
 
+  /**
+   * Los renglones de mercadería de la carpeta.
+   *
+   * Se leen defensivamente: el JSON lo escribió la interpretación y puede
+   * quedar de una versión anterior. Si no parsea, la operación se muestra
+   * igual sin el detalle, que es mejor que romper la pantalla entera.
+   */
+  const renglones: {
+    orden?: number;
+    codigo?: string;
+    mercaderia?: string;
+    ncm?: string;
+    cantidad?: string;
+    valor?: string;
+  }[] = (() => {
+    if (!op.items_json) return [];
+    try {
+      const arr = JSON.parse(op.items_json);
+      return Array.isArray(arr) ? arr : [];
+    } catch {
+      return [];
+    }
+  })();
+
   const valoracion: Campo[] = [
     {
       label: facturasMultiples.length > 1 ? "N° de factura (varias)" : "N° de factura",
@@ -464,6 +488,45 @@ export function OperacionDetalle({
           <>
             <Seccion titulo="General" campos={general} />
             <Seccion titulo="Mercadería" campos={mercaderia} />
+
+            {renglones.length > 0 && (
+              <div className="rounded-xl border border-border bg-surface-2/40 px-4 py-3">
+                <p className="text-[10px] font-medium uppercase tracking-wide text-muted">
+                  Renglones de la factura ({renglones.length})
+                </p>
+                <ul className="mt-2 divide-y divide-border">
+                  {renglones.map((r, i) => (
+                    <li key={`${r.codigo ?? r.mercaderia ?? i}-${i}`} className="py-2">
+                      <div className="flex items-baseline justify-between gap-4">
+                        <span className="min-w-0 text-sm text-foreground">
+                          <span className="text-muted">{r.orden ?? i + 1}.</span>{" "}
+                          {r.mercaderia ?? "—"}
+                        </span>
+                        {r.valor && (
+                          <span className="shrink-0 text-sm tabular-nums text-foreground">
+                            {r.valor}
+                          </span>
+                        )}
+                      </div>
+                      {(r.cantidad || r.ncm || r.codigo) && (
+                        <p className="mt-0.5 text-[11px] text-muted">
+                          {[r.codigo, r.cantidad, r.ncm].filter(Boolean).join(" · ")}
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                {/* Cuántos clasifican distinto es la pregunta que sigue: los
+                    renglones que comparten posición van en un solo ítem del
+                    despacho. Mientras no estén clasificados, no se sabe. */}
+                <p className="mt-2 text-[11px] text-muted">
+                  {renglones.filter((r) => r.ncm).length > 0
+                    ? `${renglones.filter((r) => r.ncm).length} con posición declarada en el documento.`
+                    : "Ninguno trae posición: se clasifican en el paso siguiente."}
+                </p>
+              </div>
+            )}
+
             <Seccion titulo="Valoración" campos={valoracion} />
 
             {facturasMultiples.length > 1 && (

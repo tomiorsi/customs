@@ -38,6 +38,7 @@ import {
   type ArchivoIA,
   type ConflictoDocumentoBatch,
   type DatosDocumentoOperacion,
+  type ItemDocumento,
   type ValorElegidoIA,
 } from "@/lib/ia-documentos";
 import { leerDocumento } from "@/lib/archivos-cliente";
@@ -1125,6 +1126,46 @@ export type AgregacionFacturas = {
  * varios PDFs no se cuenta dos veces) y respeta la moneda (si se mezclan, no suma
  * y avisa). Prioriza facturas comerciales finales sobre proformas.
  */
+/**
+ * Documentos que describen la mercadería renglón por renglón.
+ *
+ * La proforma abre la carpeta y la factura comercial la cierra; el packing
+ * list repite las mismas mercaderías con los pesos. El orden importa: si hay
+ * factura definitiva, esa manda sobre la proforma, porque es la que se
+ * declara.
+ */
+const DOCS_CON_RENGLONES: DocType[] = [
+  "factura_comercial",
+  "proforma",
+  "packing_list",
+];
+
+/**
+ * Los renglones de la carpeta, de un solo documento.
+ *
+ * **No se mezclan renglones de documentos distintos.** Podría parecer que
+ * juntar factura y packing da más información, pero son la misma mercadería
+ * contada dos veces: sumarlas duplicaría la carpeta. Se toma el documento más
+ * definitivo que los traiga y se usa entero.
+ */
+export function renglonesDeLaCarpeta(
+  porDoc: DocConDatos[],
+): { docType: DocType; items: ItemDocumento[] } | null {
+  for (const tipo of DOCS_CON_RENGLONES) {
+    // Entre varios del mismo tipo gana el que más renglones trae: una factura
+    // recortada o mal leída no debería pisar a una completa.
+    let mejor: { docType: DocType; items: ItemDocumento[] } | null = null;
+    for (const d of porDoc) {
+      if (d.docType !== tipo) continue;
+      const items = d.datos.mercaderia?.items;
+      if (!items?.length) continue;
+      if (!mejor || items.length > mejor.items.length) mejor = { docType: tipo, items };
+    }
+    if (mejor) return mejor;
+  }
+  return null;
+}
+
 export function agregarFacturasMultiples(
   porDoc: DocConDatos[],
 ): AgregacionFacturas | null {
@@ -1285,6 +1326,18 @@ export async function reconciliarDocumentosOperacion(
     // Volvió a haber 0-1 factura (se borraron): limpiamos el detalle multi-factura
     // para que la operación quede como una factura normal.
     cambios.facturas_json = "";
+  }
+
+  // Renglones de mercadería. Van aparte de los campos sueltos, que siguen
+  // describiendo el conjunto de la carpeta.
+  const renglones = renglonesDeLaCarpeta(porDoc);
+  if (renglones) {
+    const json = JSON.stringify(renglones.items);
+    if (String(op.items_json ?? "").trim() !== json) cambios.items_json = json;
+  } else if (String(op.items_json ?? "").trim()) {
+    // Se borraron los documentos que los traían: la carpeta vuelve a no tener
+    // renglones, en vez de quedarse con los de una factura que ya no está.
+    cambios.items_json = "";
   }
 
   // Fecha inválida preexistente (ej. basura manual) y sin lectura nueva → limpiar.

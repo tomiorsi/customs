@@ -698,6 +698,20 @@ export const OP_CAMPOS = [
   // (consolidado / varios proveedores). JSON: [{nro, proveedor, total, moneda}].
   // El valor_factura de la operación pasa a ser la SUMA de estos totales (base CIF).
   "facturas_json",
+  /**
+   * Los renglones de mercadería de la carpeta, en JSON.
+   *
+   * Una carpeta rara vez trae una sola mercadería: de los 13.467 despachos del
+   * archivo del estudio, 4.526 (33,6%) llevan más de una posición y el más
+   * grande tiene 37. Cada renglón puede clasificar distinto, así que necesita
+   * su posición, su cantidad y su valor.
+   *
+   * Va en JSON y no en columnas nuevas por el mismo motivo que `facturas_json`:
+   * es una lista de largo variable, y desarmarla en columnas obligaría a un
+   * tope arbitrario. Los campos sueltos —`ncm`, `cantidad`, `mercaderia`—
+   * siguen valiendo como la visión del conjunto y no se tocan.
+   */
+  "items_json",
   /** Fecha de emisión de la factura comercial (ISO YYYY-MM-DD). */
   "fecha_factura",
   /** Plazo de pago comercial en días (cuenta abierta, D/A, etc.). */
