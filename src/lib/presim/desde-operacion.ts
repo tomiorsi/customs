@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { OperationWithClient } from "@/lib/data";
-import { codigoIncoterm, codigoPais, codigoUnidad } from "@/lib/presim/catalogos";
+import { codigoDivisa, codigoIncoterm, codigoPais, codigoUnidad } from "@/lib/presim/catalogos";
 import { buscar, vigentes } from "@/lib/presim/tablas";
 import type { ItemSim, OperacionSim } from "@/lib/presim/armar";
 import { subregimenPara, type SituacionArribo } from "@/lib/presim/subregimen";
@@ -146,11 +146,8 @@ export function operacionSimDesde(
        falta("Aduana", `«${aduanaTxt}» no coincide con ninguna aduana de BUR.`))
     : falta("Aduana", "No hay aduana cargada.");
 
-  const monedaTxt = texto(op.moneda);
-  const divisa = monedaTxt
-    ? (porNombreExacto("DEV", monedaTxt, fecha) ??
-       falta("Moneda", `«${monedaTxt}» no coincide con ninguna divisa de DEV.`))
-    : falta("Moneda", "No hay moneda cargada.");
+  const dev = codigoDivisa(op.moneda, fecha);
+  const divisa = dev.codigo ?? falta("Moneda", dev.porque);
 
   /* ── incoterm ── */
   const inc = codigoIncoterm(op.incoterm, fecha);

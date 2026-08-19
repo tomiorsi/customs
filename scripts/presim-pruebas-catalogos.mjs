@@ -9,7 +9,7 @@
  * Uso: npx tsx --require ./scripts/register-server-only-stub.cjs \
  *        scripts/presim-pruebas-catalogos.mjs
  */
-import { codigoIncoterm, codigoPais, codigoUnidad } from "../src/lib/presim/catalogos.ts";
+import { codigoDivisa, codigoIncoterm, codigoPais, codigoUnidad } from "../src/lib/presim/catalogos.ts";
 import { buscar } from "../src/lib/presim/tablas.ts";
 import { UNIDADES } from "../src/lib/unidades.ts";
 import { INCOTERMS, PAISES } from "../src/lib/cotizador.ts";
@@ -71,6 +71,20 @@ for (const e of ["Otro país (Unión Europea)", "Otro país (extrazona)"]) {
 
 chequear("un país inventado no devuelve código", codigoPais("Wakanda").codigo === null);
 chequear("vacío no devuelve código", codigoPais("").codigo === null);
+
+/* ── 2b. divisas ── */
+
+console.log("\n2b. Divisas\n");
+
+// El caso que apareció verificando una operación real: estaba cargada con USD.
+chequear("USD → DOL", codigoDivisa("USD").codigo === "DOL", buscar("DEV", "DOL")?.descripcion ?? "");
+chequear("el código del SIM pasa igual", codigoDivisa("DOL").codigo === "DOL");
+chequear("el nombre en castellano también", codigoDivisa("Dólar estadounidense").codigo === "DOL");
+chequear("EUR → 060", codigoDivisa("EUR").codigo === "060", buscar("DEV", "060")?.descripcion ?? "");
+chequear("ARS → PES", codigoDivisa("ARS").codigo === "PES");
+// 002 era el dólar hasta el 11/01/2024: no puede resolver hoy.
+chequear("el código vencido 002 no pasa", codigoDivisa("002").codigo === null, codigoDivisa("002").porque ?? "");
+chequear("una moneda inventada no pasa", codigoDivisa("XYZ").codigo === null);
 
 /* ── 3. incoterms ── */
 

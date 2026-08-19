@@ -150,6 +150,50 @@ export function codigoPais(nombre: string | null | undefined, fecha?: Date): Tra
   return confirmar("PAY", cod, fecha);
 }
 
+/* ─────────────────────────── divisas ─────────────────────────── */
+
+/**
+ * Cómo se escribe una divisa en el sistema y cómo la llama el SIM.
+ *
+ * Hace falta porque no coinciden y el desajuste es el habitual, no la
+ * excepción: el mundo escribe `USD` y el SIM usa `DOL`; el resto de las
+ * monedas van por código numérico. Apareció verificando una operación real,
+ * cargada con `USD`, que no resolvía.
+ *
+ * Se aceptan las tres formas de nombrarla —la sigla ISO, el código del SIM y el
+ * nombre en castellano— porque las tres aparecen en las carpetas.
+ */
+const DIVISA_A_DEV: Record<string, string> = {
+  USD: "DOL",
+  "DOLAR ESTADOUNIDENSE": "DOL",
+  DOLAR: "DOL",
+  ARS: "PES",
+  PESOS: "PES",
+  "PESO ARGENTINO": "PES",
+  EUR: "060",
+  EURO: "060",
+  BRL: "012",
+  REAL: "012",
+  REALES: "012",
+  JPY: "019",
+  YEN: "019",
+  GBP: "021",
+  "LIBRA ESTERLINA": "021",
+  CNY: "061",
+  YUAN: "061",
+  CHF: "009",
+  "FRANCO SUIZO": "009",
+  PYG: "029",
+  GUARANI: "029",
+};
+
+export function codigoDivisa(valor: string | null | undefined, fecha?: Date): Traduccion {
+  const v = (valor ?? "").trim();
+  if (!v) return { codigo: null, porque: "No hay moneda cargada." };
+  const cod = DIVISA_A_DEV[normalizar(v)] ?? indice("DEV").get(normalizar(v)) ?? v.toUpperCase();
+  return confirmar("DEV", cod, fecha);
+}
+
 /* ─────────────────────────── incoterm ─────────────────────────── */
 
 /**
