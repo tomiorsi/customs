@@ -1,7 +1,14 @@
 # El archivo del pre-SIM — formato descifrado
 
-Descifrado el 18/08/2026 sobre tres archivos reales generados por Sintia
-(IC04 importación a consumo, IT04 temporaria, EC01 exportación a consumo).
+Descifrado sobre **seis archivos reales** generados por Sintia, uno por familia:
+EC01 (exportación a consumo), IC04 (importación a consumo), IT04 (temporaria sin
+transformación), **IT14** (temporaria para transformación), **IDA4** (depósito de
+almacenamiento) y **ZFI5** (ingreso a zona franca).
+
+Los tres últimos llegaron el 19/08/2026 y **cinco de seis se reconstruyeron
+idénticas al primer intento**, sin tocar una línea: las reglas deducidas de los
+tres primeros valían para familias que no habíamos visto nunca. Lo que sí
+corrigieron está anotado abajo.
 
 Los archivos de muestra **no se guardan en el repo**: traen CUIT del importador,
 valores y proveedores reales.
@@ -129,7 +136,12 @@ falsos en masa.
 
 Medido contra las tres declaraciones reales:
 
-- **`P` (prohibido) se cumplió 3 de 3** → violarlo es **error**.
+- **`P` (prohibido) se respeta 45 de 48, pero no siempre** → violarlo es
+  **aviso**. Con tres archivos parecía absoluto y era error; la declaración de
+  zona franca lleva tres campos marcados `P` —`LDDTNOMFOD`, `CDDTPAIDST` y
+  `CDDTBURDST`— y se oficializó igual. Las tres vigencias de ZFI5 en `GEN` dicen
+  `P`, así que no es una versión vieja. Un error significa «esto va a rebotar», y
+  tenemos prueba de que no rebotó.
 - **`O` (obligatorio) ausente es aviso, no error.** El archivo es la **entrada**
   al Kit, no la declaración final: hay obligatorios que se completan después.
 - **`CDDTPRFTIT` no se pide en absoluto.** Era el caso que motivaba lo anterior, y
@@ -157,13 +169,13 @@ npx tsx --require ./scripts/register-server-only-stub.cjs \
   scripts/presim-pruebas-vigencia.mjs
 ```
 
-Resultado al 18/08/2026, sobre IC04, IT04 y EC01 reales:
+Resultado al 19/08/2026, sobre las seis declaraciones reales:
 
 | Prueba | Resultado |
 |---|---|
-| Ida y vuelta (leer → escribir da idéntico) | **3/3** |
-| Orden de secciones respetado | **3/3** |
-| Roturas detectadas | **14/14 en cada archivo** (dos se saltean según el subrégimen) |
+| Ida y vuelta (leer → escribir da idéntico) | **6/6** |
+| Orden de secciones respetado | **6/6** |
+| Roturas detectadas | **14/14 en cada uno de los seis archivos** |
 | Vigencias y bordes | **11/11** |
 
 Una de las 12 roturas falló en el primer intento y **el error era de la prueba**:
@@ -467,8 +479,8 @@ done
 | Prueba | Qué demuestra | Resultado |
 |---|---|---|
 | Sufijos | 72.466 strings reales reconstruidos | **100%** |
-| Armador | Las 3 declaraciones reales, idénticas | **3/3** |
-| Subregímenes | Contra la RG 4200 y las 3 reales | **42/42** |
+| Armador | Las 6 declaraciones reales, idénticas | **6/6** |
+| Subregímenes | Contra la RG 4200 y las 6 reales | **45/45** |
 | Catálogos | Ningún código inventado | **19/19** |
 | Cadena | De una operación al archivo validado | **19/19** |
 | Negativas | Roturas a propósito detectadas | **14/14** |
@@ -478,6 +490,7 @@ done
 
 1. **La pantalla.** El motor está entero y probado; falta el botón.
 2. **Listas en el formulario** para aduana y moneda, que hoy son texto libre.
-3. **Muestras de zona franca y depósito.** Todo lo medido sale de EC01, IC04 e
-   IT04: las convenciones numéricas y los flags constantes se infirieron de ahí.
-   Con una declaración real de cada familia alcanza para confirmarlas.
+3. ~~Muestras de zona franca y depósito.~~ **Llegaron el 19/08/2026** y
+   confirmaron las reglas: cinco de seis reconstruyen idénticas sin tocar nada.
+   Las familias que faltan ahora son las chicas —reembarco, tránsito, régimen
+   automotriz—, y ninguna es urgente.

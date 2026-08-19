@@ -147,11 +147,22 @@ if (fs.existsSync(DIR)) {
     const destinacion =
       ista?.startsWith("EC") ? "expo_consumo"
       : ista?.startsWith("IT") ? (motivoImplicaTransformacion(motivo) ? "impo_temp_1330" : "impo_temp_1001")
+      : ista?.startsWith("IDA") ? "impo_deposito"
+      : ista?.startsWith("ZFI") ? "impo_zona_franca"
       : "impo_consumo";
 
-    // Los tres reales tienen documento de transporte.
-    const r = subregimenPara({ destinacion, situacion: "con_documento", motivo });
-    chequear(`${f.padEnd(22)} motivo ${motivo ?? "—"}`, r.subregimen, ista);
+    // Todas las reales tienen documento de transporte. Zona franca no usa esa
+    // vía: va por sus dos ejes propios, y este archivo es del exterior para
+    // almacenamiento —que es lo que significa ZFI5—.
+    const r = subregimenPara({
+      destinacion,
+      situacion: "con_documento",
+      motivo,
+      ...(destinacion === "impo_zona_franca"
+        ? { origenZonaFranca: "exterior", finalidadZonaFranca: "almacenamiento" }
+        : {}),
+    });
+    chequear(`${f.slice(0, 20).padEnd(22)} motivo ${motivo ?? "—"}`, r.subregimen, ista);
   }
 } else {
   console.log("   (sin declaraciones en data/, se saltea)");

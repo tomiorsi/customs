@@ -67,16 +67,27 @@ const DIGITO: Record<SituacionArribo, string> = {
 };
 
 /**
- * Motivos del art. 31 que implican transformación.
+ * Motivos que implican transformación.
  *
- * Del Anexo III de la RG 4200: los `I31.1x` son las temporarias que vuelven en
- * el mismo estado (muestras, ferias, envases, pallets, material científico) y
- * `I31.3` es «mercadería para transformación/elaboración/combinación/mezcla o
- * reparación». La familia se lee del código, así que un motivo nuevo del
- * apartado 3 entra solo.
+ * Son **dos vías distintas**, no una:
+ *
+ * - **`I31.3`** — Dto. 1.001/82, art. 31 ap. 3: «mercadería para
+ *   transformación, elaboración, combinación, mezcla o reparación». Los
+ *   `I31.1x` del mismo decreto son los que vuelven en el mismo estado.
+ * - **`D1330/04-Ax`** — Decreto 1.330/04, el régimen de perfeccionamiento
+ *   industrial. La tabla `MOT` tiene los artículos 6, 7 y 8, con plazos de
+ *   360, 720 y 2160 días.
+ *
+ * La segunda faltaba y la trajo una declaración real: el IT14 del estudio lleva
+ * `CDDTMOT=D1330/04-A6`. Sin esto, un IT14 legítimo cargado sobre la
+ * destinación de bienes de capital pasaba como si no transformara.
+ *
+ * Se leen por familia y no por lista cerrada, así que un artículo nuevo del
+ * 1330/04 entra solo.
  */
 export function motivoImplicaTransformacion(motivo: string | null | undefined): boolean {
-  return /^I31\.3/i.test((motivo ?? "").trim());
+  const m = (motivo ?? "").trim();
+  return /^I31\.3/i.test(m) || /^D1330\/04/i.test(m);
 }
 
 /* ─────────────────────────── zona franca ─────────────────────────── */

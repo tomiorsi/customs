@@ -57,7 +57,9 @@ const quitar = (d, sec, clave) => {
 const CASOS = [
   ["subrégimen inexistente", (d) => set(d, "DDT", "ISTA", "XX99"), "error"],
   ["subrégimen vacío",       (d) => quitar(d, "DDT", "ISTA"), "error"],
-  ["campo prohibido para el subrégimen", (d) => set(d, "DDT", "DDDTDJV", "01/01/2026"), "error"],
+  // Aviso, no error: hay una declaración real oficializada que lleva campos
+  // marcados prohibidos en GEN (ver `exigencia` en validar.ts).
+  ["campo prohibido para el subrégimen", (d) => set(d, "DDT", "DDDTDJV", "01/01/2026"), "aviso"],
     // Ojo: 999 es una aduana REAL («EXTERIOR - EXPORTAC.»). El primer intento de
   // esta prueba la usaba y "fallaba" cuando en realidad el validador acertaba.
   ["aduana inexistente",     (d) => set(d, "DDT", "CDDTBUR", "100"), "aviso"],
@@ -76,9 +78,13 @@ const CASOS = [
   // Secciones enteras. `GEN` marca si van con la misma escala O/P/F que los
   // campos: [BUL] es obligatoria en 214 de los 257 subregímenes y prohibida en
   // 42, así que quitarla o ponerla donde no va tiene que verse.
+  // No alcanza con que el subrégimen la exija: el archivo tiene que traerla,
+  // porque si no «sacarla» no cambia nada y el aviso ya estaba en la base. Pasa
+  // de verdad — la declaración de zona franca tiene IBUL=O y no lleva [BUL].
   ["sacar una sección que el subrégimen exige", (d) => {
       d.bloques = d.bloques.filter((b) => b.seccion !== "BUL");
-    }, "aviso", (sub) => marcaDeSeccion(sub, "IBUL") === "O"],
+    }, "aviso",
+    (sub) => marcaDeSeccion(sub, "IBUL") === "O" && base.bloques.some((b) => b.seccion === "BUL")],
   ["poner una sección que el subrégimen prohíbe", (d) => {
       d.bloques.push({ seccion: "TRC", pares: [["CTRCTIPDOC", "1"], ["CTRCNUMDOC", "1"]] });
     }, "error", (sub) => marcaDeSeccion(sub, "ITRC") === "P"],

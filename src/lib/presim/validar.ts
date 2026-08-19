@@ -31,11 +31,17 @@ export type Hallazgo = {
 /**
  * Qué significa cada valor de `GEN`.
  *
- * Medido contra tres declaraciones reales que la aduana aceptó, y el resultado
- * es asimétrico:
+ * Medido contra seis declaraciones reales que la aduana aceptó:
  *
- * - `P` (prohibido) se cumplió 3 de 3: ningún campo marcado P aparece nunca.
- *   Por eso violarlo es ERROR.
+ * - `P` (prohibido) se respeta 45 veces sobre 48, pero **no siempre**. La
+ *   declaración de zona franca lleva tres campos que `GEN` marca prohibidos
+ *   —`LDDTNOMFOD`, `CDDTPAIDST` y `CDDTBURDST`, los de destino— y aun así se
+ *   oficializó. Las tres vigencias de ZFI5 en `GEN` dicen `P`, así que no es
+ *   una versión vieja: es que el SIM no lo rechaza.
+ *
+ *   Con tres archivos la regla parecía absoluta y esto era ERROR. Con seis hay
+ *   contraejemplo, y un error significa «esto va a rebotar»: tenemos prueba de
+ *   que no rebotó. Pasa a AVISO.
  * - `O` (obligatorio) NO se cumplió: `CDDTPRFTIT` está marcado O para IC04 y
  *   IT04 y las dos declaraciones reales lo omiten. Y no es un caso aislado que
  *   se pueda listar aparte — es O en 60 de los 250 subregímenes.
@@ -238,11 +244,13 @@ export function validarDeclaracion(
         });
       } else if (regla === "prohibido" && esta) {
         hallazgos.push({
-          nivel: "error",
+          // Aviso y no error: hay una declaración real, oficializada, que lleva
+          // campos marcados `P`. Ver el comentario de `exigencia`.
+          nivel: "aviso",
           seccion: "DDT",
           nart: NART_CABECERA,
           clave,
-          detalle: `${sub} no admite este campo.`,
+          detalle: `${sub} no admite este campo según GEN. El Kit suele descartarlo, pero conviene revisarlo.`,
         });
       }
     }

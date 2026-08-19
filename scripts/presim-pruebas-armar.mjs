@@ -73,6 +73,7 @@ function operacionDesde(d) {
           fob: numero(valor(s, "MSBTFOB")),
           valorUnitario: numero(valor(s, "MSBTUNITAR")),
           cantidadDeclarada: numero(valor(s, "QSBTUNTDCL")),
+          qsbtDe: numero(valor(s, "QSBTDE")),
           cantidadEstadistica: numero(valor(s, "QSBTUNTEST")),
         })),
       };

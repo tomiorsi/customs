@@ -33,6 +33,17 @@ export type SubitemSim = {
   valorUnitario?: number;
   cantidadDeclarada?: number;
   cantidadEstadistica?: number;
+  /**
+   * `QSBTDE`, tal cual la nombra el SIM porque no sabemos qué representa.
+   *
+   * Es columna real de la tabla `SBT` y está en `0,00` en **todas** las filas
+   * del Kit, sin una sola excepción. `GEN` no la parametriza. De las seis
+   * declaraciones reales solo la escribe la de zona franca, y también en cero.
+   *
+   * Por eso no se emite sola: quien la necesite la pasa. Ponerla siempre
+   * agregaría un campo a cinco de seis archivos que hoy salen idénticos.
+   */
+  qsbtDe?: number;
 };
 
 /** Un dato complementario, de cabecera o de ítem. */
@@ -404,6 +415,7 @@ function bloquesItem(it: ItemSim, nro: number): Bloque[] {
     ponerNum(sp, "MSBTFOB", s.fob);
     ponerNum(sp, "MSBTUNITAR", s.valorUnitario);
     ponerNum(sp, "QSBTUNTDCL", s.cantidadDeclarada);
+    ponerNum(sp, "QSBTDE", s.qsbtDe);
     ponerNum(sp, "QSBTUNTEST", s.cantidadEstadistica);
     poner(sp, "CSBTSVL", armarSufijos(s.sufijos));
     poner(sp, "IEXT", s.referencia);
