@@ -467,6 +467,46 @@ La operación tiene **una** posición, una cantidad y una unidad, así que sale 
 solo ítem. Una carpeta con varias posiciones hoy no se puede representar. Es del
 modelo de operación, no del pre-SIM.
 
+## El banco de despachos reales
+
+La prueba más grande, y la que faltaba: **los 13.466 despachos del archivo del
+estudio**, cada uno vuelto a armar con nuestro motor y validado.
+
+```bash
+npx tsx --require ./scripts/register-server-only-stub.cjs \
+  scripts/presim-banco-despachos.mjs
+```
+
+| | |
+|---|---|
+| Declaraciones sin un solo error | **13.415 / 13.466 (99,62%)** |
+| Ida y vuelta idéntica | **13.466 (100%)** |
+| Ítems procesados | **32.225** |
+
+**Los 51 restantes no son fallas del pre-SIM.** 45 son `LAPI` —una licencia,
+como DJAI o SIMI, no una destinación— y 6 son códigos cargados incompletos en
+Sintia (`EC`, `IC`, `IDA`, `A`, `ISA`, de dos o tres letras en vez de cuatro).
+Descontados esos, **todas las declaraciones de destinación pasan**.
+
+### Lo que este banco enseñó
+
+**El multi-ítem es la norma.** De 13.467 despachos, **4.526 (33,6%) tienen más
+de una posición** y el más grande tiene 37. El modelo de una posición por
+operación no describe el trabajo real.
+
+**La tabla `STA` no guarda historia infinita.** 1.871 despachos son anteriores
+a la vigencia más vieja que tenemos de su subrégimen: `EC01` arranca el
+01/07/2010, así que un despacho de 2009 no valida por más correcto que fuera.
+No es un error del validador ni de la declaración — es el alcance del dato, y
+el script lo descuenta aparte en vez de contarlo como falla.
+
+### Qué NO prueba
+
+El export de Sintia descartó a propósito las columnas sensibles: no hay CUIT,
+FOB, flete ni precios. Los importes van con relleno, así que **la aritmética no
+está bajo prueba acá** — eso lo cubren las seis declaraciones reales, que sí
+reconstruyen los importes exactos.
+
 ## Pruebas del pre-SIM
 
 ```bash
