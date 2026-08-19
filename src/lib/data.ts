@@ -771,6 +771,25 @@ export const OP_CAMPOS = [
    * así que se copia tal cual y no se valida.
    */
   "idtrib_proveedor",
+  /**
+   * Dónde está la mercadería al exportar (`LUGAR-ART736CA` del pre-SIM).
+   *
+   * El art. 736 del Código Aduanero fija el valor imponible de exportación
+   * sobre el precio en el lugar donde la mercadería es cargada, así que la
+   * declaración necesita saber cuál es. No se deduce de `puerto_origen`: en
+   * los despachos del archivo es un depósito («CAPITAN CORTES - CABA»,
+   * «PUERTO SECO - CHIVILCOY») tanto como un puerto, y poner el puerto donde
+   * va el depósito es un dato equivocado que parece correcto.
+   */
+  "lugar_mercaderia_736",
+  /**
+   * Comisión al exterior, en la moneda de la operación (`COMISIONALEXT`).
+   *
+   * Se deduce del precio para llegar al valor imponible de exportación. Está
+   * en las 8 exportaciones del archivo sin excepción; cuando no hay comisión
+   * se declara 0, que es declarar la ausencia y no inventar un valor.
+   */
+  "comision_exterior",
   /** Plazo de pago comercial en días (cuenta abierta, D/A, etc.). */
   "plazo_pago_dias",
   /** Vencimiento del pago al proveedor (ISO YYYY-MM-DD). */

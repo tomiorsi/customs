@@ -90,6 +90,16 @@ const SECCIONES: { titulo: string; campos: Campo[] }[] = [
       { campo: "gastos_origen", label: "Gastos en origen" },
       { campo: "gastos_destino", label: "Gastos en destino" },
       { campo: "forma_pago", label: "Forma de pago", basico: true },
+      {
+        campo: "lugar_mercaderia_736",
+        label: "Lugar de la mercadería (exportación)",
+        hint: "Dónde está la mercadería para cargar: el depósito o el puerto. Con eso el art. 736 arma el valor imponible de exportación.",
+      },
+      {
+        campo: "comision_exterior",
+        label: "Comisión al exterior (exportación)",
+        hint: "Se deduce del precio para llegar al valor imponible. Si no hay, queda en 0.",
+      },
     ],
   },
   {

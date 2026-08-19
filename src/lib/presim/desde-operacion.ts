@@ -4,6 +4,7 @@ import type { OperationWithClient } from "@/lib/data";
 import { codigoDivisa, codigoIncoterm, codigoPais, codigoUnidad } from "@/lib/presim/catalogos";
 import { buscar, vigentes } from "@/lib/presim/tablas";
 import type { ComplementarioSim, ItemSim, OperacionSim } from "@/lib/presim/armar";
+import { destinacionPorId } from "@/lib/destinaciones";
 import { subregimenPara, type SituacionArribo } from "@/lib/presim/subregimen";
 
 /**
@@ -157,8 +158,13 @@ export function operacionSimDesde(
   // El FOB es la base de todo el cálculo: sin él no hay declaración.
   const fob = importe(op.valor_fob) ?? falta("Valor FOB", "Es la base de la declaración.");
 
+  // Importación y exportación no declaran lo mismo, así que el flujo decide
+  // qué complementarios corresponden. Sale de la destinación, que es donde el
+  // sistema ya lo tiene: no hace falta un campo aparte ni adivinarlo del tipo.
+  const flujo = destinacionPorId(destinacion)?.flujo ?? "importacion";
+
   /* ── el ítem ── */
-  const item = armarItem(op, faltantes, fecha);
+  const item = armarItem(op, faltantes, fecha, flujo);
 
   if (
     !subregimen || !cuitOperador || !aduana || !divisa || !incoterm ||
@@ -178,12 +184,20 @@ export function operacionSimDesde(
     fob,
     flete: importe(op.flete),
     seguro: importe(op.seguro),
-    nombreExterior: texto(op.contraparte),
     motivo: opts.motivo,
-    arriboTransporte: fechaSim(op.eta),
     items: [item],
     fecha,
   };
+
+  // `LDDTNOMFOD` y `DDDTARVTRN` son de importación: EC01 no los admite según
+  // `GEN`, y tiene sentido —en una exportación no hay arribo— así que ponerlos
+  // ensucia el archivo con dos campos que el Kit tiene que descartar.
+  if (flujo === "importacion") {
+    operacion.nombreExterior = texto(op.contraparte);
+    operacion.arriboTransporte = fechaSim(op.eta);
+  } else {
+    completarExportacion(op, operacion, faltantes, fecha);
+  }
 
   // Los bultos van solo si están: `validarDeclaracion` avisa después si el
   // subrégimen los exige, que es quien sabe de eso.
@@ -205,7 +219,7 @@ export function operacionSimDesde(
     }
   }
 
-  const cpl = complementariosDeCabecera(op, faltantes);
+  const cpl = complementariosDeCabecera(op, faltantes, flujo);
   if (cpl.length) operacion.complementarios = cpl;
 
   const nroFactura = texto(op.nro_factura);
@@ -217,13 +231,62 @@ export function operacionSimDesde(
 }
 
 /**
- * La DJ del importador y del proveedor, que el SIM pide como complementarios
- * de cabecera.
+ * Lo que la cabecera de una exportación pide y la de una importación no.
  *
- * Los tres están en **los 13 despachos de importación del archivo**, sin una
- * excepción. Dos son del importador y viven en su ficha —en el archivo, el par
- * domicilio + fecha de alta se repite igual mientras el proveedor cambia—; el
- * tercero es del proveedor y cambia con cada operación.
+ * `GEN` marca siete claves como obligatorias en EC01 que en IC04 ni figuran:
+ * el país y la aduana por donde sale la mercadería, y cinco del medio de
+ * transporte. El armador ya las sabe escribir; lo que falta es de dónde
+ * sacarlas, y la operación hoy modela dos de las siete.
+ *
+ * Las otras cinco se reportan en vez de completarse. Un transportista escrito
+ * como nombre no es el CUIT que pide `CDDTTRANSP`, y mandar uno por el otro es
+ * exactamente el error que este adaptador está para no cometer.
+ */
+function completarExportacion(
+  op: OperationWithClient,
+  operacion: OperacionSim,
+  faltantes: Faltante[],
+  fecha?: Date,
+): void {
+  const destino = codigoPais(op.pais_destino, fecha);
+  if (destino.codigo !== null) operacion.paisDestino = destino.codigo;
+  else faltantes.push({ campo: "País de destino", porque: destino.porque });
+
+  // Las marcas y números del bulto: es el mismo dato que ya se usa de sufijo.
+  const marcas = texto(op.marca);
+  if (marcas) operacion.transporte = { marcas };
+  else faltantes.push({
+    campo: "Marcas y números",
+    porque: "La exportación las declara en la cabecera (CDDTMRQNUM).",
+  });
+
+  for (const [campo, porque] of [
+    ["Aduana de salida", "Por dónde sale la mercadería del país (CDDTBURDST)."],
+    ["CUIT del transportista", "La exportación pide el CUIT, no el nombre (CDDTTRANSP)."],
+    ["Medio de transporte", "El código del medio con el que sale la carga (CDDTMDETRN)."],
+    ["Identificación del medio", "Buque, vuelo o matrícula (NDDTIMMTRN)."],
+    ["Bandera del medio", "País del medio de transporte (CDDTPAYTRN)."],
+  ] as const) {
+    faltantes.push({ campo, porque });
+  }
+}
+
+/**
+ * Los complementarios de cabecera, que **no son los mismos en importación y en
+ * exportación**.
+ *
+ * El corte en el archivo del estudio es limpio, sin una sola excepción:
+ *
+ * - importación: `DOMICIL.ESTABLEC`, `FECHA INIC.ACTIV` e `IDTRIB-PROVEEDOR`
+ *   en 13 de 13, y en 0 de 8 exportaciones;
+ * - exportación: `LUGAR-ART736CA` y `GTOSANT736CA`, que son los datos con los
+ *   que el art. 736 del Código Aduanero arma el valor imponible.
+ *
+ * Tiene sentido que sea así: al importar, la declaración jurada es sobre quién
+ * compra y a quién le compra; al exportar, sobre dónde está la mercadería y qué
+ * gastos hay hasta ahí. Emitir los de importación en una exportación —que es lo
+ * que hacía la primera versión de esto— manda al SIM un ID de proveedor en una
+ * operación que no tiene proveedor.
  *
  * Lo que falta se reporta y no se completa: media declaración con un dato
  * inventado es peor que media declaración con un hueco visible.
@@ -231,12 +294,31 @@ export function operacionSimDesde(
 function complementariosDeCabecera(
   op: OperationWithClient,
   faltantes: Faltante[],
+  flujo: "importacion" | "exportacion",
 ): ComplementarioSim[] {
   const salida: ComplementarioSim[] = [];
   const agregar = (codigo: string, valor: string | undefined, campo: string, porque: string) => {
     if (valor) salida.push({ codigo, valor, tipo: "D" });
     else faltantes.push({ campo, porque });
   };
+
+  if (flujo === "exportacion") {
+    agregar(
+      "LUGAR-ART736CA",
+      texto(op.lugar_mercaderia_736),
+      "Lugar donde está la mercadería",
+      "El art. 736 arma el valor de exportación sobre el lugar de carga.",
+    );
+    // Los gastos anteriores se deducen del precio. Cuando no hay ninguno se
+    // declara 0, que es declarar la ausencia: el campo no admite vacío y un
+    // cero no afirma nada que el usuario no haya dicho al no cargar gastos.
+    salida.push({
+      codigo: "GTOSANT736CA",
+      valor: numeroSim(op.gastos_origen) ?? "0",
+      tipo: "D",
+    });
+    return salida;
+  }
 
   agregar(
     "DOMICIL.ESTABLEC",
@@ -260,6 +342,12 @@ function complementariosDeCabecera(
   return salida;
 }
 
+/** Un importe del sistema tal como lo escribe el SIM, o `undefined` si no hay. */
+function numeroSim(v: string | null | undefined): string | undefined {
+  const n = importe(v);
+  return n === undefined ? undefined : String(n);
+}
+
 /**
  * El ítem de la declaración.
  *
@@ -270,7 +358,8 @@ function complementariosDeCabecera(
 function armarItem(
   op: OperationWithClient,
   faltantes: Faltante[],
-  fecha?: Date,
+  fecha: Date | undefined,
+  flujo: "importacion" | "exportacion",
 ): ItemSim | null {
   const falta = (campo: string, porque: string) => {
     faltantes.push({ campo, porque });
@@ -299,7 +388,7 @@ function armarItem(
     return null;
   }
 
-  return {
+  const item: ItemSim = {
     ncm,
     unidad,
     cantidadDeclarada: cantidad,
@@ -317,4 +406,22 @@ function armarItem(
       },
     ],
   };
+
+  // La exportación declara por ítem la comisión al exterior —que se deduce del
+  // precio— y a quién se le vende. La comisión está en las 8 exportaciones del
+  // archivo sin excepción, y el comprador en 7.
+  if (flujo === "exportacion") {
+    const cpl: ComplementarioSim[] = [
+      { codigo: "COMISIONALEXT", valor: numeroSim(op.comision_exterior) ?? "0", tipo: "D" },
+    ];
+    const comprador = texto(op.contraparte);
+    if (comprador) cpl.push({ codigo: "DATO-COMPRADOR", valor: comprador, tipo: "D" });
+    else faltantes.push({
+      campo: "Comprador del exterior",
+      porque: "La exportación declara a quién se le vende, por ítem.",
+    });
+    item.complementarios = cpl;
+  }
+
+  return item;
 }

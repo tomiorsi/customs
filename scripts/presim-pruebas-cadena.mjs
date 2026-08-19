@@ -115,6 +115,74 @@ if (operacion) {
   );
 }
 
+/* ── 1 bis. la misma carpeta, pero de exportación ── */
+
+console.log("\n1 bis. Exportación: no declara lo mismo\n");
+
+const EXPORTACION = {
+  ...OPERACION,
+  destinacion: "expo_consumo",
+  pais_destino: "Brasil",
+  contraparte: "GERALD MC DONALD & COMPANY LTD.",
+  lugar_mercaderia_736: "CAPITAN CORTES - CABA",
+  gastos_origen: null,
+  comision_exterior: null,
+};
+
+const expo = operacionSimDesde(EXPORTACION, { cuitDespachante: "30710308043" });
+// La exportación NO se traduce entera, y eso es lo que hay que dejar fijo: son
+// exactamente los cinco datos de transporte que la operación todavía no modela.
+// Si aparece un sexto, alguien agregó algo sin darse cuenta; si baja a cuatro,
+// es porque se modeló uno y hay que sacarlo de esta lista.
+const PENDIENTES_EXPO = [
+  "Aduana de salida",
+  "CUIT del transportista",
+  "Medio de transporte",
+  "Identificación del medio",
+  "Bandera del medio",
+];
+chequear(
+  "de la exportación falta solo el transporte",
+  expo.faltantes.length === PENDIENTES_EXPO.length &&
+    PENDIENTES_EXPO.every((c) => expo.faltantes.some((f) => f.campo === c)),
+  expo.faltantes.map((f) => f.campo).join(", "),
+);
+chequear("elige subrégimen de exportación", expo.operacion?.subregimen === "EC01", expo.operacion?.subregimen ?? "");
+
+if (expo.operacion) {
+  const texto = escribirDeclaracion(armarDeclaracion(expo.operacion));
+  chequear("sale el lugar del art. 736", texto.includes("CCPL=LUGAR-ART736CA") && texto.includes("MCPL=CAPITAN CORTES - CABA"));
+  chequear("sin gastos anteriores declara 0", texto.includes("CCPL=GTOSANT736CA") && /CCPL=GTOSANT736CA\nMCPL=0\n/.test(texto));
+  chequear("la comisión al exterior va por ítem", /CCPL=COMISIONALEXT\nMCPL=0\nNART=0001/.test(texto));
+  chequear("y el comprador también", texto.includes("CCPL=DATO-COMPRADOR") && texto.includes("MCPL=GERALD MC DONALD & COMPANY LTD."));
+
+  // Lo que importa de verdad: que NO se cuele nada de importación. Los tres de
+  // la DJ del importador están en 0 de 8 exportaciones del archivo.
+  chequear(
+    "no se cuela ningún complementario de importación",
+    !texto.includes("DOMICIL.ESTABLEC") &&
+      !texto.includes("FECHA INIC.ACTIV") &&
+      !texto.includes("IDTRIB-PROVEEDOR"),
+  );
+  const val = resumirHallazgos(validarDeclaracion(armarDeclaracion(expo.operacion)));
+  chequear("la declaración de exportación valida", val.errores === 0, `${val.errores} error(es), ${val.avisos} aviso(s)`);
+}
+
+// Y al revés: una importación no lleva los de exportación.
+chequear(
+  "la importación no lleva los del art. 736",
+  operacion !== null &&
+    !escribirDeclaracion(armarDeclaracion(operacion)).includes("736") &&
+    !escribirDeclaracion(armarDeclaracion(operacion)).includes("COMISIONALEXT"),
+);
+
+const expoSinLugar = operacionSimDesde({ ...EXPORTACION, lugar_mercaderia_736: null }, { cuitDespachante: "30710308043" });
+chequear(
+  "sin lugar de carga → avisa",
+  expoSinLugar.faltantes.some((f) => f.campo === "Lugar donde está la mercadería"),
+  expoSinLugar.faltantes.find((f) => f.campo === "Lugar donde está la mercadería")?.porque ?? "",
+);
+
 /* ── 2. la situación de arribo ── */
 
 console.log("\n2. Cómo se deduce la situación de arribo\n");
