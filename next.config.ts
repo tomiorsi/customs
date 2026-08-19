@@ -22,7 +22,20 @@ const CSP = [
   // Nadie puede meter la app en un iframe: evita clickjacking sobre el portal.
   "frame-ancestors 'none'",
   "form-action 'self'",
-  "img-src 'self' data: blob: https://*.cdninstagram.com https://aduananews.com https://*.tradenews.com.ar https://argenports.com https://*.globalports.com.ar",
+  /**
+   * Imágenes de terceros: solo las portadas de los medios del Boletín.
+   *
+   * Cada medio va con las DOS formas —el dominio pelado y el comodín— porque
+   * no controlamos desde cuál sirve sus imágenes y puede cambiar sin aviso.
+   * `*.tradenews.com.ar` NO cubre `tradenews.com.ar`: el comodín exige al
+   * menos un subdominio. Por eso una noticia de Trade News salía sin foto
+   * mientras las de los otros medios cargaban bien.
+   */
+  "img-src 'self' data: blob: https://*.cdninstagram.com " +
+    "https://aduananews.com https://*.aduananews.com " +
+    "https://tradenews.com.ar https://*.tradenews.com.ar " +
+    "https://argenports.com https://*.argenports.com " +
+    "https://globalports.com.ar https://*.globalports.com.ar",
   "font-src 'self' data: https://fonts.gstatic.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   `script-src 'self' 'unsafe-inline'${esDev ? " 'unsafe-eval'" : ""}`,

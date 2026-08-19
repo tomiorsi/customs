@@ -429,6 +429,83 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg>
         </button>
         <div class="project-stack-track" id="stack-software">
+    <!-- CHAT EN VIVO -->
+    <article id="chatbot" class="project" data-project="chatbot">
+      <!-- Sin caption ni botón "Qué hace" a propósito (pedido de Tomás,
+           1/8/2026): esta tarjeta no tiene nada encima, para que la gente
+           interactúe con el chat directo sin ningún elemento tapando. -->
+      <!-- Chat REAL, no una animación: escribe el visitante y contesta el modelo.
+           Estética de mensajería (burbujas, fondo texturado, tildes) para que se
+           entienda de una, pero con cabecera propia de Wabe: si imitara a
+           WhatsApp de más, el botón "seguir por WhatsApp" no tendría sentido. -->
+      <div class="project-preview">
+        <div class="preview-chrome">
+          <span class="preview-dots"><i></i><i></i><i></i></span>
+          <span class="preview-url">Demo en vivo · probalo vos</span>
+        </div>
+        <div class="p-chat p-chat-live">
+          <div class="p-chat-head">
+            <div class="p-chat-avatar" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="7" width="16" height="12" rx="3" />
+                <path d="M12 7V4" /><circle cx="12" cy="3" r="1" fill="currentColor" stroke="none" />
+                <circle cx="9" cy="13" r="1" fill="currentColor" stroke="none" />
+                <circle cx="15" cy="13" r="1" fill="currentColor" stroke="none" />
+              </svg>
+            </div>
+            <div class="p-chat-head-info">
+              <strong>Asistente de Wabe</strong>
+              <span><i class="p-chat-online"></i>En línea · responde al instante</span>
+            </div>
+            <span class="p-chat-head-badge">IA</span>
+          </div>
+
+          <div class="p-chat-body" id="chat-live" aria-live="polite" aria-label="Conversación con el asistente de Wabe"></div>
+
+          <form class="p-chat-form" id="chat-form" autocomplete="off">
+            <input
+              type="text"
+              id="chat-input"
+              class="p-chat-field"
+              placeholder="Contanos qué te lleva tiempo…"
+              maxlength="500"
+              aria-label="Escribí tu consulta"
+            />
+            <button type="submit" class="p-chat-send" aria-label="Enviar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13" /><path d="m13 6 6 6-6 6" /></svg>
+            </button>
+          </form>
+
+          <!-- Invitación a probarlo. Desaparece con el primer mensaje: una vez
+               que la persona escribió, ya cumplió su función y solo estorba.
+               El texto aclara que es real porque la duda por defecto, viendo un
+               chat en una web, es que sea una animación grabada. -->
+          <p class="p-chat-invite" id="chat-invite">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 19V5" /><path d="m5 12 7-7 7 7" />
+            </svg>
+            <span>Es un chat real, no una animación. Escribile</span>
+          </p>
+
+          <!-- Salida a WhatsApp: el objetivo real de toda la demo. -->
+          <a
+            href="https://wa.me/5491123703680"
+            class="p-chat-wa"
+            id="chat-wa"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-track="chatbot-whatsapp"
+            hidden
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 1.67c2.2 0 4.27.86 5.82 2.42a8.19 8.19 0 0 1 2.42 5.82c0 4.54-3.7 8.24-8.24 8.24h-.01c-1.52 0-3.01-.41-4.31-1.18l-.31-.18-3.11.82.83-3.04-.2-.32a8.18 8.18 0 0 1-1.26-4.36c0-4.54 3.7-8.24 8.24-8.24zm-2.9 4.53c-.15 0-.39.06-.6.28-.2.22-.79.77-.79 1.88s.81 2.18.92 2.33c.11.15 1.58 2.5 3.9 3.42.55.22.98.35 1.31.45.55.17 1.06.15 1.45.09.44-.07 1.36-.55 1.55-1.09.19-.54.19-1 .13-1.09-.06-.1-.2-.15-.42-.26-.22-.11-1.36-.67-1.57-.75-.21-.08-.36-.11-.52.11-.15.22-.59.75-.72.9-.13.15-.27.17-.49.06-.22-.11-.94-.35-1.79-1.11-.66-.59-1.11-1.32-1.24-1.54-.13-.22-.01-.34.1-.45.1-.1.22-.27.33-.4.11-.13.15-.22.22-.37.07-.15.04-.28-.02-.39-.06-.11-.5-1.28-.71-1.75-.18-.42-.37-.42-.52-.42z" />
+            </svg>
+            <span>Seguir por WhatsApp</span>
+          </a>
+        </div>
+      </div>
+    </article>
+
     <!-- DESPACHANTE -->
     <article class="project" data-project="despachante">
       <div class="project-info">
@@ -532,82 +609,6 @@
       </a>
     </article>
 
-    <!-- MOTOR IVA -->
-    <article id="chatbot" class="project" data-project="chatbot">
-      <!-- Sin caption ni botón "Qué hace" a propósito (pedido de Tomás,
-           1/8/2026): esta tarjeta no tiene nada encima, para que la gente
-           interactúe con el chat directo sin ningún elemento tapando. -->
-      <!-- Chat REAL, no una animación: escribe el visitante y contesta el modelo.
-           Estética de mensajería (burbujas, fondo texturado, tildes) para que se
-           entienda de una, pero con cabecera propia de Wabe: si imitara a
-           WhatsApp de más, el botón "seguir por WhatsApp" no tendría sentido. -->
-      <div class="project-preview">
-        <div class="preview-chrome">
-          <span class="preview-dots"><i></i><i></i><i></i></span>
-          <span class="preview-url">Demo en vivo · probalo vos</span>
-        </div>
-        <div class="p-chat p-chat-live">
-          <div class="p-chat-head">
-            <div class="p-chat-avatar" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="4" y="7" width="16" height="12" rx="3" />
-                <path d="M12 7V4" /><circle cx="12" cy="3" r="1" fill="currentColor" stroke="none" />
-                <circle cx="9" cy="13" r="1" fill="currentColor" stroke="none" />
-                <circle cx="15" cy="13" r="1" fill="currentColor" stroke="none" />
-              </svg>
-            </div>
-            <div class="p-chat-head-info">
-              <strong>Asistente de Wabe</strong>
-              <span><i class="p-chat-online"></i>En línea · responde al instante</span>
-            </div>
-            <span class="p-chat-head-badge">IA</span>
-          </div>
-
-          <div class="p-chat-body" id="chat-live" aria-live="polite" aria-label="Conversación con el asistente de Wabe"></div>
-
-          <form class="p-chat-form" id="chat-form" autocomplete="off">
-            <input
-              type="text"
-              id="chat-input"
-              class="p-chat-field"
-              placeholder="Contanos qué te lleva tiempo…"
-              maxlength="500"
-              aria-label="Escribí tu consulta"
-            />
-            <button type="submit" class="p-chat-send" aria-label="Enviar">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13" /><path d="m13 6 6 6-6 6" /></svg>
-            </button>
-          </form>
-
-          <!-- Invitación a probarlo. Desaparece con el primer mensaje: una vez
-               que la persona escribió, ya cumplió su función y solo estorba.
-               El texto aclara que es real porque la duda por defecto, viendo un
-               chat en una web, es que sea una animación grabada. -->
-          <p class="p-chat-invite" id="chat-invite">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 19V5" /><path d="m5 12 7-7 7 7" />
-            </svg>
-            <span>Es un chat real, no una animación. Escribile</span>
-          </p>
-
-          <!-- Salida a WhatsApp: el objetivo real de toda la demo. -->
-          <a
-            href="https://wa.me/5491123703680"
-            class="p-chat-wa"
-            id="chat-wa"
-            target="_blank"
-            rel="noopener noreferrer"
-            data-track="chatbot-whatsapp"
-            hidden
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 1.67c2.2 0 4.27.86 5.82 2.42a8.19 8.19 0 0 1 2.42 5.82c0 4.54-3.7 8.24-8.24 8.24h-.01c-1.52 0-3.01-.41-4.31-1.18l-.31-.18-3.11.82.83-3.04-.2-.32a8.18 8.18 0 0 1-1.26-4.36c0-4.54 3.7-8.24 8.24-8.24zm-2.9 4.53c-.15 0-.39.06-.6.28-.2.22-.79.77-.79 1.88s.81 2.18.92 2.33c.11.15 1.58 2.5 3.9 3.42.55.22.98.35 1.31.45.55.17 1.06.15 1.45.09.44-.07 1.36-.55 1.55-1.09.19-.54.19-1 .13-1.09-.06-.1-.2-.15-.42-.26-.22-.11-1.36-.67-1.57-.75-.21-.08-.36-.11-.52.11-.15.22-.59.75-.72.9-.13.15-.27.17-.49.06-.22-.11-.94-.35-1.79-1.11-.66-.59-1.11-1.32-1.24-1.54-.13-.22-.01-.34.1-.45.1-.1.22-.27.33-.4.11-.13.15-.22.22-.37.07-.15.04-.28-.02-.39-.06-.11-.5-1.28-.71-1.75-.18-.42-.37-.42-.52-.42z" />
-            </svg>
-            <span>Seguir por WhatsApp</span>
-          </a>
-        </div>
-      </div>
-    </article>
     <!-- CHATBOT -->
     <article id="escaneo-iva" class="project" data-project="motor-iva">
       <div class="project-info">
