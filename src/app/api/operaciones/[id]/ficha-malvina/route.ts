@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth-server";
 import { esEquipo, alcanceDe } from "@/lib/roles";
 import { getOperationById } from "@/lib/data";
 import { armarFichaMalvina } from "@/lib/ficha-malvina";
+import { datosDelEstudio } from "@/lib/datos-estudio";
 import { parseChecklist } from "@/lib/workflow";
 
 export async function GET(
@@ -26,7 +27,10 @@ export async function GET(
   const checklist = parseChecklist(op.checklist);
 
   try {
-    const resultado = await armarFichaMalvina(op, { checklist });
+    const resultado = await armarFichaMalvina(op, {
+      checklist,
+      estudio: datosDelEstudio(user),
+    });
     return NextResponse.json({ ok: true, resultado });
   } catch (e) {
     return NextResponse.json(

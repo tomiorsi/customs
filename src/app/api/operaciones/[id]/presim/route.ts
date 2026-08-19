@@ -6,6 +6,7 @@ import { armarDeclaracion } from "@/lib/presim/armar";
 import { escribirDeclaracion } from "@/lib/presim/archivo";
 import { operacionSimDesde } from "@/lib/presim/desde-operacion";
 import { resumirHallazgos, validarDeclaracion } from "@/lib/presim/validar";
+import { datosDelEstudio } from "@/lib/datos-estudio";
 
 /**
  * El archivo del pre-SIM de una operación.
@@ -16,8 +17,6 @@ import { resumirHallazgos, validarDeclaracion } from "@/lib/presim/validar";
  * Solo para el equipo: el archivo lleva el CUIT del importador y los valores de
  * la operación, y el cliente no tiene por qué verlo.
  */
-
-const ESTUDIO_CUIT = process.env.ESTUDIO_CUIT?.trim() || null;
 
 export async function GET(
   req: NextRequest,
@@ -34,11 +33,14 @@ export async function GET(
     return NextResponse.json({ error: "Operación no encontrada." }, { status: 404 });
   }
 
-  if (!ESTUDIO_CUIT) {
+  // El CUIT sale de la cuenta del estudio, no de una variable de entorno: la
+  // plataforma es multiestudio y cada despachante firma con el suyo.
+  const estudio = datosDelEstudio(user);
+  if (!estudio.cuit) {
     return NextResponse.json(
       {
         error:
-          "Falta el CUIT del despachante. Se configura en la variable de entorno ESTUDIO_CUIT.",
+          "Falta el CUIT del estudio. Se carga una sola vez en los datos de la cuenta.",
       },
       { status: 400 },
     );
@@ -46,7 +48,7 @@ export async function GET(
 
   try {
     const { operacion, faltantes } = operacionSimDesde(op, {
-      cuitDespachante: ESTUDIO_CUIT,
+      cuitDespachante: estudio.cuit,
     });
 
     if (!operacion) {

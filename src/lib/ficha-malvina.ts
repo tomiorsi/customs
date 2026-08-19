@@ -33,9 +33,15 @@ export type FichaMalvinaResult = {
   secciones: FichaSeccion[];
 };
 
-const ESTUDIO_NOMBRE =
-  process.env.NEXT_PUBLIC_ESTUDIO_NOMBRE || "Estudio aduanero";
-const ESTUDIO_CUIT = process.env.ESTUDIO_CUIT?.trim() || null;
+/**
+ * Nombre de respaldo mientras el estudio no cargó su razón social.
+ *
+ * El nombre y el CUIT reales llegan por `opts.estudio`, de la cuenta de cada
+ * despachante: la plataforma es multiestudio y no puede haber un CUIT único
+ * para todo el servidor — a partir del segundo estudio, firmaría todo con el
+ * del primero.
+ */
+const ESTUDIO_SIN_NOMBRE = "Estudio aduanero";
 
 function txt(raw: string | null | undefined): string {
   const s = (raw ?? "").trim();
@@ -59,7 +65,11 @@ function moneyUsd(n: number): string {
 
 export async function armarFichaMalvina(
   op: OperationWithClient,
-  opts: { checklist?: ChecklistEstado } = {},
+  opts: {
+    checklist?: ChecklistEstado;
+    /** Razón social y CUIT del estudio que firma. Ver `datos-estudio.ts`. */
+    estudio?: { cuit: string | null; razonSocial: string | null };
+  } = {},
 ): Promise<FichaMalvinaResult> {
   /** Régimen fiscal ya definido en cotización/liquidación; no se re-pregunta en paso 5. */
   const destino: Destino = "reventa";
@@ -91,8 +101,8 @@ export async function armarFichaMalvina(
         campo("importador", "Importador", op.company_name),
         campo("cuit_importador", "CUIT importador", op.client_cuit),
         campo("iva", "Condición IVA", perfilLabel),
-        campo("estudio", "Despachante", ESTUDIO_NOMBRE),
-        campo("cuit_estudio", "CUIT despachante", ESTUDIO_CUIT),
+        campo("estudio", "Despachante", opts.estudio?.razonSocial || ESTUDIO_SIN_NOMBRE),
+        campo("cuit_estudio", "CUIT despachante", opts.estudio?.cuit ?? null),
         campo("aduana", "Aduana de despacho", op.aduana),
       ],
     },
