@@ -812,8 +812,7 @@ function initLegalModals() {
 // informa, sin botonera que obligue a decidir. Rechazar sigue siendo posible,
 // pero desde la política de privacidad: quien lo busca lo encuentra, y el que
 // solo quiere ver el sitio no se topa con una decisión en la cara.
-function guardarConsentimiento(valor) {
-  try { localStorage.setItem('wabe-cookies', valor); } catch (e) { /* modo privado */ }
+function aplicarConsentimiento(valor) {
   window.WABE_CONSENT = valor;
 
   if (valor !== 'rechazado') return;
@@ -826,6 +825,33 @@ function guardarConsentimiento(valor) {
       ad_personalization: 'denied', analytics_storage: 'denied',
     });
   }
+}
+
+function guardarConsentimiento(valor) {
+  try { localStorage.setItem('wabe-cookies', valor); } catch (e) { /* modo privado */ }
+  aplicarConsentimiento(valor);
+}
+
+/**
+ * Lo que el visitante decidió en una visita anterior.
+ *
+ * Faltaba, y por eso el aviso volvía a salir en cada carga: el valor se
+ * guardaba en localStorage pero nadie lo leía de vuelta, así que
+ * `window.WABE_CONSENT` arrancaba siempre en `undefined`.
+ *
+ * Traía algo peor de arrastre: `WABE_TRACKING_OK` tampoco se restauraba, así
+ * que quien había rechazado volvía a ser medido en su visita siguiente.
+ *
+ * (El lector vivía en un <script> del <head> y se fue junto con los snippets
+ * de Meta y Google cuando se sacaron de esta copia de la landing. Si algún día
+ * vuelven los trackers, esto tiene que volver al <head>: acá corre después del
+ * PageView, y a un visitante que rechazó no hay que medirlo ni una vez.)
+ */
+function restaurarConsentimiento() {
+  let guardado = null;
+  try { guardado = localStorage.getItem('wabe-cookies'); } catch (e) { /* modo privado */ }
+  if (guardado !== 'aceptado' && guardado !== 'rechazado') return;
+  aplicarConsentimiento(guardado);
 }
 
 function initCookieBar() {
@@ -856,12 +882,14 @@ function initCookieBar() {
     if (mostrado) return;
     mostrado = true;
     barra.classList.add('is-visible');
+    // Se da por visto apenas aparece, no al cerrarse. Con el consentimiento
+    // implícito que usa este aviso —informa, no pregunta— haberlo mostrado ya
+    // cumple, y así no vuelve a salir aunque el visitante se vaya antes de los
+    // cinco segundos. Si después rechaza desde la política, eso lo pisa.
+    guardarConsentimiento('aceptado');
     // La cuenta arranca recién acá, no al cargar la página: si no, en una
     // conexión lenta los 5 segundos se consumirían antes de verse.
-    temporizador = window.setTimeout(() => {
-      guardarConsentimiento('aceptado');
-      cerrar();
-    }, SEGUNDOS_EN_PANTALLA);
+    temporizador = window.setTimeout(cerrar, SEGUNDOS_EN_PANTALLA);
   };
   requestAnimationFrame(() => requestAnimationFrame(mostrar));
   window.setTimeout(mostrar, 120);
@@ -879,7 +907,7 @@ function initCookieBar() {
   const alDesplazar = () => {
     const umbral = Math.max((window.innerHeight || 0) * 0.6, 300);
     if (window.scrollY < umbral) return;
-    guardarConsentimiento('aceptado');
+    // Solo cierra: el consentimiento ya quedó guardado al mostrarse.
     cerrar();
     window.removeEventListener('scroll', alDesplazar);
   };
@@ -903,6 +931,7 @@ function initFooterYear() {
 }
 
 initLegalModals();
+restaurarConsentimiento();
 initCookieBar();
 initCookieOptOut();
 initFooterYear();
