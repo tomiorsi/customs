@@ -106,8 +106,14 @@ type FichaPosicion = {
 };
 
 
+// Se listan también las extensiones y no solo los MIME: con `.xls` el
+// navegador manda `application/octet-stream` bastante seguido, y sin la
+// extensión el archivo ni aparece en el selector.
 const ACCEPT_CATALOGO =
-  "application/pdf,image/jpeg,image/png,image/gif,image/webp";
+  "application/pdf,image/jpeg,image/png,image/gif,image/webp," +
+  "application/vnd.ms-excel," +
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet," +
+  ".xls,.xlsx";
 
 /**
  * Describe una medida antidumping de forma legible, con su unidad:

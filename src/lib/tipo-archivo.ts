@@ -67,6 +67,63 @@ function detectaContenedor(buf: Buffer): TipoDetectado | null {
 }
 
 /**
+ * Afina los dos contenedores que sirven para varias cosas.
+ *
+ * Los formatos de Office no tienen firma propia: comparten contenedor.
+ *  - `.xlsx` y `.docx` son ZIP, igual que cualquier comprimido.
+ *  - `.xls` y `.doc` son OLE2, indistinguibles por los primeros bytes.
+ *
+ * Se distinguen por lo que llevan adentro, que sí es específico y verificable:
+ * un `.xlsx` guarda sus hojas bajo `xl/` y un `.docx` su cuerpo en `word/`;
+ * en OLE2, el flujo se llama `Workbook` en Excel y `WordDocument` en Word.
+ *
+ * Importa porque sin esto una factura en `.xlsx` se detectaba como comprimido
+ * genérico y la lista blanca de la subida la rechazaba, aunque el sistema sepa
+ * leerla perfectamente.
+ *
+ * Se mira solo el arranque del archivo: los nombres de entrada del ZIP y el
+ * directorio OLE2 viven ahí, y recorrer un archivo entero por esto sería caro
+ * al pedo.
+ */
+function afinarOffice(buf: Buffer, tipo: TipoDetectado): TipoDetectado {
+  const cabeza = buf.subarray(0, Math.min(buf.length, 8192)).toString("latin1");
+
+  if (tipo.mime === "application/zip") {
+    if (cabeza.includes("xl/")) {
+      return {
+        mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        extension: "xlsx",
+        etiqueta: "planilla de Excel",
+      };
+    }
+    if (cabeza.includes("word/")) {
+      return {
+        mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        extension: "docx",
+        etiqueta: "documento de Word",
+      };
+    }
+    return tipo;
+  }
+
+  if (tipo.mime === "application/msword") {
+    // En OLE2 los nombres del directorio van en UTF-16, así que entre letra y
+    // letra hay un byte cero: se busca sobre el texto con los ceros sacados.
+    const sinCeros = cabeza.replace(/\u0000/g, "");
+    if (sinCeros.includes("Workbook") || sinCeros.includes("Book")) {
+      return {
+        mime: "application/vnd.ms-excel",
+        extension: "xls",
+        etiqueta: "planilla de Excel",
+      };
+    }
+    return tipo;
+  }
+
+  return tipo;
+}
+
+/**
  * Detecta el tipo real. Devuelve null si no reconoce la firma, que es la
  * respuesta correcta para "esto no es un documento": preferimos rechazar algo
  * legítimo raro antes que aceptar algo ejecutable.
@@ -83,7 +140,7 @@ export function detectarTipo(buf: Buffer): TipoDetectado | null {
       }
     }
     if (coincide) {
-      return { mime: f.mime, extension: f.extension, etiqueta: f.etiqueta };
+      return afinarOffice(buf, { mime: f.mime, extension: f.extension, etiqueta: f.etiqueta });
     }
   }
   return detectaContenedor(buf);

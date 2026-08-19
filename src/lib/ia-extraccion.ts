@@ -19,6 +19,7 @@ import {
   type CapaTextoPdf,
   type MetaLectura,
 } from "@/lib/capa-texto-pdf";
+import { esExcel, extraerTextoExcel } from "@/lib/excel-preparar";
 import { interpretarLecturaDocumentoFundada, serializarDatosDocumento } from "@/lib/interpretacion-documento";
 import {
   type ArchivoIA,
@@ -361,6 +362,44 @@ async function transcribirArchivo(
 }> {
   if (archivo.mediaType === "application/pdf") {
     return transcribirPdf(archivo, Buffer.from(archivo.base64, "base64"));
+  }
+
+  // Planilla: el texto está adentro del archivo, así que se lee y listo. No
+  // pasa por visión ni gasta IA — y encima llega mejor estructurado que un PDF,
+  // porque los ítems ya vienen uno por fila.
+  if (esExcel(archivo.nombre, archivo.mediaType)) {
+    const texto = await extraerTextoExcel(
+      Buffer.from(archivo.base64, "base64"),
+      archivo.nombre,
+    );
+    if (texto) {
+      return {
+        texto,
+        alertas: auditarLectura(texto).alertas,
+        meta: {
+          // «embebido» es lo que corresponde: el texto sale del archivo, no de
+          // una transcripción. Es la misma categoría que un PDF con capa.
+          fuente: "embebido",
+          paginas: (texto.match(/^## Hoja: /gm) ?? []).length || 1,
+          chars_embebido: texto.length,
+          texto_embebido: texto,
+          confiable_embebido: true,
+        },
+        interpretar: true,
+      };
+    }
+    return {
+      texto: "",
+      alertas: [
+        {
+          tipo: "lectura_vacia",
+          fragmento: "",
+          detalle: "No se pudo leer la planilla (¿protegida con contraseña o dañada?)",
+        },
+      ],
+      meta: null,
+      interpretar: false,
+    };
   }
 
   if (!iaDocsDisponible()) {

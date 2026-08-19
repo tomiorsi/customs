@@ -6,3 +6,10 @@ pillow>=10,<12
 numpy>=1.24,<3
 torch>=2.0
 torchvision>=0.15
+
+# Facturas y listas de empaque en Excel. Son dos librerías porque cubren
+# formatos distintos y ninguna cubre los dos: xlrd 2.x solo lee .xls (el
+# binario viejo, que es el que mandan la mayoría de los proveedores asiáticos)
+# y openpyxl solo .xlsx.
+xlrd>=2.0,<3
+openpyxl>=3.1,<4
