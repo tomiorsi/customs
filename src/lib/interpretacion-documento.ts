@@ -43,7 +43,21 @@ const SYSTEM_INTERPRETAR =
   "5. NCM/HS: código arancelario completo (mínimo 8 dígitos, con puntos si figuran). " +
   "En BL/AWB/CRT copiá el HS/NCM tal como aparece, sin truncar. " +
   "No uses números de lote, orden de compra ni referencia interna como NCM.\n" +
-  "6. En facturas/packing: no confundas precio unitario con cantidad ni peso. Si hay " +
+  "6. RENGLONES. En proformas, facturas comerciales y packing lists, devolvé " +
+  "mercaderia.items con UN ELEMENTO POR RENGLÓN de mercadería, en el orden del " +
+  "documento. Es lo normal que una carpeta traiga varias mercaderías distintas, y " +
+  "cada una puede clasificar en una posición arancelaria diferente: colapsarlas en " +
+  "una sola descripción hace imposible clasificarlas y liquidarlas.\n" +
+  "   - NO incluyas filas de subtotal, total, encabezado repetido ni renglones vacíos.\n" +
+  "   - Cada renglón lleva su propia cantidad, precio unitario y total tal como " +
+  "figuran, sin recalcular ni prorratear nada.\n" +
+  "   - «ncm» del renglón SOLO si el documento la trae. Un código de producto del " +
+  "proveedor en una columna llamada HS CODE no es una posición: omitilo.\n" +
+  "   - Además de items, seguí completando los campos sueltos de «mercaderia» con la " +
+  "visión del conjunto (descripción general, peso total, bultos totales).\n" +
+  "   - Si el documento tiene una sola mercadería, items puede traer ese único " +
+  "renglón o venir vacío: no lo fuerces.\n" +
+  "6b. En facturas/packing: no confundas precio unitario con cantidad ni peso. Si hay " +
   "líneas con unidades mezcladas (ej. rolls + lbs, pcs + kg), NO las unas en una sola " +
   "cantidad: preferí peso_neto/peso_bruto y bultos, y omití cantidad si no hay total homogéneo.\n" +
   "7. Fechas: convertí a DD/MM/AAAA. Formatos US (mes/día/año) → día/mes/año argentino. " +
@@ -81,7 +95,13 @@ const ESQUEMA_DATOS =
   '    "marca": "", "ncm": "si figura",\n' +
   '    "cantidad": "con unidad", "unidad": "MT, KG...",\n' +
   '    "bultos": "con tipo si figura", "tipo_embalaje": "",\n' +
-  '    "peso_neto": "con unidad", "peso_bruto": "con unidad"\n' +
+  '    "peso_neto": "con unidad", "peso_bruto": "con unidad",\n' +
+  '    "items": [\n' +
+  '      {"orden":1,"codigo":"código/modelo del proveedor","mercaderia":"descripción del renglón",\n' +
+  '       "marca":"","ncm":"solo si el documento la trae",\n' +
+  '       "cantidad":"","unidad":"","precio_unitario":"","valor":"total del renglón",\n' +
+  '       "peso_neto":"","peso_bruto":"","bultos":"","pais_origen":""}\n' +
+  "    ]\n" +
   "  },\n" +
   '  "partes": [\n' +
   '    {"etiqueta":"Seller|Buyer|Shipper|...","nombre":"","domicilio":"","pais":"","identificacion":"CUIT/CNPJ"}\n' +

@@ -1040,6 +1040,38 @@ export type ParteDocumento = {
   identificacion?: string;
 };
 
+/**
+ * Un renglón de la factura o la proforma.
+ *
+ * Una carpeta rara vez trae una sola mercadería: de los 13.467 despachos del
+ * archivo del estudio, **4.526 (33,6%) llevan más de una posición** y el más
+ * grande tiene 37. Cada renglón puede clasificar distinto, así que necesita su
+ * propia posición, su cantidad y su valor.
+ *
+ * Es el mismo vocabulario que `MercaderiaDocumento` a propósito: un renglón es
+ * una mercadería, solo que hay varias. Lo que agrega es lo que solo tiene
+ * sentido por renglón —`valor` y `precio_unitario`—, que es lo que después
+ * permite prorratear el flete por participación en el FOB, como hacen las
+ * declaraciones reales.
+ */
+export type ItemDocumento = {
+  /** Orden en el documento, 1-based. Sirve para no perder el renglón. */
+  orden?: number;
+  /** Código o modelo del proveedor, si lo trae. */
+  codigo?: string;
+  mercaderia?: string;
+  ncm?: string;
+  marca?: string;
+  cantidad?: string;
+  unidad?: string;
+  precio_unitario?: string;
+  valor?: string;
+  peso_neto?: string;
+  peso_bruto?: string;
+  bultos?: string;
+  pais_origen?: string;
+};
+
 export type MercaderiaDocumento = {
   contraparte?: string;
   mercaderia?: string;
@@ -1051,6 +1083,15 @@ export type MercaderiaDocumento = {
   tipo_embalaje?: string;
   peso_neto?: string;
   peso_bruto?: string;
+  /**
+   * Los renglones del documento, cuando trae más de una mercadería.
+   *
+   * Se suma **al lado** de los campos de arriba, no en su lugar: todo lo que
+   * ya lee `mercaderia` o `cantidad` sigue funcionando igual, y quien sepa de
+   * ítems usa esto. Sin renglones queda `undefined`, que es lo mismo que había
+   * antes de existir.
+   */
+  items?: ItemDocumento[];
 };
 
 export type OrigenDocumento = {
@@ -1417,9 +1458,77 @@ function normalizarMercaderiaDocumento(raw: unknown): MercaderiaDocumento | null
   if (tipoEmb) out.tipo_embalaje = tipoEmb;
   if (pn) out.peso_neto = pn;
   if (pb) out.peso_bruto = pb;
+  const items = normalizarItemsDocumento(src.items);
+  if (items) out.items = items;
+
   completarUnidadPeso(out);
   sanearCantidadMercaderia(out);
   return Object.keys(out).length ? out : null;
+}
+
+/**
+ * Los renglones de la factura o la proforma.
+ *
+ * Se descarta el renglón que no dice **qué es** la mercadería: sin descripción
+ * no se puede clasificar ni cotizar, y dejarlo entrar solo mete ruido — en una
+ * planilla siempre hay filas de subtotales, encabezados repetidos y renglones
+ * en blanco que la IA a veces devuelve igual.
+ *
+ * La posición se guarda solo si es una NCM válida. Un proveedor chino que pone
+ * su código interno en la columna «HS CODE» es lo más común del mundo, y ese
+ * número no es una posición argentina.
+ */
+function normalizarItemsDocumento(raw: unknown): ItemDocumento[] | null {
+  if (!Array.isArray(raw)) return null;
+  const salida: ItemDocumento[] = [];
+
+  for (const fila of raw) {
+    if (!fila || typeof fila !== "object") continue;
+    const src = fila as Record<string, unknown>;
+
+    const mercaderia = strCampo(src.mercaderia) ?? strCampo(src.descripcion);
+    if (!mercaderia) continue;
+
+    const unidad = strCampo(src.unidad);
+    const cantidadRaw = strCampo(src.cantidad) ?? pesoCampo(src.cantidad);
+    const cantidadBase = anexarUnidad(cantidadRaw, unidad) ?? cantidadRaw;
+
+    const ncmRaw = strCampo(src.ncm);
+    const item: ItemDocumento = { mercaderia };
+
+    const orden = Number(src.orden);
+    if (Number.isFinite(orden) && orden > 0) item.orden = Math.trunc(orden);
+
+    const codigo = strCampo(src.codigo) ?? strCampo(src.modelo);
+    if (codigo) item.codigo = codigo;
+    if (ncmRaw && ncmArancelarioValido(ncmRaw)) item.ncm = ncmRaw;
+
+    const marca = strCampo(src.marca);
+    if (marca) item.marca = marca;
+    if (cantidadBase) item.cantidad = interpretarMedidaLatina(cantidadBase) ?? cantidadBase;
+    if (unidad) item.unidad = unidad;
+
+    const unitario = strCampo(src.precio_unitario);
+    if (unitario) item.precio_unitario = unitario;
+    const valor = strCampo(src.valor) ?? strCampo(src.total);
+    if (valor) item.valor = valor;
+
+    const pn = strCampo(src.peso_neto);
+    if (pn) item.peso_neto = canonizarPesoConUnidad(interpretarMedidaLatina(pn) ?? pn);
+    const pb = strCampo(src.peso_bruto);
+    if (pb) item.peso_bruto = canonizarPesoConUnidad(interpretarMedidaLatina(pb) ?? pb);
+
+    const bultos = strCampo(src.bultos);
+    if (bultos) item.bultos = bultos;
+    const pais = strCampo(src.pais_origen);
+    if (pais) item.pais_origen = pais;
+
+    // El orden que trae el documento manda; si no lo trae, el de aparición.
+    if (item.orden === undefined) item.orden = salida.length + 1;
+    salida.push(item);
+  }
+
+  return salida.length ? salida : null;
 }
 
 /** Si el peso es solo número, hereda MT/ton de cantidad o del otro peso. */
