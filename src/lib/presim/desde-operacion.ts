@@ -3,7 +3,7 @@ import "server-only";
 import type { OperationWithClient } from "@/lib/data";
 import { codigoDivisa, codigoIncoterm, codigoPais, codigoUnidad } from "@/lib/presim/catalogos";
 import { buscar, vigentes } from "@/lib/presim/tablas";
-import type { ItemSim, OperacionSim } from "@/lib/presim/armar";
+import type { ComplementarioSim, ItemSim, OperacionSim } from "@/lib/presim/armar";
 import { subregimenPara, type SituacionArribo } from "@/lib/presim/subregimen";
 
 /**
@@ -205,12 +205,59 @@ export function operacionSimDesde(
     }
   }
 
+  const cpl = complementariosDeCabecera(op, faltantes);
+  if (cpl.length) operacion.complementarios = cpl;
+
   const nroFactura = texto(op.nro_factura);
   if (nroFactura) {
     operacion.documentos = [{ codigo: "FACTURACOMERCIAL", referencia: nroFactura }];
   }
 
   return { operacion, faltantes };
+}
+
+/**
+ * La DJ del importador y del proveedor, que el SIM pide como complementarios
+ * de cabecera.
+ *
+ * Los tres están en **los 13 despachos de importación del archivo**, sin una
+ * excepción. Dos son del importador y viven en su ficha —en el archivo, el par
+ * domicilio + fecha de alta se repite igual mientras el proveedor cambia—; el
+ * tercero es del proveedor y cambia con cada operación.
+ *
+ * Lo que falta se reporta y no se completa: media declaración con un dato
+ * inventado es peor que media declaración con un hueco visible.
+ */
+function complementariosDeCabecera(
+  op: OperationWithClient,
+  faltantes: Faltante[],
+): ComplementarioSim[] {
+  const salida: ComplementarioSim[] = [];
+  const agregar = (codigo: string, valor: string | undefined, campo: string, porque: string) => {
+    if (valor) salida.push({ codigo, valor, tipo: "D" });
+    else faltantes.push({ campo, porque });
+  };
+
+  agregar(
+    "DOMICIL.ESTABLEC",
+    texto(op.client_domicilio_establecimiento),
+    "Domicilio del establecimiento",
+    "Se carga en la ficha del cliente y el SIM lo pide en toda importación.",
+  );
+  agregar(
+    "FECHA INIC.ACTIV",
+    fechaSim(op.client_inicio_actividad),
+    "Inicio de actividades",
+    "Se carga en la ficha del cliente y el SIM lo pide en toda importación.",
+  );
+  agregar(
+    "IDTRIB-PROVEEDOR",
+    texto(op.idtrib_proveedor),
+    "ID tributario del proveedor",
+    "Es el número fiscal del proveedor del exterior; figura en la factura.",
+  );
+
+  return salida;
 }
 
 /**

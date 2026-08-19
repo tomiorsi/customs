@@ -1405,6 +1405,36 @@ export function vendedorDesdeExtraccion(
   return datos.mercaderia?.contraparte;
 }
 
+/**
+ * El número fiscal del proveedor del exterior (`IDTRIB-PROVEEDOR` del pre-SIM).
+ *
+ * Sale de la misma parte que el vendedor —la del lado ORIGEN— para que nunca
+ * se cuele el CUIT del importador, que está en el mismo documento y es el error
+ * fácil de cometer.
+ *
+ * **No se valida el formato**: cada país escribe el suyo. En los despachos del
+ * archivo conviven un EIN de EEUU con guión (`02-0656676`), dieciocho dígitos
+ * de China y el CUIT de sujeto del exterior que asigna AFIP (`5500000xxxx`)
+ * cuando el proveedor no tiene uno propio. Lo único que se descarta es un CUIT
+ * argentino común, que sería el comprador y no el vendedor.
+ */
+export function idTributarioProveedorDesdeExtraccion(
+  datos: Pick<DatosDocumentoOperacion, "partes">,
+): string | undefined {
+  for (const p of datos.partes ?? []) {
+    if (!etiquetaParteEsOrigen(p.etiqueta) || etiquetaParteEsDestino(p.etiqueta)) continue;
+    const id = p.identificacion?.trim();
+    if (!id) continue;
+    // Un CUIT argentino de once dígitos que empieza en 20/23/24/27/30/33/34 es
+    // del importador: el proveedor del exterior no tiene uno, salvo el
+    // 5500000xxxx de sujeto del exterior, que sí corresponde y hay que dejar.
+    const soloDigitos = id.replace(/\D/g, "");
+    if (/^(20|23|24|27|30|33|34)\d{9}$/.test(soloDigitos)) continue;
+    return id;
+  }
+  return undefined;
+}
+
 function normalizarMercaderiaDocumento(raw: unknown): MercaderiaDocumento | null {
   if (!raw || typeof raw !== "object") return null;
   const src = raw as Record<string, unknown>;

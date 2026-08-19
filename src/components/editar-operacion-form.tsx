@@ -38,6 +38,11 @@ const SECCIONES: { titulo: string; campos: Campo[] }[] = [
       },
       { campo: "via", label: "Vía", type: "via", basico: true },
       { campo: "contraparte", label: "Proveedor / comprador", basico: true },
+      {
+        campo: "idtrib_proveedor",
+        label: "ID tributario del proveedor",
+        hint: "El número fiscal del proveedor del exterior, como figura en la factura. El SIM lo pide en toda importación. Se copia tal cual: cada país tiene su formato.",
+      },
       { campo: "aduana", label: "Aduana", type: "aduana" },
       { campo: "pais_origen", label: "País de origen", basico: true },
       { campo: "pais_procedencia", label: "Procedencia" },

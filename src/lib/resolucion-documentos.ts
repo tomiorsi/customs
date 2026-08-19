@@ -33,6 +33,7 @@ import {
   fusionarYCompletarOrigen,
   iaDocsDisponible,
   normalizarDatosDocumentoOperacion,
+  idTributarioProveedorDesdeExtraccion,
   vendedorDesdeExtraccion,
   VACIO_DATOS_DOC,
   type ArchivoIA,
@@ -260,6 +261,19 @@ const CAMPOS_ESCALARES: DefCampoEscalar[] = [
     extraer: (d) => vendedorDesdeExtraccion(d),
     normalizar: normTexto,
     equivalentes: equivalentesTexto,
+  },
+  {
+    // El SIM lo pide como complementario de cabecera en toda importación. Sale
+    // de la factura, que es donde el proveedor pone su número fiscal.
+    id: "idtrib_proveedor",
+    label: "ID tributario del proveedor",
+    campo: "idtrib_proveedor",
+    docsFuente: ["factura_comercial", "proforma", "pedido_compra"],
+    extraer: (d) => idTributarioProveedorDesdeExtraccion(d),
+    normalizar: normTexto,
+    // Comparar sin guiones ni espacios: el mismo número viene escrito distinto
+    // en la proforma y en la factura definitiva.
+    equivalentes: (a, b) => a.replace(/[^0-9A-Za-z]/g, "") === b.replace(/[^0-9A-Za-z]/g, ""),
   },
   {
     id: "mercaderia",

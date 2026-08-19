@@ -24,6 +24,8 @@ export async function POST(req: Request) {
     contactName: String(body.contactName ?? "").trim() || null,
     phone: String(body.phone ?? "").trim() || null,
     personType: String(body.personType ?? "").trim() || null,
+    domicilioEstablecimiento: String(body.domicilioEstablecimiento ?? "").trim() || null,
+    inicioActividad: String(body.inicioActividad ?? "").trim() || null,
   }, estudioDe(user));
 
   if (res.error) {
@@ -56,6 +58,11 @@ export async function PUT(req: Request) {
   if ("phone" in body) input.phone = String(body.phone ?? "").trim() || null;
   if ("personType" in body)
     input.personType = String(body.personType ?? "").trim() || null;
+  if ("domicilioEstablecimiento" in body)
+    input.domicilioEstablecimiento =
+      String(body.domicilioEstablecimiento ?? "").trim() || null;
+  if ("inicioActividad" in body)
+    input.inicioActividad = String(body.inicioActividad ?? "").trim() || null;
   const res = updateCliente(id, input, estudioDe(user));
   if (res.error) {
     return NextResponse.json({ error: res.error }, { status: 400 });

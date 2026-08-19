@@ -53,6 +53,10 @@ type ClienteBasico = {
   iva_condition: string | null;
   cert_exencion: string | null;
   carta_garantia: string | null;
+  /** Domicilio del establecimiento (`DOMICIL.ESTABLEC` del pre-SIM). */
+  domicilio_establecimiento: string | null;
+  /** Alta en AFIP, ISO (`FECHA INIC.ACTIV` del pre-SIM). */
+  inicio_actividad: string | null;
 };
 
 /**
@@ -66,7 +70,8 @@ type ClienteBasico = {
 function clientesBasicos(despachanteId: string): ClienteBasico[] {
   return getDb()
     .prepare(
-      `SELECT id, company_name, email, cuit, iva_condition, cert_exencion, carta_garantia
+      `SELECT id, company_name, email, cuit, iva_condition, cert_exencion, carta_garantia,
+              domicilio_establecimiento, inicio_actividad
        FROM users WHERE role = 'client' AND despachante_id = ?`,
     )
     .all(despachanteId) as ClienteBasico[];
@@ -80,7 +85,8 @@ function clientesDelAlcance(alcance: Alcance): ClienteBasico[] {
   if (alcance.tipo === "equipo") return clientesBasicos(alcance.despachanteId);
   return getDb()
     .prepare(
-      `SELECT id, company_name, email, cuit, iva_condition, cert_exencion, carta_garantia
+      `SELECT id, company_name, email, cuit, iva_condition, cert_exencion, carta_garantia,
+              domicilio_establecimiento, inicio_actividad
        FROM users WHERE id = ? AND role = 'client'`,
     )
     .all(alcance.clienteId) as ClienteBasico[];
@@ -138,6 +144,24 @@ export function existeCliente(id: string, despachanteId: string): boolean {
   return Boolean(row);
 }
 
+/**
+ * Fecha de ficha a ISO `YYYY-MM-DD`.
+ *
+ * Acepta lo que ya viene del `<input type="date">` y también `dd/mm/aaaa`,
+ * porque el alta de un cliente se hace mirando la constancia de AFIP, donde la
+ * fecha está escrita así. Lo que no se entiende se guarda como nulo en vez de
+ * adivinado: una fecha de alta inventada viaja al SIM como si fuera cierta.
+ */
+function fechaISO(v: string | null | undefined): string | null {
+  const s = (v ?? "").trim();
+  if (!s) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const m = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/.exec(s);
+  if (!m) return null;
+  const [, d, mes, a] = m;
+  return `${a}-${mes.padStart(2, "0")}-${d.padStart(2, "0")}`;
+}
+
 export type NuevoCliente = {
   companyName: string;
   email?: string | null;
@@ -146,6 +170,18 @@ export type NuevoCliente = {
   contactName?: string | null;
   phone?: string | null;
   personType?: string | null;
+  /**
+   * Domicilio del establecimiento y alta en AFIP.
+   *
+   * No son adorno de la ficha: el SIM los pide como complementarios de cabecera
+   * en toda importación (`DOMICIL.ESTABLEC` y `FECHA INIC.ACTIV`, presentes en
+   * los 13 despachos de importación del archivo). Sin ellos la declaración sale
+   * incompleta, así que se cargan una vez acá y valen para todas las carpetas
+   * del cliente.
+   */
+  domicilioEstablecimiento?: string | null;
+  /** ISO `YYYY-MM-DD`; al archivo del SIM sale como dd/mm/aaaa. */
+  inicioActividad?: string | null;
 };
 
 /**
@@ -171,8 +207,9 @@ export function createCliente(
   db.prepare(
     `INSERT INTO users
        (id, username, email, password_hash, role, company_name, person_type,
-        cuit, iva_condition, contact_name, phone, op_status, despachante_id)
-     VALUES (?, NULL, ?, ?, 'client', ?, ?, ?, ?, ?, ?, 'approved', ?)`,
+        cuit, iva_condition, contact_name, phone, op_status, despachante_id,
+        domicilio_establecimiento, inicio_actividad)
+     VALUES (?, NULL, ?, ?, 'client', ?, ?, ?, ?, ?, ?, 'approved', ?, ?, ?)`,
   ).run(
     id,
     email,
@@ -184,6 +221,8 @@ export function createCliente(
     input.contactName?.trim() || null,
     input.phone?.trim() || null,
     despachanteId,
+    input.domicilioEstablecimiento?.trim() || null,
+    fechaISO(input.inicioActividad),
   );
   return { id };
 }
@@ -197,6 +236,8 @@ export type ClienteEditable = {
   contact_name: string | null;
   phone: string | null;
   person_type: string | null;
+  domicilio_establecimiento: string | null;
+  inicio_actividad: string | null;
 };
 
 /** Datos de un cliente para prellenar el formulario de edición. */
@@ -204,7 +245,8 @@ export function getClienteById(id: string, despachanteId: string): ClienteEditab
   if (!id?.trim()) return null;
   const row = getDb()
     .prepare(
-      `SELECT id, company_name, email, cuit, iva_condition, contact_name, phone, person_type
+      `SELECT id, company_name, email, cuit, iva_condition, contact_name, phone, person_type,
+              domicilio_establecimiento, inicio_actividad
        FROM users WHERE id = ? AND role = 'client' AND despachante_id = ?`,
     )
     .get(id, despachanteId) as ClienteEditable | undefined;
@@ -261,6 +303,10 @@ export function updateCliente(
   if (input.phone !== undefined) push("phone", input.phone?.trim() || null);
   if (input.personType !== undefined)
     push("person_type", input.personType === "fisica" ? "fisica" : "juridica");
+  if (input.domicilioEstablecimiento !== undefined)
+    push("domicilio_establecimiento", input.domicilioEstablecimiento?.trim() || null);
+  if (input.inicioActividad !== undefined)
+    push("inicio_actividad", fechaISO(input.inicioActividad));
 
   if (sets.length === 0) return {};
   db.prepare(
@@ -714,6 +760,17 @@ export const OP_CAMPOS = [
   "items_json",
   /** Fecha de emisión de la factura comercial (ISO YYYY-MM-DD). */
   "fecha_factura",
+  /**
+   * ID tributario del proveedor del exterior (`IDTRIB-PROVEEDOR` del pre-SIM).
+   *
+   * Va en la operación y no en la ficha del cliente porque cambia con cada
+   * proveedor: en el archivo, un mismo importador declara tres proveedores
+   * distintos en cuatro despachos. **No tiene un formato**: viene con el de su
+   * país —EIN de EEUU con guión, 18 dígitos de China, o el CUIT de sujeto del
+   * exterior `5500000xxxx` que asigna AFIP cuando el proveedor no tiene uno—,
+   * así que se copia tal cual y no se valida.
+   */
+  "idtrib_proveedor",
   /** Plazo de pago comercial en días (cuenta abierta, D/A, etc.). */
   "plazo_pago_dias",
   /** Vencimiento del pago al proveedor (ISO YYYY-MM-DD). */
@@ -784,6 +841,10 @@ export type OperationWithClient = OperationRow & {
   client_cert_exencion: string | null;
   /** Tipo de carta de garantía del cliente ('anual' | 'puntual' | 'no' | null), para avisos de retiro. */
   client_carta_garantia: string | null;
+  /** Domicilio del establecimiento del importador (`DOMICIL.ESTABLEC`). */
+  client_domicilio_establecimiento: string | null;
+  /** Alta en AFIP del importador, ISO (`FECHA INIC.ACTIV`). */
+  client_inicio_actividad: string | null;
 };
 
 export type NewOperationInput = {
@@ -1608,6 +1669,8 @@ export async function getAllOperations(despachanteId: string): Promise<Operation
         client_iva_condition: c.iva_condition,
         client_cert_exencion: c.cert_exencion,
         client_carta_garantia: c.carta_garantia,
+        client_domicilio_establecimiento: c.domicilio_establecimiento,
+        client_inicio_actividad: c.inicio_actividad,
       });
     }
   }
@@ -1634,6 +1697,8 @@ export async function getOperationById(
       client_iva_condition: c.iva_condition,
       client_cert_exencion: c.cert_exencion,
       client_carta_garantia: c.carta_garantia,
+      client_domicilio_establecimiento: c.domicilio_establecimiento,
+      client_inicio_actividad: c.inicio_actividad,
     };
   }
   return null;

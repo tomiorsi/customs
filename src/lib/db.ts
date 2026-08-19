@@ -220,6 +220,19 @@ function migrate(db: Database.Database) {
     }
   }
 
+  // Datos de la DJ del importador que el SIM pide como complementarios de
+  // cabecera en TODA importación (13 de 13 despachos del archivo los llevan):
+  // `DOMICIL.ESTABLEC` y `FECHA INIC.ACTIV`. Son del importador y no de la
+  // operación —en el archivo el par domicilio+fecha se repite igual mientras
+  // el proveedor cambia—, así que viven en su ficha y se cargan una sola vez.
+  if (!tiene("domicilio_establecimiento")) {
+    db.exec("ALTER TABLE users ADD COLUMN domicilio_establecimiento TEXT");
+  }
+  // Alta en AFIP, ISO 'YYYY-MM-DD'. Al archivo sale como dd/mm/aaaa.
+  if (!tiene("inicio_actividad")) {
+    db.exec("ALTER TABLE users ADD COLUMN inicio_actividad TEXT");
+  }
+
   // Logo del estudio para los PDF que se le mandan al cliente. Guarda solo el
   // nombre del archivo; los bytes viven en el directorio del estudio. Es del
   // DUEÑO del estudio: los empleados descargan con el logo de su estudio, no

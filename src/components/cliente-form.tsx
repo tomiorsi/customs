@@ -32,6 +32,19 @@ export function ClienteForm({ cliente }: { cliente?: ClienteEditable }) {
       setError("El nombre o razón social es obligatorio.");
       return;
     }
+    // Los dos datos de la DJ del importador son obligatorios porque el SIM los
+    // pide en toda importación. Se validan acá y no sólo con `required` para
+    // que el mensaje diga por qué, en vez del globo del navegador.
+    const domicilioEstablecimiento = String(fd.get("domicilioEstablecimiento") ?? "").trim();
+    if (!domicilioEstablecimiento) {
+      setError("Falta el domicilio del establecimiento. El SIM lo pide en toda importación.");
+      return;
+    }
+    const inicioActividad = String(fd.get("inicioActividad") ?? "").trim();
+    if (!inicioActividad) {
+      setError("Falta la fecha de inicio de actividades. Está en la constancia de AFIP.");
+      return;
+    }
     setEnviando(true);
     try {
       const res = await fetch("/api/admin/clientes", {
@@ -46,6 +59,8 @@ export function ClienteForm({ cliente }: { cliente?: ClienteEditable }) {
           contactName: fd.get("contactName"),
           phone: fd.get("phone"),
           ivaCondition: fd.get("ivaCondition"),
+          domicilioEstablecimiento,
+          inicioActividad,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -114,6 +129,32 @@ export function ClienteForm({ cliente }: { cliente?: ClienteEditable }) {
 
         <Campo label="Teléfono">
           <Input name="phone" defaultValue={cliente?.phone ?? ""} placeholder="+54 …" />
+        </Campo>
+
+        <div className="sm:col-span-2 mt-1 border-t border-border pt-4">
+          <p className="text-xs font-medium text-foreground">Datos para la declaración</p>
+          <p className="mt-1 text-xs text-muted">
+            El SIM los pide en toda importación. Se cargan una vez y valen para
+            todas las carpetas de este cliente.
+          </p>
+        </div>
+
+        <Campo label="Domicilio del establecimiento *">
+          <Input
+            name="domicilioEstablecimiento"
+            defaultValue={cliente?.domicilio_establecimiento ?? ""}
+            placeholder="Alférez Bouchard 4191 (1605) Munro, Bs.As."
+            required
+          />
+        </Campo>
+
+        <Campo label="Inicio de actividades *">
+          <Input
+            name="inicioActividad"
+            type="date"
+            defaultValue={cliente?.inicio_actividad ?? ""}
+            required
+          />
         </Campo>
       </div>
 
