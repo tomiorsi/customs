@@ -767,6 +767,7 @@ body > .site-header.site-header {
 }
 
 #servicios.section,
+#tambien.section,
 #work.section {
   max-width: min(1360px, 100%);
   padding-top: clamp(1.5rem, 3vw, 2.5rem);

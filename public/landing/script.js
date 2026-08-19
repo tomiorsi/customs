@@ -694,11 +694,13 @@ function initScrollConversions() {
   // 1 · Leyó las 4 tarjetas de servicios. Anclado al PIE de la sección, no a su
   //     comienzo: entrar a la sección lo hace cualquiera que scrollee un poco y
   //     sería un PageView disfrazado.
-  fireOnDwell(
-    document.querySelector('#servicios .services-foot'),
-    DWELL_MS,
-    () => trackQuePodemosHacer('scroll'),
-  );
+  // 18/8/2026: apuntaba a `.services-foot`, que NO EXISTE en el HTML — ni antes
+  // del reposicionamiento. O sea que este evento no disparó nunca y estuvimos
+  // midiendo de menos sin enterarnos. Se ancla al último panel, que es el pie
+  // real de la sección y sigue cumpliendo el criterio original: no cuenta a
+  // quien apenas entró, sino a quien llegó al final de las cuatro tarjetas.
+  const paneles = document.querySelectorAll('#servicios .service-panel-pin');
+  fireOnDwell(paneles[paneles.length - 1], DWELL_MS, () => trackQuePodemosHacer('scroll'));
 
   // 2 · Llegó a Proyectos. Anclado al label de la sección, lo primero estable
   //     que aparece (antes eran las pestañas Software/Webs, ya no existen).
