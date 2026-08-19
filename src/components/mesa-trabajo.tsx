@@ -43,6 +43,7 @@ import {
 import { LiquidacionPanel } from "@/components/liquidacion-panel";
 import { FichaMalvinaPanel } from "@/components/ficha-malvina-panel";
 import { PresimPanel } from "@/components/presim-panel";
+import { ProductosCarpeta } from "@/components/productos-carpeta";
 import { ncmPareceGeneral } from "@/lib/formato";
 
 export type MesaOp = {
@@ -1297,6 +1298,18 @@ function PanelOperacion({
                 onAplicar={aplicarNcm}
               />
 
+              {/* La carpeta puede tener varias mercaderías y no se sabe
+                  cuántas hasta clasificarlas: la lista se arma de a una,
+                  debajo de la posición principal. */}
+              <ProductosCarpeta
+                opId={op.id}
+                sugerencia={
+                  op.ncm && op.mercaderia
+                    ? { mercaderia: op.mercaderia, ncm: op.ncm }
+                    : null
+                }
+              />
+
               {/* 3 · Cotización — el flete y el seguro se editan acá mismo,
                   tocando cada valor en «Costos de la operación». */}
               <LiquidacionPanel
@@ -1319,13 +1332,27 @@ function PanelOperacion({
           )}
 
           {!esApertura && mostrarClasificacion && (
-            <NcmFinalPanel
-              ncmActual={op.ncm}
-              aplicando={aplicandoNcm}
-              aplicada={ncmAplicada}
-              error={clasifError}
-              onAplicar={aplicarNcm}
-            />
+            <>
+              <NcmFinalPanel
+                ncmActual={op.ncm}
+                aplicando={aplicandoNcm}
+                aplicada={ncmAplicada}
+                error={clasifError}
+                onAplicar={aplicarNcm}
+              />
+
+              {/* El mismo problema que en apertura: la carpeta puede tener
+                  varias mercaderías y recién se sabe cuántas al clasificarlas.
+                  Acá importa más, porque es lo que se declara. */}
+              <ProductosCarpeta
+                opId={op.id}
+                sugerencia={
+                  op.ncm && op.mercaderia
+                    ? { mercaderia: op.mercaderia, ncm: op.ncm }
+                    : null
+                }
+              />
+            </>
           )}
 
           {esLiquidacion && (
