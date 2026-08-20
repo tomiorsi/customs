@@ -15,8 +15,15 @@ type PartidaHit = {
    * trajo por otra vía y no hay un renglón que señalar.
    */
   coincide?: { codigo: string | null; texto: string } | null;
-  /** La trajo el archivo del estudio, no el texto del nomenclador. */
-  delArchivo?: boolean;
+  /**
+   * Cuántas veces el estudio despachó así. Cero: la trajo el nomenclador.
+   *
+   * Se muestra porque no es lo mismo una asociación vista dos veces que una
+   * vista doscientas: medido, la de dos acierta el 41,8% cuando decide sola y
+   * la de diez o más el 68,2%. El número no cambia el orden —pesarlo no
+   * mejora— pero deja juzgar.
+   */
+  vecesDespachado?: number;
 };
 type PosicionNcm = { codigo: string; descripcion: string; di: number };
 
@@ -188,9 +195,16 @@ export function NomencladorManual({
                     {/* De dónde salió. Una viene de la ley y la otra de cómo
                         este estudio despachó antes: no es lo mismo y quien
                         clasifica tiene que poder distinguirlo. */}
-                    {h.delArchivo && (
-                      <span className="ml-2 inline-block rounded bg-accent-soft px-1.5 py-0.5 align-middle text-[10px] font-medium text-accent-text">
-                        ya despachado así
+                    {!!h.vecesDespachado && (
+                      <span
+                        className={`ml-2 inline-block rounded px-1.5 py-0.5 align-middle text-[10px] font-medium ${
+                          h.vecesDespachado >= 5
+                            ? "bg-accent-soft text-accent-text"
+                            : "bg-surface-2 text-muted"
+                        }`}
+                      >
+                        despachado así {h.vecesDespachado}{" "}
+                        {h.vecesDespachado === 1 ? "vez" : "veces"}
                       </span>
                     )}
                     {/* Por qué está en la lista. El título de la partida casi

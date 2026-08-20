@@ -161,18 +161,19 @@ export async function GET(req: NextRequest) {
      * 28,7% al 67,8% en primer lugar.
      */
     const delArchivo = partidasDelLexico(q);
+    const vecesDe = new Map(delArchivo.map((d) => [d.partida, d.veces]));
     if (delArchivo.length) {
       const yaEstan = new Set(candidatas.map((c) => c.partida));
       const suma = await Promise.all(
         delArchivo
-          .filter((p) => !yaEstan.has(p))
+          .filter((d) => !yaEstan.has(d.partida))
           .slice(0, MAX_PARTIDAS)
-          .map(async (partida) => ({
+          .map(async ({ partida }) => ({
             partida,
             descripcion: (await descripcionPartida(partida)) || "",
           })),
       );
-      const ordenArchivo = new Set(delArchivo);
+      const ordenArchivo = new Set(delArchivo.map((d) => d.partida));
       candidatas = [
         ...suma,
         ...candidatas.filter((c) => ordenArchivo.has(c.partida)),
@@ -223,7 +224,9 @@ export async function GET(req: NextRequest) {
           // De dónde salió: del texto del nomenclador o del archivo del
           // estudio. Quien busca tiene que poder distinguirlo — una viene de
           // la ley y la otra de cómo se despachó antes.
-          delArchivo: delArchivo.includes(c.partida),
+          // Cuántas veces el estudio despachó así. Cero significa que esta
+          // partida la trajo el texto del nomenclador, no el archivo.
+          vecesDespachado: vecesDe.get(c.partida) ?? 0,
         })),
       ),
     });

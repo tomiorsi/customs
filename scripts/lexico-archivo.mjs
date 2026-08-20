@@ -213,10 +213,15 @@ if (ESCRIBIR) {
     if (porPartida.size > MAX_PARTIDAS_POR_PALABRA) continue;
     const total = [...porPartida.values()].reduce((a, b) => a + b, 0);
     if (total < MIN_APARICIONES) continue;
+    // Se guarda también CUÁNTAS veces se despachó así. No para pesar el
+    // ranking —probado: pesar por confianza no mejora, hasta baja un poco—
+    // sino para poder decirlo. Una palabra vista dos veces acierta el 41,8%
+    // cuando es la única que decide, y una vista diez o más el 68,2%: son dos
+    // cosas distintas y hoy se presentaban iguales, con peso 1,0 las dos.
     salida[palabra] = [...porPartida.entries()]
       .sort((a, b) => b[1] - a[1])
       .slice(0, 6)
-      .map(([partida, veces]) => [partida, Number((veces / total).toFixed(3))]);
+      .map(([partida, veces]) => [partida, Number((veces / total).toFixed(3)), veces]);
   }
   fs.writeFileSync(SALIDA, JSON.stringify(salida));
   console.log(`\nÍndice escrito en ${SALIDA}: ${Object.keys(salida).length} palabras.`);
