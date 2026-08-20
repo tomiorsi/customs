@@ -66,13 +66,25 @@ export function HeroPortal({ fecha }: { fecha: string | null }) {
             <span className="first-letter:uppercase">{fecha}</span>
           </p>
 
-          <h1 className="mt-6 text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+          {/* En el celeste de la marca, no en el color de texto.
+              Va con `var(--accent)` —el de relleno— y no con la clase
+              `text-accent`, que apunta al acento de TEXTO, un tono más oscuro
+              para que se lean los rótulos de diez píxeles. Acá el título mide
+              treinta y seis o más y en negrita: a ese tamaño el celeste puro
+              se lee bien, y es el color de la ola que tiene al lado. */}
+          <h1
+            className="mt-6 text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl"
+            style={{ color: "var(--accent)" }}
+          >
             Portal para importadores y despachantes
           </h1>
 
           <p className="mt-6 max-w-lg text-base leading-relaxed text-muted sm:text-lg">
-            Las noticias del sector y el Boletín Oficial del día, leídos y
-            ordenados. Y el nomenclador entero para buscar.
+            {/* Las tres cosas en una sola enumeración. Antes iban en dos
+                oraciones con «leídos y ordenados» en el medio, y la bajada
+                ocupaba cuatro renglones para decir tres sustantivos. */}
+            Las noticias del sector, el Boletín Oficial del día y el
+            nomenclador entero para buscar.
           </p>
 
           {/* Los dos en una línea también en celular: apilados se comían el
