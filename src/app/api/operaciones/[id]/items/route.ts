@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth-server";
 import { esEquipo, alcanceDe } from "@/lib/roles";
 import { getOperationById, updateOperationCampos } from "@/lib/data";
+import { candidatosDePartida } from "@/lib/clasificador/motor";
 import {
   agregarItem,
   escribirItems,
@@ -27,6 +28,27 @@ import {
  * Solo para el equipo: es la clasificación de la carpeta, no algo que el
  * cliente edite.
  */
+
+/**
+ * El texto legal de una posición, buscándola entre las de su partida.
+ *
+ * Devuelve `null` si no aparece: puede ser una posición que el nomenclador no
+ * tiene, y en ese caso es preferible guardar el renglón sin descripción antes
+ * que rechazarlo.
+ */
+async function descripcionDePosicion(ncm: string): Promise<string | null> {
+  const digitos = ncm.replace(/\D/g, "");
+  if (digitos.length < 8) return null;
+  try {
+    const hermanas = await candidatosDePartida(digitos.slice(0, 4));
+    const propia = hermanas.find((h) =>
+      h.codigo.replace(/\D/g, "").startsWith(digitos.slice(0, 11)),
+    );
+    return propia?.descripcion ?? null;
+  } catch {
+    return null;
+  }
+}
 
 async function operacionDe(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
@@ -95,7 +117,15 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
   }
 
   const nuevo: ItemOperacion = { mercaderia, fuente: "manual" };
-  if (ncm) nuevo.ncm = ncm;
+  if (ncm) {
+    nuevo.ncm = ncm;
+    // Se busca el texto legal una sola vez, acá, y se guarda con el renglón.
+    // Que la lista pueda decir QUÉ es cada posición es lo que permite darse
+    // cuenta de un error de clasificación mirando, en vez de descubrirlo al
+    // final. Si el nomenclador no contesta, el renglón entra igual: sin la
+    // descripción se ve peor, pero perder el producto sería peor todavía.
+    nuevo.descripcion_ncm = (await descripcionDePosicion(ncm)) ?? undefined;
+  }
   for (const k of ["codigo", "marca", "cantidad", "unidad", "valor", "peso_neto"] as const) {
     const v = (body[k] ?? "").trim();
     if (v) nuevo[k] = v;

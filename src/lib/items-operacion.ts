@@ -21,6 +21,14 @@ import type { ItemDocumento } from "@/lib/ia-documentos";
 
 export type ItemOperacion = ItemDocumento & {
   /**
+   * El texto legal de la posición, tal como lo dice el nomenclador.
+   *
+   * Se guarda al agregarla y no se vuelve a pedir. Sirve para que la lista
+   * muestre QUÉ es cada posición: once dígitos solos no le dicen a nadie si se
+   * equivocó de renglón, y el error de clasificación se descubre tarde.
+   */
+  descripcion_ncm?: string;
+  /**
    * De dónde salió el producto.
    *
    * Sirve para no pisar lo que cargó una persona con lo que leyó la IA la

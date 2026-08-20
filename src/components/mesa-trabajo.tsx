@@ -679,11 +679,6 @@ function PanelOperacion({
   const [aplicando, setAplicando] = useState(false);
   const [aplicado, setAplicado] = useState(false);
 
-  // NCM de la operación: se ingresa a mano (la clasificación se hace en el
-  // Nomenclador). Reutilizamos clasifError para el feedback al guardarla.
-  const [clasifError, setClasifError] = useState<string | null>(null);
-  const [aplicandoNcm, setAplicandoNcm] = useState(false);
-  const [ncmAplicada, setNcmAplicada] = useState(false);
   // Contador para forzar el recálculo de la cotización (y la composición del CIF)
   // cuando se aplica la IA, se cierra la NCM o se carga el flete, sin refrescar.
   const [recalc, setRecalc] = useState(0);
@@ -702,8 +697,7 @@ function PanelOperacion({
     setIaDocStage(null);
     setIaError(null);
     setAplicado(false);
-    setClasifError(null);
-    setNcmAplicada(false);
+
   }
 
   const etapa = etapas[verIdx];
@@ -902,42 +896,6 @@ function PanelOperacion({
       setIaError("Error de conexión con la IA.");
     } finally {
       setIaCargando(false);
-    }
-  }
-
-  async function aplicarNcm(ncm: string) {
-    const valor = ncm.trim();
-    if (!valor) return;
-    setAplicandoNcm(true);
-    setClasifError(null);
-    try {
-      const res = await fetch(`/api/operaciones/${op.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ncm: valor }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setClasifError(data.error ?? "No se pudo aplicar la NCM.");
-        return;
-      }
-      onCampos({ ncm: valor });
-      setNcmAplicada(true);
-      setRecalc((n) => n + 1);
-      setIaDoc(null);
-
-      const claveNcm = claveSubtarea(etapa.id, "ncm");
-      if (
-        etapa.id === "documentacion" &&
-        !checklist[claveNcm] &&
-        !ncmPareceGeneral(valor)
-      ) {
-        await toggle("ncm");
-      }
-    } catch {
-      setClasifError("Error de conexión al guardar la NCM.");
-    } finally {
-      setAplicandoNcm(false);
     }
   }
 
@@ -1316,18 +1274,12 @@ function PanelOperacion({
                 </div>
               </div>
 
-              {/* 2 · Nomenclatura (NCM) — se ingresa la posición final a mano. */}
-              <NcmFinalPanel
-                ncmActual={op.ncm}
-                aplicando={aplicandoNcm}
-                aplicada={ncmAplicada}
-                error={clasifError}
-                onAplicar={aplicarNcm}
-              />
-
-              {/* La carpeta puede tener varias mercaderías y no se sabe
-                  cuántas hasta clasificarlas: la lista se arma de a una,
-                  debajo de la posición principal. */}
+              {/* 2 · Las posiciones.
+                  Antes había DOS bloques: «NCM final», con un campo suelto
+                  para pegar una posición, y debajo «Productos de la carpeta»,
+                  con la lista. Eran lo mismo contado dos veces, y peor: la
+                  posición del campo de arriba y las de la lista podían no
+                  coincidir. Ahora es uno solo. */}
               <ProductosCarpeta
                 opId={op.id}
                 sugerencia={
@@ -1360,14 +1312,6 @@ function PanelOperacion({
 
           {!esApertura && mostrarClasificacion && (
             <>
-              <NcmFinalPanel
-                ncmActual={op.ncm}
-                aplicando={aplicandoNcm}
-                aplicada={ncmAplicada}
-                error={clasifError}
-                onAplicar={aplicarNcm}
-              />
-
               {/* El mismo problema que en apertura: la carpeta puede tener
                   varias mercaderías y recién se sabe cuántas al clasificarlas.
                   Acá importa más, porque es lo que se declara. */}
@@ -1544,84 +1488,6 @@ function EnviarCotizacionPanel({
  * La clasificación se hace en el Nomenclador (herramienta completa). Acá el
  * despachante sólo pega/edita la NCM final de la operación; no se llama al
  * clasificador desde la mesa de trabajo para no dar lugar a dudas. */
-
-function NcmFinalPanel({
-  ncmActual,
-  aplicando,
-  aplicada,
-  error,
-  onAplicar,
-}: {
-  ncmActual: string | null;
-  aplicando: boolean;
-  aplicada: boolean;
-  error: string | null;
-  onAplicar: (ncm: string) => void;
-}) {
-  const [valor, setValor] = useState(ncmActual ?? "");
-  // Reflejamos la NCM guardada (ej. la cargada en el Paso 1) cuando cambia, sin
-  // perder la edición: el operador puede sobrescribirla y volver a guardar.
-  useEffect(() => {
-    setValor(ncmActual ?? "");
-  }, [ncmActual]);
-  const limpio = valor.trim();
-  const sinCambios = limpio === (ncmActual ?? "").trim();
-
-  return (
-    <div className="rounded-xl border border-border bg-surface p-5">
-      <div className="flex items-center justify-between gap-3">
-        <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
-          <Search className="h-4 w-4 text-accent" />
-          NCM final
-        </p>
-        {ncmActual && (
-          <span className="rounded-full bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-muted">
-            Actual {ncmActual}
-          </span>
-        )}
-      </div>
-      <p className="mt-1 text-xs text-muted">
-        Sacá la posición con el Nomenclador y pegá acá la NCM final (8 dígitos).
-      </p>
-
-      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-        <input
-          value={valor}
-          onChange={(e) => setValor(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && limpio && !aplicando) onAplicar(limpio);
-          }}
-          placeholder="Ej. 7202.29.00"
-          inputMode="numeric"
-          className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted focus:border-accent focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-        />
-        <button
-          type="button"
-          disabled={aplicando || limpio.length < 4 || sinCambios}
-          onClick={() => onAplicar(limpio)}
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
-        >
-          {aplicando ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Check className="h-4 w-4" />
-          )}
-          Guardar NCM
-        </button>
-      </div>
-
-      {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
-      {aplicada && !error && (
-        <p className="mt-2 text-sm text-emerald-600 dark:text-emerald-400">
-          NCM guardada.
-        </p>
-      )}
-    </div>
-  );
-}
-
-/* ───────────────────── Resultado de la IA de apertura ───────────────────── */
-
 const ALERTA_ICON: Record<AlertaIA["nivel"], LucideIcon> = {
   ok: CheckCircle2,
   warn: AlertTriangle,

@@ -30,6 +30,8 @@ export type ProductoCarpeta = {
   unidad?: string;
   valor?: string;
   peso_neto?: string;
+  /** Texto legal de la posición, tal como lo dice el nomenclador. */
+  descripcion_ncm?: string;
   fuente?: "documento" | "manual";
 };
 
@@ -156,7 +158,9 @@ export function ProductosCarpeta({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Package className="h-4 w-4 text-accent" />
-          <h3 className="text-sm font-semibold text-foreground">Productos de la carpeta</h3>
+          <h3 className="text-sm font-semibold text-foreground">
+            Posiciones de la carpeta
+          </h3>
         </div>
         {resumen.total > 0 && (
           <span className="text-[11px] text-muted">
@@ -207,7 +211,9 @@ export function ProductosCarpeta({
                     </p>
                     <p className="mt-0.5 text-[11px] text-muted">
                       {it.ncm ? (
-                        <span className="font-medium text-accent-text">{it.ncm}</span>
+                        <span className="font-mono font-medium text-accent-text">
+                          {it.ncm}
+                        </span>
                       ) : (
                         <span className="text-amber-600 dark:text-amber-400">sin clasificar</span>
                       )}
@@ -215,6 +221,14 @@ export function ProductosCarpeta({
                         .filter(Boolean)
                         .map((x) => ` · ${x}`)}
                     </p>
+                    {/* El texto legal de la posición. Es lo que permite ver de
+                        un vistazo si se clasificó en el renglón equivocado:
+                        once dígitos solos no le dicen nada a nadie. */}
+                    {it.descripcion_ncm && (
+                      <p className="mt-1 text-[11px] leading-relaxed text-muted">
+                        {it.descripcion_ncm}
+                      </p>
+                    )}
                     {falta.length > 0 && (
                       <p className="mt-1 text-[11px] text-amber-600 dark:text-amber-400">
                         Para declarar falta: {falta.join(", ")}

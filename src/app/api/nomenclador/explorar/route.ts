@@ -82,14 +82,23 @@ export async function GET(req: NextRequest) {
 
   try {
     if (ncm) {
-      const [arancel, sufijos, notas] = await Promise.all([
+      const [arancel, sufijos, notas, hermanas] = await Promise.all([
         arancelPorNcm(ncm),
         sufijosDeNcm(ncm),
         notasDeNcm(ncm),
+        // Las posiciones de su partida, para poder devolver el texto legal de
+        // ESTA. Sin él, quien guarda una posición solo ve once dígitos y no
+        // tiene forma de darse cuenta de que se equivocó de renglón.
+        candidatosDePartida(ncm.replace(/\D/g, "").slice(0, 4)),
       ]);
+      const digitos = ncm.replace(/\D/g, "");
+      const propia = hermanas.find(
+        (h) => h.codigo.replace(/\D/g, "").startsWith(digitos.slice(0, 11)),
+      );
       return NextResponse.json({
         ok: true,
         ncm,
+        descripcion: propia?.descripcion ?? null,
         arancel,
         unidad: etiquetaUnidad(arancel?.unidad),
         sufijos,

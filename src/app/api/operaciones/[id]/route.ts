@@ -140,7 +140,12 @@ export async function PUT(
     campos.via = null;
   }
 
-  if ("ncm" in campos && campos.ncm && op.etapa !== ETAPA_INICIAL) {
+  // Sin excepción por etapa. Antes esto se saltaba en el Paso 1, y era la
+  // puerta por la que entraba una posición incompleta: se podía guardar
+  // «720299» —seis dígitos— en apertura y arrastrarla hasta la declaración.
+  // Una posición a medias no sirve en ninguna etapa; si todavía no se sabe,
+  // el campo se deja vacío.
+  if ("ncm" in campos && campos.ncm) {
     const { ncmEsPosicionEspecifica } = await import("@/lib/clasificador/motor");
     const ncmOk = await ncmEsPosicionEspecifica(campos.ncm);
     if (!ncmOk.ok) {
