@@ -80,3 +80,37 @@ export function digitosNcm(ncm: string | null | undefined): string {
 export function ncmPareceGeneral(ncm: string | null | undefined): boolean {
   return digitosNcm(ncm).length < 8;
 }
+
+/**
+ * Una posición arancelaria con sus puntos, a medida que se escribe.
+ *
+ * El nomenclador la escribe `8471.30.12.110K`: cuatro dígitos de partida, dos
+ * de subpartida, dos de posición, tres del sufijo SIM y una letra de control.
+ * Quien la copia de otro lado la trae con puntos; quien la tipea, sin. Que el
+ * campo la muestre siempre igual evita que la misma posición se vea de dos
+ * formas según de dónde vino, y de paso deja ver los cortes mientras se
+ * escribe, que es donde se detecta el dígito de más.
+ *
+ * Va formateando lo que haya: con tres dígitos devuelve tres, no espera a que
+ * estén los once. Y no valida —de eso se ocupa el servidor al guardar—, solo
+ * ordena lo que el usuario está escribiendo.
+ */
+export function ncmConPuntos(valor: string | null | undefined): string {
+  const crudo = (valor ?? "").toUpperCase();
+  const digitos = crudo.replace(/\D/g, "").slice(0, 11);
+  // La letra de control solo tiene sentido con los once dígitos puestos.
+  const letra = digitos.length === 11 ? (crudo.match(/[A-Z](?!.*[A-Z])/)?.[0] ?? "") : "";
+
+  const partes: string[] = [];
+  for (const [desde, largo] of [
+    [0, 4],
+    [4, 2],
+    [6, 2],
+    [8, 3],
+  ] as const) {
+    const trozo = digitos.slice(desde, desde + largo);
+    if (!trozo) break;
+    partes.push(trozo);
+  }
+  return partes.join(".") + letra;
+}

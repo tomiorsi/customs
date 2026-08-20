@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Loader2, Plus, Trash2, Package, Pencil, Search, X } from "lucide-react";
 import { faltaParaDeclarar } from "@/lib/items-operacion";
+import { ncmConPuntos } from "@/lib/formato";
 import { NomencladorManual } from "@/components/nomenclador-manual";
 
 /**
@@ -247,7 +248,10 @@ export function ProductosCarpeta({
                     <p className="mt-0.5 text-[11px] text-muted">
                       {it.ncm ? (
                         <span className="font-mono font-medium text-accent-text">
-                          {it.ncm}
+                          {/* Las guardadas antes de esto quedaron con los
+                              dígitos pelados: se muestran con los cortes
+                              igual, aunque la letra ya no se pueda recuperar. */}
+                          {ncmConPuntos(it.ncm)}
                         </span>
                       ) : (
                         <span className="text-amber-600 dark:text-amber-400">sin clasificar</span>
@@ -364,8 +368,14 @@ export function ProductosCarpeta({
             </span>
             <input
               value={ncm}
-              onChange={(e) => setNcm(e.target.value)}
-              placeholder="8 dígitos"
+              // Los puntos se ponen solos mientras se escribe. La posición se
+              // lee `8471.30.12.110K` en todos lados menos acá, donde había
+              // que tipearla corrida: la misma posición se veía de dos formas
+              // según de dónde viniera. Y los cortes a la vista son donde se
+              // nota el dígito de más, que es el error típico al copiarla a
+              // mano de una ficha.
+              onChange={(e) => setNcm(ncmConPuntos(e.target.value))}
+              placeholder="8471.30.12"
               inputMode="numeric"
               className="h-9 w-full rounded-lg border border-border bg-surface px-3 text-sm tabular-nums text-foreground"
             />

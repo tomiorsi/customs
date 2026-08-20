@@ -154,6 +154,10 @@ export async function PUT(
         { status: 400 },
       );
     }
+    // Se guarda como la escribe el nomenclador —con puntos y con la letra de
+    // control—, no como la tipeó quien la cargó. Es la forma que espera el
+    // SIM y la que hace que la misma posición se lea igual en todos lados.
+    if (ncmOk.codigo) campos.ncm = ncmOk.codigo;
   }
 
   await updateOperationCampos(op.user_id, id, campos);

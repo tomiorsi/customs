@@ -107,13 +107,31 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
     );
   }
 
-  // La posición se guarda con dígitos nada más, como el resto del sistema.
-  const ncm = (body.ncm ?? "").replace(/\D/g, "");
-  if (ncm && ncm.length < 8) {
-    return NextResponse.json(
-      { error: "La posición tiene que ser específica: al menos 8 dígitos." },
-      { status: 400 },
-    );
+  /**
+   * La posición se guarda como la escribe el nomenclador: `6402.12.00.111R`.
+   *
+   * Antes se guardaban los dígitos pelados, y eso perdía dos cosas. Los
+   * puntos, que son los cortes entre partida, subpartida, posición y sufijo
+   * —sin ellos nadie lee once dígitos seguidos—. Y la letra de control, que
+   * **toda posición final tiene** y que el SIM espera: las declaraciones
+   * reales llevan `IESPNCE=1513.19.00.000P`, con letra.
+   *
+   * No se reconstruye a mano: se toma la que devuelve el nomenclador al
+   * validarla, que es la fuente. Así lo tipeado y lo elegido del árbol quedan
+   * escritos igual.
+   */
+  const pedida = (body.ncm ?? "").trim();
+  let ncm = "";
+  if (pedida) {
+    const { ncmEsPosicionEspecifica } = await import("@/lib/clasificador/motor");
+    const chequeo = await ncmEsPosicionEspecifica(pedida);
+    if (!chequeo.ok) {
+      return NextResponse.json(
+        { error: chequeo.motivo ?? "La posición tiene que ser específica: al menos 8 dígitos." },
+        { status: 400 },
+      );
+    }
+    ncm = chequeo.codigo ?? pedida;
   }
 
   const nuevo: ItemOperacion = { mercaderia, fuente: "manual" };
