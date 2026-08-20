@@ -1251,10 +1251,19 @@ function PanelOperacion({
                 </p>
                 <button
                   type="button"
-                  onClick={() => setConfirmarMov("adelante")}
+                  // Avanza derecho, sin pedir confirmación aparte. El botón ya
+                  // dice a dónde va y el que lo aprieta es porque tiene la
+                  // factura en la mano; mandarlo a confirmar abajo a la
+                  // izquierda —lejos de donde hizo clic— es un paso de más
+                  // para una decisión que ya tomó. Se puede volver con
+                  // «Retroceder», así que no hay nada que proteger.
+                  onClick={() => moverA(idxActual + 1)}
                   disabled={avanzando}
                   className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-accent px-3 py-1.5 text-xs font-semibold text-accent transition-colors hover:bg-accent-soft disabled:opacity-60"
                 >
+                  {avanzando ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : null}
                   Saltar al Paso 2
                   <ArrowRight className="h-3.5 w-3.5" />
                 </button>
