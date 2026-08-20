@@ -46,23 +46,16 @@ const CSP = [
 
 const nextConfig: NextConfig = {
   /**
-   * La raíz sirve la landing de wabe.dev tal cual está en public/landing.
+   * La raíz es una página de la aplicación, no un archivo estático.
    *
-   * No se portó a componentes a propósito: son 65 KB de CSS y 1.700 líneas de
-   * JS con un canvas de three.js y siete demos interactivos. Reescribirlo a
-   * Tailwind garantizaba diferencias contra el original, y lo que se pidió es
-   * que sea idéntica. Así el archivo es el mismo que el sitio publicado, y
-   * actualizarla es copiar la carpeta de nuevo.
-   *
-   * `beforeFiles` para que gane sobre cualquier ruta de la app.
+   * Hasta el 20/8/2026 había acá un `rewrite` que servía
+   * `public/landing/index.html`: la landing de agencia, con servicios y
+   * proyectos. Se sacó cuando la portada pasó a mostrar lo mismo que ve el
+   * equipo adentro —Boletín del día, notas del sector, nomenclador—, porque
+   * eso son componentes que ya existen y un archivo estático no los puede
+   * usar. De la landing queda la ola 3D del hero, que sí se sirve de
+   * `public/landing/`.
    */
-  async rewrites() {
-    return {
-      beforeFiles: [{ source: "/", destination: "/landing/index.html" }],
-      afterFiles: [],
-      fallback: [],
-    };
-  },
 
   serverExternalPackages: ["better-sqlite3", "@dsnp/parquetjs"],
   devIndicators: false,

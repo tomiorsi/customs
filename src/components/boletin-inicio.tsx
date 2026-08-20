@@ -214,9 +214,19 @@ function PortadaBoletin() {
 export function BoletinInicio({
   boletin,
   prensa,
+  /**
+   * A dónde lleva «Ver todas».
+   *
+   * La misma pantalla se usa adentro y en la portada pública, y el listado
+   * completo no es el mismo: adentro `/admin/noticias`, afuera `/noticias`.
+   * Es lo único que cambia entre las dos, así que es un parámetro y no una
+   * copia del componente.
+   */
+  hrefNoticias = "/admin/noticias",
 }: {
   boletin: BoletinDelDia;
   prensa: ListadoNoticias;
+  hrefNoticias?: string;
 }) {
   const [abierta, setAbierta] = useState<string | null>(null);
 
@@ -353,7 +363,7 @@ export function BoletinInicio({
               Noticias destacadas del día
             </h2>
             <Link
-              href="/admin/noticias"
+              href={hrefNoticias}
               className="shrink-0 text-xs font-medium text-accent transition-opacity hover:opacity-80"
             >
               Ver todas ({prensa.noticias.length}) →
