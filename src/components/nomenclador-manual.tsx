@@ -15,6 +15,8 @@ type PartidaHit = {
    * trajo por otra vía y no hay un renglón que señalar.
    */
   coincide?: { codigo: string | null; texto: string } | null;
+  /** La trajo el archivo del estudio, no el texto del nomenclador. */
+  delArchivo?: boolean;
 };
 type PosicionNcm = { codigo: string; descripcion: string; di: number };
 
@@ -183,6 +185,14 @@ export function NomencladorManual({
                   </span>
                   <span className="min-w-0">
                     {h.descripcion}
+                    {/* De dónde salió. Una viene de la ley y la otra de cómo
+                        este estudio despachó antes: no es lo mismo y quien
+                        clasifica tiene que poder distinguirlo. */}
+                    {h.delArchivo && (
+                      <span className="ml-2 inline-block rounded bg-accent-soft px-1.5 py-0.5 align-middle text-[10px] font-medium text-accent-text">
+                        ya despachado así
+                      </span>
+                    )}
                     {/* Por qué está en la lista. El título de la partida casi
                         nunca contiene la palabra buscada —está tres niveles
                         más abajo—, y sin esto la lista parece arbitraria. */}
