@@ -24,7 +24,22 @@ const inputCls =
  * partida, se abre la partida y se ven sus subpartidas y sus posiciones. Para
  * quien ya sabe dónde buscar y quiere ver el árbol completo.
  */
-export function NomencladorManual({ esExport }: { esExport: boolean }) {
+export function NomencladorManual({
+  esExport,
+  onElegir,
+}: {
+  esExport: boolean;
+  /**
+   * Qué hacer cuando alguien elige una posición del árbol.
+   *
+   * Sin esto el nomenclador solo se mira, que es lo que hace falta en la
+   * pantalla de consulta y en el portal público. En la mesa de trabajo, en
+   * cambio, buscar es el medio: lo que se quiere es quedarse con la posición
+   * y sumarla a la carpeta. Es el mismo árbol; lo que cambia es qué pasa al
+   * llegar a la hoja.
+   */
+  onElegir?: (posicion: { codigo: string; descripcion: string }) => void;
+}) {
   const [consulta, setConsulta] = useState("");
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -220,24 +235,45 @@ export function NomencladorManual({ esExport }: { esExport: boolean }) {
                 : ""}
             </p>
             <ul className="space-y-1">
-              {posicionesVisibles.map((p) => (
-                <li
-                  key={p.codigo}
-                  className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 rounded-md px-2 py-1 text-xs leading-snug text-muted"
-                >
-                  <span className="shrink-0 font-mono font-medium text-foreground">
-                    {p.codigo}
-                  </span>
-                  {!esExport && p.di != null && (
-                    <span className="shrink-0 rounded bg-surface px-1.5 py-0.5 text-[10px] font-medium text-accent">
-                      DI {p.di}%
+              {posicionesVisibles.map((p) => {
+                const contenido = (
+                  <>
+                    <span className="shrink-0 font-mono font-medium text-foreground">
+                      {p.codigo}
                     </span>
-                  )}
-                  <span className="min-w-0 basis-full sm:basis-auto">
-                    {p.descripcion}
-                  </span>
-                </li>
-              ))}
+                    {!esExport && p.di != null && (
+                      <span className="shrink-0 rounded bg-surface px-1.5 py-0.5 text-[10px] font-medium text-accent">
+                        DI {p.di}%
+                      </span>
+                    )}
+                    <span className="min-w-0 basis-full text-left sm:basis-auto">
+                      {p.descripcion}
+                    </span>
+                  </>
+                );
+                return (
+                  <li key={p.codigo}>
+                    {onElegir ? (
+                      // Cuando la posición se puede elegir, el renglón es un
+                      // botón: se toca y queda. Sin `onElegir` sigue siendo
+                      // texto, como en la pantalla de consulta.
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onElegir({ codigo: p.codigo, descripcion: p.descripcion })
+                        }
+                        className="flex w-full flex-wrap items-baseline gap-x-2 gap-y-0.5 rounded-md px-2 py-1.5 text-xs leading-snug text-muted transition-colors hover:bg-accent-soft hover:text-accent-text"
+                      >
+                        {contenido}
+                      </button>
+                    ) : (
+                      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 rounded-md px-2 py-1 text-xs leading-snug text-muted">
+                        {contenido}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>

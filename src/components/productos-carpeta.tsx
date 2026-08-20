@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Loader2, Plus, Trash2, Package, Pencil } from "lucide-react";
+import { Loader2, Plus, Trash2, Package, Pencil, Search, X } from "lucide-react";
 import { faltaParaDeclarar } from "@/lib/items-operacion";
+import { NomencladorManual } from "@/components/nomenclador-manual";
 
 /**
  * Los productos de la carpeta, que se cargan de a uno.
@@ -60,11 +61,14 @@ const CAMPOS_RENGLON = [
 
 export function ProductosCarpeta({
   opId,
+  /** Exportación: cambia qué columna del arancel muestra el nomenclador. */
+  esExport = false,
   /** Lo que el clasificador acaba de encontrar, para ofrecerlo con un clic. */
   sugerencia,
   onCambio,
 }: {
   opId: string;
+  esExport?: boolean;
   sugerencia?: { mercaderia?: string; ncm?: string } | null;
   onCambio?: (resumen: Resumen) => void;
 }) {
@@ -81,6 +85,8 @@ export function ProductosCarpeta({
   const [error, setError] = useState<string | null>(null);
   const [mercaderia, setMercaderia] = useState("");
   const [ncm, setNcm] = useState("");
+  /** El nomenclador abierto adentro del bloque, para buscar la posición. */
+  const [buscando, setBuscando] = useState(false);
 
   const aplicar = useCallback(
     (d: { items?: ProductoCarpeta[]; resumen?: Resumen; error?: string }) => {
@@ -151,6 +157,19 @@ export function ProductosCarpeta({
     }
   }
 
+  /**
+   * Lo que se elige en el nomenclador cae en el campo de posición.
+   *
+   * No se agrega solo: falta decir a QUÉ producto corresponde, y ese es el
+   * dato que el nomenclador no tiene. Con la posición ya puesta, lo único que
+   * queda es el nombre y tocar Agregar.
+   */
+  function tomarDelNomenclador(p: { codigo: string; descripcion: string }) {
+    setNcm(p.codigo);
+    setBuscando(false);
+    if (!mercaderia.trim()) setMercaderia(p.descripcion);
+  }
+
   const sugerible = sugerencia?.ncm && sugerencia.mercaderia;
 
   return (
@@ -205,10 +224,26 @@ export function ProductosCarpeta({
             return (
               <li key={it.orden} className="py-2.5">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-sm text-foreground">
-                      <span className="text-muted">{it.orden}.</span> {it.mercaderia}
-                    </p>
+                  <div className="min-w-0 flex-1">
+                    {/* El renglón: qué es, qué posición le tocó y cuánto vale.
+                        Los tres juntos, porque son los tres que la declaración
+                        necesita por ítem y los que hay que poder revisar de un
+                        vistazo. El valor va a la derecha, alineado, para poder
+                        recorrer la columna y ver si suma la factura. */}
+                    <div className="flex items-baseline justify-between gap-3">
+                      <p className="min-w-0 text-sm text-foreground">
+                        <span className="text-muted">{it.orden}.</span> {it.mercaderia}
+                      </p>
+                      {it.valor ? (
+                        <span className="shrink-0 font-mono text-sm font-semibold tabular-nums text-foreground">
+                          {it.valor}
+                        </span>
+                      ) : (
+                        <span className="shrink-0 text-[11px] text-amber-600 dark:text-amber-400">
+                          sin valor
+                        </span>
+                      )}
+                    </div>
                     <p className="mt-0.5 text-[11px] text-muted">
                       {it.ncm ? (
                         <span className="font-mono font-medium text-accent-text">
@@ -217,7 +252,7 @@ export function ProductosCarpeta({
                       ) : (
                         <span className="text-amber-600 dark:text-amber-400">sin clasificar</span>
                       )}
-                      {[it.codigo, it.cantidad && `${it.cantidad} ${it.unidad ?? ""}`.trim(), it.peso_neto && `${it.peso_neto} kg`, it.valor]
+                      {[it.codigo, it.cantidad && `${it.cantidad} ${it.unidad ?? ""}`.trim(), it.peso_neto && `${it.peso_neto} kg`]
                         .filter(Boolean)
                         .map((x) => ` · ${x}`)}
                     </p>
@@ -304,48 +339,73 @@ export function ProductosCarpeta({
         </ul>
       )}
 
-      {/* Alta a mano: para el producto que no está en ningún documento. */}
-      <div className="mt-3 flex flex-wrap items-end gap-2">
-        <label className="min-w-0 flex-1 space-y-1">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-muted">
-            Otro producto
-          </span>
-          <input
-            value={mercaderia}
-            onChange={(e) => setMercaderia(e.target.value)}
-            placeholder="Qué es"
-            className="w-full rounded-lg border border-border bg-surface px-3 py-1.5 text-sm text-foreground"
-          />
-        </label>
-        <label className="w-36 space-y-1">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-muted">
-            Posición
-          </span>
-          <input
-            value={ncm}
-            onChange={(e) => setNcm(e.target.value)}
-            placeholder="opcional"
-            inputMode="numeric"
-            className="w-full rounded-lg border border-border bg-surface px-3 py-1.5 text-sm tabular-nums text-foreground"
-          />
-        </label>
-        <button
-          type="button"
-          disabled={cargando || !mercaderia.trim()}
-          onClick={() => void agregar({ mercaderia, ncm: ncm || undefined })}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-accent hover:text-accent disabled:opacity-40"
-        >
-          {cargando ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
-          Agregar
-        </button>
+      {/* Sumar una posición.
+          Las dos formas de llegar a ella, juntas: buscarla en el nomenclador
+          —que es lo que se hace cuando no se sabe— o pegarla si ya se tiene.
+          El buscador es el MISMO componente del nomenclador de adentro y del
+          portal; lo único que cambia acá es que la posición se puede tocar y
+          queda. */}
+      <div className="mt-4 border-t border-border pt-4">
+        <div className="flex flex-wrap items-end gap-2">
+          <label className="min-w-0 flex-1 space-y-1">
+            <span className="text-[10px] font-medium uppercase tracking-wide text-muted">
+              Producto
+            </span>
+            <input
+              value={mercaderia}
+              onChange={(e) => setMercaderia(e.target.value)}
+              placeholder="Qué es"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-1.5 text-sm text-foreground"
+            />
+          </label>
+          <label className="w-40 space-y-1">
+            <span className="text-[10px] font-medium uppercase tracking-wide text-muted">
+              Posición
+            </span>
+            <input
+              value={ncm}
+              onChange={(e) => setNcm(e.target.value)}
+              placeholder="8 dígitos"
+              inputMode="numeric"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-1.5 text-sm tabular-nums text-foreground"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={() => setBuscando((b) => !b)}
+            className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+              buscando
+                ? "border-accent bg-accent-soft text-accent-text"
+                : "border-border text-foreground hover:border-accent hover:text-accent"
+            }`}
+          >
+            {buscando ? <X className="h-3.5 w-3.5" /> : <Search className="h-3.5 w-3.5" />}
+            {buscando ? "Cerrar" : "Buscar en el nomenclador"}
+          </button>
+          <button
+            type="button"
+            disabled={cargando || !mercaderia.trim()}
+            onClick={() => void agregar({ mercaderia, ncm: ncm || undefined })}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-accent-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
+          >
+            {cargando ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+            Agregar
+          </button>
+        </div>
+
+        {buscando && (
+          <div className="mt-3 rounded-xl border border-border bg-bg p-3">
+            <NomencladorManual esExport={esExport} onElegir={tomarDelNomenclador} />
+          </div>
+        )}
       </div>
 
       {error && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{error}</p>}
 
       {items.length === 0 && !error && (
         <p className="mt-2 text-[11px] text-muted">
-          Se puede dejar vacío si la carpeta tiene una sola mercadería: en ese caso alcanza con la
-          posición de arriba.
+          Todavía no hay ninguna. Buscala en el nomenclador o pegala si ya la
+          tenés; si la carpeta lleva varias mercaderías, se agregan de a una.
         </p>
       )}
     </section>

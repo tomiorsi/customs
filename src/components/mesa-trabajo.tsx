@@ -1282,6 +1282,7 @@ function PanelOperacion({
                   coincidir. Ahora es uno solo. */}
               <ProductosCarpeta
                 opId={op.id}
+                esExport={op.tipo === "exportacion"}
                 sugerencia={
                   op.ncm && op.mercaderia
                     ? { mercaderia: op.mercaderia, ncm: op.ncm }
@@ -1317,6 +1318,7 @@ function PanelOperacion({
                   Acá importa más, porque es lo que se declara. */}
               <ProductosCarpeta
                 opId={op.id}
+                esExport={op.tipo === "exportacion"}
                 sugerencia={
                   op.ncm && op.mercaderia
                     ? { mercaderia: op.mercaderia, ncm: op.ncm }
