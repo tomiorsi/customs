@@ -122,16 +122,42 @@ export function ncmPrincipal(items: ItemOperacion[]): string | null {
   return items.find((x) => x.ncm)?.ncm ?? null;
 }
 
+/**
+ * Qué le falta a un renglón para poder declararse.
+ *
+ * La declaración necesita de cada ítem su posición, su cantidad con su unidad,
+ * su peso neto y su valor. Mientras la carpeta tiene un solo producto esos
+ * datos salen de los campos planos de la operación; con varios, cada renglón
+ * carga los suyos y hay que ver cuáles están.
+ *
+ * El peso es el que más falta y el único que no se puede derivar: probado
+ * contra las cinco declaraciones multi-ítem del archivo, repartirlo en
+ * proporción al valor se cae —un renglón que pesa 7.123 kg daría 1.984—,
+ * porque depende de qué es la mercadería y no de cuánto sale.
+ */
+export function faltaParaDeclarar(it: ItemOperacion): string[] {
+  const falta: string[] = [];
+  if (!it.ncm?.trim()) falta.push("posición");
+  if (!it.cantidad?.trim()) falta.push("cantidad");
+  if (!it.unidad?.trim()) falta.push("unidad");
+  if (!it.peso_neto?.trim()) falta.push("peso");
+  if (!it.valor?.trim()) falta.push("valor");
+  return falta;
+}
+
 /** Cuántos productos hay y cuántos están clasificados. */
 export function resumenItems(items: ItemOperacion[]): {
   total: number;
   clasificados: number;
   posiciones: number;
+  /** Renglones a los que todavía les falta algo para declarar. */
+  incompletos: number;
 } {
   const conNcm = items.filter((x) => x.ncm);
   return {
     total: items.length,
     clasificados: conNcm.length,
+    incompletos: items.filter((x) => faltaParaDeclarar(x).length > 0).length,
     // Los productos que comparten posición son un solo ítem del despacho: es
     // lo que pasó con la carpeta YANXIN, donde 15 renglones fueron 9 ítems.
     posiciones: new Set(conNcm.map((x) => x.ncm)).size,

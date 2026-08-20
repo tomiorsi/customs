@@ -74,6 +74,7 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
     cantidad?: string;
     unidad?: string;
     valor?: string;
+    peso_neto?: string;
   };
 
   const mercaderia = (body.mercaderia ?? "").trim();
@@ -95,7 +96,7 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
 
   const nuevo: ItemOperacion = { mercaderia, fuente: "manual" };
   if (ncm) nuevo.ncm = ncm;
-  for (const k of ["codigo", "marca", "cantidad", "unidad", "valor"] as const) {
+  for (const k of ["codigo", "marca", "cantidad", "unidad", "valor", "peso_neto"] as const) {
     const v = (body[k] ?? "").trim();
     if (v) nuevo[k] = v;
   }

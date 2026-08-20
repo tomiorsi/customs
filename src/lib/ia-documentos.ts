@@ -14,6 +14,7 @@ import {
   hoyIsoArgentina,
   parseFechaComercial,
 } from "./fechas";
+import { montoDesdeTexto } from "./monto";
 import { enriquecerFormaPagoComercial } from "./pago-mercaderia";
 import { contextoArticulosIA } from "./normas";
 import { REF_APERTURA } from "./normas-registro";
@@ -860,46 +861,6 @@ export type DocumentacionIA = {
     plazo_pago_dias?: string;
   } | null;
 };
-
-/**
- * Convierte un monto en texto (lo que devuelve la IA) a número. Asume formato US
- * de factura (coma = separador de miles, punto = decimal) y descarta símbolos,
- * letras y espacios. Devuelve null si no hay un número válido.
- */
-function montoDesdeTexto(v: unknown): number | null {
-  if (typeof v === "number") return Number.isFinite(v) ? v : null;
-  if (typeof v !== "string") return null;
-  let s = v.replace(/[^0-9.,-]/g, "").trim();
-  if (!s) return null;
-  const neg = s.startsWith("-");
-  s = s.replace(/-/g, "");
-  if (!s) return null;
-
-  // Detecta formato US ("90,497.76") vs europeo/latino ("90.497,76") sin asumir
-  // uno fijo: el ÚLTIMO separador que actúa como decimal manda; el otro es de
-  // miles. Con un solo tipo de separador, sólo es decimal si va seguido de 1-2
-  // dígitos (evita romper "90.497" miles o convertir "90,50" en 9050).
-  const lastComma = s.lastIndexOf(",");
-  const lastDot = s.lastIndexOf(".");
-  let normalizado: string;
-  if (lastComma >= 0 && lastDot >= 0) {
-    normalizado =
-      lastComma > lastDot
-        ? s.replace(/\./g, "").replace(",", ".")
-        : s.replace(/,/g, "");
-  } else if (lastComma >= 0) {
-    const dec = (s.match(/,/g) ?? []).length === 1 && s.length - lastComma - 1 <= 2;
-    normalizado = dec ? s.replace(",", ".") : s.replace(/,/g, "");
-  } else if (lastDot >= 0) {
-    const dec = (s.match(/\./g) ?? []).length === 1 && s.length - lastDot - 1 <= 2;
-    normalizado = dec ? s : s.replace(/\./g, "");
-  } else {
-    normalizado = s;
-  }
-
-  const n = Number(normalizado);
-  return Number.isFinite(n) ? (neg ? -n : n) : null;
-}
 
 /** Los 11 Incoterms 2020 (códigos de 3 letras, sin prefijos que colisionen). */
 const INCOTERMS_2020 = [

@@ -183,6 +183,89 @@ chequear(
   expoSinLugar.faltantes.find((f) => f.campo === "Lugar donde está la mercadería")?.porque ?? "",
 );
 
+/* ── 1 ter. una carpeta con varios productos ── */
+
+console.log("\n1 ter. Multi-ítem: los renglones de una carpeta real\n");
+
+/**
+ * Los cinco renglones del despacho 26001IC04003280 del archivo, con sus
+ * valores y sus posiciones. Los importes de cabecera son los de esa
+ * declaración, así que el prorrateo tiene que reproducir el flete y el seguro
+ * que el despachante declaró en cada ítem — no un número parecido, el mismo.
+ */
+const RENGLONES = [
+  { orden: 1, mercaderia: "CAJONES DE MADERA", ncm: "4415.10.00.190Y", unidad: "Unidades", cantidad: "1020,00", peso_neto: "157,46", valor: "3898,44" },
+  { orden: 2, mercaderia: "GORROS", ncm: "6505.00.19.100L", unidad: "Unidades", cantidad: "30000,00", peso_neto: "349,88", valor: "8662,50" },
+  { orden: 3, mercaderia: "PARAGUAS", ncm: "6601.91.10.100P", unidad: "Unidades", cantidad: "540,00", peso_neto: "70,99", valor: "1757,70" },
+  { orden: 4, mercaderia: "VAJILLA DE CERAMICA", ncm: "6912.00.00.191F", unidad: "Kilogramos", cantidad: "7123,20", peso_neto: "7123,20", valor: "6239,92" },
+  { orden: 5, mercaderia: "ARTICULOS DE HIERRO", ncm: "7324.10.00.100Q", unidad: "Unidades", cantidad: "100,00", peso_neto: "169,64", valor: "4200,00" },
+];
+
+const CARPETA = {
+  ...OPERACION,
+  pais_origen: "China",
+  pais_procedencia: "China",
+  valor_fob: "24758,56",
+  flete: "1000,00",
+  seguro: "245,80",
+  items_json: JSON.stringify(RENGLONES),
+};
+
+const multi = operacionSimDesde(CARPETA, { cuitDespachante: "30710308043" });
+chequear("la carpeta con 5 renglones se traduce entera", multi.faltantes.length === 0, multi.faltantes.map((f) => `${f.campo}: ${f.porque}`).join(" · "));
+chequear("salen cinco ítems", multi.operacion?.items.length === 5, String(multi.operacion?.items.length));
+
+if (multi.operacion) {
+  const its = multi.operacion.items;
+  chequear("cada ítem con su posición", its.map((i) => i.ncm).join(",") === RENGLONES.map((r) => r.ncm).join(","));
+  chequear("y con su unidad, que no es la misma en todos", its[3].unidad === "01" && its[0].unidad === "07", `${its[0].unidad} … ${its[3].unidad}`);
+
+  // Lo declarado por el despachante en el despacho real, ítem por ítem.
+  const FLETE_REAL = [157.46, 349.88, 70.99, 252.03, 169.64];
+  const SEGURO_REAL = [38.7, 86.0, 17.45, 61.95, 41.7];
+  const FOB_REAL = [3898.44, 8662.5, 1757.7, 6239.92, 4200.0];
+  chequear("el FOB de cada ítem es el del despacho real", its.every((it, i) => it.fob === FOB_REAL[i]), its.map((i) => i.fob).join(" "));
+  chequear("el flete prorrateado da el del despacho real", its.every((it, i) => it.flete === FLETE_REAL[i]), its.map((i) => i.flete).join(" "));
+  chequear("y el seguro también", its.every((it, i) => it.seguro === SEGURO_REAL[i]), its.map((i) => i.seguro).join(" "));
+
+  const suma = (f) => Math.round(its.reduce((a, i) => a + (f(i) ?? 0), 0) * 100) / 100;
+  chequear("los ítems cierran contra la cabecera", suma((i) => i.fob) === 24758.56 && suma((i) => i.flete) === 1000 && suma((i) => i.seguro) === 245.8, `${suma((i) => i.fob)} / ${suma((i) => i.flete)} / ${suma((i) => i.seguro)}`);
+
+  const texto = escribirDeclaracion(armarDeclaracion(multi.operacion));
+  chequear("el archivo lleva los cinco ítems", (texto.match(/\[ART\]/g) ?? []).length === 5);
+  chequear("numerados en orden", texto.includes("NART=0001") && texto.includes("NART=0005"));
+  const val = resumirHallazgos(validarDeclaracion(armarDeclaracion(multi.operacion)));
+  chequear("la declaración de 5 ítems valida", val.errores === 0, `${val.errores} error(es), ${val.avisos} aviso(s)`);
+}
+
+// El peso no se estima: es lo único del renglón que no se puede derivar.
+const sinPeso = JSON.parse(JSON.stringify(RENGLONES));
+delete sinPeso[2].peso_neto;
+const faltaPeso = operacionSimDesde({ ...CARPETA, items_json: JSON.stringify(sinPeso) }, { cuitDespachante: "30710308043" });
+chequear(
+  "un renglón sin peso no se inventa",
+  faltaPeso.operacion === null && faltaPeso.faltantes.some((f) => f.campo.startsWith("Peso neto")),
+  faltaPeso.faltantes.map((f) => f.campo).join(", "),
+);
+
+// Un renglón sin clasificar tampoco pasa: es el estado normal a mitad de carpeta.
+const sinNcm = JSON.parse(JSON.stringify(RENGLONES));
+delete sinNcm[1].ncm;
+const faltaNcm = operacionSimDesde({ ...CARPETA, items_json: JSON.stringify(sinNcm) }, { cuitDespachante: "30710308043" });
+chequear(
+  "un renglón sin clasificar avisa cuál es",
+  faltaNcm.operacion === null && faltaNcm.faltantes.some((f) => f.campo === "Posición NCM (GORROS)"),
+  faltaNcm.faltantes.map((f) => f.campo).join(", "),
+);
+
+// Con un solo renglón nada cambia: se siguen leyendo los campos planos.
+const uno = operacionSimDesde({ ...OPERACION, items_json: JSON.stringify([RENGLONES[0]]) }, { cuitDespachante: "30710308043" });
+chequear(
+  "con un solo producto se lee la carpeta como siempre",
+  uno.operacion?.items.length === 1 && uno.operacion?.items[0].ncm === OPERACION.ncm,
+  uno.operacion?.items[0].ncm ?? "",
+);
+
 /* ── 2. la situación de arribo ── */
 
 console.log("\n2. Cómo se deduce la situación de arribo\n");
