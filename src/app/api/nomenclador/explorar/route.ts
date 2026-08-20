@@ -6,6 +6,7 @@ import {
   arancelPorNcm,
   candidatosDePartida,
   descripcionPartida,
+  dondeCoincide,
   partidasCandidatas,
   resolverPartidasConExpansion,
   subpartidasDePartida,
@@ -180,10 +181,17 @@ export async function GET(req: NextRequest) {
       // Se dice si se tradujo, para que la pantalla lo pueda mostrar: quien
       // busca tiene que saber si lo que ve salió de su texto o de otro.
       expandida,
-      partidas: candidatas.map((c) => ({
-        partida: c.partida,
-        descripcion: c.descripcion,
-      })),
+      // Con la evidencia: en qué renglón del nomenclador pegó lo que se buscó.
+      // Sin esto la lista muestra títulos de partida que casi nunca contienen
+      // la palabra —está tres niveles más abajo— y parece que el buscador
+      // devolvió cualquier cosa.
+      partidas: await Promise.all(
+        candidatas.map(async (c) => ({
+          partida: c.partida,
+          descripcion: c.descripcion,
+          coincide: await dondeCoincide(c.partida, q),
+        })),
+      ),
     });
   } catch (e) {
     console.error("nomenclador/explorar:", e);

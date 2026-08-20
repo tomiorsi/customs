@@ -806,6 +806,54 @@ function clavesParaPartidas(texto: string): string[] {
   return expandClavesRetrieval([...claves, ...clavesFraseProducto(texto)]);
 }
 
+/**
+ * Dónde coincidió la búsqueda dentro de una partida.
+ *
+ * La lista de resultados muestra el TÍTULO de la partida, y el título casi
+ * nunca contiene la palabra que se buscó: está tres niveles más abajo, en una
+ * posición. Entonces buscar «martillo» devuelve «MÁQUINAS Y APARATOS DE
+ * CLASIFICAR, CRIBAR, SEPARAR…» y parece que el buscador se volvió loco —
+ * cuando en realidad esa partida sí tiene un martillo adentro.
+ *
+ * Esto no cambia qué se devuelve ni en qué orden: devuelve la evidencia de lo
+ * que el motor ya hizo, para que quien busca pueda juzgarla. Se usan las
+ * MISMAS claves con las que el motor buscó, no una reconstrucción parecida:
+ * mostrar una coincidencia distinta de la que decidió el ranking sería peor
+ * que no mostrar nada.
+ */
+export async function dondeCoincide(
+  partida: string,
+  texto: string,
+): Promise<{ codigo: string | null; texto: string } | null> {
+  const claves = clavesParaPartidas(texto).filter((k) => k.length > 2);
+  if (!claves.length) return null;
+  const pega = (donde: string) => {
+    const d = donde.toUpperCase();
+    return claves.some((k) => d.includes(k.toUpperCase()));
+  };
+
+  // Primero en la POSICIÓN misma. La ruta arrastra el título de la partida, y
+  // buscar ahí hacía que toda posición de 8462 «coincidiera» con martillo
+  // —porque el título dice «martillos pilón»— y se mostrara un renglón que no
+  // lo nombra. Mostrar una coincidencia que no es la que hubo es peor que no
+  // mostrar ninguna.
+  const hojas = await candidatosDePartida(partida);
+  for (const h of hojas) {
+    if (pega(h.descripcion)) {
+      // El renglón entero, no solo la palabra: lo que importa es en qué
+      // contexto aparece —«martillos de mano» o «martillos pilón»—, que es
+      // justamente lo que permite descartar la partida de un vistazo.
+      return { codigo: h.codigo, texto: h.descripcion };
+    }
+  }
+
+  // Si no, el título de la partida: también es una coincidencia real, pero hay
+  // que decir que es esa y no una posición.
+  const titulo = await descripcionPartida(partida);
+  if (titulo && pega(titulo)) return { codigo: null, texto: titulo };
+  return null;
+}
+
 /** Partidas del nomenclador ordenadas por cantidad de palabras clave coincidentes. */
 export async function partidasCandidatas(
   texto: string,

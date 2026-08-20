@@ -4,7 +4,18 @@ import { useState } from "react";
 import { Loader2, Search, ChevronLeft } from "lucide-react";
 import type { SubpartidaNcm } from "@/lib/clasificador/tipos";
 
-type PartidaHit = { partida: string; descripcion: string };
+type PartidaHit = {
+  partida: string;
+  descripcion: string;
+  /**
+   * Dónde pegó lo que se buscó, adentro de esta partida.
+   *
+   * `codigo` en null significa que la coincidencia está en el título de la
+   * partida y no en una de sus posiciones. Es null entero cuando el motor la
+   * trajo por otra vía y no hay un renglón que señalar.
+   */
+  coincide?: { codigo: string | null; texto: string } | null;
+};
 type PosicionNcm = { codigo: string; descripcion: string; di: number };
 
 type DetallePartida = {
@@ -170,7 +181,25 @@ export function NomencladorManual({
                   <span className="shrink-0 font-mono font-semibold text-accent">
                     {h.partida}
                   </span>
-                  <span className="min-w-0">{h.descripcion}</span>
+                  <span className="min-w-0">
+                    {h.descripcion}
+                    {/* Por qué está en la lista. El título de la partida casi
+                        nunca contiene la palabra buscada —está tres niveles
+                        más abajo—, y sin esto la lista parece arbitraria. */}
+                    {h.coincide && (
+                      <span className="mt-1 block text-[11px] text-accent-text">
+                        {h.coincide.codigo ? (
+                          <>
+                            Coincide en{" "}
+                            <span className="font-mono">{h.coincide.codigo}</span> ·{" "}
+                            {h.coincide.texto}
+                          </>
+                        ) : (
+                          "Coincide en el título de la partida"
+                        )}
+                      </span>
+                    )}
+                  </span>
                 </button>
               </li>
             ))}
