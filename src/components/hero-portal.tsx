@@ -20,6 +20,19 @@ import { useEffect } from "react";
  * Arriba de todo va la línea de fecha con la edición de hoy: es lo que hace
  * que esto sea la portada de un día y no una página de venta.
  */
+/**
+ * El celeste de Wabe.
+ *
+ * `--accent` en tema claro es el azul oscuro (#1a5080), que es el que el panel
+ * necesita para que el texto sobre blanco tenga contraste. Acá, en la portada,
+ * la marca es el celeste de la ola —el mismo que usa el logo—, y es el que
+ * corresponde en el botón principal y en el punto de la línea de fecha.
+ *
+ * Va escrito y no como clase de Tailwind a propósito: es la única excepción a
+ * los tokens y prefiero que sea visible que esconderla en una utilidad.
+ */
+const CELESTE = "#4d95d4";
+
 export function HeroPortal({
   fecha,
   edicion,
@@ -47,7 +60,7 @@ export function HeroPortal({
 
     const modulo = document.createElement("script");
     modulo.type = "module";
-    modulo.src = "/landing/wave-ribbon.js?v=12";
+    modulo.src = "/landing/wave-ribbon.js?v=13";
     document.body.appendChild(modulo);
   }, []);
 
@@ -66,7 +79,11 @@ export function HeroPortal({
       <div className="mx-auto w-full max-w-7xl px-6 lg:px-10">
         <div className="max-w-2xl">
           <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
-            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
+            <span
+              aria-hidden
+              className="h-1.5 w-1.5 rounded-full"
+              style={{ backgroundColor: CELESTE }}
+            />
             <span className="first-letter:uppercase">{dateline}</span>
           </p>
 
@@ -83,7 +100,8 @@ export function HeroPortal({
           <div className="mt-10 flex flex-wrap items-center gap-3">
             <a
               href="#dia"
-              className="rounded-lg bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-opacity hover:opacity-90"
+              className="rounded-lg px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
+              style={{ backgroundColor: CELESTE }}
             >
               Qué salió hoy
             </a>

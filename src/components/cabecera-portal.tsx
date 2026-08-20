@@ -4,15 +4,17 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 /**
- * La cabecera del portal.
+ * La cabecera del portal: la marca y cómo encontrarnos.
  *
- * Solo dos destinos, que son las dos cosas que el sitio ofrece sin cuenta. El
- * contacto se fue al pie: arriba competía con lo único que importa —qué salió
- * hoy— y quien quiere escribirnos lo busca al final, no al entrar.
+ * Sin línea abajo a propósito: el hero es una sola imagen —el título, la ola y
+ * el aire entre los dos— y una regla horizontal cruzándolo lo parte en dos.
+ * Cuando la página se movió aparece un fondo con desenfoque para que el texto
+ * de atrás no se mezcle con el de acá, pero sigue sin borde.
  *
- * Arranca transparente sobre el hero y recién se apoya en un fondo con línea
- * cuando la página se movió. Así la ola se ve entera al abrir, y la cabecera
- * aparece cuando empieza a haber texto atrás que necesite separarse.
+ * Los dos destinos —noticias y nomenclador— no están acá: son las dos cosas
+ * que ofrece el hero con sus botones, a dos dedos, y repetirlas arriba no
+ * agregaba un camino sino ruido. Lo que sí sirve arriba es el contacto: quien
+ * quiere escribirnos no debería tener que buscar dónde.
  */
 export function CabeceraPortal() {
   const [apoyada, setApoyada] = useState(false);
@@ -26,16 +28,13 @@ export function CabeceraPortal() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        apoyada
-          ? "border-b border-border bg-[var(--portal-bg)]/85 backdrop-blur-md"
-          : "border-b border-transparent"
+      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
+        apoyada ? "bg-[var(--portal-bg)]/85 backdrop-blur-md" : ""
       }`}
     >
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-6 px-5">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-6 lg:px-10">
         <Link href="/" className="flex items-center gap-2.5" aria-label="Wabe, inicio">
-          {/* El logo de siempre, el mismo archivo que usaba la landing. No se
-              redibuja: es la marca. */}
+          {/* El logo de siempre, el mismo archivo que usaba la landing. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/landing/wabe-logo.svg"
@@ -49,30 +48,26 @@ export function CabeceraPortal() {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-1">
-          <Destino href="#dia">Noticias</Destino>
-          <Destino href="#nomenclador">Nomenclador</Destino>
+        {/* En celular no entran los dos: el teléfono parte en dos renglones y
+            se sube arriba del logo. Queda el teléfono, que es el que se toca,
+            y el mail aparece recién cuando hay ancho. */}
+        <nav className="flex items-center gap-5" aria-label="Contacto">
+          <a
+            href="https://wa.me/5491123703680"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.16em] text-muted transition-colors hover:text-accent"
+          >
+            +54 9 11 2370-3680
+          </a>
+          <a
+            href="mailto:info@wabe.dev"
+            className="hidden whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.16em] text-muted transition-colors hover:text-accent sm:inline"
+          >
+            info@wabe.dev
+          </a>
         </nav>
       </div>
     </header>
-  );
-}
-
-/**
- * Un destino de la cabecera.
- *
- * Son anclas de esta misma página, no páginas aparte: el clic baja hasta la
- * sección. Van con la misma tipografía mono en versalitas que usan los
- * rótulos del Boletín y de las notas, para que la cabecera pertenezca al
- * mismo registro documental que el contenido y no parezca pegada encima.
- */
-function Destino({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <a
-      href={href}
-      className="rounded-md px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-muted transition-colors hover:bg-surface-2 hover:text-accent"
-    >
-      {children}
-    </a>
   );
 }

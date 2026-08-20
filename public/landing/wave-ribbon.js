@@ -51,7 +51,7 @@ scene.add(rim2);
 // Se corre hacia abajo para dejar el título/intro del hero arriba sin que
 // se pisen: el texto vive en la mitad superior, la ola en la inferior.
 const group = new THREE.Group();
-group.scale.setScalar(0.60);
+group.scale.setScalar(0.40);
 scene.add(group);
 
 // Cuánto baja la ola, como FRACCIÓN de la distancia de la cámara (no en
@@ -208,10 +208,12 @@ const MAX_CAMERA_Z = 15;
  * como una banda debajo del texto.
  */
 const POSICION = {
-  // Abajo a la derecha: el título ocupa el alto de la izquierda, así que
-  // correrla solo al costado no alcanzaba —le cruzaba el último renglón—.
-  ancha: { x: 0.58, y: -0.62 },
-  angosta: { x: 0, y: -0.72 },
+  // A la derecha y centrada en el alto. Achicada lo suficiente para que entre
+  // ENTERA en su columna: antes se salía por abajo y por el costado, y una ola
+  // cortada por dos bordes se lee como un error de encuadre, no como una
+  // decisión. `x` va en mitades del ancho visible: 0 es el centro, 1 el borde.
+  ancha: { x: 0.50, y: 0 },
+  angosta: { x: 0, y: -0.45 },
 };
 
 function fitWaveToViewport() {
