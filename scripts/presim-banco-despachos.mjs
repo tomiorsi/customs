@@ -212,6 +212,8 @@ console.log(`${itemsTot.toLocaleString("es-AR")} ítems en total. Los importes s
 
 let sinError = 0;
 let idaYVuelta = 0;
+/** Cuántos despachos y cuántos limpios hay de cada subrégimen. */
+const porSubregimen = new Map();
 let rotos = 0;
 let fueraDeHistoria = 0;
 let subregDesconocido = 0;
@@ -232,6 +234,9 @@ for (let i = 0; i < banco.length; i++) {
     if (escribirDeclaracion(leerDeclaracion(texto)) === texto) idaYVuelta++;
 
     let errores = validarDeclaracion(dec, { fecha: d.op.fecha }).filter((h) => h.nivel === "error");
+    const sub = d.real.subregimen;
+    porSubregimen.set(sub, porSubregimen.get(sub) ?? { total: 0, ok: 0 });
+    porSubregimen.get(sub).total++;
 
     // El error de subrégimen se clasifica antes de contarlo como falla nuestra.
     const errSub = errores.find((e) => e.clave === "ISTA");
@@ -247,7 +252,7 @@ for (let i = 0; i < banco.length; i++) {
       }
     }
 
-    if (!errores.length) sinError++;
+    if (!errores.length) { sinError++; porSubregimen.get(d.real.subregimen).ok++; }
     else {
       for (const e of errores) {
         const k = `${e.seccion}.${e.clave}`;
@@ -271,6 +276,34 @@ for (let i = 0; i < banco.length; i++) {
   }
 }
 console.log("\n");
+
+/**
+ * Cuánto respaldo real tiene cada subrégimen.
+ *
+ * Importa porque el estudio que nos pasa los archivos no hace todas las
+ * destinaciones, así que hay subregímenes que nunca vimos en un `.txt` del
+ * Kit. Lo que sí hay es el archivo de despachos, y ahí sí aparecen: saber
+ * cuántos de cada uno pasan es la diferencia entre «no lo probamos» y «lo
+ * probamos contra noventa y siete despachos reales».
+ */
+console.log("  Por subrégimen (los que el motor sabe emitir):\n");
+const EMITIBLES = new Set([
+  "IC01","IC03","IC04","IC05","IC06","IT01","IT04","IT06","IT14","IT15","IT16",
+  "IDA4","EC01","EC02","EC03","EC04","ET01","ET02",
+  "ZFI1","ZFI3","ZFI4","ZFI5","ZFI7","ZFI8","ZFE1","ZFE2","ZFE3","ZFE4","ZFE5","ZFE6",
+]);
+const filas = [...porSubregimen.entries()]
+  .filter(([k]) => EMITIBLES.has(k))
+  .sort((a, b) => b[1].total - a[1].total);
+for (const [sub, v] of filas) {
+  const p = ((v.ok / v.total) * 100).toFixed(1);
+  console.log(`    ${sub}  ${String(v.total).padStart(5)} despachos   ${p.padStart(5)}% sin errores`);
+}
+const sinNinguno = [...EMITIBLES].filter((k) => !porSubregimen.has(k)).sort();
+if (sinNinguno.length) {
+  console.log(`\n    Sin un solo despacho en el archivo: ${sinNinguno.join(", ")}`);
+}
+console.log("");
 
 const pct = (x) => ((x / banco.length) * 100).toFixed(2);
 console.log(`  declaraciones sin un solo error:  ${sinError.toLocaleString("es-AR")} / ${banco.length.toLocaleString("es-AR")}  (${pct(sinError)}%)`);

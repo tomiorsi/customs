@@ -1,0 +1,330 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="previews.css"><link rel="stylesheet" href="card-stack.css">
+<style>
+ .reveal,.reveal *{opacity:1!important;transform:none!important;visibility:visible!important}
+ html,body{margin:0;padding:0;background:#0B1826;width:1400px;overflow:hidden}
+ .caja{width:1400px;padding:40px;box-sizing:border-box}
+ .project-info{display:none!important}
+ .project{display:block!important;margin:0!important;padding:0!important;border:none!important}
+ .project-preview{width:1320px!important;max-width:none!important;margin:0!important}
+ /* la animación NO se congela: es lo que queremos filmar */
+ .p-iva-beam,[class*=beam]{animation-play-state:running!important}
+</style></head><body><div class="caja"><article class="project" data-project="despachante">
+      <div class="project-info">
+        <p class="project-domain">Comercio exterior · Aduanas</p>
+        <h2><a href="https://jyccomex.com.ar" class="project-title-link" target="_blank" rel="noopener noreferrer">Estudio Aduanero</a></h2>
+        <div class="stack-caption-actions">
+          <a href="https://jyccomex.com.ar" class="web-project-link" target="_blank" rel="noopener noreferrer">
+            Ver sitio
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7" /><path d="M7 7h10v10" /></svg>
+          </a>
+          <button type="button" class="stack-detail-btn" data-legal="proyecto-despachante">
+            Qué hace
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /><path d="M21 8V5a2 2 0 0 0-2-2h-3" /><path d="M3 16v3a2 2 0 0 0 2 2h3" /><path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg>
+          </button>
+        </div>
+      </div>
+      <a href="https://jyccomex.com.ar" class="project-preview-link" target="_blank" rel="noopener noreferrer" aria-label="Abrir Estudio Aduanero">
+      <div class="project-preview">
+        <div class="preview-chrome">
+          <span class="preview-dots"><i></i><i></i><i></i></span>
+          <span class="preview-url">Mesa de operaciones · Cotizador</span>
+        </div>
+        <div class="p-desp">
+          <div class="p-desp-top">
+            <div class="p-desp-brand">
+              <div class="p-desp-icon"></div>
+              <div><strong>Estudio</strong> Aduanero</div>
+            </div>
+            <div class="p-desp-nav">
+              <span>Clientes</span>
+              <span class="on">Operaciones</span>
+              <span>Nomenclador</span>
+              <span>Cotizar</span>
+            </div>
+          </div>
+          <div class="p-desp-body">
+            <div class="p-desp-mesa">
+              <h3>OP-2026-0042 · Importación FOB Shanghai</h3>
+              <p class="sub">Cliente: Logística Sur S.A. · Incoterm FOB · ETA Buenos Aires</p>
+              <div class="p-desp-steps" id="desp-steps">
+                <div class="p-desp-step done">Apertura</div>
+                <div class="p-desp-step done">Clasificación</div>
+                <div class="p-desp-step on">Liquidación</div>
+                <div class="p-desp-step">VEP</div>
+                <div class="p-desp-step">SIM</div>
+                <div class="p-desp-step">Canal</div>
+                <div class="p-desp-step">Entrega</div>
+              </div>
+              <div class="p-desp-upload">
+                <div class="p-desp-file" id="desp-file">
+                  <span class="p-desp-file-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                  </span>
+                  <span class="p-desp-file-info">
+                    <strong>factura_comercial_OP0042.pdf</strong>
+                    <em>1,4 MB · Factura comercial · Shanghai</em>
+                  </span>
+                  <span class="p-desp-file-bar"><i id="desp-progress" style="width:100%"></i></span>
+                  <span class="p-desp-file-ok" id="desp-ok">✓</span>
+                </div>
+                <div class="p-desp-ai done" id="desp-ai">
+                  <span class="p-desp-ai-dot"></span>
+                  <span id="desp-ai-text">Clasificación lista · confianza 96%</span>
+                </div>
+              </div>
+              <div class="p-desp-panel">
+                <h5>Clasificación · IA + normativa</h5>
+                <div class="p-desp-fields" id="desp-fields">
+                  <div><label>Producto</label>Válvulas industriales · acero inox.</div>
+                  <div><label>NCM</label>8481.80.21.900.A</div>
+                  <div><label>Derecho</label>14% · Estadística 3%</div>
+                  <div><label>IVA</label>21% · Percepción 3%</div>
+                  <div><label>Origen</label>China · cert. ALADI</div>
+                  <div><label>Confianza</label>96% · 3 fallos citados</div>
+                </div>
+              </div>
+            </div>
+            <div class="p-desp-cotiz">
+              <h4>Desglose de cotización</h4>
+              <div class="p-desp-quote">
+                <div class="p-desp-chips">
+                  <span class="p-desp-chip">Importación</span>
+                  <span class="p-desp-chip">FOB</span>
+                  <span class="p-desp-chip">Marítimo</span>
+                  <span class="p-desp-chip">NCM 8481</span>
+                </div>
+                <div class="p-desp-lines" id="desp-lines">
+                  <div class="p-desp-line"><span>CIF (USD → ARS @ 1.045)</span><span>$ 54.812.400</span></div>
+                  <div class="p-desp-line"><span>Derecho de importación 14%</span><span>$ 7.673.736</span></div>
+                  <div class="p-desp-line"><span>Tasa estadística 3%</span><span>$ 1.644.372</span></div>
+                  <div class="p-desp-line"><span>IVA 21%</span><span>$ 13.197.312</span></div>
+                  <div class="p-desp-line"><span>Honorarios + logística</span><span>$ 890.000</span></div>
+                  <div class="p-desp-line"><span>Puerto + depósito</span><span>$ 412.500</span></div>
+                  <div class="p-desp-line total"><span>Costo total puesto acá</span><span>$ 78.630.320</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </a>
+    </article>
+
+    <!-- CHATBOT -->
+    <article id="escaneo-iva" class="project" data-project="motor-iva">
+      <div class="project-info">
+        <p class="project-domain">Impuestos · PyMEs</p>
+        <h2><a href="https://ivascan.com.ar" class="project-title-link" target="_blank" rel="noopener noreferrer">Escaneo IVA</a></h2>
+        <div class="stack-caption-actions">
+          <a href="https://ivascan.com.ar" class="web-project-link" target="_blank" rel="noopener noreferrer">
+            Ver sitio
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7" /><path d="M7 7h10v10" /></svg>
+          </a>
+          <button type="button" class="stack-detail-btn" data-legal="proyecto-motor-iva">
+            Qué hace
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /><path d="M21 8V5a2 2 0 0 0-2-2h-3" /><path d="M3 16v3a2 2 0 0 0 2 2h3" /><path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg>
+          </button>
+        </div>
+      </div>
+      <a href="https://ivascan.com.ar" class="project-preview-link" target="_blank" rel="noopener noreferrer" aria-label="Abrir Escaneo IVA">
+      <div class="project-preview">
+        <div class="preview-chrome">
+          <span class="preview-dots"><i></i><i></i><i></i></span>
+          <span class="preview-url">ivascan.com.ar</span>
+        </div>
+        <div class="p-iva">
+          <aside class="p-iva-side">
+            <div class="p-iva-logo">Escaneo<em>IVA</em></div>
+            <div class="p-iva-nav active">Dashboard</div>
+            <div class="p-iva-nav">Subir comprobantes</div>
+            <div class="p-iva-nav">Ventas</div>
+            <div class="p-iva-nav">Compras y gastos</div>
+            <div class="p-iva-nav">Ganancias</div>
+            <div class="p-iva-nav">Informes</div>
+            <div class="p-iva-plan">Plan Pro · activo</div>
+          </aside>
+          <div class="p-iva-main">
+            <div class="p-iva-top">
+              <span class="p-iva-badge">Posición de IVA</span>
+              <span class="p-iva-range">Ene – Jun 2026</span>
+            </div>
+            <div class="p-iva-hero">
+              <div class="p-iva-hero-block debit">
+                <small>Ventas · lo que cobraste</small>
+                <div class="label">IVA Débito</div>
+                <div class="val">$ 2.412.580</div>
+              </div>
+              <div class="p-iva-hero-pill">
+                <span>A pagar</span>
+                <strong id="iva-pagar">$ 612.340</strong>
+              </div>
+              <div class="p-iva-hero-block credit">
+                <small>Compras · lo que pagaste</small>
+                <div class="label">IVA Crédito</div>
+                <div class="val" id="iva-credito">$ 1.800.240</div>
+              </div>
+            </div>
+            <div class="p-iva-charts">
+              <div class="p-iva-chart-card">
+                <div class="p-iva-chart-head">
+                  <strong>Escanear factura</strong>
+                  <span class="p-iva-scan-badge ok" id="iva-scan-status">Cargada ✓</span>
+                </div>
+                <div class="p-iva-scan">
+                  <div class="p-iva-doc" id="iva-doc" aria-hidden="true">
+                    <span class="p-iva-doc-qr"></span>
+                    <i></i><i></i><i></i>
+                    <div class="p-iva-doc-beam"></div>
+                  </div>
+                  <ul class="p-iva-doc-fields" id="iva-fields">
+                    <li>Proveedor — Textil Andina S.A.</li>
+                    <li>Factura A · 0003-00012845</li>
+                    <li>Neto gravado — $ 210.000</li>
+                    <li>IVA 21% — $ 44.100</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="p-iva-chart-card">
+                <div class="p-iva-chart-head">
+                  <strong>Últimos comprobantes</strong>
+                  <span class="p-iva-count" id="iva-count">3 este mes</span>
+                </div>
+                <div class="p-iva-rows">
+                  <div class="p-iva-row"><span class="d">12 Jun</span><span class="n">Papelera Mitre</span><span class="m">$ 96.800</span><span class="v">IVA $ 16.800</span></div>
+                  <div class="p-iva-row"><span class="d">18 Jun</span><span class="n">Logística Oeste</span><span class="m">$ 72.600</span><span class="v">IVA $ 12.600</span></div>
+                  <div class="p-iva-row new" id="iva-newrow"><span class="d">24 Jun</span><span class="n">Textil Andina S.A.</span><span class="m">$ 254.100</span><span class="v">IVA $ 44.100</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </a>
+    </article>
+
+    <!-- VILLAR CAPITAL -->
+    <article id="villar-capital" class="project" data-project="villar">
+      <div class="project-info">
+        <p class="project-domain">Finanzas · Cuantitativo</p>
+        <h2><a href="https://villarcapital.com.ar" class="project-title-link" target="_blank" rel="noopener noreferrer">Villar Capital</a></h2>
+        <div class="stack-caption-actions">
+          <a href="https://villarcapital.com.ar" class="web-project-link" target="_blank" rel="noopener noreferrer">
+            Ver sitio
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7" /><path d="M7 7h10v10" /></svg>
+          </a>
+          <button type="button" class="stack-detail-btn" data-legal="proyecto-villar">
+            Qué hace
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3" /><path d="M21 8V5a2 2 0 0 0-2-2h-3" /><path d="M3 16v3a2 2 0 0 0 2 2h3" /><path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg>
+          </button>
+        </div>
+      </div>
+      <a href="https://villarcapital.com.ar" class="project-preview-link" target="_blank" rel="noopener noreferrer" aria-label="Abrir Villar Capital">
+      <div class="project-preview">
+        <div class="preview-chrome">
+          <span class="preview-dots"><i></i><i></i><i></i></span>
+          <span class="preview-url">villarcapital.com.ar</span>
+        </div>
+        <!-- Se replica el panel de resultados, que es el momento de pago de la
+             herramienta: el instante en que la cartera se convierte en números. -->
+        <!-- Se replica el flujo completo de la herramienta, no solo el final:
+             cargar activos, repartir pesos, ejecutar, y recién ahí los números.
+             Contada así, la demo explica para qué sirve; mostrando solo el
+             gráfico había que adivinarlo. -->
+        <div class="p-vc" id="vc-demo">
+          <!-- ── Columna de configuración ── -->
+          <div class="p-vc-panel">
+            <div class="p-vc-field">
+              <span class="p-vc-label">Buscar símbolo</span>
+              <div class="p-vc-input"><em id="vc-tipeo"></em><i class="p-vc-caret"></i></div>
+            </div>
+
+            <span class="p-vc-label p-vc-label-sep">Activos seleccionados</span>
+            <ul class="p-vc-assets">
+              <li class="p-vc-asset" data-vc-asset="1">
+                <span class="p-vc-avatar" style="--av:#3b82f6">Y</span>
+                <span class="p-vc-ticker">YPF</span>
+                <span class="p-vc-weight" data-vc-peso data-hasta="35">0</span>
+              </li>
+              <li class="p-vc-asset" data-vc-asset="2">
+                <span class="p-vc-avatar" style="--av:#8b5cf6">G</span>
+                <span class="p-vc-ticker">GGAL</span>
+                <span class="p-vc-weight" data-vc-peso data-hasta="25">0</span>
+              </li>
+              <li class="p-vc-asset" data-vc-asset="3">
+                <span class="p-vc-avatar" style="--av:#64748b">A</span>
+                <span class="p-vc-ticker">AAPL</span>
+                <span class="p-vc-weight" data-vc-peso data-hasta="20">0</span>
+              </li>
+              <li class="p-vc-asset p-vc-cash" data-vc-asset="4">
+                <span class="p-vc-avatar cash">$</span>
+                <span class="p-vc-ticker">Cash</span>
+                <span class="p-vc-weight" data-vc-peso data-hasta="20">100</span>
+              </li>
+            </ul>
+
+            <button type="button" class="p-vc-run" tabindex="-1" aria-hidden="true">
+              <span class="p-vc-run-txt">Analizar mi portafolio</span>
+              <span class="p-vc-run-load"><i></i><i></i><i></i></span>
+            </button>
+          </div>
+
+          <!-- ── Columna de resultados ── -->
+          <div class="p-vc-results">
+            <div class="p-vc-metrics">
+              <div class="p-vc-metric">
+                <span>CAGR</span>
+                <strong class="up" data-vc-num data-hasta="17.34" data-suf="%">—</strong>
+              </div>
+              <div class="p-vc-metric">
+                <span>Volatilidad</span>
+                <strong data-vc-num data-hasta="20.91" data-suf="%">—</strong>
+              </div>
+              <div class="p-vc-metric">
+                <span>Drawdown</span>
+                <strong class="down" data-vc-num data-hasta="-32.13" data-suf="%">—</strong>
+              </div>
+              <div class="p-vc-metric">
+                <span>Sharpe</span>
+                <strong data-vc-num data-hasta="0.87" data-suf="">—</strong>
+              </div>
+            </div>
+
+            <div class="p-vc-chart">
+              <span class="p-vc-axis">Capital</span>
+              <svg viewBox="0 0 420 150" preserveAspectRatio="none" aria-hidden="true">
+                <g class="p-vc-grid">
+                  <line x1="0" y1="6" x2="420" y2="6" /><line x1="0" y1="42" x2="420" y2="42" />
+                  <line x1="0" y1="78" x2="420" y2="78" /><line x1="0" y1="114" x2="420" y2="114" />
+                  <line x1="0" y1="146" x2="420" y2="146" />
+                </g>
+                <!-- Benchmark: el mercado. Punteado y gris, se lee como referencia. -->
+                <path class="p-vc-bench" d="M0,144 L28,141 L56,145 L84,137 L112,131 L140,126 L168,118 L196,111 L224,103 L252,96 L280,82 L308,89 L336,73 L364,64 L392,55 L420,44" />
+                <!-- La cartera. Verde y gruesa: es la protagonista. -->
+                <path class="p-vc-eq" d="M0,145 L28,140 L56,142 L84,134 L112,127 L140,122 L168,110 L196,101 L224,90 L252,78 L280,53 L308,64 L336,37 L364,44 L392,20 L420,6" />
+              </svg>
+            </div>
+
+            <div class="p-vc-chart p-vc-chart-dd">
+              <span class="p-vc-axis">Drawdown</span>
+              <svg viewBox="0 0 420 44" preserveAspectRatio="none" aria-hidden="true">
+                <path class="p-vc-dd" d="M0,3 L24,7 L48,2 L72,22 L96,36 L120,15 L144,8 L168,13 L192,5 L216,18 L240,7 L264,11 L288,29 L312,9 L336,6 L360,14 L384,4 L420,8" />
+              </svg>
+            </div>
+
+            <div class="p-vc-foot">
+              <span class="p-vc-tag"><i></i>Tu cartera</span>
+              <span class="p-vc-tag bench"><i></i>Mercado</span>
+              <span class="p-vc-period">2005 — 2026</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      </a>
+    </article>
+
+
+
+    <!-- FINANZAS -->
+    </div></body></html>
