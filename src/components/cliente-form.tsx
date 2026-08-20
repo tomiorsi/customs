@@ -131,20 +131,14 @@ export function ClienteForm({ cliente }: { cliente?: ClienteEditable }) {
           <Input name="phone" defaultValue={cliente?.phone ?? ""} placeholder="+54 …" />
         </Campo>
 
-        {/* Dice «del cliente» y no solo «para la declaración» porque en esta
-            pantalla conviven datos del estudio y del cliente, y estos dos se
-            confunden con los del despachante. No lo son: en los trece
-            despachos de importación del archivo figura el mismo despachante y
-            el domicilio y la fecha cambian en cada uno. Son la DJ del
-            importador. */}
+        {/* El título y los rótulos dicen «del cliente» y no solo «para la
+            declaración»: son la DJ del importador y se confunden con datos del
+            despachante. No lo son —en los trece despachos de importación del
+            archivo figura el mismo despachante y el domicilio y la fecha
+            cambian en cada uno—, y con decirlo en el rótulo alcanza. */}
         <div className="sm:col-span-2 mt-1 border-t border-border pt-4">
           <p className="text-xs font-medium text-foreground">
             Datos del cliente para la declaración
-          </p>
-          <p className="mt-1 text-xs text-muted">
-            Son de él, no del estudio: salen de su constancia de inscripción en
-            AFIP. El SIM los pide en toda importación. Se cargan una vez y
-            valen para todas sus carpetas.
           </p>
         </div>
 
