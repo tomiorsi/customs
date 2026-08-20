@@ -735,19 +735,20 @@ function PanelOperacion({
     }
   }
 
+  /**
+   * Mueve la carpeta de etapa.
+   *
+   * No revisa la NCM. Antes frenaba el avance cuando la posición tenía menos
+   * de ocho dígitos, y además lo avisaba con un cartel al costado. Las dos
+   * cosas se sacaron: el control vive donde corresponde, que es al GUARDAR.
+   * La ruta que confirma la NCM rechaza cualquier cosa que no sea una
+   * posición específica —y la de productos de la carpeta también—, así que
+   * una posición incompleta no puede llegar a quedar guardada. Revisarla otra
+   * vez al pasar de etapa era frenar por algo que no puede pasar, y el que
+   * despacha ya sabe qué posición necesita.
+   */
   async function moverA(idx: number) {
     if (avanzando) return;
-    if (
-      op.etapa === "documentacion" &&
-      idx > idxActual &&
-      ncmPareceGeneral(op.ncm)
-    ) {
-      setError(
-        "Definí una NCM específica (8 dígitos) con el nomenclador antes de avanzar al transporte.",
-      );
-      setConfirmarMov(null);
-      return;
-    }
     setAvanzando(true);
     setError(null);
     try {
@@ -794,7 +795,6 @@ function PanelOperacion({
     : null;
 
   const mostrarClasificacion = esApertura || esDocumentacion;
-  const ncmGeneralEnDoc = esDocumentacion && ncmPareceGeneral(op.ncm);
 
   // Paso 1 (cotizar): la IA lee la proforma / pedido de compra subidos,
   // extrae los datos, cruza la información y sugiere una NCM.
@@ -1097,13 +1097,6 @@ function PanelOperacion({
           </div>
 
           {error && <p className="text-[11px] font-medium text-red-500">{error}</p>}
-          {ncmGeneralEnDoc && (
-            <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-700 dark:text-amber-300">
-              La NCM actual es demasiado general (menos de 8 dígitos). Usá el
-              nomenclador para cerrar la posición exacta antes de avanzar.
-            </p>
-          )}
-
           <div className="flex flex-col gap-2 border-t border-border pt-3">
             {idxActual > 0 &&
               (confirmarMov === "atras" ? (
@@ -1169,7 +1162,7 @@ function PanelOperacion({
                 <button
                   type="button"
                   onClick={() => setConfirmarMov("adelante")}
-                  disabled={avanzando || ncmGeneralEnDoc}
+                  disabled={avanzando}
                   className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-[11px] font-semibold text-accent-foreground transition-all hover:opacity-90 disabled:opacity-60"
                 >
                   <ArrowRight className="h-3.5 w-3.5" />
