@@ -107,6 +107,27 @@ const SECCIONES: { titulo: string; campos: Campo[] }[] = [
     campos: [
       { campo: "medio_transporte", label: "Transporte" },
       { campo: "transportista", label: "Transportista / forwarder" },
+      {
+        campo: "cuit_transportista",
+        label: "CUIT del transportista",
+        hint: "La exportación declara el número, no el nombre. Once dígitos.",
+      },
+      {
+        campo: "identificacion_medio",
+        label: "Buque / vuelo / matrícula",
+        hint: "Cómo se identifica el medio con el que sale la carga (exportación).",
+      },
+      {
+        campo: "bandera_medio",
+        label: "Bandera del medio",
+        hint: "País de bandera. El acuático lleva la del buque; camión y avión van sin una propia.",
+      },
+      {
+        campo: "aduana_salida",
+        label: "Aduana de salida",
+        type: "aduana",
+        hint: "Por dónde sale la mercadería del país (exportación).",
+      },
       { campo: "transporte_doc_nro", label: "N° de documento" },
       { campo: "puerto_origen", label: "Origen" },
       { campo: "puerto_transbordo", label: "Transbordo / escala" },

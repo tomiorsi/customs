@@ -150,6 +150,63 @@ export function codigoPais(nombre: string | null | undefined, fecha?: Date): Tra
   return confirmar("PAY", cod, fecha);
 }
 
+/* ──────────────────── medio de transporte ──────────────────── */
+
+/**
+ * El medio con el que sale la carga (`CDDTMDETRN`).
+ *
+ * La tabla no está en el Kit: lo verificamos exportándolo entero dos veces,
+ * y ninguna de las 112 tablas la tiene. Estaba en el otro lado —en el export
+ * de Sintia, como `cod_via.csv`— y las dos fuentes usan los mismos códigos.
+ *
+ * Que sea la tabla correcta no es una suposición: en las siete declaraciones
+ * reales que llevan el campo, el código y la bandera del medio son coherentes
+ * sin excepción. `8` (acuático) va con bandera de buque —Liberia, China— y `2`
+ * y `4` (avión y camión) van con «INDET.(AMERICA)», que es lo que corresponde
+ * cuando el medio no tiene bandera propia.
+ *
+ * Solo van los cuatro que el sistema sabe nombrar. Los otros seis del SIM
+ * —jangada, oleoducto, conductor eléctrico, arreo, ferrocarril, vía postal—
+ * existen pero la carpeta no tiene forma de expresarlos todavía, y traducirlos
+ * a la fuerza sería inventar el medio de una declaración.
+ */
+// Las claves van como las deja `normalizar`: en mayúsculas y sin acentos.
+const VIA_A_SIM: Record<string, string> = {
+  MARITIMA: "8", // ACUATICO
+  ACUATICA: "8",
+  AEREA: "2", // AVION
+  TERRESTRE: "4", // CAMION
+  CAMION: "4",
+  FERROVIARIA: "3", // FERROCARRIL
+  FERROCARRIL: "3",
+  POSTAL: "A", // VIA POSTAL
+  "VIA POSTAL": "A",
+};
+
+/** Cómo llama el SIM a cada medio, para poder mostrarlo. */
+export const MEDIOS_SIM: Record<string, string> = {
+  "1": "Propios medios",
+  "2": "Avión",
+  "3": "Ferrocarril",
+  "4": "Camión",
+  "5": "Arreo",
+  "6": "Jangada",
+  "7": "Oleoducto / gasoducto",
+  "8": "Acuático",
+  "9": "Conductor eléctrico",
+  A: "Vía postal",
+};
+
+export function codigoMedioTransporte(valor: string | null | undefined): Traduccion {
+  const v = (valor ?? "").trim();
+  if (!v) return { codigo: null, porque: "No hay vía de transporte cargada." };
+  // Si ya viene el código del SIM, se usa tal cual.
+  if (MEDIOS_SIM[v.toUpperCase()]) return { codigo: v.toUpperCase() };
+  const cod = VIA_A_SIM[normalizar(v)];
+  if (!cod) return { codigo: null, porque: `La vía «${v}» no tiene medio de transporte del SIM asignado.` };
+  return { codigo: cod };
+}
+
 /* ─────────────────────────── divisas ─────────────────────────── */
 
 /**

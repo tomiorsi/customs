@@ -27,7 +27,13 @@ export {
 export type { Faltante, Resultado } from "@/lib/presim/desde-operacion";
 export { operacionSimDesde, situacionDeArribo } from "@/lib/presim/desde-operacion";
 export type { Traduccion } from "@/lib/presim/catalogos";
-export { codigoIncoterm, codigoPais, codigoUnidad } from "@/lib/presim/catalogos";
+export {
+  MEDIOS_SIM,
+  codigoIncoterm,
+  codigoMedioTransporte,
+  codigoPais,
+  codigoUnidad,
+} from "@/lib/presim/catalogos";
 export type { Sufijo, SufijoDeCatalogo } from "@/lib/presim/sufijos";
 export {
   armarSufijos,

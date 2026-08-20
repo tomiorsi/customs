@@ -1,7 +1,13 @@
 import "server-only";
 
 import type { OperationWithClient } from "@/lib/data";
-import { codigoDivisa, codigoIncoterm, codigoPais, codigoUnidad } from "@/lib/presim/catalogos";
+import {
+  codigoDivisa,
+  codigoIncoterm,
+  codigoMedioTransporte,
+  codigoPais,
+  codigoUnidad,
+} from "@/lib/presim/catalogos";
 import { buscar, vigentes } from "@/lib/presim/tablas";
 import type { ComplementarioSim, ItemSim, OperacionSim } from "@/lib/presim/armar";
 import { destinacionPorId } from "@/lib/destinaciones";
@@ -258,23 +264,63 @@ function completarExportacion(
   if (destino.codigo !== null) operacion.paisDestino = destino.codigo;
   else faltantes.push({ campo: "País de destino", porque: destino.porque });
 
+  const salida = texto(op.aduana_salida);
+  if (salida) {
+    const cod = porNombreExacto("BUR", salida, fecha);
+    if (cod) operacion.aduanaSalida = cod;
+    else faltantes.push({ campo: "Aduana de salida", porque: `«${salida}» no coincide con ninguna aduana de BUR.` });
+  } else {
+    faltantes.push({ campo: "Aduana de salida", porque: "Por dónde sale la mercadería del país (CDDTBURDST)." });
+  }
+
+  const transporte: NonNullable<OperacionSim["transporte"]> = {};
+
   // Las marcas y números del bulto: es el mismo dato que ya se usa de sufijo.
   const marcas = texto(op.marca);
-  if (marcas) operacion.transporte = { marcas };
+  if (marcas) transporte.marcas = marcas;
   else faltantes.push({
     campo: "Marcas y números",
     porque: "La exportación las declara en la cabecera (CDDTMRQNUM).",
   });
 
-  for (const [campo, porque] of [
-    ["Aduana de salida", "Por dónde sale la mercadería del país (CDDTBURDST)."],
-    ["CUIT del transportista", "La exportación pide el CUIT, no el nombre (CDDTTRANSP)."],
-    ["Medio de transporte", "El código del medio con el que sale la carga (CDDTMDETRN)."],
-    ["Identificación del medio", "Buque, vuelo o matrícula (NDDTIMMTRN)."],
-    ["Bandera del medio", "País del medio de transporte (CDDTPAYTRN)."],
-  ] as const) {
-    faltantes.push({ campo, porque });
+  // El medio sale de la vía, que la carpeta ya tiene. La tabla que los traduce
+  // no está en el Kit —lo verificamos exportándolo entero— sino del lado de
+  // Sintia, en `cod_via.csv`, y las dos fuentes usan los mismos códigos.
+  const medio = codigoMedioTransporte(texto(op.medio_transporte) ?? op.via);
+  if (medio.codigo !== null) transporte.medio = medio.codigo;
+  else faltantes.push({ campo: "Medio de transporte", porque: medio.porque });
+
+  // El CUIT del transportista, no su nombre: `transportista` guarda el nombre
+  // y mandarlo donde va el número es un rechazo seguro.
+  const cuit = texto(op.cuit_transportista)?.replace(/\D/g, "");
+  if (cuit && cuit.length === 11) transporte.cuitTransportista = cuit;
+  else faltantes.push({
+    campo: "CUIT del transportista",
+    porque: cuit
+      ? "El CUIT tiene que tener once dígitos."
+      : "La exportación pide el CUIT, no el nombre (CDDTTRANSP).",
+  });
+
+  const ident = texto(op.identificacion_medio);
+  if (ident) transporte.nombre = ident;
+  else faltantes.push({
+    campo: "Identificación del medio",
+    porque: "Buque, vuelo o matrícula (NDDTIMMTRN).",
+  });
+
+  // La bandera es del medio, no de la mercadería: en las declaraciones reales
+  // el acuático lleva la del buque —Liberia, China— y el camión y el avión
+  // llevan «INDET.(AMERICA)», que es lo que corresponde cuando no tiene una.
+  const bandera = texto(op.bandera_medio);
+  if (bandera) {
+    const b = codigoPais(bandera, fecha);
+    if (b.codigo !== null) transporte.pais = b.codigo;
+    else faltantes.push({ campo: "Bandera del medio", porque: b.porque });
+  } else {
+    faltantes.push({ campo: "Bandera del medio", porque: "País del medio de transporte (CDDTPAYTRN)." });
   }
+
+  if (Object.keys(transporte).length) operacion.transporte = transporte;
 }
 
 /**

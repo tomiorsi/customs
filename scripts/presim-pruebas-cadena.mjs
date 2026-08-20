@@ -127,26 +127,16 @@ const EXPORTACION = {
   lugar_mercaderia_736: "CAPITAN CORTES - CABA",
   gastos_origen: null,
   comision_exterior: null,
+  // El transporte, que la exportación declara en cabecera y la importación no.
+  aduana_salida: "001",
+  medio_transporte: "maritima",
+  cuit_transportista: "30-69318494-7",
+  identificacion_medio: "MSC LORETO",
+  bandera_medio: "Liberia",
 };
 
 const expo = operacionSimDesde(EXPORTACION, { cuitDespachante: "30710308043" });
-// La exportación NO se traduce entera, y eso es lo que hay que dejar fijo: son
-// exactamente los cinco datos de transporte que la operación todavía no modela.
-// Si aparece un sexto, alguien agregó algo sin darse cuenta; si baja a cuatro,
-// es porque se modeló uno y hay que sacarlo de esta lista.
-const PENDIENTES_EXPO = [
-  "Aduana de salida",
-  "CUIT del transportista",
-  "Medio de transporte",
-  "Identificación del medio",
-  "Bandera del medio",
-];
-chequear(
-  "de la exportación falta solo el transporte",
-  expo.faltantes.length === PENDIENTES_EXPO.length &&
-    PENDIENTES_EXPO.every((c) => expo.faltantes.some((f) => f.campo === c)),
-  expo.faltantes.map((f) => f.campo).join(", "),
-);
+chequear("la exportación se traduce entera", expo.faltantes.length === 0, expo.faltantes.map((f) => `${f.campo}: ${f.porque}`).join(" · "));
 chequear("elige subrégimen de exportación", expo.operacion?.subregimen === "EC01", expo.operacion?.subregimen ?? "");
 
 if (expo.operacion) {
@@ -158,6 +148,15 @@ if (expo.operacion) {
 
   // Lo que importa de verdad: que NO se cuele nada de importación. Los tres de
   // la DJ del importador están en 0 de 8 exportaciones del archivo.
+  // El medio sale de `cod_via.csv`, del lado de Sintia: la tabla no está en el
+  // Kit. Marítima → 8 (ACUATICO), que es el que las declaraciones reales usan
+  // con bandera de buque.
+  chequear("la vía se tradujo a medio del SIM", texto.includes("CDDTMDETRN=8"), "marítima → 8");
+  chequear("el CUIT del transportista va sin guiones", texto.includes("CDDTTRANSP=30693184947"));
+  chequear("el buque va en su campo", texto.includes("NDDTIMMTRN=MSC LORETO"));
+  chequear("la bandera se tradujo a código de país", texto.includes("CDDTPAYTRN=122"), "Liberia → 122");
+  chequear("la aduana de salida también", texto.includes("CDDTBURDST=001"));
+
   chequear(
     "no se cuela ningún complementario de importación",
     !texto.includes("DOMICIL.ESTABLEC") &&

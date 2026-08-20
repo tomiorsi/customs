@@ -790,6 +790,19 @@ export const OP_CAMPOS = [
    * se declara 0, que es declarar la ausencia y no inventar un valor.
    */
   "comision_exterior",
+  /**
+   * CUIT del transportista (`CDDTTRANSP`), que la exportación declara.
+   *
+   * Va aparte de `transportista`, que guarda el nombre: el SIM pide el número
+   * y mandar uno por el otro es un rechazo seguro.
+   */
+  "cuit_transportista",
+  /** Buque, vuelo o matrícula del medio (`NDDTIMMTRN`). */
+  "identificacion_medio",
+  /** País de bandera del medio (`CDDTPAYTRN`). Acuático lleva la del buque. */
+  "bandera_medio",
+  /** Aduana por donde sale la mercadería (`CDDTBURDST`). */
+  "aduana_salida",
   /** Plazo de pago comercial en días (cuenta abierta, D/A, etc.). */
   "plazo_pago_dias",
   /** Vencimiento del pago al proveedor (ISO YYYY-MM-DD). */
