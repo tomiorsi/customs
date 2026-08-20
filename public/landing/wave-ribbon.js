@@ -18,7 +18,10 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.15;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xffffff);
+// Fondo transparente: la ola se apoya sobre el fondo de la página en vez de
+// pintar el suyo. Antes forzaba blanco, y eso dejaba un bloque blanco en el
+// tema oscuro y una costura visible contra el resto de la portada.
+scene.background = null;
 
 const camera = new THREE.PerspectiveCamera(
   36,
@@ -48,7 +51,7 @@ scene.add(rim2);
 // Se corre hacia abajo para dejar el título/intro del hero arriba sin que
 // se pisen: el texto vive en la mitad superior, la ola en la inferior.
 const group = new THREE.Group();
-group.scale.setScalar(0.58);
+group.scale.setScalar(0.66);
 scene.add(group);
 
 // Cuánto baja la ola, como FRACCIÓN de la distancia de la cámara (no en
@@ -57,7 +60,6 @@ scene.add(group);
 // cámara se aleja bastante (ver fitWaveToViewport), así que con un valor
 // fijo la ola terminaba pegada al título justo en mobile. Atado a la
 // distancia, se ve a la misma altura en cualquier pantalla.
-const WAVE_Y_RATIO = -0.145;
 
 const BLADES = 52;
 const SPAN = 9.2; // ancho total de la ola en unidades de mundo
@@ -185,13 +187,48 @@ if (loadingEl) requestAnimationFrame(() => loadingEl.classList.add('is-hidden'))
 // costados. Alejar la cámara según el ancho real disponible la vuelve a
 // meter completa en el cuadro, de punta a punta, sin tocar el desktop.
 const BASE_CAMERA_Z = 9.6;
+/**
+ * Hasta dónde se puede alejar la cámara.
+ *
+ * Sin tope, en pantalla vertical la cuenta pedía z ≈ 37 para meter los 9,2 de
+ * ancho de la ola en 375 px: a esa distancia queda del alto de un hilo y cae
+ * fuera del cuadro. Es mejor que sangre por los costados y se vea.
+ */
+const MAX_CAMERA_Z = 15;
+
+/**
+ * Dónde se para la ola en la pantalla.
+ *
+ * En pantalla ancha va **a la derecha**: el hero pone el título a la izquierda
+ * y la ola ocupa la otra mitad, sin taparlo. Las dos medidas van en mitades de
+ * lo visible a esa distancia —no en unidades de mundo— porque eso es lo que se
+ * mantiene igual cuando cambia el tamaño de la ventana.
+ *
+ * En pantalla angosta no hay dos columnas: la ola se centra y baja, y queda
+ * como una banda debajo del texto.
+ */
+const POSICION = {
+  ancha: { x: 0.52, y: -0.30 },
+  angosta: { x: 0, y: -0.62 },
+};
+
 function fitWaveToViewport() {
   const aspect = window.innerWidth / window.innerHeight;
+  const esAncha = aspect > 1.1;
   const halfWidth = (SPAN / 2) * group.scale.x + 0.45; // + pad de la última pieza
   const vFovRad = THREE.MathUtils.degToRad(camera.fov);
-  const neededZ = (halfWidth / (Math.tan(vFovRad / 2) * aspect)) * 1.12;
-  camera.position.z = Math.max(BASE_CAMERA_Z, neededZ);
-  group.position.y = WAVE_Y_RATIO * camera.position.z;
+
+  // Por debajo de 1 la ola sangra por el borde: se lee como algo que sigue más
+  // allá del cuadro y no como una pieza apoyada en el medio.
+  const pad = esAncha ? 0.95 : 1.05;
+  const neededZ = (halfWidth / (Math.tan(vFovRad / 2) * aspect)) * pad;
+  camera.position.z = Math.min(MAX_CAMERA_Z, Math.max(BASE_CAMERA_Z, neededZ));
+
+  const mitadAlto = Math.tan(vFovRad / 2) * camera.position.z;
+  const mitadAncho = mitadAlto * aspect;
+  const donde = esAncha ? POSICION.ancha : POSICION.angosta;
+  group.position.x = donde.x * mitadAncho;
+  group.position.y = donde.y * mitadAlto;
 }
 fitWaveToViewport();
 

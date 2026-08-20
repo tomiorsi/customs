@@ -3,8 +3,10 @@ import Link from "next/link";
 import { boletinDelDia } from "@/lib/boletin";
 import { ultimasNoticias } from "@/lib/noticias";
 import { BoletinInicio } from "@/components/boletin-inicio";
+import { ScanSearch } from "lucide-react";
 import { NomencladorManual } from "@/components/nomenclador-manual";
 import { HeroPortal } from "@/components/hero-portal";
+import { CabeceraPortal } from "@/components/cabecera-portal";
 
 /**
  * La portada.
@@ -39,30 +41,57 @@ export default async function PortadaPage() {
   const [boletin, prensa] = await Promise.all([boletinDelDia(), ultimasNoticias()]);
 
   return (
-    <div className="min-h-screen bg-bg">
-      <HeroPortal />
+    /* El fondo del portal es el de wabe.dev —#fafbfd, un blanco apenas azulado—
+       y no el gris neutro del panel. Es la diferencia entre la parte pública y
+       la de adentro, y se nota: el gris del panel al lado de la ola se ve
+       sucio. Va como variable para que la cabecera fija y el pie lo hereden. */
+    <div
+      className="min-h-screen bg-[var(--portal-bg)] [--portal-bg:#fafbfd] dark:[--portal-bg:#0e2440]"
+    >
+      <CabeceraPortal />
+
+      <HeroPortal
+        fecha={boletin.fechaTexto}
+        edicion={boletin.numero}
+        notas={prensa.noticias.length}
+      />
 
       <main className="mx-auto max-w-6xl space-y-14 px-5 py-12 sm:py-16">
-        <section id="dia" className="scroll-mt-6">
+        <section id="dia" className="scroll-mt-20">
           <BoletinInicio boletin={boletin} prensa={prensa} hrefNoticias="/noticias" />
         </section>
 
-        <section id="nomenclador" className="scroll-mt-6">
-          <div className="border-b-2 border-foreground pb-2">
-            <h2 className="text-lg font-semibold tracking-tight text-foreground">
-              Nomenclador
-            </h2>
-          </div>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
-            El nomenclador completo: partidas, subpartidas, posiciones con su
-            texto legal y el derecho que pagan. Gratis y sin cuenta. Está escrito
-            en lenguaje legal, así que conviene buscar por el término técnico o
-            por número de partida.
-          </p>
-          <div className="mt-5">
+        <section id="nomenclador" className="scroll-mt-20">
+          {/* Misma tarjeta que adentro: borde, fondo de superficie, el ícono en
+              su cuadrado de acento y el título al lado. No es parecido — es el
+              mismo tratamiento, para que el que entra sin cuenta y el que entra
+              con cuenta vean la misma herramienta. */}
+          <div className="rounded-2xl border border-border bg-surface p-6 sm:p-8">
+            <div className="mb-6 flex items-center gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft">
+                <ScanSearch className="h-5 w-5 text-accent" />
+              </span>
+              <div className="min-w-0">
+                <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+                  Buscar posición NCM
+                </h2>
+                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
+                  Gratis · sin cuenta · nomenclador completo
+                </p>
+              </div>
+            </div>
+
+            <p className="mb-6 max-w-2xl text-sm leading-relaxed text-foreground">
+              Partidas, subpartidas y posiciones con su texto legal y el derecho
+              que pagan. Está escrito en lenguaje legal y no en el de todos los
+              días: «notebook» no figura, «máquinas automáticas para tratamiento
+              de datos» sí.
+            </p>
+
             <NomencladorManual esExport={false} />
           </div>
         </section>
+
       </main>
 
       <footer className="border-t border-border">
