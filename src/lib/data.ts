@@ -39,6 +39,15 @@ export type ClientRow = {
   carta_garantia: string | null;
   /** Vencimiento de la carta anual (ISO 'YYYY-12-31'); null para puntual/sin. */
   carta_garantia_vence: string | null;
+  /**
+   * Si le faltan los datos que el SIM pide en toda importación —domicilio del
+   * establecimiento y alta en AFIP—.
+   *
+   * Va en el listado y no solo en la ficha porque el hueco se descubría tarde:
+   * recién al generar el archivo, con la carpeta armada. Acá se ve de una
+   * cuáles hay que completar, antes de necesitarlos.
+   */
+  faltan_datos_declaracion: boolean;
   created_at: string;
   ops: number;
   opsActivas: number;
@@ -366,12 +375,17 @@ export async function getClients(despachanteId: string): Promise<ClientRow[]> {
     .prepare(
       `SELECT id, email, company_name, cuit, iva_condition,
               contact_name, phone, op_status, portal_habilitado,
-              carta_garantia, carta_garantia_vence, created_at
+              carta_garantia, carta_garantia_vence, created_at,
+              (COALESCE(TRIM(domicilio_establecimiento), '') = ''
+               OR COALESCE(TRIM(inicio_actividad), '') = '') AS faltan_datos_declaracion
        FROM users
        WHERE role = 'client' AND despachante_id = ?
        ORDER BY created_at DESC`,
     )
-    .all(despachanteId) as Omit<ClientRow, "ops" | "opsActivas" | "opsCerradas">[];
+    .all(despachanteId) as (Omit<
+      ClientRow,
+      "ops" | "opsActivas" | "opsCerradas" | "faltan_datos_declaracion"
+    > & { faltan_datos_declaracion: number })[];
 
   const out: ClientRow[] = [];
   for (const u of users) {
@@ -379,6 +393,8 @@ export async function getClients(despachanteId: string): Promise<ClientRow[]> {
     const opsCerradas = ops.filter((o) => o.estado === ESTADO_CERRADO).length;
     out.push({
       ...u,
+      // SQLite no tiene booleanos: la comparación vuelve 0 o 1.
+      faltan_datos_declaracion: u.faltan_datos_declaracion === 1,
       ops: ops.length,
       opsActivas: ops.length - opsCerradas,
       opsCerradas,

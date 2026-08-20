@@ -56,7 +56,6 @@ export function ClienteForm({ cliente }: { cliente?: ClienteEditable }) {
           personType: fd.get("personType"),
           cuit: fd.get("cuit"),
           email: fd.get("email"),
-          contactName: fd.get("contactName"),
           phone: fd.get("phone"),
           ivaCondition: fd.get("ivaCondition"),
           domicilioEstablecimiento,
@@ -117,14 +116,6 @@ export function ClienteForm({ cliente }: { cliente?: ClienteEditable }) {
               </option>
             ))}
           </Select>
-        </Campo>
-
-        <Campo label="Persona de contacto">
-          <Input
-            name="contactName"
-            defaultValue={cliente?.contact_name ?? ""}
-            placeholder="Nombre y apellido"
-          />
         </Campo>
 
         <Campo label="Teléfono">

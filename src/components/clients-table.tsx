@@ -3,7 +3,7 @@
 import { Fragment, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Building2, Check, KeyRound, Loader2, Pencil, Search, Shield, ShieldAlert, ShieldCheck, X } from "lucide-react";
+import { Building2, Check, KeyRound, Loader2, Pencil, Search, Shield, ShieldAlert, ShieldCheck, TriangleAlert, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { ClientRow } from "@/lib/data";
 import { estadoCartaGarantia, formatVence } from "@/lib/carta-garantia";
@@ -227,13 +227,28 @@ export function ClientsTable({
                           className={CELL_INPUT}
                         />
                       ) : (
-                        <Link
-                          href={`/admin/clientes/${c.id}/editar`}
-                          title="Ver / editar cliente"
-                          className="block truncate text-base font-semibold text-foreground transition-colors hover:text-accent"
-                        >
-                          {c.company_name ?? "—"}
-                        </Link>
+                        <>
+                          <Link
+                            href={`/admin/clientes/${c.id}/editar`}
+                            title="Ver / editar cliente"
+                            className="block truncate text-base font-semibold text-foreground transition-colors hover:text-accent"
+                          >
+                            {c.company_name ?? "—"}
+                          </Link>
+                          {/* El hueco se descubría tarde: recién al generar el
+                              archivo, con la carpeta ya armada. Acá se ve
+                              antes de necesitarlo, y el enlace lleva justo a
+                              donde se completa. */}
+                          {c.faltan_datos_declaracion && (
+                            <Link
+                              href={`/admin/clientes/${c.id}/editar`}
+                              className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 transition-opacity hover:opacity-80 dark:text-amber-400"
+                            >
+                              <TriangleAlert className="h-3 w-3 shrink-0" />
+                              Faltan sus datos para declarar
+                            </Link>
+                          )}
+                        </>
                       )}
                     </td>
                     <td className="px-5 py-3.5 align-top">
