@@ -20,19 +20,6 @@ import { useEffect } from "react";
  * Arriba de todo va la línea de fecha con la edición de hoy: es lo que hace
  * que esto sea la portada de un día y no una página de venta.
  */
-/**
- * El celeste de Wabe.
- *
- * `--accent` en tema claro es el azul oscuro (#1a5080), que es el que el panel
- * necesita para que el texto sobre blanco tenga contraste. Acá, en la portada,
- * la marca es el celeste de la ola —el mismo que usa el logo—, y es el que
- * corresponde en el botón principal y en el punto de la línea de fecha.
- *
- * Va escrito y no como clase de Tailwind a propósito: es la única excepción a
- * los tokens y prefiero que sea visible que esconderla en una utilidad.
- */
-const CELESTE = "#4d95d4";
-
 export function HeroPortal({ fecha }: { fecha: string | null }) {
   useEffect(() => {
     if (document.getElementById("wave-importmap")) return;
@@ -71,11 +58,7 @@ export function HeroPortal({ fecha }: { fecha: string | null }) {
               fecha ? "" : "invisible"
             }`}
           >
-            <span
-              aria-hidden
-              className="h-1.5 w-1.5 rounded-full"
-              style={{ backgroundColor: CELESTE }}
-            />
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
             {/* Solo la fecha. El número de edición y cuántas notas hay están
                 un scroll más abajo, en la tapa del Boletín, que es donde
                 significan algo; acá arriba eran dos datos sueltos que hacían
@@ -98,8 +81,7 @@ export function HeroPortal({ fecha }: { fecha: string | null }) {
           <div className="mt-10 flex flex-nowrap items-center gap-2 sm:gap-3">
             <a
               href="#dia"
-              className="whitespace-nowrap rounded-lg px-4 py-2.5 text-xs font-medium text-white transition-opacity hover:opacity-90 sm:px-6 sm:py-3 sm:text-sm"
-              style={{ backgroundColor: CELESTE }}
+              className="whitespace-nowrap rounded-lg bg-accent px-4 py-2.5 text-xs font-medium text-accent-foreground transition-opacity hover:opacity-90 sm:px-6 sm:py-3 sm:text-sm"
             >
               Qué salió hoy
             </a>

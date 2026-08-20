@@ -15,15 +15,21 @@
      5,97:1 sobre surface-2, sin volverse negro ni perder la jerarquía. */
   --muted: #565c66;
   --border: #e5e7eb;
-  /* Azul de la marca Wabe, el mismo de wabe.dev: #1A5080 en claro y #4d95d4
-     en oscuro. Reemplaza al naranja anterior en todos sus roles. */
-  --accent: #1a5080;
+  /* Celeste de la marca Wabe: el de la ola y el del logo. Antes acá había un
+     azul mucho más oscuro (#1a5080) y la aplicación entera se leía azul
+     marino, que no es la marca. Este color es para RELLENOS —botones, la tapa
+     del Boletín, los cuadrados de los íconos, los puntos—. Para texto está
+     `--accent-text`, más abajo: este sobre blanco da 3,2:1 y no se puede leer
+     en los rótulos de diez píxeles. */
+  --accent: #4d95d4;
   --accent-foreground: #ffffff;
   --accent-soft: #eef3f9;
-  /* Acento para TEXTO. Acá el azul de marca ya sirve: #1a5080 da 9,2:1 sobre
-     blanco, así que no hace falta una variante oscurecida como con el naranja
-     —que daba 2,6:1 y obligaba a inventar un tono aparte solo para escribir. */
-  --accent-text: #1a5080;
+  /* Acento para TEXTO, y es otro color que el de relleno a propósito.
+     El celeste de la marca da 3,2:1 sobre blanco: por debajo del mínimo
+     legible, y buena parte de la interfaz lo usa en textos de 10 y 11 px.
+     Este es el mismo celeste bajado hasta que pasa —5,3:1— sin volverse el
+     azul marino de antes. */
+  --accent-text: #1f6fb2;
   --ring: rgba(26, 80, 128, 0.35);
 }
 
@@ -71,6 +77,24 @@
 
 * {
   border-color: var(--border);
+}
+
+/*
+ * `text-accent` escribe con el acento de TEXTO, no con el de relleno.
+ *
+ * Son dos colores distintos por una razón concreta: el celeste de la marca es
+ * el correcto para un botón o para la tapa del Boletín, pero sobre blanco da
+ * 3,2:1 y la aplicación lo usa en 231 lugares, muchos de ellos rótulos de diez
+ * píxeles. Escribir con él dejaba media interfaz ilegible.
+ *
+ * Se resuelve acá y no cambiando las 231 clases: `text-accent` es lo que ya
+ * está escrito en todos lados y lo que se va a seguir escribiendo. Que apunte
+ * al color legible es lo que corresponde, y así nadie tiene que acordarse.
+ * Los rellenos —`bg-accent`, `border-accent`, `fill-accent`— siguen con el
+ * celeste de la marca.
+ */
+.text-accent {
+  color: var(--accent-text);
 }
 
 /*

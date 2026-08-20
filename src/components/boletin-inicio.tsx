@@ -262,24 +262,29 @@ export function BoletinInicio({
         {/* Tapa de la edición: identidad del Boletín, en el naranja de la
             marca. Ancla la pantalla en la fuente y da la escala de la cosa —va
             por el año CXXXIV, sale sin faltar desde 1893—. */}
+        {/* Los rótulos de la tapa van en blanco pleno, sin opacidad. Con el
+            acento en el celeste de la marca, blanco al 80% sobre ese fondo
+            queda por debajo de lo legible en nueve píxeles; con el azul
+            marino de antes sí se leía. El color lo elige la marca, así que lo
+            que se ajusta es el texto. */}
         <div className="flex shrink-0 items-center gap-5 bg-accent p-5 text-[var(--accent-foreground)] sm:w-80 lg:w-96">
           <div className="min-w-0 flex-1">
-            <p className="font-mono text-[9px] uppercase tracking-[0.2em] opacity-80">
+            <p className="font-mono text-[9px] uppercase tracking-[0.2em]">
               Boletín Oficial
             </p>
-            <p className="mt-4 font-mono text-[9px] uppercase tracking-[0.2em] opacity-80">
+            <p className="mt-4 font-mono text-[9px] uppercase tracking-[0.2em]">
               Año
             </p>
             <p className="font-mono text-2xl font-semibold leading-none tracking-tight">
               {boletin.anioRomano ?? "—"}
             </p>
-            <p className="mt-2.5 font-mono text-[9px] uppercase tracking-[0.2em] opacity-80">
+            <p className="mt-2.5 font-mono text-[9px] uppercase tracking-[0.2em]">
               Edición N°
             </p>
             <p className="font-mono text-xl leading-tight">
               {boletin.numero ?? "—"}
             </p>
-            <p className="mt-4 font-mono text-[9px] uppercase tracking-[0.14em] opacity-80">
+            <p className="mt-4 font-mono text-[9px] uppercase tracking-[0.14em]">
               {prensa.noticias.length} notas · {PORTALES} portales
             </p>
           </div>

@@ -131,15 +131,24 @@ export function ClienteForm({ cliente }: { cliente?: ClienteEditable }) {
           <Input name="phone" defaultValue={cliente?.phone ?? ""} placeholder="+54 …" />
         </Campo>
 
+        {/* Dice «del cliente» y no solo «para la declaración» porque en esta
+            pantalla conviven datos del estudio y del cliente, y estos dos se
+            confunden con los del despachante. No lo son: en los trece
+            despachos de importación del archivo figura el mismo despachante y
+            el domicilio y la fecha cambian en cada uno. Son la DJ del
+            importador. */}
         <div className="sm:col-span-2 mt-1 border-t border-border pt-4">
-          <p className="text-xs font-medium text-foreground">Datos para la declaración</p>
+          <p className="text-xs font-medium text-foreground">
+            Datos del cliente para la declaración
+          </p>
           <p className="mt-1 text-xs text-muted">
-            El SIM los pide en toda importación. Se cargan una vez y valen para
-            todas las carpetas de este cliente.
+            Son de él, no del estudio: salen de su constancia de inscripción en
+            AFIP. El SIM los pide en toda importación. Se cargan una vez y
+            valen para todas sus carpetas.
           </p>
         </div>
 
-        <Campo label="Domicilio del establecimiento *">
+        <Campo label="Domicilio del establecimiento del cliente *">
           <Input
             name="domicilioEstablecimiento"
             defaultValue={cliente?.domicilio_establecimiento ?? ""}
@@ -148,11 +157,14 @@ export function ClienteForm({ cliente }: { cliente?: ClienteEditable }) {
           />
         </Campo>
 
-        <Campo label="Inicio de actividades *">
+        <Campo label="Inicio de actividades del cliente *">
           <Input
             name="inicioActividad"
             type="date"
             defaultValue={cliente?.inicio_actividad ?? ""}
+            // El alta en AFIP es vieja —en el archivo van de 1997 a 2013—, así
+            // que se acota a fechas pasadas: poner la de hoy es el error fácil.
+            max={new Date().toISOString().slice(0, 10)}
             required
           />
         </Campo>
