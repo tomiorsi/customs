@@ -405,6 +405,11 @@ export function ProductosCarpeta({
 
         {buscando && (
           <div className="mt-3 rounded-xl border border-border bg-bg p-3">
+            {/* Sin traducción por ahora: medida contra 160 casos reales,
+                sube el top-5 de 40,6% a 55,0% pero BAJA el primer lugar de
+                24,4% a 21,9%. El repo dice que si un número baja se revierte,
+                así que queda apagada hasta decidirlo con el dato a la vista.
+                La ruta la sigue soportando con `expandir=1`. */}
             <NomencladorManual esExport={esExport} onElegir={tomarDelNomenclador} />
           </div>
         )}

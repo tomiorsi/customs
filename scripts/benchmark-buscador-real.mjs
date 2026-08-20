@@ -20,10 +20,28 @@
  *        scripts/benchmark-buscador-real.mjs [--n 1200]
  */
 import fs from "node:fs";
-import { partidasCandidatas } from "../src/lib/clasificador/motor";
+// Las variables de entorno: sin esto `ANTHROPIC_API_KEY` no está y la
+// expansión devuelve vacío en silencio — el banco daba EXACTAMENTE el mismo
+// número con y sin `--expandir`, que es cómo se descubrió.
+for (const linea of fs.existsSync(".env") ? fs.readFileSync(".env", "utf8").split("\n") : []) {
+  const m = /^\s*([A-Z0-9_]+)\s*=\s*(.*)$/.exec(linea);
+  if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "").trim();
+}
+import {
+  partidasCandidatas,
+  resolverPartidasConExpansion,
+} from "../src/lib/clasificador/motor";
 import { textoParaSimsParquet } from "../src/lib/clasificador/estado-clasificacion";
+import { expandirConsultaLegal } from "../src/lib/clasificador/ia";
 
 const N = Number(process.argv[process.argv.indexOf("--n") + 1]) || 1200;
+/**
+ * `--expandir` traduce la consulta al idioma del nomenclador antes de buscar,
+ * como hace el buscador de la carpeta. Cuesta una llamada de IA por caso, así
+ * que se corre con `--n` chico y de a una: en paralelo la latencia se dispara
+ * y aparecen fallos que no son fallos (ver CLAUDE.md).
+ */
+const EXPANDIR = process.argv.includes("--expandir");
 const CSV = "data/Normas/SIM/sintia/desp_item.csv";
 
 /** CSV con comillas: el mismo formato que el resto del archivo. */
@@ -81,14 +99,30 @@ for (const [, lista] of porLargo) {
   elegidas.push(...copia.slice(0, porTramo));
 }
 
-console.log(`Buscador manual contra texto real del archivo.`);
+console.log(
+  `Buscador ${EXPANDIR ? "CON traducción al idioma del nomenclador" : "crudo"}, contra texto real del archivo.`,
+);
 console.log(`${muestras.length} ítems con descripción y posición; se miden ${elegidas.length}.\n`);
 
 const stats = new Map();
 let hechas = 0;
 for (const m of elegidas) {
-  const cand = await partidasCandidatas(textoParaSimsParquet(m.desc, []), { limite: 20 });
-  const rank = cand.findIndex((c) => c.partida === m.partida);
+  let rank;
+  if (EXPANDIR) {
+    const terminos = await expandirConsultaLegal(m.desc);
+    const codigos = terminos.length
+      ? await resolverPartidasConExpansion(
+          { textoNombreBase: m.desc, textoFiltro: m.desc, textoSims: m.desc },
+          terminos,
+        )
+      : (await partidasCandidatas(textoParaSimsParquet(m.desc, []), { limite: 20 })).map(
+          (c) => c.partida,
+        );
+    rank = codigos.slice(0, 20).indexOf(m.partida);
+  } else {
+    const cand = await partidasCandidatas(textoParaSimsParquet(m.desc, []), { limite: 20 });
+    rank = cand.findIndex((c) => c.partida === m.partida);
+  }
   const k = Math.min(m.palabras, 8);
   if (!stats.has(k)) stats.set(k, { n: 0, top1: 0, top5: 0, lista: 0 });
   const s = stats.get(k);

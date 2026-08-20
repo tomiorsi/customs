@@ -1,14 +1,18 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { getCurrentUser } from "@/lib/auth-server";
+import { esEquipo } from "@/lib/roles";
 import { dentroDelLimite, ipDe } from "@/lib/limite-publico";
 import {
   arancelPorNcm,
   candidatosDePartida,
   descripcionPartida,
   partidasCandidatas,
+  resolverPartidasConExpansion,
   subpartidasDePartida,
   textoLegalResumido,
 } from "@/lib/clasificador/motor";
 import { textoParaSimsParquet } from "@/lib/clasificador/estado-clasificacion";
+import { expandirConsultaLegal } from "@/lib/clasificador/ia";
 import { etiquetaUnidad, notasDeNcm, sufijosDeNcm } from "@/lib/clasificador/referencias";
 
 const MAX_PARTIDAS = 20;
@@ -121,12 +125,61 @@ export async function GET(req: NextRequest) {
       return respuestaPartida(comoNumero);
     }
 
-    const candidatas = await partidasCandidatas(textoParaSimsParquet(q, []), {
+    /**
+     * Buscar el texto tal cual, o traducirlo antes al idioma del nomenclador.
+     *
+     * Medido contra 9.869 descripciones reales del archivo, buscar el texto
+     * tal cual acierta la partida en primer lugar el 26,5% de las veces, y
+     * **empeora cuanto más largo es el texto**. Mirando los fallos uno por
+     * uno, la causa dominante no es el orden del ranking sino el vocabulario:
+     * «arrabio», «parlantes» y «jackets» no devuelven NADA, porque el
+     * nomenclador dice «fundición en bruto», «altavoces» y no habla inglés.
+     *
+     * La traducción de comercial a legal ya existe —la Fase 0 del
+     * clasificador— y el entrelazado por votos también. Acá se reusan los dos
+     * tal cual: no hay una regla nueva ni una lista de sinónimos escrita a
+     * mano contra los casos que fallaban.
+     *
+     * Cuesta una llamada de IA, así que va solo para el equipo y a pedido.
+     * El portal público sigue buscando el texto crudo, gratis.
+     */
+    const quiereExpandir = searchParams.get("expandir") === "1";
+    let expandida = false;
+    let candidatas = await partidasCandidatas(textoParaSimsParquet(q, []), {
       limite: MAX_PARTIDAS,
     });
+
+    if (quiereExpandir) {
+      const user = await getCurrentUser();
+      if (user && esEquipo(user.role)) {
+        const terminos = await expandirConsultaLegal(q);
+        if (terminos.length) {
+          const codigos = await resolverPartidasConExpansion(
+            { textoNombreBase: q, textoFiltro: q, textoSims: q },
+            terminos,
+          );
+          const conTexto = await Promise.all(
+            codigos.slice(0, MAX_PARTIDAS).map(async (partida) => ({
+              partida,
+              descripcion: (await descripcionPartida(partida)) || "",
+            })),
+          );
+          // Si la expansión no trajo nada, se deja lo de antes: es una ayuda,
+          // no un reemplazo, y quedarse sin resultados sería peor.
+          if (conTexto.length) {
+            candidatas = conTexto;
+            expandida = true;
+          }
+        }
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       consulta: q,
+      // Se dice si se tradujo, para que la pantalla lo pueda mostrar: quien
+      // busca tiene que saber si lo que ve salió de su texto o de otro.
+      expandida,
       partidas: candidatas.map((c) => ({
         partida: c.partida,
         descripcion: c.descripcion,

@@ -27,8 +27,18 @@ const inputCls =
 export function NomencladorManual({
   esExport,
   onElegir,
+  expandir = false,
 }: {
   esExport: boolean;
+  /**
+   * Traducir la consulta al idioma del nomenclador antes de buscar.
+   *
+   * Va prendido donde se trabaja una carpeta y apagado en el portal público:
+   * cuesta una llamada de IA por búsqueda. Lo que cambia es enorme —buscar el
+   * texto crudo acierta 26,5% contra descripciones reales, y palabras comunes
+   * como «arrabio» o «parlantes» no devuelven nada— pero no es gratis.
+   */
+  expandir?: boolean;
   /**
    * Qué hacer cuando alguien elige una posición del árbol.
    *
@@ -51,7 +61,9 @@ export function NomencladorManual({
     setCargando(true);
     setError(null);
     try {
-      const res = await fetch(`/api/nomenclador/explorar?${params}`);
+      const res = await fetch(
+        `/api/nomenclador/explorar?${params}${expandir ? "&expandir=1" : ""}`,
+      );
       const data = await res.json();
       if (!res.ok || !data.ok) {
         setError(data.error ?? "No se pudo consultar el nomenclador.");
