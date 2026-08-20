@@ -1,0 +1,322 @@
+/* ══════════════════════════════════════════════════════════════
+   Secciones abiertas: Noticias y Nomenclador.
+
+   Van en su propio archivo y no dentro de styles.css a propósito. Aquel tiene
+   2.700 líneas de la landing de agencia y estas dos secciones son de otra
+   etapa del sitio: separadas se pueden leer, cambiar y —si hace falta— sacar,
+   sin tocar lo que ya estaba.
+
+   Se apoyan en los tokens de styles.css (--fg, --muted, --line, --accent,
+   --card, --radius) para que el tema oscuro salga solo, y reutilizan
+   .section y .section-head en vez de inventar su propio ritmo vertical.
+   ══════════════════════════════════════════════════════════════ */
+
+.seccion-abierta {
+  scroll-margin-top: 90px;
+}
+
+.seccion-bajada {
+  margin: 0.55rem 0 0;
+  max-width: 46ch;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.seccion-cargando {
+  margin: 0;
+  padding: 2.2rem 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.seccion-pie {
+  margin-top: 1.6rem;
+}
+
+.seccion-mas {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+.seccion-mas::after {
+  content: '→';
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.seccion-mas:hover { border-bottom-color: var(--accent); }
+.seccion-mas:hover::after { transform: translateX(3px); }
+
+/* ─────────────────────────── Noticias ─────────────────────────── */
+
+.noticias-grilla {
+  display: grid;
+  gap: 1.1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  margin-top: 1.8rem;
+}
+
+.noticia {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--card-solid);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+.noticia:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent-dim);
+  box-shadow: var(--shadow);
+}
+
+/* Relación fija para que tres tarjetas con fotos de distinto tamaño queden
+   alineadas entre sí. Sin esto la grilla salta según lo que publicó cada
+   medio. */
+.noticia-foto {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: var(--chrome);
+}
+
+.noticia-cuerpo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.1rem 1.15rem;
+}
+
+.noticia-medio {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.noticia-titulo {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text-strong);
+}
+.noticia:hover .noticia-titulo { color: var(--accent); }
+
+.noticia-resumen {
+  margin: 0;
+  font-size: 0.83rem;
+  line-height: 1.55;
+  color: var(--muted);
+  /* Dos líneas y corta: las tarjetas tienen que medir lo mismo. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ───────────────────────── Nomenclador ───────────────────────── */
+
+.nom-buscador {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1.8rem;
+  max-width: 640px;
+}
+
+.nom-campo { flex: 1; min-width: 0; }
+
+.nom-campo input {
+  width: 100%;
+  height: 46px;
+  padding: 0 1rem;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--fg);
+  background: var(--card-solid);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  outline: none;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+.nom-campo input::placeholder { color: var(--muted); }
+.nom-campo input:focus { border-color: var(--accent); }
+
+.nom-boton {
+  height: 46px;
+  padding: 0 1.4rem;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.nom-boton:hover { opacity: 0.9; }
+.nom-boton:disabled { opacity: 0.5; cursor: default; }
+
+.nom-ayuda {
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.nom-resultado { margin-top: 1.6rem; }
+
+.nom-aviso {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.nom-lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+  max-width: 720px;
+}
+
+.nom-fila {
+  display: flex;
+  gap: 0.9rem;
+  align-items: baseline;
+  width: 100%;
+  padding: 0.8rem 0.2rem;
+  font: inherit;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  color: inherit;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.nom-fila:hover { background: var(--chrome); }
+
+.nom-codigo {
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.nom-texto {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.nom-ficha {
+  padding: 1.2rem 1.3rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--card-solid);
+  max-width: 720px;
+}
+
+.nom-ficha-codigo {
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.nom-ficha-texto {
+  margin: 0.5rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.nom-datos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.6rem;
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.nom-dato { font-size: 0.82rem; color: var(--muted); }
+.nom-dato b {
+  display: block;
+  margin-top: 0.15rem;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.nom-volver {
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--accent);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.nom-volver:hover { text-decoration: underline; }
+
+/* Accesible pero invisible: la etiqueta del buscador. */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 560px) {
+  .nom-buscador { flex-direction: column; }
+  .nom-boton { width: 100%; }
+}
+
+/* Los sufijos de una posición. Van con su texto y no solo con el código:
+   «NA01» no le dice nada a nadie, «CON PLACA DE SONIDO» sí. */
+.nom-sufijos {
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.nom-sufijos-titulo {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.nom-sufijos-lista {
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.nom-sufijos-lista li {
+  display: flex;
+  gap: 0.7rem;
+  align-items: baseline;
+}

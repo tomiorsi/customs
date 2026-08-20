@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getCurrentUser } from "@/lib/auth-server";
+import { dentroDelLimite, ipDe } from "@/lib/limite-publico";
 import {
   arancelPorNcm,
   candidatosDePartida,
@@ -53,10 +53,26 @@ async function respuestaPartida(partida: string) {
  *   ?partida=8205        → subpartidas y posiciones de esa partida
  *   ?ncm=8205.20.00.100J → arancel de una posición puntual
  */
+/**
+ * Explorar el nomenclador. **Abierto, sin cuenta** desde el 20/8/2026.
+ *
+ * El nomenclador es una tabla pública: las posiciones, sus textos legales, sus
+ * notas y sus aranceles los publica el Estado y no hay nada de nadie acá
+ * adentro. Pedir cuenta para leerlo no protegía ningún dato, solo tapaba lo
+ * único que le sirve al que todavía no nos conoce.
+ *
+ * Lo que **no** está abierto es clasificar con IA, que es otra ruta y cuesta
+ * plata por consulta. Buscar sale de datos locales.
+ *
+ * El tope por minuto no es por privacidad sino por trabajo: cada consulta abre
+ * parquet y cruza tablas, y sin freno un bucle deja al servidor ocupado.
+ */
 export async function GET(req: NextRequest) {
-  const user = await getCurrentUser();
-  if (!user) {
-    return NextResponse.json({ error: "No autorizado." }, { status: 401 });
+  if (!dentroDelLimite(ipDe(req), "nomenclador", 40)) {
+    return NextResponse.json(
+      { ok: false, error: "Demasiadas consultas seguidas. Probá en un minuto." },
+      { status: 429 },
+    );
   }
 
   const { searchParams } = new URL(req.url);
