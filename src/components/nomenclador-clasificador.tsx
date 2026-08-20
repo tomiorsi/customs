@@ -209,14 +209,25 @@ const CATEGORIAS = [
 ];
 
 
-export function NomencladorClasificador() {
+export function NomencladorClasificador({
+  consultaInicial = "",
+}: {
+  /**
+   * Con qué texto arrancar.
+   *
+   * Existe para no obligar a reescribir. Cuando el buscador manual de una
+   * carpeta no encuentra nada, ofrece pasar acá: si al llegar hubiera que
+   * tipear el producto de nuevo, media gente no lo haría.
+   */
+  consultaInicial?: string;
+} = {}) {
   // Importación o exportación: define qué datos se muestran de la posición.
   const [modo, setModo] = useState<"importacion" | "exportacion" | "manual">(
     "importacion",
   );
   const esExport = modo === "exportacion";
   const esManual = modo === "manual";
-  const [consulta, setConsulta] = useState("");
+  const [consulta, setConsulta] = useState(consultaInicial);
   const [catalogoNombre, setCatalogoNombre] = useState<string | null>(null);
   const [catalogoResumen, setCatalogoResumen] = useState<string | null>(null);
   const [mostrarEntradaCatalogo, setMostrarEntradaCatalogo] = useState(true);

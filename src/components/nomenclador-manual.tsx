@@ -174,10 +174,36 @@ export function NomencladorManual({
             {hits.length} partidas encontradas — elegí una para abrirla
           </p>
           {hits.length === 0 && (
-            <p className="rounded-lg border border-border bg-surface-2/40 px-4 py-3 text-sm text-muted">
-              No hay partidas para esa descripción. Probá con otro término o con
-              el número de partida.
-            </p>
+            /**
+             * Cuando el texto no alcanza, decir qué hacer.
+             *
+             * Medido sobre el archivo: cuando el buscador no encuentra nada
+             * suele ser porque la descripción no dice qué es la mercadería
+             * —un código de producto, una marca, un fragmento—. Ahí acierta el
+             * 4,3%. No es falta de vocabulario y no lo arregla ningún motor:
+             * lo arregla describir el producto, que es justamente lo que el
+             * clasificador con IA hace preguntando.
+             */
+            <div className="rounded-lg border border-border bg-surface-2/40 px-4 py-3">
+              <p className="text-sm text-muted">
+                No hay partidas para esa descripción. Suele pasar cuando el
+                texto es un código o una marca y no dice qué es la mercadería.
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <a
+                  href={`/admin/nomenclador?q=${encodeURIComponent(consulta.trim())}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-accent-foreground transition-opacity hover:opacity-90"
+                >
+                  Clasificar con IA
+                </a>
+                <span className="text-xs text-muted">
+                  Te pregunta hasta cerrar la posición. Se abre con este texto
+                  ya puesto.
+                </span>
+              </div>
+            </div>
           )}
           <ul className="space-y-1">
             {hits.map((h) => (
