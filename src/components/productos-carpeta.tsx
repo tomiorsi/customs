@@ -355,7 +355,7 @@ export function ProductosCarpeta({
               value={mercaderia}
               onChange={(e) => setMercaderia(e.target.value)}
               placeholder="Qué es"
-              className="w-full rounded-lg border border-border bg-surface px-3 py-1.5 text-sm text-foreground"
+              className="h-9 w-full rounded-lg border border-border bg-surface px-3 text-sm text-foreground"
             />
           </label>
           <label className="w-40 space-y-1">
@@ -367,13 +367,13 @@ export function ProductosCarpeta({
               onChange={(e) => setNcm(e.target.value)}
               placeholder="8 dígitos"
               inputMode="numeric"
-              className="w-full rounded-lg border border-border bg-surface px-3 py-1.5 text-sm tabular-nums text-foreground"
+              className="h-9 w-full rounded-lg border border-border bg-surface px-3 text-sm tabular-nums text-foreground"
             />
           </label>
           <button
             type="button"
             onClick={() => setBuscando((b) => !b)}
-            className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition-colors ${
               buscando
                 ? "border-accent bg-accent-soft text-accent-text"
                 : "border-border text-foreground hover:border-accent hover:text-accent"
@@ -386,7 +386,7 @@ export function ProductosCarpeta({
             type="button"
             disabled={cargando || !mercaderia.trim()}
             onClick={() => void agregar({ mercaderia, ncm: ncm || undefined })}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-accent-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-accent px-3 text-xs font-semibold text-accent-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
           >
             {cargando ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
             Agregar
