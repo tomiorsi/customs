@@ -213,7 +213,9 @@ const POSICION = {
   // cortada por dos bordes se lee como un error de encuadre, no como una
   // decisión. `x` va en mitades del ancho visible: 0 es el centro, 1 el borde.
   ancha: { x: 0.50, y: 0 },
-  angosta: { x: 0, y: -0.45 },
+  // En celular baja más: los botones ocupan el medio y la ola tiene que
+  // quedar debajo de ellos, no cruzándolos.
+  angosta: { x: 0, y: -0.62 },
 };
 
 function fitWaveToViewport() {

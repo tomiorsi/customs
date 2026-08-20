@@ -33,15 +33,7 @@ import { useEffect } from "react";
  */
 const CELESTE = "#4d95d4";
 
-export function HeroPortal({
-  fecha,
-  edicion,
-  notas,
-}: {
-  fecha: string | null;
-  edicion: string | null;
-  notas: number;
-}) {
+export function HeroPortal({ fecha }: { fecha: string | null }) {
   useEffect(() => {
     if (document.getElementById("wave-importmap")) return;
 
@@ -60,13 +52,9 @@ export function HeroPortal({
 
     const modulo = document.createElement("script");
     modulo.type = "module";
-    modulo.src = "/landing/wave-ribbon.js?v=13";
+    modulo.src = "/landing/wave-ribbon.js?v=14";
     document.body.appendChild(modulo);
   }, []);
-
-  const dateline = [fecha, edicion ? `Boletín ${edicion}` : null, `${notas} notas`]
-    .filter(Boolean)
-    .join(" · ");
 
   return (
     <section className="relative isolate flex min-h-screen flex-col justify-between overflow-hidden pt-24">
@@ -78,13 +66,21 @@ export function HeroPortal({
 
       <div className="mx-auto w-full max-w-7xl px-6 lg:px-10">
         <div className="max-w-2xl">
-          <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
+          <p
+            className={`flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted ${
+              fecha ? "" : "invisible"
+            }`}
+          >
             <span
               aria-hidden
               className="h-1.5 w-1.5 rounded-full"
               style={{ backgroundColor: CELESTE }}
             />
-            <span className="first-letter:uppercase">{dateline}</span>
+            {/* Solo la fecha. El número de edición y cuántas notas hay están
+                un scroll más abajo, en la tapa del Boletín, que es donde
+                significan algo; acá arriba eran dos datos sueltos que hacían
+                partir el renglón en celular. */}
+            <span className="first-letter:uppercase">{fecha}</span>
           </p>
 
           <h1 className="mt-6 text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
@@ -97,17 +93,20 @@ export function HeroPortal({
             <span className="text-foreground">gratis y sin cuenta</span>.
           </p>
 
-          <div className="mt-10 flex flex-wrap items-center gap-3">
+          {/* Los dos en una línea también en celular: apilados se comían el
+              alto y la ola les pasaba por encima. Entran achicando el cuerpo y
+              el relleno, no recortando las etiquetas. */}
+          <div className="mt-10 flex flex-nowrap items-center gap-2 sm:gap-3">
             <a
               href="#dia"
-              className="rounded-lg px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
+              className="whitespace-nowrap rounded-lg px-4 py-2.5 text-xs font-medium text-white transition-opacity hover:opacity-90 sm:px-6 sm:py-3 sm:text-sm"
               style={{ backgroundColor: CELESTE }}
             >
               Qué salió hoy
             </a>
             <a
               href="#nomenclador"
-              className="rounded-lg border border-border bg-surface px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
+              className="whitespace-nowrap rounded-lg border border-border bg-surface px-4 py-2.5 text-xs font-medium text-foreground transition-colors hover:border-accent hover:text-accent sm:px-6 sm:py-3 sm:text-sm"
             >
               Buscar en el nomenclador
             </a>

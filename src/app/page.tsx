@@ -50,11 +50,7 @@ export default async function PortadaPage() {
     >
       <CabeceraPortal />
 
-      <HeroPortal
-        fecha={boletin.fechaTexto}
-        edicion={boletin.numero}
-        notas={prensa.noticias.length}
-      />
+      <HeroPortal fecha={boletin.fechaTexto} />
 
       <main className="mx-auto max-w-6xl space-y-14 px-5 py-12 sm:py-16">
         <section id="dia" className="scroll-mt-20">
