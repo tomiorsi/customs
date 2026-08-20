@@ -264,7 +264,16 @@ async function leerMedio(medio: Medio, hoy: string): Promise<Noticia[]> {
   return out;
 }
 
-async function consultarMedios(): Promise<ListadoNoticias> {
+/**
+ * Consulta los cuatro feeds.
+ *
+ * `anteriores` son las notas del refresco pasado. Cuando un medio no contesta
+ * —se cae, o tarda más que el timeout— se usan las suyas de esa tanda en vez
+ * de dejarlo afuera. Un portal lento no debería vaciar su columna: sus notas
+ * de hace una hora siguen siendo ciertas, y es mejor mostrarlas que mostrar el
+ * hueco. Igual se avisa cuál falló, así nadie cree que la lista está completa.
+ */
+async function consultarMedios(anteriores: Noticia[] = []): Promise<ListadoNoticias> {
   const hoy = hoyIsoArgentina();
 
   const resultados = await Promise.all(
@@ -273,7 +282,8 @@ async function consultarMedios(): Promise<ListadoNoticias> {
         return { medio: m, noticias: await leerMedio(m, hoy), error: null };
       } catch (e) {
         const msg = e instanceof Error ? e.message : "error desconocido";
-        return { medio: m, noticias: [] as Noticia[], error: msg };
+        const guardadas = anteriores.filter((n) => n.medioId === m.id);
+        return { medio: m, noticias: guardadas, error: msg };
       }
     }),
   );
@@ -292,7 +302,12 @@ async function consultarMedios(): Promise<ListadoNoticias> {
     noticias,
     fallaron: resultados
       .filter((r) => r.error)
-      .map((r) => ({ nombre: r.medio.nombre, error: r.error! })),
+      .map((r) => ({
+        nombre: r.medio.nombre,
+        error: r.noticias.length
+          ? `no respondió; se muestran sus ${r.noticias.length} notas anteriores`
+          : r.error!,
+      })),
     consultado: new Date().toISOString(),
   };
 }
@@ -308,7 +323,7 @@ export async function refrescarNoticias(): Promise<ListadoNoticias> {
     if (n.imagen) conocidas.set(n.url, n.imagen);
   }
 
-  const dato = await consultarMedios();
+  const dato = await consultarMedios(previo?.dato.noticias ?? []);
   await completarImagenes(dato.noticias, conocidas);
 
   // Si no llegó ninguna nota preferimos dejar la foto anterior antes que

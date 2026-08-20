@@ -31,8 +31,13 @@ export const MEDIOS: Medio[] = [
   {
     id: "trade-news",
     nombre: "Trade News",
-    feed: "https://www.tradenews.com.ar/feed/",
-    sitio: "https://www.tradenews.com.ar",
+    // Sin `www`: con www el servidor contesta 301 y manda acá. Ese rodeo
+    // costaba entre uno y dos segundos de más y, con el sitio lento, empujaba
+    // la consulta por encima del timeout — Trade News era el único medio que
+    // fallaba, y siempre por esto. Medido: 1,2 s directo contra 2 a 9,5 s con
+    // la redirección.
+    feed: "https://tradenews.com.ar/feed/",
+    sitio: "https://tradenews.com.ar",
     favicon: "https://www.tradenews.com.ar/favicon.ico",
   },
   {
