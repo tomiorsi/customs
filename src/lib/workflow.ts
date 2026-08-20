@@ -47,14 +47,21 @@ const ETAPAS_IMPO: EtapaDef[] = [
   {
     id: "apertura",
     label: "Apertura de carpeta",
-    guia: "La BASE son los datos que ya cargó el cliente al abrir: tipo (impo/expo), vía, forma de pago, país, mercadería y estado (nuevo/usado). Con eso solo ya armás el primer borrador del paso a paso (y orientás NCM, intervenciones y certificado de origen). Después: si todavía no subió la factura, pedila (con el pedido o la proforma ya abrís la carpeta). Cuando llegue la factura, corré la IA: la analiza y la CRUZA con lo que cargó el cliente. Dos caminos: (1) coincide → confirmás y seguís; (2) hay diferencias (el cliente se confundió o la factura cambia vía / Incoterm / pago / mercadería) → corregís los datos y los pasos se reordenan solos. Revisá y aplicá tipo, vía, forma de pago e Incoterm antes de avanzar. De acá sale una COTIZACIÓN PRELIMINAR (tributos estimados + logística por defecto); el contenedor y los gastos finos llegan con el transporte en el paso siguiente.",
+    guia: "La BASE son los datos que ya cargó el cliente al abrir: tipo (impo/expo), vía, forma de pago, país, mercadería y estado (nuevo/usado). Con eso solo ya armás el primer borrador del paso a paso (y orientás NCM, intervenciones y certificado de origen). Para abrir y cotizar alcanza con el pedido de compra o la proforma: la factura definitiva es el paso siguiente. Corré la IA sobre lo que haya: la analiza y la CRUZA con lo que cargó el cliente. Dos caminos: (1) coincide → confirmás y seguís; (2) hay diferencias (el cliente se confundió o la factura cambia vía / Incoterm / pago / mercadería) → corregís los datos y los pasos se reordenan solos. Revisá y aplicá tipo, vía, forma de pago e Incoterm antes de avanzar. De acá sale una COTIZACIÓN PRELIMINAR (tributos estimados + logística por defecto); el contenedor y los gastos finos llegan con el transporte en el paso siguiente.",
     estadoCliente: ESTADO_RECIBIDA,
     subtareas: [
-      { id: "datos_cliente", label: "Datos del cliente revisados (tipo, vía, pago, país, mercadería, estado)" },
-      { id: "doc_comercial", label: "Documento comercial recibido (pedido, proforma o factura)" },
+      // Decía «datos del cliente», pero los seis del paréntesis son de la
+      // OPERACIÓN. Por eso chocaba con `importador`, que sí es del cliente.
+      { id: "datos_cliente", label: "Datos de la operación revisados (tipo, vía, pago, país, mercadería, estado)" },
+      // Decía «pedido, proforma o factura». La factura definitiva es el primer
+      // ítem del paso 2: nombrarla también acá borra el límite entre los dos
+      // pasos, que es justamente lo que distingue cotizar de declarar.
+      { id: "doc_comercial", label: "Proforma o pedido de compra recibido" },
       { id: "ficha", label: "Ficha técnica / catálogo recibido (si aplica)" },
       { id: "incoterm", label: "Incoterm confirmado (define el reparto de tareas)" },
-      { id: "importador", label: "Datos del importador verificados" },
+      // «Verificados» ya no es una frase suelta: son los tres datos que el SIM
+      // exige en toda importación y que viven en la ficha del cliente.
+      { id: "importador", label: "Datos del importador verificados (CUIT, domicilio del establecimiento, alta en AFIP)" },
       { id: "cotizacion_prelim", label: "Cotización preliminar compartida con el cliente" },
     ],
   },

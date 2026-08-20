@@ -1237,23 +1237,46 @@ function PanelOperacion({
 
           {esApertura && (
             <>
+              {/* La salida del paso, a la vista.
+                  Este primer paso es para cotizar con una proforma. El que ya
+                  tiene la factura definitiva no tiene nada que hacer acá, y si
+                  no se lo dice algo visible se queda trabado buscando qué subir.
+                  Va como barra propia y no como renglón de ayuda adentro de la
+                  tarjeta: ahí solo lo veía quien todavía no había analizado
+                  nada, que es exactamente al revés de lo que hace falta. */}
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface px-4 py-3">
+                <p className="text-xs text-foreground">
+                  ¿Ya tenés la <strong className="font-semibold">factura comercial definitiva</strong>?
+                  Este paso es solo para cotizar.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setConfirmarMov("adelante")}
+                  disabled={avanzando}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-accent px-3 py-1.5 text-xs font-semibold text-accent transition-colors hover:bg-accent-soft disabled:opacity-60"
+                >
+                  Saltar al Paso 2
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
               {/* 1 · Lectura de documentos con IA */}
               <div className="rounded-xl border border-accent/30 bg-accent-soft/40 p-3">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-                    <Sparkles className="h-3.5 w-3.5 text-accent" />
-                    1 · Leer documentos con IA
+                  <p className="flex items-center gap-2 text-base font-semibold text-foreground">
+                    <Sparkles className="h-4.5 w-4.5 text-accent" />
+                    Leer documentos con IA
                   </p>
                   <button
                     type="button"
                     onClick={analizarApertura}
                     disabled={iaCargando}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1.5 text-[11px] font-semibold text-accent-foreground transition-all hover:opacity-90 disabled:opacity-60"
+                    className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground transition-all hover:opacity-90 disabled:opacity-60"
                   >
                     {iaCargando ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <Sparkles className="h-3.5 w-3.5" />
+                      <Sparkles className="h-4 w-4" />
                     )}
                     Analizar documentos
                   </button>
@@ -1277,13 +1300,15 @@ function PanelOperacion({
                       onAplicar={aplicarCampos}
                     />
                   ) : (
-                    <p className="rounded-lg border border-border bg-surface px-3 py-2 text-[11px] leading-relaxed text-muted">
-                      Subí la proforma o el pedido de compra (y la ficha técnica,
-                      si es la primera vez con el producto) para estimar la
-                      cotización. Tocá «Analizar documentos»: la IA extrae los
-                      datos y, si el forwarder ya subió su cotización, también
-                      carga el flete, el seguro y los gastos. (Si ya tenés la
-                      factura comercial definitiva, pasá directo al Paso 2.)
+                    // Antes acá había un párrafo de seis renglones explicando
+                    // qué subir, qué extrae la IA y cuándo saltear el paso. Era
+                    // demasiado para lo primero que se ve al abrir una carpeta.
+                    // La salida —«ya tengo la factura, salteo»— se fue a su
+                    // propia barra, abajo: acá solo la veía quien todavía no
+                    // había analizado nada, y es justo al revés.
+                    <p className="text-[11px] leading-relaxed text-muted">
+                      Para estimar la cotización con la proforma o el pedido de
+                      compra.
                     </p>
                   )}
                 </div>
