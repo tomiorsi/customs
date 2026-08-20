@@ -89,8 +89,7 @@ export function HeroPortal({ fecha }: { fecha: string | null }) {
 
           <p className="mt-6 max-w-lg text-base leading-relaxed text-muted sm:text-lg">
             Las noticias del sector y el Boletín Oficial del día, leídos y
-            ordenados. Y el nomenclador entero para buscar,{" "}
-            <span className="text-foreground">gratis y sin cuenta</span>.
+            ordenados. Y el nomenclador entero para buscar.
           </p>
 
           {/* Los dos en una línea también en celular: apilados se comían el
